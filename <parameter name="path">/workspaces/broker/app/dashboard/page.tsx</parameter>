@@ -1,0 +1,325 @@
+.<parameter name="content">"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import BitpandaNavbar from "@/components/BitpandaNavbar";
+import { useAuth } from "@/contexts/AuthContext";
+
+// Portfolio data
+const portfolioData = [
+  { symbol: "BTC", name: "Bitcoin", amount: "0.5 BTC", value: "€22,617.28", change: "+2.34%", logo: "/btc-logo.png", positive: true },
+  { symbol: "ETH", name: "Ethereum", amount: "5 ETH", value: "€14,382.15", change: "-1.23%", logo: "/eth-logo.png", positive: false },
+  { symbol: "SOL", name: "Solana", amount: "50 SOL", value: "€4,916.00", change: "+4.12%", logo: "/sol-logo.png", positive: true },
+  { symbol: "ADA", name: "Cardano", amount: "5000 ADA", value: "€2,260.50", change: "+1.87%", logo: "/ada-logo.png", positive: true },
+  { symbol: "XAU", name: "Gold", amount: "0.1 XAU", value: "€204.53", change: "+0.85%", logo: "/xau-logo.png", positive: true },
+];
+
+// Recent transactions
+const transactions = [
+  { id: 1, type: "buy", asset: "BTC", amount: "0.1 BTC", price: "€45,234.56", date: "2024-01-15", status: "completed" },
+  { id: 2, type: "sell", asset: "ETH", amount: "1 ETH", price: "€2,876.43", date: "2024-01-14", status: "completed" },
+  { id: 3, type: "deposit", asset: "EUR", amount: "€5,000.00", price: "1.0", date: "2024-01-13", status: "completed" },
+  { id: 4, type: "buy", asset: "SOL", amount: "10 SOL", price: "€98.32", date: "2024-01-12", status: "pending" },
+  { id: 5, type: "withdraw", asset: "EUR", amount: "€1,000.00", price: "1.0", date: "2024-01-11", status: "completed" },
+];
+
+// Quick actions
+const quickActions = [
+  { name: "Deposit", icon: "M12 4v16m8-8H4", href: "/dashboard/deposit", color: "bg-green-800 hover:bg-green-900" },
+  { name: "Withdraw", icon: "M20 12H4", href: "/dashboard/withdraw", color: "bg-gray-800 hover:bg-gray-900" },
+  { name: "Trade", icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6", href: "/dashboard/trade", color: "bg-green-700 hover:bg-green-800" },
+  { name: "Transfer", icon: "M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4", href: "/dashboard/transfer", color: "bg-gray-700 hover:bg-gray-800" },
+];
+
+export default function DashboardPage() {
+  const { user, loading } = useAuth();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient || loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-green-800 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+    );
+  }
+
+  const userEmail = user?.email || "User";
+  const totalBalance = portfolioData.reduce((acc, item) => {
+    const value = parseFloat(item.value.replace(/[€,]/g, ""));
+    return acc + value;
+  }, 0);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Navbar */}
+      <BitpandaNavbar />
+
+      {/* Dashboard Header */}
+      <section className="bg-gradient-to-br from-green-800 to-green-900 text-white py-8">
+        <div className="bp-container">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">
+                Welcome back, {userEmail.split("@")[0]}!
+              </h1>
+              <p className="text-white/80">
+                Here is an overview of your portfolio and account activity.
+              </p>
+            </div>
+            <div className="text-left md:text-right">
+              <p className="text-sm text-white/80 mb-1">Total Portfolio Value</p>
+              <p className="text-4xl font-bold">
+                €{totalBalance.toLocaleString("de-DE", { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-sm text-green-200 mt-1">
+                +€1,234.56 (+2.34%) today
+              </p>
+            </div>
+        </div>
+      </section>
+
+      {/* Quick Actions */}
+      <section className="py-6 -mt-4">
+        <div className="bp-container">
+          <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+            {quickActions.map((action, index) => (
+              <Link
+                key={index}
+                href={action.href}
+                className={`${action.color} text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-all hover:scale-105 shadow-lg`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={action.icon} />
+                </svg>
+                {action.name}
+              </Link>
+            ))}
+          </div>
+      </section>
+
+      {/* Main Content */}
+      <div className="bp-container py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Portfolio Section */}
+          <div className="lg:col-span-2">
+            <div className="bp-card">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-gray-900">Your Portfolio</h2>
+                  <Link href="/dashboard/portfolio" className="text-green-800 hover:text-green-900 font-medium text-sm">
+                    View All
+                  </Link>
+                </div>
+              <div className="divide-y divide-gray-100">
+                {portfolioData.map((asset, index) => (
+                  <div key={index} className="p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                          <Image
+                            src={asset.logo}
+                            alt={`${asset.name} logo`}
+                            width={32}
+                            height={32}
+                            className="rounded-full"
+                          />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-gray-900">{asset.symbol}</h3>
+                          <p className="text-sm text-gray-500">{asset.name}</p>
+                        </div>
+                      <div className="text-right">
+                        <p className="font-bold text-gray-900">{asset.value}</p>
+                        <div className="flex items-center gap-2 justify-end">
+                          <span className="text-sm text-gray-500">{asset.amount}</span>
+                          <span className={`text-sm font-medium ${asset.positive ? "text-green-600" : "text-red-500"}`}>
+                            {asset.change}
+                          </span>
+                        </div>
+                    </div>
+                ))}
+              </div>
+
+            {/* Asset Allocation */}
+            <div className="bp-card mt-8">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900">Asset Allocation</h2>
+              </div>
+              <div className="p-6">
+                <div className="flex items-end gap-2 h-48">
+                  {portfolioData.map((asset, index) => {
+                    const value = parseFloat(asset.value.replace(/[€,]/g, ""));
+                    const percentage = (value / totalBalance) * 100;
+                    return (
+                      <div key={index} className="flex-1 flex flex-col items-center gap-2">
+                        <div
+                          className="w-full bg-green-600 rounded-t transition-all hover:bg-green-700"
+                          style={{ height: `${percentage}%`, minHeight: "4px" }}
+                        ></div>
+                        <span className="text-xs text-gray-600 font-medium">{asset.symbol}</span>
+                        <span className="text-xs text-gray-500">{percentage.toFixed(1)}%</span>
+                      </div>
+                    );
+                  })}
+                </div>
+            </div>
+
+          {/* Sidebar */}
+          <div className="space-y-8">
+            {/* Account Status */}
+            <div className="bp-card">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900">Account Status</h2>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Verification</span>
+                  <span className="px-3 py-1 text-sm font-medium bg-yellow-100 text-yellow-800 rounded-full">
+                    Pending
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">2FA</span>
+                  <span className="px-3 py-1 text-sm font-medium bg-red-100 text-red-800 rounded-full">
+                    Disabled
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Account Type</span>
+                  <span className="px-3 py-1 text-sm font-medium bg-green-100 text-green-800 rounded-full">
+                    Standard
+                  </span>
+                </div>
+                <Link href="/dashboard/settings" className="block w-full bp-button bp-button-outline text-center mt-4">
+                  Complete Setup
+                </Link>
+              </div>
+
+            {/* Recent Transactions */}
+            <div className="bp-card">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-gray-900">Recent Activity</h2>
+                  <Link href="/dashboard/transactions" className="text-green-800 hover:text-green-900 font-medium text-sm">
+                    View All
+                  </Link>
+                </div>
+              <div className="divide-y divide-gray-100">
+                {transactions.map((tx) => (
+                  <div key={tx.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          tx.type === "buy" ? "bg-green-100" :
+                          tx.type === "sell" ? "bg-red-100" :
+                          tx.type === "deposit" ? "bg-blue-100" : "bg-orange-100"
+                        }`}>
+                          {tx.type === "buy" && (
+                            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                          )}
+                          {tx.type === "sell" && (
+                            <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                            </svg>
+                          )}
+                          {tx.type === "deposit" && (
+                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                          )}
+                          {tx.type === "withdraw" && (
+                            <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                            </svg>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900 capitalize">{tx.type}</p>
+                          <p className="text-sm text-gray-500">{tx.date}</p>
+                        </div>
+                      <div className="text-right">
+                        <p className="font-medium text-gray-900">
+                          {tx.type === "buy" || tx.type === "deposit" ? "+" : "-"}
+                          {tx.amount}
+                        </p>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                          tx.status === "completed" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                        }`}>
+                          {tx.status}
+                        </span>
+                      </div>
+                  </div>
+                ))}
+              </div>
+
+            {/* Market Trends */}
+            <div className="bp-card">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900">Market Highlights</h2>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Image src="/btc-logo.png" alt="Bitcoin" width={24} height={24} />
+                    <span className="font-medium">BTC/EUR</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold">€45,234.56</p>
+                    <p className="text-sm text-green-600">+2.34%</p>
+                  </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Image src="/eth-logo.png" alt="Ethereum" width={24} height={24} />
+                    <span className="font-medium">ETH/EUR</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold">€2,876.43</p>
+                    <p className="text-sm text-red-500">-1.23%</p>
+                  </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Image src="/sol-logo.png" alt="Solana" width={24} height={24} />
+                    <span className="font-medium">SOL/EUR</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold">€98.32</p>
+                    <p className="text-sm text-green-600">+4.12%</p>
+                  </div>
+                <Link href="/markets" className="block w-full bp-button bp-button-outline text-center">
+                  View Markets
+                </Link>
+              </div>
+          </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-8 mt-8">
+        <div className="bp-container">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Image
+                src="/bitpanda-logo.svg"
+                alt="Bitpanda Pro"
+                width={24}
+                height={24}
+              />
+              <span className="font-bold uppercase">BITPANDA PRO</span>
+            </div>
+            <div className="text-sm text-gray-400">
+              2024 BITPANDA PRO. All rights reserved.
+            </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+</parameter>

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+<<<<<<< HEAD
 @import "../styles/landing-animations.css";
 @import "../styles/utilities.css";
 @import "../styles/responsive.css";
@@ -268,6 +269,8 @@ html {
 .space-x-8 > :not(:first-child) {
   margin-left: 2rem;
 }
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 
 /* Bitpanda Pro Custom Styles */
 :root {
@@ -416,10 +419,14 @@ body {
   height: 100%;
   font-family: var(--font-family-default);
   -webkit-font-smoothing: antialiased;
+<<<<<<< HEAD
   /* Prevent automatic text size adjustment on mobile - modern browsers */
   @supports (text-size-adjust: 100%) {
     text-size-adjust: 100%;
   }
+=======
+  text-size-adjust: 100%;
+>>>>>>> 02bdcb7 (Initial commit)
   background-color: var(--color-screen-background-primary);
   color: var(--color-neutrals-text-primary);
 }
@@ -1217,6 +1224,7 @@ h2 {
     max-width: 1100px;
     padding: 28px 32px 28px;
     padding-bottom: 28px;
+<<<<<<< HEAD
   /* Page card - central surface used by pages */
   .page-card {
     background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
@@ -1256,6 +1264,8 @@ h2 {
   @media (max-width: 639px) {
     .page-card { padding: 16px; border-radius: 12px; }
   }
+=======
+>>>>>>> 02bdcb7 (Initial commit)
   }
 }
 
@@ -1308,6 +1318,7 @@ h2 {
 }
 
 /* ============================================
+<<<<<<< HEAD
    TRADE W INSPIRED DASHBOARD STYLES
    ============================================ */
 
@@ -3019,6 +3030,8 @@ h2 {
 }
 
 /* ============================================
+=======
+>>>>>>> 02bdcb7 (Initial commit)
    RESPONSIVE UTILITY CLASSES
    ============================================ */
 
@@ -3253,6 +3266,7 @@ h2 {
   box-shadow: 0 0 0 4px rgba(15,157,88,0.18);
 }
 
+<<<<<<< HEAD
 .header-right {
   display: flex;
   align-items: center;
@@ -3520,6 +3534,8 @@ h2 {
   border-color: #16764d;
 }
 
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 /* SYNC BUTTON / THEME TOGGLE */
 .sync-btn {
   display: inline-flex;
@@ -3560,7 +3576,10 @@ h2 {
   padding: 18px 18px 20px;
   box-shadow: var(--shadow-soft);
   border: 1px solid var(--border);
+<<<<<<< HEAD
   -webkit-backdrop-filter: blur(16px);
+=======
+>>>>>>> 02bdcb7 (Initial commit)
   backdrop-filter: blur(16px);
   position: relative;
   overflow: hidden;
@@ -3662,8 +3681,13 @@ h2 {
   inset: 0;
   background: linear-gradient(180deg, rgba(15,157,88,0.24), transparent 80%);
   opacity: 0.75;
+<<<<<<< HEAD
   -webkit-mask: linear-gradient(#000, transparent);
   mask: linear-gradient(#000, transparent);
+=======
+  mask: linear-gradient(#000, transparent);
+  -webkit-mask: linear-gradient(#000, transparent);
+>>>>>>> 02bdcb7 (Initial commit)
   pointer-events: none;
 }
 
@@ -3726,7 +3750,10 @@ h2 {
   border: 1px solid transparent;
   cursor: pointer;
   transition: all var(--transition-fast);
+<<<<<<< HEAD
   -webkit-user-select: none;
+=======
+>>>>>>> 02bdcb7 (Initial commit)
   user-select: none;
 }
 
@@ -3774,7 +3801,10 @@ h2 {
 .card {
   position: relative;
   background: var(--glass);
+<<<<<<< HEAD
   -webkit-backdrop-filter: blur(14px);
+=======
+>>>>>>> 02bdcb7 (Initial commit)
   backdrop-filter: blur(14px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -4034,6 +4064,7 @@ h2 {
   right: 0;
   display: flex;
   justify-content: space-around;
+<<<<<<< HEAD
   padding: 12px 16px 20px;
   background: var(--tw-bg-primary);
   border-top: 1px solid var(--tw-border-primary);
@@ -4044,11 +4075,31 @@ h2 {
 
 .nav-inner {
   max-width: 600px;
+=======
+  padding: 8px 10px 12px;
+  background: rgba(255,255,255,0.94);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  z-index: 10;
+  transition: background 0.3s ease;
+}
+
+.dark .nav {
+  background: rgba(20,40,32,0.94);
+}
+
+.nav-inner {
+  max-width: 480px;
+>>>>>>> 02bdcb7 (Initial commit)
   margin: 0 auto;
   width: 100%;
   display: flex;
   justify-content: space-between;
+<<<<<<< HEAD
   gap: 8px;
+=======
+  gap: 6px;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .nav-item {
@@ -4056,6 +4107,7 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
+<<<<<<< HEAD
   gap: 4px;
   font-size: 11px;
   font-weight: 500;
@@ -4072,10 +4124,27 @@ h2 {
   width: 22px;
   height: 22px;
   border-radius: var(--tw-radius-md);
+=======
+  gap: 3px;
+  font-size: 10px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 6px 0;
+  border-radius: 999px;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.nav-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+>>>>>>> 02bdcb7 (Initial commit)
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
+<<<<<<< HEAD
   transition: all 0.2s ease;
 }
 
@@ -4115,6 +4184,57 @@ h2 {
   stroke: white;
 }
 
+=======
+}
+
+.nav-icon svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--muted);
+  transition: fill var(--transition-fast);
+}
+
+.nav-item:hover {
+  background: rgba(11,30,22,0.04);
+  transform: translateY(-1px);
+}
+
+.dark .nav-item:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.nav-item.active {
+  color: var(--green);
+  font-weight: 600;
+  background: rgba(15,157,88,0.12);
+}
+
+.nav-item.active .nav-icon svg {
+  fill: #ffffff;
+}
+
+.nav-item.active .nav-icon {
+  background: var(--green);
+  box-shadow: 0 8px 16px rgba(15,157,88,0.45);
+}
+
+@media (max-width: 420px) {
+  .portfolio {
+    padding: 16px 14px 18px;
+    border-radius: 22px;
+  }
+
+  .value {
+    font-size: 34px;
+  }
+
+  .cards {
+    gap: 10px;
+  }
+}
+
+/* Nav button styles for menu */
+>>>>>>> 02bdcb7 (Initial commit)
 .nav-button {
   background: none;
   border: none;
@@ -4130,11 +4250,16 @@ h2 {
 }
 
 .nav-icon-menu svg {
+<<<<<<< HEAD
   stroke: var(--tw-text-secondary) !important;
+=======
+  stroke: var(--muted) !important;
+>>>>>>> 02bdcb7 (Initial commit)
   fill: none !important;
 }
 
 .nav-button.active .nav-icon-menu svg {
+<<<<<<< HEAD
   stroke: white !important;
 }
 
@@ -4203,6 +4328,14 @@ h2 {
   .nav-item {
     font-size: 9px;
   }
+=======
+  stroke: #ffffff !important;
+}
+
+.nav-button.active .nav-icon-menu {
+  background: var(--green) !important;
+  box-shadow: 0 8px 16px rgba(15, 157, 88, 0.45) !important;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 /* Loading State */
@@ -4238,7 +4371,10 @@ h2 {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
+<<<<<<< HEAD
   -webkit-backdrop-filter: blur(4px);
+=======
+>>>>>>> 02bdcb7 (Initial commit)
   backdrop-filter: blur(4px);
   z-index: 40;
   animation: fadeIn 0.2s ease-out;
@@ -5267,6 +5403,7 @@ h2 {
 }
 
 /* ============================================
+<<<<<<< HEAD
    SIDEBAR ENHANCEMENTS
    ============================================ */
 
@@ -6263,6 +6400,8 @@ h2 {
 }
 
 /* ============================================
+=======
+>>>>>>> 02bdcb7 (Initial commit)
    NEW DASHBOARD COMPONENTS STYLES
    ============================================ */
 
@@ -7006,6 +7145,7 @@ h2 {
   color: #0f9d58;
 }
 
+<<<<<<< HEAD
 /* Quick page card used for the reference flows */
 .page-card {
   margin: 18px 12px;
@@ -7034,6 +7174,8 @@ h2 {
   border: 1px solid var(--border);
 }
 
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 .action-icon.sell {
   background: rgba(214, 69, 69, 0.12);
   color: #d64545;
@@ -7096,8 +7238,11 @@ h2 {
   gap: 6px;
   padding: 14px 10px;
   background: var(--glass);
+<<<<<<< HEAD
   /* Fallback for Safari */
   -webkit-backdrop-filter: blur(14px);
+=======
+>>>>>>> 02bdcb7 (Initial commit)
   backdrop-filter: blur(14px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -7152,6 +7297,7 @@ h2 {
 }
 
 /* ============================================
+<<<<<<< HEAD
    MODERN TRADE PAGE STYLES
    ============================================ */
 
@@ -7172,10 +7318,20 @@ h2 {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--border), transparent);
   opacity: 0.5;
+=======
+   TRADE PAGE STYLES
+   ============================================ */
+
+.trading-pairs {
+  margin-top: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .pairs-scroll {
   display: flex;
+<<<<<<< HEAD
   gap: 10px;
   padding: 6px 0;
   /* Hide scrollbar for modern browsers - Firefox only, fallback for older browsers available */
@@ -7189,11 +7345,16 @@ h2 {
 .pairs-scroll::-webkit-scrollbar {
   /* Hide scrollbar for WebKit browsers */
   display: none;
+=======
+  gap: 8px;
+  padding: 4px 0;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .pair-chip {
   display: flex;
   align-items: center;
+<<<<<<< HEAD
   gap: 8px;
   padding: 10px 16px;
   background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
@@ -7257,10 +7418,46 @@ h2 {
   font-size: 13px;
   font-weight: 700;
   letter-spacing: -0.01em;
+=======
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.dark .pair-chip {
+  background: rgba(20, 40, 32, 0.9);
+}
+
+.pair-chip:hover {
+  border-color: rgba(15, 157, 88, 0.4);
+  transform: translateY(-1px);
+}
+
+.pair-chip.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.pair-chip.active .pair-change {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.pair-name {
+  font-size: 12px;
+  font-weight: 600;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .pair-change {
   font-size: 10px;
+<<<<<<< HEAD
   padding: 3px 8px;
   border-radius: 8px;
   font-weight: 600;
@@ -7271,10 +7468,20 @@ h2 {
 
 .pair-change.positive {
   background: rgba(15, 157, 88, 0.15);
+=======
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.pair-change.positive {
+  background: rgba(15, 157, 88, 0.12);
+>>>>>>> 02bdcb7 (Initial commit)
   color: #0f9d58;
 }
 
 .pair-change.negative {
+<<<<<<< HEAD
   background: rgba(214, 69, 69, 0.15);
   color: #d64545;
 }
@@ -7284,12 +7491,23 @@ h2 {
   margin-top: 16px;
   text-align: center;
   position: relative;
+=======
+  background: rgba(214, 69, 69, 0.12);
+  color: #d64545;
+}
+
+/* Price Display */
+.price-display {
+  margin-top: 10px;
+  text-align: center;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .current-price {
   display: flex;
   flex-direction: column;
   align-items: center;
+<<<<<<< HEAD
   gap: 8px;
   padding: 24px 20px;
   background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,252,250,0.9));
@@ -7328,12 +7546,24 @@ h2 {
   justify-content: space-between;
   width: 100%;
   max-width: 300px;
+=======
+  gap: 4px;
+  padding: 16px;
+  background: var(--card);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+}
+
+.dark .current-price {
+  background: rgba(20, 40, 32, 0.9);
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .price-label {
   font-size: 11px;
   color: var(--muted);
   text-transform: uppercase;
+<<<<<<< HEAD
   letter-spacing: 0.08em;
   font-weight: 600;
 }
@@ -7369,6 +7599,15 @@ h2 {
   letter-spacing: -0.02em;
   position: relative;
   z-index: 1;
+=======
+  letter-spacing: 0.05em;
+}
+
+.price-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text);
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .dark .price-value {
@@ -7376,6 +7615,7 @@ h2 {
 }
 
 .price-value small {
+<<<<<<< HEAD
   font-size: 18px;
   font-weight: 600;
   color: var(--muted);
@@ -7388,11 +7628,18 @@ h2 {
   gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
+=======
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-left: 4px;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .price-change {
   font-size: 13px;
   font-weight: 600;
+<<<<<<< HEAD
   padding: 6px 12px;
   border-radius: 12px;
   /* Fallback for Safari */
@@ -7402,10 +7649,19 @@ h2 {
 
 .price-change.positive {
   background: rgba(15, 157, 88, 0.15);
+=======
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.price-change.positive {
+  background: rgba(15, 157, 88, 0.12);
+>>>>>>> 02bdcb7 (Initial commit)
   color: #0f9d58;
 }
 
 .price-change.negative {
+<<<<<<< HEAD
   background: rgba(214, 69, 69, 0.15);
   color: #d64545;
 }
@@ -7479,18 +7735,42 @@ h2 {
 .dark .order-form {
   background: linear-gradient(135deg, rgba(30,55,45,0.95), rgba(20,40,32,0.9));
   box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+=======
+  background: rgba(214, 69, 69, 0.12);
+  color: #d64545;
+}
+
+/* Order Form */
+.order-form {
+  margin-top: 10px;
+  background: var(--card);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  padding: 14px;
+  overflow: hidden;
+}
+
+.dark .order-form {
+  background: rgba(20, 40, 32, 0.9);
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-tabs {
   display: flex;
+<<<<<<< HEAD
   gap: 10px;
   margin-bottom: 16px;
   position: relative;
   z-index: 1;
+=======
+  gap: 8px;
+  margin-bottom: 12px;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-tab {
   flex: 1;
+<<<<<<< HEAD
   padding: 12px 16px;
   border-radius: 12px;
   font-size: 14px;
@@ -7539,20 +7819,57 @@ h2 {
 .order-tab.sell.active {
   background: linear-gradient(135deg, #d64545, #e04f4f);
   box-shadow: 0 4px 15px rgba(214,69,69,0.4);
+=======
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: transparent;
+  border: none;
+  color: var(--muted);
+}
+
+.order-tab:hover {
+  background: rgba(15, 157, 88, 0.08);
+}
+
+.order-tab.active {
+  background: rgba(15, 157, 88, 0.12);
+  color: #0f9d58;
+}
+
+.order-tab.buy.active {
+  background: rgba(15, 157, 88, 0.12);
+  color: #0f9d58;
+}
+
+.order-tab.sell.active {
+  background: rgba(214, 69, 69, 0.12);
+  color: #d64545;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-type-tabs {
   display: flex;
   gap: 8px;
+<<<<<<< HEAD
   margin-bottom: 16px;
   border-bottom: 2px solid var(--border);
   padding-bottom: 10px;
   position: relative;
   z-index: 1;
+=======
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-type-tab {
   flex: 1;
+<<<<<<< HEAD
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 12px;
@@ -7568,27 +7885,50 @@ h2 {
 .order-type-tab:hover {
   background: rgba(15, 157, 88, 0.08);
   color: var(--green);
+=======
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background: transparent;
+  border: none;
+  color: var(--muted);
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-type-tab.active {
   background: var(--green);
   color: #fff;
+<<<<<<< HEAD
   font-weight: 700;
   box-shadow: 0 2px 8px rgba(15,157,88,0.3);
+=======
+  font-weight: 600;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-inputs {
   display: flex;
   flex-direction: column;
+<<<<<<< HEAD
   gap: 16px;
   position: relative;
   z-index: 1;
+=======
+  gap: 12px;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-input-group {
   display: flex;
   flex-direction: column;
+<<<<<<< HEAD
   gap: 8px;
+=======
+  gap: 6px;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-input-group label {
@@ -7596,15 +7936,20 @@ h2 {
   font-weight: 600;
   color: var(--muted);
   text-transform: uppercase;
+<<<<<<< HEAD
   letter-spacing: 0.08em;
   display: flex;
   align-items: center;
   gap: 6px;
+=======
+  letter-spacing: 0.05em;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .input-with-actions {
   display: flex;
   align-items: center;
+<<<<<<< HEAD
   gap: 8px;
   position: relative;
 }
@@ -7614,10 +7959,21 @@ h2 {
   border-radius: 10px;
   background: linear-gradient(135deg, var(--bg-soft), rgba(15,157,88,0.08));
   border: 1px solid var(--border);
+=======
+  gap: 6px;
+}
+
+.input-action {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--bg-soft);
+  border: none;
+>>>>>>> 02bdcb7 (Initial commit)
   font-size: 11px;
   font-weight: 600;
   color: var(--green);
   cursor: pointer;
+<<<<<<< HEAD
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -7647,10 +8003,22 @@ h2 {
   background: linear-gradient(135deg, rgba(15,157,88,0.15), rgba(15,157,88,0.08));
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(15,157,88,0.2);
+=======
+  transition: all var(--transition-fast);
+}
+
+.dark .input-action {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.input-action:hover {
+  background: rgba(15, 157, 88, 0.12);
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-input {
   flex: 1;
+<<<<<<< HEAD
   padding: 12px 16px;
   border: 2px solid var(--border);
   border-radius: 12px;
@@ -7661,11 +8029,26 @@ h2 {
   color: var(--text);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+=======
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+  color: var(--text);
+}
+
+.dark .order-input {
+  background: rgba(20, 40, 32, 0.9);
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-input:focus {
   outline: none;
   border-color: var(--green);
+<<<<<<< HEAD
   background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
   box-shadow: 0 0 0 4px rgba(15,157,88,0.1), 0 4px 12px rgba(15,157,88,0.15);
 }
@@ -7680,11 +8063,14 @@ h2 {
   background: linear-gradient(135deg, rgba(30,55,45,0.95), rgba(20,40,32,0.9));
   border-color: var(--green);
   box-shadow: 0 0 0 4px rgba(15,157,88,0.2), 0 4px 12px rgba(15,157,88,0.3);
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-total {
   display: flex;
   justify-content: space-between;
+<<<<<<< HEAD
   align-items: center;
   padding: 12px 16px;
   background: linear-gradient(135deg, var(--bg-soft), rgba(15,157,88,0.05));
@@ -7699,12 +8085,26 @@ h2 {
 .dark .order-total {
   background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(15,157,88,0.08));
   border-color: rgba(255,255,255,0.1);
+=======
+  padding: 10px;
+  background: var(--bg-soft);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dark .order-total {
+  background: rgba(255, 255, 255, 0.04);
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .total-value {
   font-weight: 700;
   color: var(--text);
+<<<<<<< HEAD
   font-size: 14px;
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .dark .total-value {
@@ -7712,6 +8112,7 @@ h2 {
 }
 
 .order-button {
+<<<<<<< HEAD
   padding: 16px 20px;
   border-radius: 14px;
   font-size: 16px;
@@ -7791,22 +8192,79 @@ h2 {
   margin-top: 0;
   font-weight: 700;
   letter-spacing: 0.05em;
+=======
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+}
+
+.order-button.buy {
+  background: #0f9d58;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(15, 157, 88, 0.4);
+}
+
+.order-button.buy:hover {
+  background: #11aa63;
+  transform: translateY(-1px);
+}
+
+.order-button.sell {
+  background: #d64545;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(214, 69, 69, 0.4);
+}
+
+.order-button.sell:hover {
+  background: #e04f4f;
+  transform: translateY(-1px);
+}
+
+/* Order Book */
+.order-book {
+  margin-top: 10px;
+  background: var(--card);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.dark .order-book {
+  background: rgba(20, 40, 32, 0.9);
+}
+
+.order-book .section-title {
+  padding: 12px 14px 8px;
+  margin-top: 0;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-book-container {
   display: flex;
   flex-direction: column;
+<<<<<<< HEAD
   position: relative;
 }
 
 .order-book-section {
   padding: 0 20px;
   position: relative;
+=======
+}
+
+.order-book-section {
+  padding: 0 14px;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-book-header {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+<<<<<<< HEAD
   gap: 12px;
   padding: 8px 0;
   font-size: 10px;
@@ -7815,17 +8273,30 @@ h2 {
   letter-spacing: 0.08em;
   border-bottom: 2px solid var(--border);
   font-weight: 600;
+=======
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-book-list {
   display: flex;
   flex-direction: column;
+<<<<<<< HEAD
   position: relative;
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-book-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+<<<<<<< HEAD
   gap: 12px;
   padding: 8px 0;
   font-size: 12px;
@@ -7854,20 +8325,30 @@ h2 {
 .order-book-row:hover {
   transform: translateX(4px);
   font-weight: 600;
+=======
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 12px;
+  font-weight: 500;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .order-book-section.asks .order-book-row {
   border-bottom: 1px solid rgba(214, 69, 69, 0.1);
 }
 
+<<<<<<< HEAD
 .order-book-section.asks .order-book-row:hover {
   background: linear-gradient(90deg, rgba(214,69,69,0.05), transparent);
 }
 
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 .order-book-section.bids .order-book-row {
   border-bottom: 1px solid rgba(15, 157, 88, 0.1);
 }
 
+<<<<<<< HEAD
 .order-book-section.bids .order-book-row:hover {
   background: linear-gradient(90deg, rgba(15,157,88,0.05), transparent);
 }
@@ -7875,11 +8356,18 @@ h2 {
 .row-price.negative {
   color: #d64545;
   font-weight: 600;
+=======
+.row-price.negative {
+  color: #d64545;
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .row-price.positive {
   color: #0f9d58;
+<<<<<<< HEAD
   font-weight: 600;
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .row-amount, .row-total {
@@ -7887,6 +8375,7 @@ h2 {
   font-weight: 400;
 }
 
+<<<<<<< HEAD
 .order-book-row:hover .row-amount,
 .order-book-row:hover .row-total {
   color: var(--text);
@@ -7898,10 +8387,13 @@ h2 {
   color: #f4f7f5;
 }
 
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 .order-book-spread {
   display: flex;
   flex-direction: column;
   align-items: center;
+<<<<<<< HEAD
   padding: 12px;
   background: linear-gradient(135deg, var(--bg-soft), rgba(15,157,88,0.05));
   border-top: 2px dashed var(--border);
@@ -7931,6 +8423,22 @@ h2 {
   font-weight: 800;
   color: var(--text);
   letter-spacing: -0.01em;
+=======
+  padding: 10px;
+  background: var(--bg-soft);
+  border-top: 1px dashed var(--border);
+  border-bottom: 1px dashed var(--border);
+}
+
+.dark .order-book-spread {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.spread-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+>>>>>>> 02bdcb7 (Initial commit)
 }
 
 .dark .spread-price {
@@ -7940,6 +8448,7 @@ h2 {
 .spread-label {
   font-size: 10px;
   color: var(--muted);
+<<<<<<< HEAD
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 600;
@@ -9170,6 +9679,18 @@ h2 {
   }
 }
 
+=======
+}
+
+/* ============================================
+   MARKETS PAGE STYLES
+   ============================================ */
+
+.market-stats {
+  margin-top: 8px;
+}
+
+>>>>>>> 02bdcb7 (Initial commit)
 .stats-row {
   display: flex;
   gap: 10px;
@@ -9540,6 +10061,7 @@ h2 {
   color: #f4f7f5;
 }
 
+<<<<<<< HEAD
 /* ============================================
    LANGUAGE SETTINGS STYLES
    ============================================ */
@@ -11390,3 +11912,5 @@ h2 {
   align-items: flex-end;
 }
 
+=======
+>>>>>>> 02bdcb7 (Initial commit)

@@ -5,9 +5,12 @@ import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
+<<<<<<< HEAD
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Download, Calendar, TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight } from "lucide-react";
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 
 interface StatementItem {
   id: string;
@@ -37,13 +40,17 @@ export default function StatementPage() {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [selectedMonth, setSelectedMonth] = React.useState("January 2024");
   const [statementDataState, setStatementDataState] = React.useState<StatementItem[]>([]);
+<<<<<<< HEAD
   const [exportFormat, setExportFormat] = React.useState("pdf");
+=======
+>>>>>>> 02bdcb7 (Initial commit)
   const supabase = createClient();
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
 
+<<<<<<< HEAD
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
     animate: { opacity: 1, y: 0 },
@@ -58,6 +65,8 @@ export default function StatementPage() {
     }
   };
 
+=======
+>>>>>>> 02bdcb7 (Initial commit)
   React.useEffect(() => {
     if (authLoading || !authUser) {
       setStatementDataState(statementData);
@@ -76,6 +85,7 @@ export default function StatementPage() {
           console.warn('Transactions table is not available or query failed. Falling back to mock data.', error);
           setStatementDataState(statementData);
         } else if (data && data.length > 0) {
+<<<<<<< HEAD
           interface SupabaseTransaction {
             id: number;
             date?: string;
@@ -89,6 +99,11 @@ export default function StatementPage() {
           const mapped: StatementItem[] = data.map((row: SupabaseTransaction) => ({
             id: String(row.id),
             date: row.date || (row.created_at ? new Date(row.created_at).toLocaleDateString() : ''),
+=======
+          const mapped: StatementItem[] = data.map((row: any) => ({
+            id: String(row.id),
+            date: row.date || new Date(row.created_at).toLocaleDateString(),
+>>>>>>> 02bdcb7 (Initial commit)
             description: row.description || row.type || 'Transaction',
             amount: row.amount || '',
             balance: row.balance || '',
@@ -107,16 +122,22 @@ export default function StatementPage() {
 
   if (!isClient || authLoading) {
     return (
+<<<<<<< HEAD
       <div className="dashboard-container">
         <div className="dashboard-app">
           <div className="loading-spinner-container">
             <div className="loading-spinner"></div>
           </div>
         </div>
+=======
+      <div className="dashboard-loading">
+        <div className="loading-spinner"></div>
+>>>>>>> 02bdcb7 (Initial commit)
       </div>
     );
   }
 
+<<<<<<< HEAD
   const totalCredits = statementDataState
     .filter(item => item.amount.startsWith("+"))
     .reduce((sum, item) => sum + parseFloat(item.amount.replace(/[€,+]/g, "")), 0);
@@ -442,6 +463,118 @@ export default function StatementPage() {
           </motion.div>
         </div>
       </motion.section>
+=======
+  const totalCredits = statementData
+    .filter(item => item.amount.startsWith("+"))
+    .reduce((sum, item) => sum + parseFloat(item.amount.replace(/[€,+]/g, "")), 0);
+
+  const totalDebits = statementData
+    .filter(item => item.amount.startsWith("-"))
+    .reduce((sum, item) => sum + parseFloat(item.amount.replace(/[€-]/g, "")), 0);
+
+  return (
+    <div className="dashboard-container">
+      <div className="dashboard-app">
+        {/* HEADER */}
+        <header className="header">
+          <div className="header-left">
+            <Link href="/dashboard" className="header-back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </Link>
+            <span className="header-eyebrow">ACCOUNT</span>
+            <div className="header-title">Statement</div>
+          </div>
+          <button className="sync-btn" onClick={() => setIsSidebarOpen(true)}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+        </header>
+
+        {/* MONTH SELECTOR */}
+        <div className="statement-selector">
+          <button className="month-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <span className="selected-month">{selectedMonth}</span>
+          <button className="month-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
+
+        {/* SUMMARY CARD */}
+        <section className="statement-summary">
+          <div className="summary-card">
+            <div className="summary-row">
+              <div className="summary-item">
+                <span className="summary-label">Opening Balance</span>
+                <span className="summary-value">€5,000.00</span>
+              </div>
+              <div className="summary-item">
+                <span className="summary-label">Closing Balance</span>
+                <span className="summary-value">€3,176.20</span>
+              </div>
+            </div>
+            <div className="summary-divider"></div>
+            <div className="summary-row">
+              <div className="summary-item">
+                <span className="summary-label">Total Credits</span>
+                <span className="summary-value credit">+€{totalCredits.toFixed(2)}</span>
+              </div>
+              <div className="summary-item">
+                <span className="summary-label">Total Debits</span>
+                <span className="summary-value debit">-€{totalDebits.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* STATEMENT TABLE */}
+        <section className="statement-section">
+          <h3 className="section-title">Transaction Details</h3>
+          <div className="statement-table">
+            <div className="statement-header">
+              <span>Date</span>
+              <span>Description</span>
+              <span>Amount</span>
+              <span>Balance</span>
+            </div>
+            <div className="statement-body">
+              {statementDataState.map((item) => (
+                <div key={item.id} className="statement-row">
+                  <span className="row-date">{item.date}</span>
+                  <span className="row-description">{item.description}</span>
+                  <span className={`row-amount ${item.type}`}>
+                    {item.amount || "—"}
+                  </span>
+                  <span className="row-balance">{item.balance}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* EXPORT */}
+        <div className="export-section">
+          <button className="export-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Download Statement (PDF)
+          </button>
+        </div>
+      </div>
+>>>>>>> 02bdcb7 (Initial commit)
 
       <BottomNav 
         onMenuClick={() => setIsSidebarOpen(true)} 

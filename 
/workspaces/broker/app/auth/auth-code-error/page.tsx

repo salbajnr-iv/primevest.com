@@ -1,0 +1,46 @@
+
+'use client'
+
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
+export default function AuthCodeErrorPage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-800 to-green-900 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <CardTitle className="text-2xl font-bold">Verification Failed</CardTitle>
+          <CardDescription>
+            There was an issue processing your authentication
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-gray-600 text-center">
+            The authentication code may have expired or already been used. 
+            Please try signing in or request a new verification link.
+          </p>
+          
+          <div className="space-y-2">
+            <Link href="/auth/signin" className="block">
+              <Button className="w-full bg-green-600 hover:bg-green-700">
+                Go to Sign In
+              </Button>
+            </Link>
+            <Link href="/auth/signup" className="block">
+              <Button variant="outline" className="w-full">
+                Create New Account
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+

@@ -1,6 +1,7 @@
 -- =============================================================================
 -- STEP 1: Create profiles table (links to auth.users)
 -- =============================================================================
+<<<<<<< HEAD
 -- Create enum for KYC status
 DO $$
 BEGIN
@@ -9,6 +10,8 @@ BEGIN
   END IF;
 END$$;
 
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   username TEXT UNIQUE,
@@ -20,10 +23,13 @@ CREATE TABLE IF NOT EXISTS profiles (
   balance DECIMAL(20, 8) DEFAULT 0,
   is_active BOOLEAN DEFAULT true,
   is_admin BOOLEAN DEFAULT false,
+<<<<<<< HEAD
   kyc_status kyc_status DEFAULT 'none',
   kyc_requested_at TIMESTAMP WITH TIME ZONE,
   kyc_reviewed_at TIMESTAMP WITH TIME ZONE,
   kyc_rejection_reason TEXT,
+=======
+>>>>>>> 02bdcb7 (Initial commit)
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -174,6 +180,7 @@ CREATE POLICY "Admins can insert admin_actions" ON admin_actions
 -- =============================================================================
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+<<<<<<< HEAD
 DECLARE
   v_is_admin BOOLEAN;
   v_email TEXT;
@@ -189,10 +196,15 @@ BEGIN
   
   -- Insert into profiles with is_admin flag based on email pattern
   INSERT INTO public.profiles (id, full_name, avatar_url, email, is_admin)
+=======
+BEGIN
+  INSERT INTO public.profiles (id, full_name, avatar_url, email)
+>>>>>>> 02bdcb7 (Initial commit)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
     NEW.raw_user_meta_data->>'avatar_url',
+<<<<<<< HEAD
     v_email,
     v_is_admin
   );
@@ -213,6 +225,13 @@ BEGIN
   
   RETURN NEW;
 END;
+=======
+    NEW.email
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+>>>>>>> 02bdcb7 (Initial commit)
 
 -- =============================================================================
 -- STEP 5: Create trigger to call function on new user signup
@@ -355,6 +374,7 @@ WHERE tablename IN ('profiles', 'admin_users', 'balance_history', 'admin_actions
 -- 4. You should see the new user's profile automatically created!
 -- 5. To make the user an admin, run: SELECT public.set_admin_role('user-uuid');
 
+<<<<<<< HEAD
 -- =============================================================================
 -- STEP 7: Create orders table for trading orders
 -- =============================================================================
@@ -479,3 +499,5 @@ CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_orders_asset ON orders(asset);
  
 
+=======
+>>>>>>> 02bdcb7 (Initial commit)

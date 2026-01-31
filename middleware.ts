@@ -1,6 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+<<<<<<< HEAD
 import type { User } from '@supabase/supabase-js'
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
@@ -9,6 +12,7 @@ export async function updateSession(request: NextRequest) {
     },
   })
 
+<<<<<<< HEAD
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -20,6 +24,11 @@ export async function updateSession(request: NextRequest) {
   const supabase = createServerClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY,
+=======
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+>>>>>>> 02bdcb7 (Initial commit)
     {
       cookies: {
         getAll() {
@@ -42,6 +51,7 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
+<<<<<<< HEAD
   let user: User | null = null
   try {
     const { data } = await supabase.auth.getUser()
@@ -50,6 +60,11 @@ export async function updateSession(request: NextRequest) {
     // If Supabase fails (network/env), bypass gating to avoid 404s
     return response
   }
+=======
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+>>>>>>> 02bdcb7 (Initial commit)
 
   // Admin-only routes
   const adminRoutes = ['/admin/dashboard', '/admin/users', '/admin/transactions', '/admin/balances', '/admin/audit', '/admin/settings']
@@ -58,7 +73,11 @@ export async function updateSession(request: NextRequest) {
   )
 
   // Admin auth routes
+<<<<<<< HEAD
   const adminAuthRoutes = ['/admin/auth/signin', '/admin/signin']
+=======
+  const adminAuthRoutes = ['/admin/auth/signin']
+>>>>>>> 02bdcb7 (Initial commit)
   const isAdminAuthRoute = adminAuthRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   )
@@ -133,9 +152,16 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
+<<<<<<< HEAD
      * - api routes
      */
     '/((?!_next/static|_next/image|favicon.ico|public|api).*)',
+=======
+     * - api routes (optional)
+     * - /admin routes (handled separately)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|public|api|admin).*)',
+>>>>>>> 02bdcb7 (Initial commit)
   ],
 }
 

@@ -1,5 +1,6 @@
 'use client'
 
+<<<<<<< HEAD
 import { useState, useEffect, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
@@ -25,6 +26,17 @@ export default function AdminSettingsPage() {
   const [toast, setToast] = useState<ToastMessage | null>(null)
 
   const [settings, setSettings] = useState<AdminSettings>({
+=======
+import { useState } from 'react'
+import { useAdminAuth } from '@/contexts/AdminAuthContext'
+
+export default function AdminSettingsPage() {
+  const { user } = useAdminAuth()
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  const [settings, setSettings] = useState({
+>>>>>>> 02bdcb7 (Initial commit)
     requireEmailConfirmation: true,
     allowUserRegistration: true,
     maxWithdrawalLimit: 10000,
@@ -33,6 +45,7 @@ export default function AdminSettingsPage() {
     sessionTimeout: 60,
   })
 
+<<<<<<< HEAD
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -140,6 +153,15 @@ export default function AdminSettingsPage() {
         <div className="w-12 h-12 border-4 border-green-800 border-t-transparent rounded-full animate-spin"></div>
       </div>
     )
+=======
+  const handleSave = async () => {
+    setSaving(true)
+    // Simulate save
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    setSaving(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 3000)
+>>>>>>> 02bdcb7 (Initial commit)
   }
 
   return (
@@ -153,6 +175,7 @@ export default function AdminSettingsPage() {
         <button
           onClick={handleSave}
           disabled={saving}
+<<<<<<< HEAD
           className="px-4 py-2 bg-green-800 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
         >
           {saving && (
@@ -161,16 +184,25 @@ export default function AdminSettingsPage() {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           )}
+=======
+          className="px-4 py-2 bg-green-800 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50"
+        >
+>>>>>>> 02bdcb7 (Initial commit)
           {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
 
       {/* Success Message */}
+<<<<<<< HEAD
       {toast && toast.type === 'success' && (
+=======
+      {saved && (
+>>>>>>> 02bdcb7 (Initial commit)
         <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-3">
           <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
+<<<<<<< HEAD
           <span className="text-green-500">{toast.message}</span>
           <button onClick={() => setToast(null)} className="ml-auto text-green-500 hover:opacity-70">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,6 +224,9 @@ export default function AdminSettingsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
+=======
+          <span className="text-green-500">Settings saved successfully</span>
+>>>>>>> 02bdcb7 (Initial commit)
         </div>
       )}
 
@@ -336,27 +371,38 @@ export default function AdminSettingsPage() {
               <p className="text-white font-medium">Reset All User Balances</p>
               <p className="text-gray-400 text-sm">Set all user balances to zero</p>
             </div>
+<<<<<<< HEAD
             <button
               onClick={handleResetBalances}
               className="px-4 py-2 bg-red-900 hover:bg-red-800 text-red-200 rounded-lg transition-colors"
             >
+=======
+            <button className="px-4 py-2 bg-red-900 hover:bg-red-800 text-red-200 rounded-lg transition-colors">
+>>>>>>> 02bdcb7 (Initial commit)
               Reset All
             </button>
           </div>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white font-medium">Deactivate All Users</p>
+<<<<<<< HEAD
               <p className="text-gray-400 text-sm">Temporarily disable all non-admin user accounts</p>
             </div>
             <button
               onClick={handleDeactivateUsers}
               className="px-4 py-2 bg-red-900 hover:bg-red-800 text-red-200 rounded-lg transition-colors"
             >
+=======
+              <p className="text-gray-400 text-sm">Temporarily disable all user accounts</p>
+            </div>
+            <button className="px-4 py-2 bg-red-900 hover:bg-red-800 text-red-200 rounded-lg transition-colors">
+>>>>>>> 02bdcb7 (Initial commit)
               Deactivate All
             </button>
           </div>
         </div>
       </div>
+<<<<<<< HEAD
 
       {/* Toast Notification */}
       {toast && (
@@ -385,6 +431,8 @@ export default function AdminSettingsPage() {
           </button>
         </div>
       )}
+=======
+>>>>>>> 02bdcb7 (Initial commit)
     </div>
   )
 }

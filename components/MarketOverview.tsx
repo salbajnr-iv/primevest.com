@@ -33,6 +33,7 @@ export default function MarketOverview({
   fearGreedIndex,
   fearGreedLabel,
 }: MarketOverviewProps) {
+<<<<<<< HEAD
   // Calculate gradient position based on index
   const getFearGreedColor = (index: number) => {
     if (index < 25) return "#d64545"; // Extreme Fear - Red
@@ -44,6 +45,8 @@ export default function MarketOverview({
 
   const fearGreedColor = getFearGreedColor(fearGreedIndex);
 
+=======
+>>>>>>> 02bdcb7 (Initial commit)
   return (
     <section className="market-overview">
       <div className="market-header">
@@ -98,6 +101,7 @@ export default function MarketOverview({
           </div>
         </div>
 
+<<<<<<< HEAD
         <div className="market-stat-card fear-greed" style={{ gridColumn: 'span 2' }}>
           <div className="stat-content" style={{ width: '100%' }}>
             <div className="stat-label">Fear & Greed Index</div>
@@ -132,6 +136,19 @@ export default function MarketOverview({
               <span>Neutral</span>
               <span>Greed</span>
             </div>
+=======
+        <div className="market-stat-card fear-greed">
+          <div className="stat-content">
+            <div className="stat-label">Fear & Greed Index</div>
+            <div className="fear-greed-value">{fearGreedIndex}</div>
+            <div className="fear-greed-label">{fearGreedLabel}</div>
+          </div>
+          <div className="fear-greed-bar">
+            <div 
+              className="fear-greed-fill" 
+              style={{ width: `${fearGreedIndex}%` }}
+            ></div>
+>>>>>>> 02bdcb7 (Initial commit)
           </div>
         </div>
       </div>
@@ -170,3 +187,7 @@ export default function MarketOverview({
     </section>
   );
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 02bdcb7 (Initial commit)

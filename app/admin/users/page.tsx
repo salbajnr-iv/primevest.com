@@ -1,9 +1,15 @@
 'use client'
 
+<<<<<<< HEAD
 import { useEffect, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import KycReviewModal from '@/app/admin/components/KycReviewModal'
+=======
+import { useEffect, useState } from 'react'
+import { createBrowserClient } from '@supabase/ssr'
+import { useAdminAuth } from '@/contexts/AdminAuthContext'
+>>>>>>> 02bdcb7 (Initial commit)
 
 interface UserProfile {
   id: string
@@ -21,6 +27,7 @@ interface PaginationState {
   total: number
 }
 
+<<<<<<< HEAD
 interface ToastMessage {
   type: 'success' | 'error'
   message: string
@@ -28,6 +35,10 @@ interface ToastMessage {
 
 export default function AdminUsersPage() {
   const { loading: authLoading, session } = useAdminAuth()
+=======
+export default function AdminUsersPage() {
+  const { loading: authLoading } = useAdminAuth()
+>>>>>>> 02bdcb7 (Initial commit)
   const [users, setUsers] = useState<UserProfile[]>([])
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
@@ -36,7 +47,10 @@ export default function AdminUsersPage() {
   })
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+<<<<<<< HEAD
   const [debouncedSearch, setDebouncedSearch] = useState('')
+=======
+>>>>>>> 02bdcb7 (Initial commit)
   const [showBalanceModal, setShowBalanceModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null)
   const [balanceAction, setBalanceAction] = useState<'add' | 'subtract'>('add')
@@ -44,6 +58,7 @@ export default function AdminUsersPage() {
   const [balanceReason, setBalanceReason] = useState('')
   const [actionLoading, setActionLoading] = useState(false)
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
+<<<<<<< HEAD
   const [toast, setToast] = useState<ToastMessage | null>(null)
 
   // Simulation modal
@@ -60,12 +75,15 @@ export default function AdminUsersPage() {
   // KYC modal
   const [showKycModal, setShowKycModal] = useState(false)
   const [kycRequestId, setKycRequestId] = useState<string | null>(null)
+=======
+>>>>>>> 02bdcb7 (Initial commit)
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
+<<<<<<< HEAD
   // Debounce search term to avoid too many queries
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -80,6 +98,15 @@ export default function AdminUsersPage() {
     setLoading(true)
     try {
       // Try using the search_users function first, fall back to direct query
+=======
+  useEffect(() => {
+    fetchUsers()
+  }, [pagination.page, statusFilter])
+
+  const fetchUsers = async () => {
+    setLoading(true)
+    try {
+>>>>>>> 02bdcb7 (Initial commit)
       const from = (pagination.page - 1) * pagination.limit
       const to = from + pagination.limit - 1
 
@@ -89,13 +116,17 @@ export default function AdminUsersPage() {
         .range(from, to)
         .order('created_at', { ascending: false })
 
+<<<<<<< HEAD
       // Apply status filter
+=======
+>>>>>>> 02bdcb7 (Initial commit)
       if (statusFilter === 'active') {
         query = query.eq('is_active', true)
       } else if (statusFilter === 'inactive') {
         query = query.eq('is_active', false)
       }
 
+<<<<<<< HEAD
       // Apply search filter on client side for better performance
           const { data, error, count } = await query
 
@@ -139,6 +170,22 @@ export default function AdminUsersPage() {
   const showToast = (type: 'success' | 'error', message: string) => {
     setToast({ type, message })
     setTimeout(() => setToast(null), 5000)
+=======
+      const { data, error, count } = await query
+
+      if (error) {
+        console.error('Error fetching users:', error)
+        return
+      }
+
+      setUsers(data as unknown as UserProfile[])
+      setPagination(prev => ({ ...prev, total: count || 0 }))
+    } catch (error) {
+      console.error('Error fetching users:', error)
+    } finally {
+      setLoading(false)
+    }
+>>>>>>> 02bdcb7 (Initial commit)
   }
 
   const handleAdjustBalance = async () => {
@@ -149,12 +196,19 @@ export default function AdminUsersPage() {
       const amount = parseFloat(balanceAmount)
       
       if (isNaN(amount) || amount <= 0) {
+<<<<<<< HEAD
         showToast('error', 'Please enter a valid positive amount')
+=======
+        alert('Please enter a valid positive amount')
+>>>>>>> 02bdcb7 (Initial commit)
         return
       }
 
       // Call the database function to adjust balance
+<<<<<<< HEAD
       // Using positional parameters as defined in the SQL function
+=======
+>>>>>>> 02bdcb7 (Initial commit)
       const { error } = await supabase.rpc('adjust_balance', {
         p_user_id: selectedUser.id,
         p_action_type: balanceAction,
@@ -164,18 +218,30 @@ export default function AdminUsersPage() {
 
       if (error) {
         console.error('Error adjusting balance:', error)
+<<<<<<< HEAD
         showToast('error', `Failed to adjust balance: ${error.message}`)
         return
       }
 
       showToast('success', `Successfully ${balanceAction === 'add' ? 'added' : 'subtracted'} €${amount.toLocaleString()} ${balanceAction === 'add' ? 'to' : 'from'} user ${selectedUser.email}`)
+=======
+        alert('Failed to adjust balance: ' + error.message)
+        return
+      }
+
+      alert(`Successfully ${balanceAction === 'add' ? 'added' : 'subtracted'} €${amount} ${balanceAction === 'add' ? 'to' : 'from'} user ${selectedUser.email}`)
+>>>>>>> 02bdcb7 (Initial commit)
       setShowBalanceModal(false)
       setBalanceAmount('')
       setBalanceReason('')
       fetchUsers()
     } catch (error) {
       console.error('Error adjusting balance:', error)
+<<<<<<< HEAD
       showToast('error', 'An unexpected error occurred')
+=======
+      alert('An unexpected error occurred')
+>>>>>>> 02bdcb7 (Initial commit)
     } finally {
       setActionLoading(false)
     }
@@ -194,6 +260,7 @@ export default function AdminUsersPage() {
 
       if (error) {
         console.error('Error toggling user status:', error)
+<<<<<<< HEAD
         showToast('error', `Failed to update user status: ${error.message}`)
         return
       }
@@ -203,6 +270,16 @@ export default function AdminUsersPage() {
     } catch (error) {
       console.error('Error toggling user status:', error)
       showToast('error', 'An unexpected error occurred')
+=======
+        alert('Failed to update user status')
+        return
+      }
+
+      fetchUsers()
+    } catch (error) {
+      console.error('Error toggling user status:', error)
+      alert('An unexpected error occurred')
+>>>>>>> 02bdcb7 (Initial commit)
     }
   }
 
@@ -211,12 +288,15 @@ export default function AdminUsersPage() {
     user.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+<<<<<<< HEAD
   // Map additional fields
   const extendedUsers = filteredUsers.map(u => ({
     ...u,
     latest_kyc_request_id: (u as any).latest_kyc_request_id || null
   }))
 
+=======
+>>>>>>> 02bdcb7 (Initial commit)
   const totalPages = Math.ceil(pagination.total / pagination.limit)
 
   if (authLoading) {
@@ -280,7 +360,10 @@ export default function AdminUsersPage() {
               <tr className="bg-gray-700/50">
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">User</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Balance</th>
+<<<<<<< HEAD
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">KYC</th>
+=======
+>>>>>>> 02bdcb7 (Initial commit)
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Joined</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-gray-300 uppercase tracking-wider">Actions</th>
@@ -302,7 +385,11 @@ export default function AdminUsersPage() {
                   </td>
                 </tr>
               ) : (
+<<<<<<< HEAD
                 extendedUsers.map((user) => (
+=======
+                filteredUsers.map((user) => (
+>>>>>>> 02bdcb7 (Initial commit)
                   <tr key={user.id} className="hover:bg-gray-700/30 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -334,6 +421,7 @@ export default function AdminUsersPage() {
                         {user.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
+<<<<<<< HEAD
 
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -342,6 +430,8 @@ export default function AdminUsersPage() {
                         {(user as any).kyc_status || 'none'}
                       </span>
                     </td>
+=======
+>>>>>>> 02bdcb7 (Initial commit)
                     <td className="px-6 py-4 text-gray-400 text-sm">
                       {new Date(user.created_at).toLocaleDateString()}
                     </td>
@@ -356,6 +446,7 @@ export default function AdminUsersPage() {
                         >
                           Adjust Balance
                         </button>
+<<<<<<< HEAD
 
                         <button
                           onClick={() => {
@@ -379,6 +470,8 @@ export default function AdminUsersPage() {
                           View KYC
                         </button>
 
+=======
+>>>>>>> 02bdcb7 (Initial commit)
                         <button
                           onClick={() => handleToggleUserStatus(user)}
                           className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
@@ -529,6 +622,7 @@ export default function AdminUsersPage() {
           </div>
         </div>
       )}
+<<<<<<< HEAD
 
       {/* Simulation Modal */}
       {showSimModal && selectedUser && (
@@ -664,6 +758,8 @@ export default function AdminUsersPage() {
       {showKycModal && kycRequestId && (
         <KycReviewModal requestId={kycRequestId} onClose={() => { setShowKycModal(false); setKycRequestId(null) }} onUpdated={() => fetchUsers()} />
       )}
+=======
+>>>>>>> 02bdcb7 (Initial commit)
     </div>
   )
 }

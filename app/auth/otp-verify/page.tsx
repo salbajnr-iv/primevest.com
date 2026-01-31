@@ -1,6 +1,10 @@
 'use client'
 
+<<<<<<< HEAD
 import { Suspense, useState, useEffect } from 'react'
+=======
+import { Suspense, useState } from 'react'
+>>>>>>> 02bdcb7 (Initial commit)
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
@@ -14,6 +18,7 @@ function OtpVerifyForm() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const router = useRouter()
+<<<<<<< HEAD
   const { verifyOtp } = useAuth()
   const [type, setType] = useState('email')
 
@@ -21,6 +26,12 @@ function OtpVerifyForm() {
     const params = new URLSearchParams(window.location.search);
     setType(params.get('type') || 'email')
   }, [])
+=======
+  const searchParams = useSearchParams()
+  const { verifyOtp } = useAuth()
+
+  const type = searchParams.get('type') || 'email'
+>>>>>>> 02bdcb7 (Initial commit)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

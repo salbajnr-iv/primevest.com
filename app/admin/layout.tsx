@@ -1,7 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+<<<<<<< HEAD
 import { useRouter, usePathname } from 'next/navigation'
+=======
+import { useRouter } from 'next/navigation'
+>>>>>>> 02bdcb7 (Initial commit)
 import { AdminAuthProvider, useAdminAuth } from '@/contexts/AdminAuthContext'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import AdminSidebar from '@/components/admin/AdminSidebar'
@@ -10,6 +14,7 @@ import AdminHeader from '@/components/admin/AdminHeader'
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { user, isAdmin, loading } = useAdminAuth()
   const router = useRouter()
+<<<<<<< HEAD
   const pathname = usePathname()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
@@ -42,11 +47,28 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+=======
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/admin/auth/signin')
+    } else if (!loading && user && !isAdmin) {
+      // User is logged in but not admin
+      router.push('/auth/signin')
+    }
+  }, [user, isAdmin, loading, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+>>>>>>> 02bdcb7 (Initial commit)
         <div className="w-16 h-16 border-4 border-green-800 border-t-transparent rounded-full animate-spin"></div>
       </div>
     )
   }
 
+<<<<<<< HEAD
   // For non-auth pages, require authentication and admin status
   if (!user || !isAdmin) {
     return (
@@ -65,6 +87,14 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+=======
+  if (!user || !isAdmin) {
+    return null
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-900">
+>>>>>>> 02bdcb7 (Initial commit)
       <AdminSidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
       <div className={`transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
         <AdminHeader onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />

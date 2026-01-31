@@ -49,11 +49,20 @@ export const tradingPairs: TradingPair[] = [
 ];
 
 // Order fee structure
+<<<<<<< HEAD
 const takerFee = 0.0015; // 0.15%
 
 export function useOrderForm(pair: TradingPair, availableBalance: number = 10000, initialSide?: OrderSide) {
   const [formData, setFormData] = React.useState<OrderFormData>({
     side: initialSide || "buy",
+=======
+const makerFee = 0.001; // 0.1%
+const takerFee = 0.0015; // 0.15%
+
+export function useOrderForm(pair: TradingPair, availableBalance: number = 10000) {
+  const [formData, setFormData] = React.useState<OrderFormData>({
+    side: "buy",
+>>>>>>> 02bdcb7 (Initial commit)
     orderType: "limit",
     amount: "",
     price: pair.price.toFixed(pair.priceDecimals),
@@ -63,7 +72,11 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
   const [lastOrderTime, setLastOrderTime] = React.useState<Date | null>(null);
 
   // Calculate order total
+<<<<<<< HEAD
   const calculateTotal = React.useCallback((amount: string, price: string): string => {
+=======
+  const calculateTotal = React.useCallback((amount: string, price: string, orderType: OrderType): string => {
+>>>>>>> 02bdcb7 (Initial commit)
     const amountNum = parseFloat(amount);
     const priceNum = parseFloat(price);
     
@@ -78,10 +91,17 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
   // Update total when amount or price changes
   React.useEffect(() => {
     if (formData.amount && formData.orderType === "limit") {
+<<<<<<< HEAD
       const total = calculateTotal(formData.amount, formData.price);
       setFormData(prev => ({ ...prev, total }));
     } else if (formData.amount && formData.orderType === "market") {
       const total = calculateTotal(formData.amount, pair.price.toString());
+=======
+      const total = calculateTotal(formData.amount, formData.price, "limit");
+      setFormData(prev => ({ ...prev, total }));
+    } else if (formData.amount && formData.orderType === "market") {
+      const total = calculateTotal(formData.amount, pair.price.toString(), "market");
+>>>>>>> 02bdcb7 (Initial commit)
       setFormData(prev => ({ ...prev, total, price: pair.price.toFixed(pair.priceDecimals) }));
     }
   }, [formData.amount, formData.price, formData.orderType, pair.price, pair.priceDecimals, calculateTotal]);
@@ -131,12 +151,17 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
   }, []);
 
   // Submit order
+<<<<<<< HEAD
   const submitOrder = React.useCallback(async () => {
+=======
+  const submitOrder = React.useCallback(() => {
+>>>>>>> 02bdcb7 (Initial commit)
     const validation = validateOrder();
     if (!validation.isValid) {
       return { success: false, errors: validation.errors };
     }
 
+<<<<<<< HEAD
     try {
       // Get auth token from localStorage
       const token = localStorage.getItem('supabase.auth.token');
@@ -196,6 +221,28 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
       console.error('Order submission error:', error);
       return { success: false, errors: ['Network error. Please try again.'] };
     }
+=======
+    // Add to order history
+    const newOrder: OrderFormData = {
+      ...formData,
+      amount: parseFloat(formData.amount).toFixed(pair.amountDecimals),
+      total: parseFloat(formData.total).toFixed(2),
+    };
+
+    setOrderHistory(prev => [newOrder, ...prev].slice(0, 10)); // Keep last 10 orders
+    setLastOrderTime(new Date());
+
+    // Reset form
+    setFormData({
+      side: formData.side,
+      orderType: formData.orderType,
+      amount: "",
+      price: pair.price.toFixed(pair.priceDecimals),
+      total: "",
+    });
+
+    return { success: true, order: newOrder };
+>>>>>>> 02bdcb7 (Initial commit)
   }, [formData, pair, validateOrder]);
 
   // Update form data
@@ -206,15 +253,25 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
       // Recalculate total if amount or price changes
       if (field === "amount" || field === "price") {
         if (newData.orderType === "limit") {
+<<<<<<< HEAD
           newData.total = calculateTotal(newData.amount, newData.price);
         } else {
           newData.total = calculateTotal(newData.amount, pair.price.toString());
+=======
+          newData.total = calculateTotal(newData.amount, newData.price, "limit");
+        } else {
+          newData.total = calculateTotal(newData.amount, pair.price.toString(), "market");
+>>>>>>> 02bdcb7 (Initial commit)
         }
       }
       
       return newData;
     });
+<<<<<<< HEAD
   }, [pair.price, calculateTotal]);
+=======
+  }, [pair.price, pair.priceDecimals, calculateTotal]);
+>>>>>>> 02bdcb7 (Initial commit)
 
   // Set max amount
   const setMaxAmount = React.useCallback(() => {
