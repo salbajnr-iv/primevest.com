@@ -120,17 +120,23 @@ export default function ProfilePage() {
   const supabase = createClient();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   // Effect to mark client-side hydration complete
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+>>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)
   React.useEffect(() => {
     setIsClient(true);
   }, []);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   // Effect to populate form when profile is loaded
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+>>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)
   React.useEffect(() => {
     if (profile) {
       setForm({
@@ -142,6 +148,7 @@ export default function ProfilePage() {
   }, [profile]);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   React.useEffect(() => {
     if (authLoading || !authUser) return;
 
@@ -152,6 +159,11 @@ export default function ProfilePage() {
 
     // Fetch profile from profiles table, fallback to auth user
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+  React.useEffect(() => {
+    if (authLoading || !authUser) return;
+
+>>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)
     (async () => {
       try {
         const { data, error } = await supabase.from('profiles').select('*').eq('id', authUser.id).maybeSingle();
@@ -207,7 +219,6 @@ export default function ProfilePage() {
             avatar_url: data.avatar_url || undefined,
           });
         } else {
-          // Not found, use auth data
           setProfile({
             name: authUser.user_metadata?.full_name || authUser.email,
             email: authUser.email,
@@ -237,6 +248,7 @@ export default function ProfilePage() {
   }, [authLoading, authUser, supabase]);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (!isClient || authLoading) {
     return (
       <div className="dashboard-container">
@@ -247,6 +259,8 @@ export default function ProfilePage() {
         </div>
 =======
   // Early returns after all hooks
+=======
+>>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)
   if (!isClient || authLoading) {
     return (
       <div className="dashboard-loading">
@@ -352,11 +366,9 @@ export default function ProfilePage() {
       const { error: upsertError } = await supabase.from('profiles').upsert(payload);
       if (upsertError) throw upsertError;
 
-      // Also update auth user metadata (display name)
       const { error: authErr } = await supabase.auth.updateUser({ data: { full_name: form.name } });
       if (authErr) console.warn('Could not update auth user metadata', authErr);
 
-      // Update local UI
       setProfile((prev: any) => ({ ...(prev || {}), name: form.name, phone: form.phone, accountType: form.accountType }));
       setEditing(false);
       setStatusMessage('Profile saved');
@@ -373,7 +385,6 @@ export default function ProfilePage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        {/* HEADER */}
         <header className="header">
           <div className="header-left">
             <Link href="/dashboard" className="header-back">
@@ -418,6 +429,7 @@ export default function ProfilePage() {
           </div>
         </header>
 
+<<<<<<< HEAD
         {/* PROFILE CARD */}
 <<<<<<< HEAD
         <section className="profile-section">
@@ -443,10 +455,11 @@ export default function ProfilePage() {
                 </div>
               </div>
 =======
+=======
+>>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)
         <section className="profile-card">
           <div className="profile-avatar">
             {profile?.avatar_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img src={profile.avatar_url} alt={profile.name} style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
             ) : (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -467,6 +480,7 @@ export default function ProfilePage() {
           </div>
         </section>
 
+<<<<<<< HEAD
         {/* KYC SECTION */}
 <<<<<<< HEAD
         <section className="section">
@@ -477,6 +491,8 @@ export default function ProfilePage() {
                 <div className="verification-icon">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#0f9d58" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 =======
+=======
+>>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)
         <section className="kyc-section">
           <h3 className="section-title">Identity Verification</h3>
           <div className="kyc-card">
@@ -540,6 +556,7 @@ export default function ProfilePage() {
         </section>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         {/* PERSONAL INFORMATION */}
         <section className="section">
           <h3 className="section-title">Personal Information</h3>
@@ -550,6 +567,8 @@ export default function ProfilePage() {
                   <label className="form-label">Full Name</label>
 =======
         {/* PERSONAL INFO */}
+=======
+>>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)
         <section className="info-section">
           <h3 className="section-title">Personal Information</h3>
           <div className="list-card">
@@ -656,6 +675,7 @@ export default function ProfilePage() {
           </div>
         </section>
 
+<<<<<<< HEAD
         {/* ACCOUNT SETTINGS */}
 <<<<<<< HEAD
         <section className="section">
@@ -664,6 +684,8 @@ export default function ProfilePage() {
             <ProfileItem
               label="Security Settings"
 =======
+=======
+>>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)
         <section className="info-section">
           <h3 className="section-title">Account Settings</h3>
           <div className="list-card">
@@ -725,6 +747,9 @@ export default function ProfilePage() {
   );
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+>>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)

@@ -1,10 +1,6 @@
 'use client'
 
-<<<<<<< HEAD
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
-=======
-import { createContext, useContext, useEffect, useState } from 'react'
->>>>>>> 02bdcb7 (Initial commit)
 import { createBrowserClient } from '@supabase/ssr'
 import type { User, Session, AuthError } from '@supabase/supabase-js'
 
@@ -32,11 +28,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   )
 
   // Check if user is admin
-<<<<<<< HEAD
   const checkAdminStatus = useCallback(async (userId: string): Promise<boolean> => {
-=======
-  const checkAdminStatus = async (userId: string): Promise<boolean> => {
->>>>>>> 02bdcb7 (Initial commit)
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -45,30 +37,19 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       if (error) {
-<<<<<<< HEAD
         // Don't log errors for "not found" - this is expected for users without profiles
         if (error.code !== 'PGRST116') {
           console.warn('Could not verify admin status:', error.message)
         }
-=======
-        console.error('Error checking admin status:', error)
->>>>>>> 02bdcb7 (Initial commit)
         return false
       }
 
       return data?.is_admin === true
     } catch {
-<<<<<<< HEAD
       console.warn('Error checking admin status')
       return false
     }
   }, [supabase])
-=======
-      console.error('Error checking admin status')
-      return false
-    }
-  }
->>>>>>> 02bdcb7 (Initial commit)
 
   useEffect(() => {
     // Get initial session
@@ -104,11 +85,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe()
     }
-<<<<<<< HEAD
   }, [supabase.auth, checkAdminStatus])
-=======
-  }, [supabase.auth])
->>>>>>> 02bdcb7 (Initial commit)
 
   const signIn = async (email: string, password: string) => {
     const result = await supabase.auth.signInWithPassword({ email, password })
@@ -123,7 +100,6 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-<<<<<<< HEAD
     try {
       const { error } = await supabase.auth.signOut()
       if (error) {
@@ -137,12 +113,6 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       setSession(null)
       setIsAdmin(false)
     }
-=======
-    await supabase.auth.signOut()
-    setUser(null)
-    setSession(null)
-    setIsAdmin(false)
->>>>>>> 02bdcb7 (Initial commit)
   }
 
   const refreshAdminStatus = async (): Promise<boolean> => {
