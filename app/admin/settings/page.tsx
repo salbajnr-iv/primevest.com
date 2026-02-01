@@ -1,6 +1,7 @@
 'use client'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { useState, useEffect, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
@@ -28,15 +29,38 @@ export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<AdminSettings>({
 =======
 import { useState } from 'react'
+=======
+import { useState, useEffect, useCallback } from 'react'
+import { createBrowserClient } from '@supabase/ssr'
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 
-export default function AdminSettingsPage() {
-  const { user } = useAdminAuth()
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
+interface AdminSettings {
+  requireEmailConfirmation: boolean
+  allowUserRegistration: boolean
+  maxWithdrawalLimit: number
+  notifyOnLargeTransactions: boolean
+  largeTransactionThreshold: number
+  sessionTimeout: number
+}
 
+<<<<<<< HEAD
   const [settings, setSettings] = useState({
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+interface ToastMessage {
+  type: 'success' | 'error'
+  message: string
+}
+
+export default function AdminSettingsPage() {
+  const { user, loading: authLoading } = useAdminAuth()
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [toast, setToast] = useState<ToastMessage | null>(null)
+
+  const [settings, setSettings] = useState<AdminSettings>({
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
     requireEmailConfirmation: true,
     allowUserRegistration: true,
     maxWithdrawalLimit: 10000,
@@ -46,6 +70,9 @@ export default function AdminSettingsPage() {
   })
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -83,6 +110,7 @@ export default function AdminSettingsPage() {
     setTimeout(() => setToast(null), 5000)
   }
 
+<<<<<<< HEAD
   const handleSave = async () => {
     setSaving(true)
     try {
@@ -162,6 +190,78 @@ export default function AdminSettingsPage() {
     setSaved(true)
     setTimeout(() => setSaved(false), 3000)
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const { error } = await supabase.rpc('update_admin_settings', {
+        p_settings: settings as unknown as Record<string, unknown>
+      })
+
+      if (error) {
+        console.error('Error saving settings:', error)
+        showToast('error', `Failed to save settings: ${error.message}`)
+        return
+      }
+
+      showToast('success', 'Settings saved successfully')
+    } catch (error) {
+      console.error('Error saving settings:', error)
+      showToast('error', 'An unexpected error occurred')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleResetBalances = async () => {
+    if (!confirm('Are you sure you want to reset ALL user balances to zero? This cannot be undone!')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase.rpc('reset_all_balances')
+      
+      if (error) {
+        console.error('Error resetting balances:', error)
+        showToast('error', `Failed to reset balances: ${error.message}`)
+        return
+      }
+
+      showToast('success', 'All user balances have been reset to zero')
+    } catch (error) {
+      console.error('Error resetting balances:', error)
+      showToast('error', 'An unexpected error occurred')
+    }
+  }
+
+  const handleDeactivateUsers = async () => {
+    if (!confirm('Are you sure you want to deactivate ALL non-admin users? This cannot be undone!')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase.rpc('deactivate_all_users')
+      
+      if (error) {
+        console.error('Error deactivating users:', error)
+        showToast('error', `Failed to deactivate users: ${error.message}`)
+        return
+      }
+
+      showToast('success', 'All non-admin users have been deactivated')
+    } catch (error) {
+      console.error('Error deactivating users:', error)
+      showToast('error', 'An unexpected error occurred')
+    }
+  }
+
+  if (authLoading || loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-12 h-12 border-4 border-green-800 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    )
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
   }
 
   return (
@@ -176,6 +276,7 @@ export default function AdminSettingsPage() {
           onClick={handleSave}
           disabled={saving}
 <<<<<<< HEAD
+<<<<<<< HEAD
           className="px-4 py-2 bg-green-800 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
         >
           {saving && (
@@ -188,21 +289,38 @@ export default function AdminSettingsPage() {
           className="px-4 py-2 bg-green-800 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50"
         >
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+          className="px-4 py-2 bg-green-800 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+        >
+          {saving && (
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          )}
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
           {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
 
       {/* Success Message */}
 <<<<<<< HEAD
+<<<<<<< HEAD
       {toast && toast.type === 'success' && (
 =======
       {saved && (
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+      {toast && toast.type === 'success' && (
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
         <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-3">
           <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
           <span className="text-green-500">{toast.message}</span>
           <button onClick={() => setToast(null)} className="ml-auto text-green-500 hover:opacity-70">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,9 +342,12 @@ export default function AdminSettingsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
+<<<<<<< HEAD
 =======
           <span className="text-green-500">Settings saved successfully</span>
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
         </div>
       )}
 
@@ -372,19 +493,26 @@ export default function AdminSettingsPage() {
               <p className="text-gray-400 text-sm">Set all user balances to zero</p>
             </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
             <button
               onClick={handleResetBalances}
               className="px-4 py-2 bg-red-900 hover:bg-red-800 text-red-200 rounded-lg transition-colors"
             >
+<<<<<<< HEAD
 =======
             <button className="px-4 py-2 bg-red-900 hover:bg-red-800 text-red-200 rounded-lg transition-colors">
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
               Reset All
             </button>
           </div>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white font-medium">Deactivate All Users</p>
+<<<<<<< HEAD
 <<<<<<< HEAD
               <p className="text-gray-400 text-sm">Temporarily disable all non-admin user accounts</p>
             </div>
@@ -397,12 +525,23 @@ export default function AdminSettingsPage() {
             </div>
             <button className="px-4 py-2 bg-red-900 hover:bg-red-800 text-red-200 rounded-lg transition-colors">
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+              <p className="text-gray-400 text-sm">Temporarily disable all non-admin user accounts</p>
+            </div>
+            <button
+              onClick={handleDeactivateUsers}
+              className="px-4 py-2 bg-red-900 hover:bg-red-800 text-red-200 rounded-lg transition-colors"
+            >
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
               Deactivate All
             </button>
           </div>
         </div>
       </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 
       {/* Toast Notification */}
       {toast && (
@@ -431,8 +570,11 @@ export default function AdminSettingsPage() {
           </button>
         </div>
       )}
+<<<<<<< HEAD
 =======
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
     </div>
   )
 }

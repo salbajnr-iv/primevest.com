@@ -57,6 +57,9 @@ const adminNavItems = [
   },
   {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
     name: 'KYC Requests',
     href: '/admin/kyc',
     icon: (
@@ -66,8 +69,11 @@ const adminNavItems = [
     ),
   },
   {
+<<<<<<< HEAD
 =======
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
     name: 'Settings',
     href: '/admin/settings',
     icon: (

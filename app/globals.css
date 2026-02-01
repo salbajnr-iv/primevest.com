@@ -7146,6 +7146,9 @@ h2 {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 /* Quick page card used for the reference flows */
 .page-card {
   margin: 18px 12px;
@@ -7174,8 +7177,11 @@ h2 {
   border: 1px solid var(--border);
 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 .action-icon.sell {
   background: rgba(214, 69, 69, 0.12);
   color: #d64545;
@@ -10062,6 +10068,9 @@ h2 {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 /* ============================================
    LANGUAGE SETTINGS STYLES
    ============================================ */
@@ -10182,8 +10191,11 @@ h2 {
   align-items: center;
   justify-content: center;
   z-index: 100;
+<<<<<<< HEAD
   /* Fallback for Safari */
   -webkit-backdrop-filter: blur(2px);
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
   backdrop-filter: blur(2px);
 }
 
@@ -10626,6 +10638,7 @@ h2 {
   transition: all 0.2s ease;
 }
 
+<<<<<<< HEAD
 /* Dashboard-specific styles */
 .dashboard-container {
   min-height: 100vh;
@@ -11914,3 +11927,5 @@ h2 {
 
 =======
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)

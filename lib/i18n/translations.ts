@@ -104,6 +104,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Portfolio',
+<<<<<<< HEAD
     'portfolio.all': 'All',
     'portfolio.gaining': 'Gaining',
     'portfolio.losing': 'Losing',
@@ -113,6 +114,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'portfolio.manage': 'Manage',
     'portfolio.recentActivity': 'Recent Activity',
     'portfolio.viewAll': 'View All',
+=======
+    'portfolio.assets': 'Assets',
+    'portfolio.totalValue': 'Total Value',
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
     'portfolio.allocate': 'Allocate',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Rewards',
@@ -272,6 +277,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Cartera',
+<<<<<<< HEAD
     'portfolio.all': 'Todos',
     'portfolio.gaining': 'Ganando',
     'portfolio.losing': 'Perdiendo',
@@ -281,6 +287,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'portfolio.manage': 'Gestionar',
     'portfolio.recentActivity': 'Actividad reciente',
     'portfolio.viewAll': 'Ver todo',
+=======
+    'portfolio.assets': 'Activos',
+    'portfolio.totalValue': 'Valor Total',
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
     'portfolio.allocate': 'Asignar',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Recompensas',
@@ -440,6 +450,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Portfolio',
+<<<<<<< HEAD
     'portfolio.all': 'Alle',
     'portfolio.gaining': 'Gewinn',
     'portfolio.losing': 'Verlust',
@@ -449,6 +460,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'portfolio.manage': 'Verwalten',
     'portfolio.recentActivity': 'Letzte Aktivitäten',
     'portfolio.viewAll': 'Alles anzeigen',
+=======
+    'portfolio.assets': 'Vermögenswerte',
+    'portfolio.totalValue': 'Gesamtwert',
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
     'portfolio.allocate': 'Zuweisen',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Belohnungen',
@@ -608,6 +623,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Portefeuille',
+<<<<<<< HEAD
     'portfolio.all': 'Tous',
     'portfolio.gaining': 'Gagnant',
     'portfolio.losing': 'Perdant',
@@ -617,6 +633,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'portfolio.manage': 'Gérer',
     'portfolio.recentActivity': 'Activité récente',
     'portfolio.viewAll': 'Voir tout',
+=======
+    'portfolio.assets': 'Actifs',
+    'portfolio.totalValue': 'Valeur totale',
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
     'portfolio.allocate': 'Allouer',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Récompenses',
@@ -776,6 +796,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Portafoglio',
+<<<<<<< HEAD
     'portfolio.all': 'Tutti',
     'portfolio.gaining': 'In guadagno',
     'portfolio.losing': 'In perdita',
@@ -785,6 +806,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'portfolio.manage': 'Gestisci',
     'portfolio.recentActivity': 'Attività recente',
     'portfolio.viewAll': 'Vedi tutto',
+=======
+    'portfolio.assets': 'Asset',
+    'portfolio.totalValue': 'Valore Totale',
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
     'portfolio.allocate': 'Allocare',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Ricompense',

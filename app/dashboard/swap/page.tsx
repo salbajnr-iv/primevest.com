@@ -4,6 +4,7 @@ import React from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import { useRouter } from "next/navigation";
 
+<<<<<<< HEAD
 const assets = [
   { symbol: "BTC", name: "Bitcoin" },
   { symbol: "ETH", name: "Ethereum" },
@@ -37,6 +38,19 @@ export default function SwapSelectPage() {
   function next() {
     if (!isValid) return;
     const params = new URLSearchParams({ from: from.symbol, to: to.symbol, amount: String(parsedAmount) });
+=======
+const assets = ["BTC", "ETH", "SOL", "BNB"];
+
+export default function SwapSelectPage() {
+  const router = useRouter();
+  const [from, setFrom] = React.useState(assets[0]);
+  const [to, setTo] = React.useState(assets[1]);
+  const [amount, setAmount] = React.useState(0);
+
+  function next() {
+    if (!amount || amount <= 0 || from === to) return;
+    const params = new URLSearchParams({ from, to, amount: String(amount) });
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
     router.push(`/dashboard/swap/review?${params.toString()}`);
   }
 
@@ -46,6 +60,7 @@ export default function SwapSelectPage() {
         <DashboardHeader userName={"User"} />
 
         <main className="page-card">
+<<<<<<< HEAD
           <div className="page-header" style={{ marginBottom: 16 }}>
             <h2 style={{ margin: 0 }}>Swap</h2>
             <div className="subtitle">Instantly exchange one asset for another</div>
@@ -248,6 +263,32 @@ export default function SwapSelectPage() {
             >
               Continue to Confirmation
             </button>
+=======
+          <h2>Tauschen</h2>
+
+          <div className="form-row">
+            <label>Von</label>
+            <select value={from} onChange={(e) => setFrom(e.target.value)}>
+              {assets.map((a) => <option key={a} value={a}>{a}</option>)}
+            </select>
+          </div>
+
+          <div className="form-row">
+            <label>Nach</label>
+            <select value={to} onChange={(e) => setTo(e.target.value)}>
+              {assets.map((a) => <option key={a} value={a}>{a}</option>)}
+            </select>
+          </div>
+
+          <div className="form-row">
+            <label>Betrag ({from})</label>
+            <input type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
+          </div>
+
+          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+            <button className="btn" onClick={() => router.push('/dashboard')}>Abbrechen</button>
+            <button className="btn btn-primary" onClick={next}>Weiter</button>
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
           </div>
         </main>
       </div>

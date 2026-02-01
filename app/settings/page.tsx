@@ -4,9 +4,13 @@ import * as React from "react";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { useLanguage } from "@/contexts/LanguageContext";
 =======
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+import { useLanguage, SUPPORTED_LANGUAGES } from "@/contexts/LanguageContext";
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 
 interface SettingItemProps {
   label: string;
@@ -76,21 +80,29 @@ export default function SettingsPage() {
   const [priceAlerts, setPriceAlerts] = React.useState(true);
   const [marketingEmails, setMarketingEmails] = React.useState(false);
 <<<<<<< HEAD
+<<<<<<< HEAD
   const { language: currentLanguage, getLanguageOption, isLoading: isLanguageLoading } = useLanguage();
 =======
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+  const { language: currentLanguage, getLanguageOption, isLoading: isLanguageLoading } = useLanguage();
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
   // Get current language display name
   const currentLanguageOption = getLanguageOption(currentLanguage);
   const currentLanguageDisplay = currentLanguageOption 
     ? `${currentLanguageOption.flag} ${currentLanguageOption.name}`
     : 'English';
 
+<<<<<<< HEAD
   if (!isClient) {
     return (
       <div className="dashboard-container">
@@ -100,6 +112,8 @@ export default function SettingsPage() {
           </div>
         </div>
 =======
+=======
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
   if (!isClient) {
     return (
       <div className="dashboard-loading">
@@ -302,10 +316,14 @@ export default function SettingsPage() {
             <SettingItem
               label="Language"
 <<<<<<< HEAD
+<<<<<<< HEAD
               value={isLanguageLoading ? 'Loading...' : currentLanguageDisplay}
 =======
               value="English"
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+              value={isLanguageLoading ? 'Loading...' : currentLanguageDisplay}
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
               icon={
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" />

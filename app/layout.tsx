@@ -8,6 +8,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import AuthProvider from "@/components/AuthProvider";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export const metadata: Metadata = {
@@ -35,6 +36,9 @@ export const metadata: Metadata = {
         height: 630,
         alt: "PrimeVest Financial Solutions, Inc. - Professional Trading Platform"
 =======
+=======
+import { LanguageProvider } from "@/contexts/LanguageContext";
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -109,6 +113,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.className}`} suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning>
         <AuthProvider>
+<<<<<<< HEAD
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
@@ -118,6 +123,18 @@ export default function RootLayout({
             {children}
           </ThemeProvider>
 >>>>>>> 02bdcb7 (Initial commit)
+=======
+          <LanguageProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+            </ThemeProvider>
+          </LanguageProvider>
+>>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
         </AuthProvider>
         <Analytics />
       </body>
