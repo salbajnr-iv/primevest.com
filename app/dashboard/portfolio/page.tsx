@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from 'next/image';
 import DashboardHeader from "@/components/DashboardHeader";
 import ListRow from "@/components/ListRow";
 import { useRouter } from "next/navigation";
@@ -11,33 +12,67 @@ const holdings = [
     iconSrc: "/btc-logo.png", 
     name: "Bitcoin", 
     label: "BTC · Spot", 
-    amount: "0,0021 BTC", 
-    value: "2.10 €",
-    change: "+2.4%"
+    amount: "0.0000 BTC", 
+    value: "0.00 €",
+    change: "0.0%",
+    allocation: "0.0%",
+    buyPrice: "0.00 €",
+    profitLoss: "0.00 €"
   },
   { 
     iconSrc: "/eth-logo.png", 
     name: "Ethereum", 
     label: "ETH · Spot", 
-    amount: "0,030 ETH", 
-    value: "1.20 €",
-    change: "-1.2%"
+    amount: "0.0000 ETH", 
+    value: "0.00 €",
+    change: "0.0%",
+    allocation: "0.0%",
+    buyPrice: "0.00 €",
+    profitLoss: "0.00 €"
   },
   { 
     iconSrc: "/sol-logo.png", 
     name: "Solana", 
-    label: "SOL · Spot", 
-    amount: "0,50 SOL", 
-    value: "12.50 €",
-    change: "+5.8%"
+    label: "SOL · Staking", 
+    amount: "0.00 SOL", 
+    value: "0.00 €",
+    change: "0.0%",
+    allocation: "0.0%",
+    buyPrice: "0.00 €",
+    profitLoss: "0.00 €"
   },
   { 
     iconSrc: "/bnb-logo.png", 
     name: "Binance Coin", 
     label: "BNB · Spot", 
-    amount: "0,01 BNB", 
-    value: "2.80 €",
-    change: "+0.5%"
+    amount: "0.00 BNB", 
+    value: "0.00 €",
+    change: "0.0%",
+    allocation: "0.0%",
+    buyPrice: "0.00 €",
+    profitLoss: "0.00 €"
+  },
+  { 
+    iconSrc: "/xrp-logo.png", 
+    name: "Ripple", 
+    label: "XRP · Spot", 
+    amount: "0.00 XRP", 
+    value: "0.00 €",
+    change: "0.0%",
+    allocation: "0.0%",
+    buyPrice: "0.00 €",
+    profitLoss: "0.00 €"
+  },
+  { 
+    iconSrc: "/ada-logo.png", 
+    name: "Cardano", 
+    label: "ADA · Staking", 
+    amount: "0.00 ADA", 
+    value: "0.00 €",
+    change: "0.0%",
+    allocation: "0.0%",
+    buyPrice: "0.00 €",
+    profitLoss: "0.00 €"
   },
 ];
 
@@ -101,7 +136,9 @@ export default function PortfolioPage() {
 
   // Calculate totals
   const totalValue = holdings.reduce((acc, h) => acc + parseFloat(h.value.replace("€", "").replace(",", ".")), 0);
-  const portfolioChange = "+1.8%";
+  const totalProfitLoss = holdings.reduce((acc, h) => acc + parseFloat(h.profitLoss.replace("€", "").replace(",", ".")), 0);
+  const portfolioChange = "0.0%";
+  const bestPerformer = holdings[0]; // Default to first holding for new accounts
 
   // Filter holdings
   const filteredHoldings = holdings.filter(h => {
@@ -155,7 +192,28 @@ export default function PortfolioPage() {
             </div>
           </section>
 
-          {/* Quick Actions Grid */}
+          {/* Portfolio Stats Cards */}
+          <section aria-label="Portfolio statistics" style={{ marginTop: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div className="list-card" style={{ padding: "12px" }}>
+                <div style={{ fontSize: "11px", color: "var(--muted)", marginBottom: "4px" }}>Best Performer</div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Image src={bestPerformer.iconSrc} alt={bestPerformer.name} width={20} height={20} />
+                  <div>
+                    <div style={{ fontSize: "13px", fontWeight: "600" }}>{bestPerformer.name}</div>
+                    <div style={{ fontSize: "11px", color: "var(--success)" }}>{bestPerformer.change}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="list-card" style={{ padding: "12px" }}>
+                <div style={{ fontSize: "11px", color: "var(--muted)", marginBottom: "4px" }}>Total Profit/Loss</div>
+                <div style={{ fontSize: "16px", fontWeight: "600", color: totalProfitLoss >= 0 ? "var(--success)" : "var(--danger)" }}>
+                  {totalProfitLoss >= 0 ? "+" : ""}{totalProfitLoss.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                </div>
+                <div style={{ fontSize: "11px", color: "var(--muted)" }}>All Time</div>
+              </div>
+            </div>
+          </section>
           <section style={{ marginTop: "16px" }}>
             <div className="portfolio-actions">
               {quickActions.map((action, i) => (
@@ -212,7 +270,10 @@ export default function PortfolioPage() {
               </div>
 
               <div className="sort-controls">
+                <label htmlFor="sortBy" className="sr-only">Sort holdings by</label>
                 <select 
+                  id="sortBy"
+                  aria-label="Sort holdings by"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'value' | 'change' | 'name')}
                   className="sort-select"
@@ -224,6 +285,8 @@ export default function PortfolioPage() {
                 <button
                   className="sort-order-btn"
                   onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
+                  aria-label={sortOrder === 'desc' ? 'Sort ascending' : 'Sort descending'}
+                  title={sortOrder === 'desc' ? 'Sort ascending' : 'Sort descending'}
                 >
                   {sortOrder === 'desc' ? '↓' : '↑'}
                 </button>
@@ -315,8 +378,8 @@ export default function PortfolioPage() {
                   </div>
                 </div>
                 <div className="transaction-amounts">
-                  <div className="tx-amount">+0,001 BTC</div>
-                  <div className="tx-value">≈ 45,00 €</div>
+                  <div className="tx-amount">+0,02147 BTC</div>
+                  <div className="tx-value">≈ 967,85 €</div>
                 </div>
                 <div className="transaction-status completed">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -342,7 +405,7 @@ export default function PortfolioPage() {
                   </div>
                 </div>
                 <div className="transaction-amounts">
-                  <div className="tx-amount">+500,00 €</div>
+                  <div className="tx-amount">+5.000,00 €</div>
                 </div>
                 <div className="transaction-status completed">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -368,8 +431,8 @@ export default function PortfolioPage() {
                   </div>
                 </div>
                 <div className="transaction-amounts">
-                  <div className="tx-amount pill negative">-0,05 ETH</div>
-                  <div className="tx-value">≈ 120,00 €</div>
+                  <div className="tx-amount pill negative">-0,3842 ETH</div>
+                  <div className="tx-value">≈ 1.254,32 €</div>
                 </div>
                 <div className="transaction-status completed">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

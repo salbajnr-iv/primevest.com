@@ -52,9 +52,9 @@ export const tradingPairs: TradingPair[] = [
 const makerFee = 0.001; // 0.1%
 const takerFee = 0.0015; // 0.15%
 
-export function useOrderForm(pair: TradingPair, availableBalance: number = 10000) {
+export function useOrderForm(pair: TradingPair, availableBalance: number = 10000, initialSide?: OrderSide) {
   const [formData, setFormData] = React.useState<OrderFormData>({
-    side: "buy",
+    side: initialSide || "buy",
     orderType: "limit",
     amount: "",
     price: pair.price.toFixed(pair.priceDecimals),
@@ -132,32 +132,71 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
   }, []);
 
   // Submit order
-  const submitOrder = React.useCallback(() => {
+  const submitOrder = React.useCallback(async () => {
     const validation = validateOrder();
     if (!validation.isValid) {
       return { success: false, errors: validation.errors };
     }
 
-    // Add to order history
-    const newOrder: OrderFormData = {
-      ...formData,
-      amount: parseFloat(formData.amount).toFixed(pair.amountDecimals),
-      total: parseFloat(formData.total).toFixed(2),
-    };
+    try {
+      // Get auth token from localStorage
+      const token = localStorage.getItem('supabase.auth.token');
+      if (!token) {
+        return { success: false, errors: ['Authentication required'] };
+      }
 
-    setOrderHistory(prev => [newOrder, ...prev].slice(0, 10)); // Keep last 10 orders
-    setLastOrderTime(new Date());
+      const authToken = JSON.parse(token).access_token;
 
-    // Reset form
-    setFormData({
-      side: formData.side,
-      orderType: formData.orderType,
-      amount: "",
-      price: pair.price.toFixed(pair.priceDecimals),
-      total: "",
-    });
+      // Prepare order data for API
+      const orderData = {
+        side: formData.side,
+        asset: pair.base,
+        amount: parseFloat(formData.amount),
+        price: formData.orderType === "limit" ? parseFloat(formData.price) : null,
+        total: parseFloat(formData.total),
+        orderType: formData.orderType,
+      };
 
-    return { success: true, order: newOrder };
+      // Submit to API
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { success: false, errors: [result.error || 'Failed to submit order'] };
+      }
+
+      // Add to local order history
+      const newOrder: OrderFormData = {
+        ...formData,
+        amount: parseFloat(formData.amount).toFixed(pair.amountDecimals),
+        total: parseFloat(formData.total).toFixed(2),
+      };
+
+      setOrderHistory(prev => [newOrder, ...prev].slice(0, 10)); // Keep last 10 orders
+      setLastOrderTime(new Date());
+
+      // Reset form
+      setFormData({
+        side: formData.side,
+        orderType: formData.orderType,
+        amount: "",
+        price: pair.price.toFixed(pair.priceDecimals),
+        total: "",
+      });
+
+      return { success: true, order: result.order };
+    } catch (error) {
+      console.error('Order submission error:', error);
+      return { success: false, errors: ['Network error. Please try again.'] };
+    }
   }, [formData, pair, validateOrder]);
 
   // Update form data

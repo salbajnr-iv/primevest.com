@@ -104,6 +104,9 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Portfolio',
+    'portfolio.all': 'All',
+    'portfolio.gaining': 'Gaining',
+    'portfolio.losing': 'Losing',
     'portfolio.assets': 'Assets',
     'portfolio.totalValue': 'Total Value',
     'portfolio.holdings': 'Your Holdings',
@@ -269,6 +272,9 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Cartera',
+    'portfolio.all': 'Todos',
+    'portfolio.gaining': 'Ganando',
+    'portfolio.losing': 'Perdiendo',
     'portfolio.assets': 'Activos',
     'portfolio.totalValue': 'Valor Total',
     'portfolio.holdings': 'Tus participaciones',
@@ -434,6 +440,9 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Portfolio',
+    'portfolio.all': 'Alle',
+    'portfolio.gaining': 'Gewinn',
+    'portfolio.losing': 'Verlust',
     'portfolio.assets': 'Vermögenswerte',
     'portfolio.totalValue': 'Gesamtwert',
     'portfolio.holdings': 'Deine Bestände',
@@ -599,6 +608,9 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Portefeuille',
+    'portfolio.all': 'Tous',
+    'portfolio.gaining': 'Gagnant',
+    'portfolio.losing': 'Perdant',
     'portfolio.assets': 'Actifs',
     'portfolio.totalValue': 'Valeur totale',
     'portfolio.holdings': 'Vos participations',
@@ -764,6 +776,9 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Portafoglio',
+    'portfolio.all': 'Tutti',
+    'portfolio.gaining': 'In guadagno',
+    'portfolio.losing': 'In perdita',
     'portfolio.assets': 'Asset',
     'portfolio.totalValue': 'Valore Totale',
     'portfolio.holdings': 'I tuoi asset',

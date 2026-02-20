@@ -64,6 +64,17 @@ const nextConfig: NextConfig = {
         permanent: false,
         destination: '/admin/:path*',
       },
+      // Alias singular /watchlist to plural /watchlists
+      {
+        source: '/watchlist',
+        destination: '/watchlists',
+        permanent: true,
+      },
+      {
+        source: '/watchlist/:path*',
+        destination: '/watchlists/:path*',
+        permanent: true,
+      },
     ];
   },
 };

@@ -36,10 +36,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const { user, session } = useAuth()
   
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabase = SUPABASE_URL && SUPABASE_ANON_KEY
+    ? createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null
 
   // Get language name by code
   const getLanguageName = useCallback((code: Language): string => {
@@ -59,7 +60,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       
       try {
         // Priority: 1. User metadata (logged in), 2. LocalStorage (guest)
-        if (session?.user) {
+        if (session?.user && supabase) {
           const { data } = await supabase.auth.getUser()
           const userLanguage = data.user?.user_metadata?.language as Language | undefined
           
@@ -107,7 +108,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       }
       
       // Save to Supabase user metadata if logged in
-      if (session?.user) {
+      if (session?.user && supabase) {
         await supabase.auth.updateUser({
           data: { language: newLanguage }
         })

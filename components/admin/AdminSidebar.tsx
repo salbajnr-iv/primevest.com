@@ -81,8 +81,15 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
   const { user, signOut } = useAdminAuth()
 
   const handleSignOut = async () => {
-    await signOut()
-    window.location.href = '/admin/auth/signin'
+    try {
+      await signOut()
+      // Use router for navigation instead of direct href assignment
+      window.location.href = '/admin/auth/signin'
+    } catch (error) {
+      console.error('Logout failed:', error)
+      // Still redirect even if logout fails
+      window.location.href = '/admin/auth/signin'
+    }
   }
 
   return (
@@ -116,6 +123,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
           <button
             onClick={onToggle}
             className="p-2 rounded-lg hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
+            aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M11 19l-7-7 7-7m8 14l-7-7 7-7" : "M13 5l7 7-7 7M5 5l7 7-7 7"} />
@@ -175,6 +183,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
             <button
               onClick={handleSignOut}
               className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-700 dark:bg-gray-800 hover:bg-gray-600 dark:hover:bg-gray-700 text-white rounded-lg transition-colors"
+              aria-label="Sign out"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

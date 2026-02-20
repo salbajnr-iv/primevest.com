@@ -8,8 +8,8 @@ interface CurrencyCardProps {
   symbol: string;
   price: string;
   change: string;
-  changeValue: string;
   marketCap: string;
+  icon?: string;
   iconSrc?: string;
   iconColor?: string;
   isPositive?: boolean;
@@ -20,8 +20,8 @@ export default function CurrencyCard({
   symbol,
   price,
   change,
-  changeValue,
   marketCap,
+  icon,
   iconSrc,
   iconColor,
   isPositive = true,
@@ -35,6 +35,8 @@ export default function CurrencyCard({
         <div className="currency-icon" style={{ background: bgColor }}>
           {iconSrc ? (
             <Image src={iconSrc} alt={name} width={24} height={24} unoptimized />
+          ) : icon ? (
+            <span className="currency-symbol">{icon.toUpperCase().slice(0, 2)}</span>
           ) : (
             <span className="currency-symbol">{symbol.slice(0, 2)}</span>
           )}

@@ -100,10 +100,19 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    setSession(null)
-    setIsAdmin(false)
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('Admin sign out error:', error)
+      }
+    } catch (error) {
+      console.error('Unexpected admin sign out error:', error)
+    } finally {
+      // Clear local state regardless of API call result
+      setUser(null)
+      setSession(null)
+      setIsAdmin(false)
+    }
   }
 
   const refreshAdminStatus = async (): Promise<boolean> => {

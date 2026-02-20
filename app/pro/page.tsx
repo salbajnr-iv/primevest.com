@@ -153,7 +153,7 @@ export default function ProTradingPage() {
                 </div>
                 <div><h3 style={{ margin: 0 }}>{selectedPair.name}</h3><span style={{ color: "var(--muted)", fontSize: 13 }}>{selectedPair.symbol}</span></div>
               </div>
-              <button className="modal-close" onClick={() => setSelectedPair(null)}>✕</button>
+              <button className="modal-close" onClick={() => setSelectedPair(null)} aria-label="Close" title="Close">✕</button>
             </div>
             <div className="modal-body">
               <div style={{ textAlign: "center", marginBottom: 20 }}>

@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "blackboxapp.blackbox",
+        "github.copilot",
+        "github.codespaces",
+        "github.copilot-chat",
+        "github.vscode-pull-request-github",
+        "christian-kohler.npm-intellisense",
+        "christian-kohler.path-intellisense",
+        "blackboxapp.blackboxagent"
+    ]
+}

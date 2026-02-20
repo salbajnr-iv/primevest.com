@@ -2,16 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import BottomNav from "@/components/BottomNav";
 import { 
   useOrderForm, 
   tradingPairs, 
-  formatCurrency, 
-  formatNumber,
-  OrderSide,
-  OrderType 
+  OrderSide
 } from "@/hooks/useOrderForm";
-import { usePriceSimulation, MarketData, formatPrice } from "@/hooks/usePriceSimulation";
+import { usePriceSimulation, formatPrice } from "@/hooks/usePriceSimulation";
 
 // Order book type
 interface OrderBookEntry {
@@ -20,30 +18,33 @@ interface OrderBookEntry {
   total: number;
 }
 
-// Generate mock order book data
+// Generate mock order book data with realistic spreads
 function generateOrderBook(currentPrice: number): { bids: OrderBookEntry[]; asks: OrderBookEntry[] } {
   const bids: OrderBookEntry[] = [];
   const asks: OrderBookEntry[] = [];
+  const spread = currentPrice * 0.0005; // 0.05% spread
 
-  // Generate bids (buy orders) below current price
-  for (let i = 0; i < 8; i++) {
-    const price = currentPrice - (i + 1) * (currentPrice * 0.0001);
-    const amount = Math.random() * 5 + 0.1;
+  // Generate bids (buy orders) below current price with realistic volume
+  for (let i = 0; i < 10; i++) {
+    const price = currentPrice - (i + 1) * spread;
+    const amount = Math.random() * 8 + 0.5; // More realistic amounts
+    const total = price * amount;
     bids.push({
       price: Number(price.toFixed(2)),
       amount: Number(amount.toFixed(4)),
-      total: Number((price * amount).toFixed(2)),
+      total: Number(total.toFixed(2)),
     });
   }
 
-  // Generate asks (sell orders) above current price
-  for (let i = 0; i < 8; i++) {
-    const price = currentPrice + (i + 1) * (currentPrice * 0.0001);
-    const amount = Math.random() * 5 + 0.1;
+  // Generate asks (sell orders) above current price with realistic volume
+  for (let i = 0; i < 10; i++) {
+    const price = currentPrice + (i + 1) * spread;
+    const amount = Math.random() * 8 + 0.5;
+    const total = price * amount;
     asks.push({
       price: Number(price.toFixed(2)),
       amount: Number(amount.toFixed(4)),
-      total: Number((price * amount).toFixed(2)),
+      total: Number(total.toFixed(2)),
     });
   }
 
@@ -58,19 +59,23 @@ interface RecentTrade {
   side: "buy" | "sell";
 }
 
-// Generate mock recent trades
+// Generate mock recent trades with more realistic data
 function generateRecentTrades(currentPrice: number): RecentTrade[] {
   const trades: RecentTrade[] = [];
   const now = new Date();
+  const tradeSizes = [0.1, 0.25, 0.5, 1.0, 2.5, 5.0]; // Realistic trade sizes
 
-  for (let i = 0; i < 15; i++) {
-    const time = new Date(now.getTime() - i * 30000);
-    const price = currentPrice + (Math.random() - 0.5) * currentPrice * 0.0002;
+  for (let i = 0; i < 20; i++) {
+    const time = new Date(now.getTime() - i * 15000); // Trades every 15 seconds
+    const priceVariation = (Math.random() - 0.5) * currentPrice * 0.001; // ±0.1% variation
+    const price = currentPrice + priceVariation;
+    const size = tradeSizes[Math.floor(Math.random() * tradeSizes.length)];
+    
     trades.push({
       time: time.toLocaleTimeString("de-DE", { hour12: false }),
       price: Number(price.toFixed(2)),
-      amount: Number((Math.random() * 2 + 0.01).toFixed(4)),
-      side: Math.random() > 0.5 ? "buy" : "sell",
+      amount: size,
+      side: Math.random() > 0.48 ? "buy" : "sell", // Slightly more buys
     });
   }
 
@@ -78,14 +83,31 @@ function generateRecentTrades(currentPrice: number): RecentTrade[] {
 }
 
 export default function TradePage() {
+  const searchParams = useSearchParams();
   const [isClient, setIsClient] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [activePair, setActivePair] = React.useState(tradingPairs[0]);
+  
+  // Get initial pair and side from URL params
+  const pairParam = searchParams?.get('pair');
+  const sideParam = searchParams?.get('side');
+  
+  const [activePair, setActivePair] = React.useState(() => {
+    if (pairParam) {
+      const foundPair = tradingPairs.find(p => p.id === pairParam);
+      return foundPair || tradingPairs[0];
+    }
+    return tradingPairs[0];
+  });
   const [orderBook, setOrderBook] = React.useState<{ bids: OrderBookEntry[]; asks: OrderBookEntry[] }>(
     { bids: [], asks: [] }
   );
   const [recentTrades, setRecentTrades] = React.useState<RecentTrade[]>([]);
   const [showOrderHistory, setShowOrderHistory] = React.useState(false);
+  const [showDepthChart, setShowDepthChart] = React.useState(false);
+  const [priceAlerts, setPriceAlerts] = React.useState<{price: number; type: 'above' | 'below'}[]>([]);
+  const [isSubmittingOrder, setIsSubmittingOrder] = React.useState(false);
+  const [orderError, setOrderError] = React.useState<string | null>(null);
+  const [orderSuccess, setOrderSuccess] = React.useState<string | null>(null);
   
   // Price simulation
   const { data: marketData } = usePriceSimulation(
@@ -113,23 +135,23 @@ export default function TradePage() {
     calculateFee,
     submitOrder,
     orderHistory,
-    lastOrderTime,
     availableBalance,
-  } = useOrderForm(activePair, 10000);
+  } = useOrderForm(activePair, 10000, sideParam as OrderSide);
 
   // Update order book when price changes
+  // Get current price from simulated data
+  const currentPriceData = marketData.find(m => m.id === activePair.id);
+  const currentPrice = currentPriceData?.price || activePair.price;
+
   React.useEffect(() => {
-    setOrderBook(generateOrderBook(activePair.price));
-    setRecentTrades(generateRecentTrades(activePair.price));
-  }, [activePair, marketData]);
+    const current = currentPrice;
+    setOrderBook(generateOrderBook(current));
+    setRecentTrades(generateRecentTrades(current));
+  }, [activePair, currentPrice]);
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
-
-  // Get current price from simulated data
-  const currentPriceData = marketData.find(m => m.id === activePair.id);
-  const currentPrice = currentPriceData?.price || activePair.price;
 
   if (!isClient) {
     return (
@@ -142,11 +164,22 @@ export default function TradePage() {
   const validation = validateOrder();
   const fee = formData.total ? calculateFee(parseFloat(formData.total)) : null;
 
-  const handleOrderSubmit = () => {
-    const result = submitOrder();
-    if (result.success) {
-      // Show success feedback
-      alert(`Order placed successfully!\n${formData.side.toUpperCase()} ${formData.amount} ${activePair.base} @ €${formData.price || currentPrice}`);
+  const handleOrderSubmit = async () => {
+    setIsSubmittingOrder(true);
+    setOrderError(null);
+    setOrderSuccess(null);
+    
+    try {
+      const result = await submitOrder();
+      if (result.success) {
+        setOrderSuccess(`Order placed successfully!\n${formData.side.toUpperCase()} ${formData.amount} ${activePair.base} @ €${formData.price || currentPrice}`);
+      } else {
+        setOrderError(result.errors?.join(', ') || 'Failed to place order');
+      }
+    } catch {
+      setOrderError('Network error. Please try again.');
+    } finally {
+      setIsSubmittingOrder(false);
     }
   };
 
@@ -167,7 +200,7 @@ export default function TradePage() {
               <span className="live-dot" style={{ marginLeft: 8 }}></span>
             </div>
           </div>
-          <button className="sync-btn" onClick={() => setIsSidebarOpen(true)}>
+          <button className="sync-btn" onClick={() => setIsSidebarOpen(true)} aria-label="Open menu" title="Open menu">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="3" y1="12" x2="21" y2="12" />
               <line x1="3" y1="6" x2="21" y2="6" />
@@ -194,17 +227,55 @@ export default function TradePage() {
           </div>
         </section>
 
-        {/* PRICE DISPLAY */}
+        {/* PRICE DISPLAY WITH ENHANCED INFO */}
         <section className="price-display">
           <div className="current-price">
-            <span className="price-label">Current Price</span>
-            <span className="price-value">
+            <div className="price-header">
+              <span className="price-label">Current Price</span>
+              <div className="price-actions">
+                <button 
+                  className="icon-btn"
+                  aria-label="Set price alert"
+                  title="Set price alert"
+                  onClick={() => {
+                    const alert = { price: currentPrice, type: 'above' as const };
+                    setPriceAlerts([...priceAlerts, alert]);
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                </button>
+                <button className="icon-btn" aria-label="Full screen chart" title="Full screen chart">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="price-value">
               €{formatPrice(currentPrice, activePair.base)}
               <small>EUR</small>
-            </span>
-            <span className={`price-change ${activePair.change24h >= 0 ? "positive" : "negative"}`}>
-              {activePair.change24h >= 0 ? "+" : ""}{activePair.change24h.toFixed(2)}% (24h)
-            </span>
+            </div>
+            <div className="price-details">
+              <span className={`price-change ${activePair.change24h >= 0 ? "positive" : "negative"}`}>
+                {activePair.change24h >= 0 ? "+" : ""}{activePair.change24h.toFixed(2)}% (24h)
+              </span>
+              <span className="price-volume">Vol: {(activePair.volume24h / 1000000).toFixed(1)}M €</span>
+            </div>
+          </div>
+          
+          {/* Mini Chart Placeholder */}
+          <div className="mini-chart" style={{ height: "60px", background: "var(--bg-soft)", borderRadius: "8px", margin: "12px 0", position: "relative" }}>
+            <svg viewBox="0 0 200 60" preserveAspectRatio="none" style={{ width: "100%", height: "100%" }}>
+              <path 
+                d="M0,40 C20,35 40,25 60,30 C80,35 100,20 120,25 C140,30 160,15 180,20 C190,22 195,18 200,20" 
+                fill="none"
+                stroke={activePair.change24h >= 0 ? "var(--success)" : "var(--danger)"}
+                strokeWidth="2"
+              />
+            </svg>
           </div>
         </section>
 
@@ -355,34 +426,147 @@ export default function TradePage() {
               </div>
             )}
 
+            {/* Order submission errors */}
+            {orderError && (
+              <div style={{ 
+                padding: 10, 
+                background: "rgba(214, 69, 69, 0.1)", 
+                borderRadius: 8,
+                fontSize: 11,
+                color: "#d64545"
+              }}>
+                {orderError}
+              </div>
+            )}
+
+            {/* Order success message */}
+            {orderSuccess && (
+              <div style={{ 
+                padding: 10, 
+                background: "rgba(34, 197, 94, 0.1)", 
+                borderRadius: 8,
+                fontSize: 11,
+                color: "#22c55e",
+                whiteSpace: "pre-line"
+              }}>
+                {orderSuccess}
+              </div>
+            )}
+
             <button 
               className={`order-button ${formData.side}`}
               onClick={handleOrderSubmit}
-              disabled={!validation.isValid}
-              style={{ opacity: validation.isValid ? 1 : 0.5 }}
+              disabled={!validation.isValid || isSubmittingOrder}
+              style={{ opacity: (validation.isValid && !isSubmittingOrder) ? 1 : 0.5 }}
             >
-              {formData.side === "buy" ? "Buy" : "Sell"} {activePair.base}
+              {isSubmittingOrder ? 'Placing Order...' : `${formData.side === "buy" ? "Buy" : "Sell"} ${activePair.base}`}
             </button>
           </div>
         </section>
 
-        {/* ORDER BOOK & TRADES TOGGLE */}
-        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        {/* ORDER BOOK & TRADES TOGGLE WITH MORE OPTIONS */}
+        <div className="trading-view-tabs" style={{ display: "flex", gap: "4px", marginTop: "12px", background: "var(--bg-soft)", padding: "4px", borderRadius: "8px" }}>
           <button 
-            className={`category-chip ${!showOrderHistory ? "active" : ""}`}
-            onClick={() => setShowOrderHistory(false)}
+            className={`category-chip ${!showOrderHistory && !showDepthChart ? "active" : ""}`}
+            onClick={() => { setShowOrderHistory(false); setShowDepthChart(false); }}
+            style={{ flex: 1 }}
           >
             Order Book
           </button>
           <button 
             className={`category-chip ${showOrderHistory ? "active" : ""}`}
-            onClick={() => setShowOrderHistory(true)}
+            onClick={() => { setShowOrderHistory(true); setShowDepthChart(false); }}
+            style={{ flex: 1 }}
           >
             Recent Trades
           </button>
+          <button 
+            className={`category-chip ${showDepthChart ? "active" : ""}`}
+            onClick={() => { setShowOrderHistory(false); setShowDepthChart(true); }}
+            style={{ flex: 1 }}
+          >
+            Depth Chart
+          </button>
         </div>
 
-        {/* ORDER BOOK */}
+        {/* DEPTH CHART */}
+        {showDepthChart && (
+          <section className="depth-chart">
+            <div className="depth-chart-container" style={{ height: "300px", background: "var(--bg-soft)", borderRadius: "8px", padding: "16px", position: "relative" }}>
+              <div className="depth-chart-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                <span className="depth-title">Market Depth</span>
+                <div className="depth-legend" style={{ display: "flex", gap: "16px", fontSize: "12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <div style={{ width: "12px", height: "12px", background: "var(--danger)", borderRadius: "2px" }}></div>
+                    <span>Sell</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    <div style={{ width: "12px", height: "12px", background: "var(--success)", borderRadius: "2px" }}></div>
+                    <span>Buy</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Simplified depth chart visualization */}
+              <svg viewBox="0 0 400 250" style={{ width: "100%", height: "250px" }}>
+                {/* Grid lines */}
+                {[...Array(6)].map((_, i) => (
+                  <line
+                    key={`h-${i}`}
+                    x1="0"
+                    y1={i * 40 + 20}
+                    x2="400"
+                    y2={i * 40 + 20}
+                    stroke="var(--border)"
+                    strokeWidth="0.5"
+                  />
+                ))}
+                
+                {/* Buy side depth */}
+                <path
+                  d="M200,250 L200,150 L220,155 L240,165 L260,180 L280,200 L300,220 L320,235 L340,245 L360,248 L380,249 L400,250 L400,250 Z"
+                  fill="rgba(34, 197, 94, 0.3)"
+                  stroke="var(--success)"
+                  strokeWidth="1"
+                />
+                
+                {/* Sell side depth */}
+                <path
+                  d="M200,250 L200,140 L180,148 L160,160 L140,175 L120,195 L100,215 L80,230 L60,242 L40,247 L20,249 L0,250 L0,250 Z"
+                  fill="rgba(239, 68, 68, 0.3)"
+                  stroke="var(--danger)"
+                  strokeWidth="1"
+                />
+                
+                {/* Current price line */}
+                <line
+                  x1="200"
+                  y1="20"
+                  x2="200"
+                  y2="250"
+                  stroke="var(--text)"
+                  strokeWidth="1"
+                  strokeDasharray="4,4"
+                />
+              </svg>
+              
+              <div className="depth-stats" style={{ display: "flex", justifyContent: "space-around", marginTop: "12px", fontSize: "11px" }}>
+                <div>
+                  <div style={{ color: "var(--muted)" }}>Max Buy Volume</div>
+                  <div style={{ fontWeight: "600" }}>€{(orderBook.bids.reduce((sum, bid) => sum + bid.total, 0) / 1000).toFixed(1)}K</div>
+                </div>
+                <div>
+                  <div style={{ color: "var(--muted)" }}>Max Sell Volume</div>
+                  <div style={{ fontWeight: "600" }}>€{(orderBook.asks.reduce((sum, ask) => sum + ask.total, 0) / 1000).toFixed(1)}K</div>
+                </div>
+                <div>
+                  <div style={{ color: "var(--muted)" }}>Spread</div>
+                  <div style={{ fontWeight: "600" }}>€{((orderBook.asks[0]?.price || 0) - (orderBook.bids[0]?.price || 0)).toFixed(2)}</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
         {!showOrderHistory && (
           <section className="order-book">
             <div className="order-book-container">
@@ -394,9 +578,9 @@ export default function TradePage() {
                   <span>Total</span>
                 </div>
                 <div className="order-book-list">
-                  {orderBook.asks.slice(0, 6).map((ask, index) => (
+                  {orderBook.asks.slice().reverse().slice(0, 8).map((ask, index) => (
                     <div 
-                      key={index} 
+                      key={`ask-${index}`}
                       className="order-book-row"
                       onClick={() => updateField("price", ask.price.toFixed(activePair.priceDecimals))}
                       style={{ cursor: "pointer" }}
@@ -418,9 +602,9 @@ export default function TradePage() {
               {/* Bids (Buy Orders) */}
               <div className="order-book-section bids">
                 <div className="order-book-list">
-                  {orderBook.bids.slice(0, 6).map((bid, index) => (
+                  {orderBook.bids.slice(0, 8).map((bid, index) => (
                     <div 
-                      key={index} 
+                      key={`bid-${index}`}
                       className="order-book-row"
                       onClick={() => updateField("price", bid.price.toFixed(activePair.priceDecimals))}
                       style={{ cursor: "pointer" }}
@@ -440,13 +624,16 @@ export default function TradePage() {
         {showOrderHistory && (
           <section className="recent-trades">
             <div className="trades-list">
-              {recentTrades.map((trade, index) => (
+              {recentTrades.slice(0, 15).map((trade, index) => (
                 <div key={index} className="trade-row">
                   <span className="trade-time">{trade.time}</span>
                   <span className={`trade-price ${trade.side === "buy" ? "positive" : "negative"}`}>
                     €{trade.price.toFixed(activePair.priceDecimals)}
                   </span>
                   <span className="trade-amount">{trade.amount.toFixed(activePair.amountDecimals)}</span>
+                  <span className={`trade-side ${trade.side}`}>
+                    {trade.side === "buy" ? "B" : "S"}
+                  </span>
                 </div>
               ))}
             </div>

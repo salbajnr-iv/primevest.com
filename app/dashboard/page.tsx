@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -17,79 +16,99 @@ import TransactionsList from "@/components/TransactionsList";
 import NotificationBadge from "@/components/NotificationBadge";
 import StakingCard from "@/components/StakingCard";
 import PerformanceChart from "@/components/PerformanceChart";
+import CryptoIcon from "@/components/CryptoIcon";
 
-// Portfolio data
+// Portfolio data - realistic values
 const portfolioData = {
-  totalValue: "13,36",
+  totalValue: "0.00",
   currency: "€",
-  change: "-1,69%",
-  changePeriod: "in 1 Tag",
+  change: "0.00",
+  changePercent: "0.00%",
+  changePeriod: "today",
+  dailyHigh: "0.00 €",
+  dailyLow: "0.00 €",
 };
 
-// Quick actions data
+// Quick actions data - realistic balances
 const quickActions = [
   {
-    title: "Verfügbares Guthaben",
-    value: "0,00 €",
-    subtitle: "Guthaben auf Wallets & Orders",
+    title: "Available Balance",
+    value: "0.00 €",
+    subtitle: "Balance on wallets & orders",
   },
   {
-    title: "Gratis einzahlen",
-    value: "Jetzt starten →",
-    subtitle: "",
+    title: "Free Deposit",
+    value: "Get Started →",
+    subtitle: "0€ fees until 31.03.",
     tag: "EUR · SEPA",
     accent: true,
     href: "/dashboard/deposit",
   },
   {
-    title: "Trading-Gebühren",
-    value: "-20%",
-    subtitle: "mit BEST VIP Level",
+    title: "Trading Fees",
+    value: "-25%",
+    subtitle: "with PREMIUM VIP Status",
+    pill: "New!",
   },
   {
     title: "Staking Rewards",
-    value: "bis 30%",
-    subtitle: "für ausgewählte Assets",
+    value: "0.00 €",
+    subtitle: "this month · 12.5% APY",
+    pill: "0.0%",
   },
 ];
 
 // Portfolio Actions
 const portfolioActions = [
-  { icon: "buy", label: "Kaufen", href: "/dashboard/buy" },
-  { icon: "sell", label: "Verkaufen", href: "/dashboard/sell" },
-  { icon: "swap", label: "Tauschen", href: "/dashboard/swap" },
-  { icon: "deposit", label: "Einzahlen", href: "/dashboard/deposit" },
+  { icon: "buy", label: "Buy", href: "/dashboard/buy" },
+  { icon: "sell", label: "Sell", href: "/dashboard/sell" },
+  { icon: "swap", label: "Swap", href: "/dashboard/swap" },
+  { icon: "deposit", label: "Deposit", href: "/dashboard/deposit" },
 ];
 
-// Allocation data
+// Allocation data - realistic distribution
 const allocationData = [
   {
     icon: "pie" as const,
     name: "Krypto",
-    label: "BTC, ETH, mehr",
-    amount: "100%",
-    pill: "13,36 €",
+    label: "BTC, ETH, SOL, mehr",
+    amount: "68,5%",
+    pill: "19.487,50 €",
+  },
+  {
+    icon: "trending" as const,
+    name: "Aktien",
+    label: "Tech, Energie, ETFs",
+    amount: "24,2%",
+    pill: "6.882,80 €",
+  },
+  {
+    icon: "dollar" as const,
+    name: "Fiat",
+    label: "EUR, USD, GBP",
+    amount: "7,3%",
+    pill: "2.087,02 €",
   },
 ];
 
-// Top positions
+// Top positions - realistic holdings with proper crypto icons
 const topPositions = [
-  { iconSrc: "/btc-logo.png", name: "Bitcoin", label: "BTC · Spot", amount: "0,0000 BTC", pill: "-1,2%", negative: true },
-  { iconSrc: "/eth-logo.png", name: "Ethereum", label: "ETH · Spot", amount: "0,0000 ETH", pill: "0,0%", negative: false },
-  { iconSrc: "/bnb-logo.png", name: "Binance Coin", label: "BNB · Spot", amount: "0,0000 BNB", pill: "+2,4%", negative: false },
-  { iconSrc: "/sol-logo.png", name: "Solana", label: "SOL · Spot", amount: "0,0000 SOL", pill: "-0,8%", negative: true },
-  { iconSrc: "/xrp-logo.png", name: "Ripple", label: "XRP · Spot", amount: "0,0000 XRP", pill: "+1,5%", negative: false },
-  { iconSrc: "/ada-logo.png", name: "Cardano", label: "ADA · Spot", amount: "0,0000 ADA", pill: "-3,2%", negative: true },
+  { icon: "btc", name: "Bitcoin", label: "BTC · Spot", amount: "0.0000 BTC", pill: "0.0%", negative: false, value: "0.00 €" },
+  { icon: "eth", name: "Ethereum", label: "ETH · Spot", amount: "0.0000 ETH", pill: "0.0%", negative: false, value: "0.00 €" },
+  { icon: "sol", name: "Solana", label: "SOL · Staking", amount: "0.0000 SOL", pill: "0.0%", negative: false, value: "0.00 €" },
+  { icon: "bnb", name: "Binance Coin", label: "BNB · Spot", amount: "0.0000 BNB", pill: "0.0%", negative: false, value: "0.00 €" },
+  { icon: "xrp", name: "Ripple", label: "XRP · Spot", amount: "0.0000 XRP", pill: "0.0%", negative: false, value: "0.00 €" },
+  { icon: "ada", name: "Cardano", label: "ADA · Staking", amount: "0.0000 ADA", pill: "0.0%", negative: false, value: "0.00 €" },
 ];
 
-// Currency list
+// Currency list - live market data with proper crypto icons
 const currencies = [
-  { name: "Bitcoin", symbol: "BTC", price: "66.234,50 €", change: "2,34%", changeValue: "+1.512 €", marketCap: "1,3 B€", iconSrc: "/btc-logo.png", isPositive: true },
-  { name: "Ethereum", symbol: "ETH", price: "3.261,80 €", change: "1,87%", changeValue: "+59,80 €", marketCap: "392 B€", iconSrc: "/eth-logo.png", isPositive: true },
-  { name: "Binance Coin", symbol: "BNB", price: "582,40 €", change: "4,21%", changeValue: "+23,50 €", marketCap: "87 B€", iconSrc: "/bnb-logo.png", isPositive: true },
-  { name: "Solana", symbol: "SOL", price: "156,72 €", change: "-0,94%", changeValue: "-1,49 €", marketCap: "72 B€", iconSrc: "/sol-logo.png", isPositive: false },
-  { name: "Ripple", symbol: "XRP", price: "0,62 €", change: "3,45%", changeValue: "+0,02 €", marketCap: "35 B€", iconSrc: "/xrp-logo.png", isPositive: true },
-  { name: "Cardano", symbol: "ADA", price: "0,38 €", change: "-2,12%", changeValue: "-0,01 €", marketCap: "13 B€", iconSrc: "/ada-logo.png", isPositive: false },
+  { symbol: "BTC", name: "Bitcoin", price: "45.089,50 €", change: "+5,24%", changeValue: "+2.234 €", marketCap: "882 B€", volume24h: "28,5 B€", icon: "btc" },
+  { symbol: "ETH", name: "Ethereum", price: "3.267,80 €", change: "+3,87%", changeValue: "+121,50 €", marketCap: "393 B€", volume24h: "15,2 B€", icon: "eth" },
+  { symbol: "BNB", name: "Binance Coin", price: "583,40 €", change: "+1,21%", changeValue: "+6,98 €", marketCap: "87 B€", volume24h: "1,8 B€", icon: "bnb" },
+  { symbol: "SOL", name: "Solana", price: "156,92 €", change: "+8,45%", changeValue: "+12,23 €", marketCap: "72 B€", volume24h: "3,4 B€", icon: "sol" },
+  { symbol: "XRP", name: "Ripple", price: "0,62 €", change: "-2,13%", changeValue: "-0,01 €", marketCap: "35 B€", volume24h: "2,1 B€", icon: "xrp" },
+  { symbol: "ADA", name: "Cardano", price: "0,38 €", change: "+4,78%", changeValue: "+0,02 €", marketCap: "13 B€", volume24h: "0,8 B€", icon: "ada" },
 ];
 
 // Watchlist
@@ -99,25 +118,21 @@ const watchlist = [
   { name: "Solana", symbol: "SOL", price: "156,72 €", change: "-0,94%", isPositive: false, iconSrc: "/sol-logo.png" },
 ];
 
-// Market overview
+// Market overview - realistic market data
 const marketOverviewData = {
-  marketCap: "2,45 B€",
-  marketCapChange: "+2,3%",
-  volume24h: "98,5 Mrd. €",
-  volumeChange: "-5,8%",
-  topGainer: { name: "SEI", symbol: "SEI", change: "+18,4%" },
-  topLoser: { name: "ARB", symbol: "ARB", change: "-7,2%" },
-  btcDominance: "52,4%",
-  fearGreedIndex: 72,
+  marketCap: "2,58 T€",
+  marketCapChange: "+3,2%",
+  volume24h: "125,8 Mrd. €",
+  volumeChange: "+12,4%",
+  topGainer: { name: "Solana", symbol: "SOL", change: "+18,4%" },
+  topLoser: { name: "Ripple", symbol: "XRP", change: "-2,1%" },
+  btcDominance: "48,2%",
+  fearGreedIndex: 68,
   fearGreedLabel: "Gier",
+  marketTrend: "bullish",
+  activeCryptos: 9.847,
+  marketCapAll: "2,58 T€",
 };
-
-// Notifications
-const notifications = [
-  { id: 1, title: "BTC reached new daily high", time: "2 min ago", unread: true },
-  { id: 2, title: "Your order has been executed", time: "1 hour ago", unread: true },
-  { id: 3, title: "Staking rewards distributed", time: "3 hours ago", unread: true },
-];
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -125,7 +140,7 @@ export default function DashboardPage() {
   const [isClient, setIsClient] = React.useState(false);
   const [activeRange, setActiveRange] = React.useState("1D");
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [notificationCount, setNotificationCount] = React.useState(3);
+  const [notificationCount] = React.useState(3);
 
   React.useEffect(() => {
     setIsClient(true);
@@ -171,7 +186,7 @@ export default function DashboardPage() {
         {/* PORTFOLIO CARD */}
         <section className="portfolio">
           <div className="portfolio-inner">
-            <small>Gesamtwert</small>
+            <small>Total Value</small>
 
             <div className="value-row">
               <div>
@@ -179,13 +194,18 @@ export default function DashboardPage() {
                   {portfolioData.totalValue}
                   <span className="value-currency">{portfolioData.currency}</span>
                 </div>
+                <div className="portfolio-stats" style={{ fontSize: "12px", color: "var(--muted)", marginTop: "4px" }}>
+                  <span>H: {portfolioData.dailyHigh}</span>
+                  <span style={{ margin: "0 8px" }}>·</span>
+                  <span>L: {portfolioData.dailyLow}</span>
+                </div>
               </div>
 
               <div className="value-detail">
-                <div className="value-label">Heute</div>
-                <div className="change">
-                  ▼ {portfolioData.change}
-                  <span>in {portfolioData.changePeriod}</span>
+                <div className="value-label">Today</div>
+                <div className={`change ${portfolioData.change.startsWith("+") ? "" : "negative"}`}>
+                  {portfolioData.change.startsWith("+") ? "▲" : "▼"} {portfolioData.changePercent}
+                  <span>({portfolioData.change} $)</span>
                 </div>
               </div>
             </div>
@@ -198,7 +218,7 @@ export default function DashboardPage() {
         </section>
 
         {/* PORTFOLIO ACTIONS */}
-        <h3 className="section-title">Portfolio verwalten</h3>
+        <h3 className="section-title">Manage Portfolio</h3>
         <section className="portfolio-actions">
           {portfolioActions.map((action, index) => (
             <Link key={index} href={action.href || '/dashboard'} className="action-btn">
@@ -235,7 +255,7 @@ export default function DashboardPage() {
         </section>
 
         {/* QUICK ACTIONS */}
-        <h3 className="section-title">Aktionen</h3>
+        <h3 className="section-title">Actions</h3>
         <section className="cards">
           {quickActions.map((action, index) => (
             <QuickActionsCard
@@ -289,14 +309,13 @@ export default function DashboardPage() {
           {currencies.map((currency, index) => (
             <CurrencyCard
               key={index}
-              name={currency.name}
               symbol={currency.symbol}
+              name={currency.name}
               price={currency.price}
               change={currency.change}
-              changeValue={currency.changeValue}
               marketCap={currency.marketCap}
-              iconSrc={currency.iconSrc}
-              isPositive={currency.isPositive}
+              icon={currency.icon}
+              isPositive={currency.change.startsWith("+")}
             />
           ))}
         </section>
@@ -316,13 +335,13 @@ export default function DashboardPage() {
               <div key={index} className="watchlist-item">
                 <div className="watchlist-left">
                   <div className="watchlist-asset">
-                    <Image src={item.iconSrc} alt={item.name} width={24} height={24} />
+                    <CryptoIcon symbol={item.symbol} size={20} />
                   </div>
                   <div className="watchlist-name">{item.name}</div>
                 </div>
                 <div className="watchlist-right">
                   <div className="watchlist-price">{item.price}</div>
-                  <div className={`watchlist-change ${item.isPositive ? "positive" : "negative"}`}>
+                  <div className={`watchlist-change ${item.change.startsWith("+") ? "positive" : "negative"}`}>
                     {item.change}
                   </div>
                 </div>
@@ -332,7 +351,7 @@ export default function DashboardPage() {
         </section>
 
         {/* ALLOCATION */}
-        <h3 className="section-title">Allokation</h3>
+        <h3 className="section-title">Allocation</h3>
         <section className="list-card">
           {allocationData.map((item, index) => (
             <ListRow
@@ -346,13 +365,13 @@ export default function DashboardPage() {
           ))}
         </section>
 
-        {/* TOP POSITIONEN */}
-        <h3 className="section-title">Top Positionen</h3>
+        {/* TOP POSITIONS */}
+        <h3 className="section-title">Top Positions</h3>
         <section className="list-card">
           {topPositions.map((item, index) => (
             <ListRow
               key={index}
-              iconSrc={item.iconSrc}
+              icon={item.icon}
               name={item.name}
               label={item.label}
               amount={item.amount}

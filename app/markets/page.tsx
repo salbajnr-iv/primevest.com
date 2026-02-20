@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
-import { usePriceSimulation, MarketData, formatPrice, formatCompact, getCoinColor, getCoinLogo } from "@/hooks/usePriceSimulation";
+import { usePriceSimulation, MarketData, formatPrice, formatCompact, getCoinColor } from "@/hooks/usePriceSimulation";
 
 // Market data with icon paths
 const initialMarketData: MarketData[] = [
@@ -40,7 +40,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
 ];
 
 export default function MarketsPage() {
-  const { data: marketData, lastUpdate, subscribeToCoin } = usePriceSimulation(initialMarketData, 3000);
+  const { data: marketData, lastUpdate } = usePriceSimulation(initialMarketData, 3000);
   const [isClient, setIsClient] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [activeCategory, setActiveCategory] = React.useState("all");
@@ -147,7 +147,7 @@ export default function MarketsPage() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button className="sync-btn" onClick={() => {}} title="Refresh">
+            <button className="sync-btn" onClick={() => {}} title="Refresh" aria-label="Refresh">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
                 <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                 <path d="M3 3v5h5" />
@@ -155,7 +155,7 @@ export default function MarketsPage() {
                 <path d="M16 21h5v-5" />
               </svg>
             </button>
-            <button className="sync-btn" onClick={() => setIsSidebarOpen(true)}>
+            <button className="sync-btn" onClick={() => setIsSidebarOpen(true)} aria-label="Open menu" title="Open menu">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="3" y1="12" x2="21" y2="12" />
                 <line x1="3" y1="6" x2="21" y2="6" />
@@ -200,7 +200,10 @@ export default function MarketsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+          <label htmlFor="marketSort" className="sr-only">Sort markets by</label>
           <select 
+            id="marketSort"
+            aria-label="Sort markets by"
             className="order-input" 
             style={{ width: "auto", padding: "10px 12px", cursor: "pointer" }}
             value={sortBy}
@@ -269,6 +272,7 @@ export default function MarketsPage() {
                 </div>
                 <button 
                   className="fav-btn"
+                  aria-label="Toggle favorite"
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleFavorite(market.id);
@@ -369,7 +373,7 @@ export default function MarketsPage() {
                   <span style={{ color: "var(--muted)", fontSize: 13 }}>{selectedCoin.symbol}</span>
                 </div>
               </div>
-              <button className="modal-close" onClick={() => setSelectedCoin(null)}>
+              <button className="modal-close" onClick={() => setSelectedCoin(null)} aria-label="Close" title="Close">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
@@ -404,10 +408,18 @@ export default function MarketsPage() {
               </div>
 
               <div style={{ display: "flex", gap: 10 }}>
-                <Link href="/dashboard/trade" className="order-button buy" style={{ flex: 1, textAlign: "center", textDecoration: "none" }}>
+                <Link 
+                  href={`/dashboard/trade?pair=${selectedCoin.symbol.toLowerCase()}-eur&side=buy`}
+                  className="order-button buy" 
+                  style={{ flex: 1, textAlign: "center", textDecoration: "none" }}
+                >
                   Buy {selectedCoin.symbol}
                 </Link>
-                <Link href="/dashboard/trade" className="order-button sell" style={{ flex: 1, textAlign: "center", textDecoration: "none" }}>
+                <Link 
+                  href={`/dashboard/trade?pair=${selectedCoin.symbol.toLowerCase()}-eur&side=sell`}
+                  className="order-button sell" 
+                  style={{ flex: 1, textAlign: "center", textDecoration: "none" }}
+                >
                   Sell {selectedCoin.symbol}
                 </Link>
               </div>

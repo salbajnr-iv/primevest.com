@@ -9,17 +9,22 @@ interface Asset {
   name: string;
   price: number;
   balance?: number;
+  change24h?: string;
+  marketCap?: string;
+  volume24h?: string;
 }
 
 const assets: Asset[] = [
-  { symbol: "BTC", name: "Bitcoin", price: 45234.50, balance: 0.0021 },
-  { symbol: "ETH", name: "Ethereum", price: 2845.30, balance: 0.030 },
-  { symbol: "SOL", name: "Solana", price: 98.45, balance: 0.50 },
-  { symbol: "BNB", name: "Binance Coin", price: 312.80, balance: 0.01 },
-  { symbol: "XRP", name: "Ripple", price: 0.52, balance: 100 },
-  { symbol: "ADA", name: "Cardano", price: 0.45, balance: 500 },
-  { symbol: "DOGE", name: "Dogecoin", price: 0.08, balance: 1000 },
-  { symbol: "DOT", name: "Polkadot", price: 7.85, balance: 25 },
+  { symbol: "BTC", name: "Bitcoin", price: 45234.50, balance: 0.0021, change24h: "+5,24%", marketCap: "882 B€", volume24h: "28,5 B€" },
+  { symbol: "ETH", name: "Ethereum", price: 2845.30, balance: 0.030, change24h: "+3,87%", marketCap: "393 B€", volume24h: "15,2 B€" },
+  { symbol: "SOL", name: "Solana", price: 156.92, balance: 0.50, change24h: "+8,45%", marketCap: "72 B€", volume24h: "3,4 B€" },
+  { symbol: "BNB", name: "Binance Coin", price: 583.40, balance: 0.01, change24h: "+1,21%", marketCap: "87 B€", volume24h: "1,8 B€" },
+  { symbol: "XRP", name: "Ripple", price: 0.62, balance: 100, change24h: "-2,13%", marketCap: "35 B€", volume24h: "2,1 B€" },
+  { symbol: "ADA", name: "Cardano", price: 0.38, balance: 500, change24h: "+4,78%", marketCap: "13 B€", volume24h: "0,8 B€" },
+  { symbol: "DOGE", name: "Dogecoin", price: 0.08, balance: 1000, change24h: "+12,34%", marketCap: "11 B€", volume24h: "1,2 B€" },
+  { symbol: "DOT", name: "Polkadot", price: 7.85, balance: 25, change24h: "+6,89%", marketCap: "9 B€", volume24h: "0,6 B€" },
+  { symbol: "AVAX", name: "Avalanche", price: 23.45, balance: 15, change24h: "+9,12%", marketCap: "8 B€", volume24h: "0,4 B€" },
+  { symbol: "MATIC", name: "Polygon", price: 0.92, balance: 850, change24h: "+2,56%", marketCap: "8 B€", volume24h: "0,3 B€" },
 ];
 
 export default function BuySelectPage() {
@@ -35,8 +40,9 @@ export default function BuySelectPage() {
   );
 
   const estimatedAmount = amount ? (parseFloat(amount) / asset.price).toFixed(6) : "0";
-  const fee = amount ? (parseFloat(amount) * 0.01).toFixed(2) : "0.00";
-  const total = amount ? (parseFloat(amount) + parseFloat(amount) * 0.01).toFixed(2) : "0.00";
+  const fee = amount ? (parseFloat(amount) * 0.015).toFixed(2) : "0.00"; // 1.5% fee
+  const total = amount ? (parseFloat(amount) + parseFloat(amount) * 0.015).toFixed(2) : "0.00";
+  const savings = amount ? (parseFloat(amount) * 0.005).toFixed(2) : "0.00"; // 0.5% savings with VIP
 
   function next() {
     if (!amount || parseFloat(amount) <= 0) return;
@@ -59,12 +65,13 @@ export default function BuySelectPage() {
 
         <main className="page-card">
           <div className="page-header" style={{ marginBottom: "16px" }}>
-            <h2 style={{ margin: 0 }}>Kaufen</h2>
+            <h2 style={{ margin: 0 }}>Buy</h2>
+            <div className="subtitle">Purchase crypto securely in a few taps</div>
           </div>
 
           {/* Asset Selector */}
           <div className="form-row">
-            <label>Asset auswählen</label>
+            <label>Asset</label>
             <div className="asset-selector">
               <div 
                 className="asset-selector-input"
@@ -102,7 +109,7 @@ export default function BuySelectPage() {
                   <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
                     <input
                       type="text"
-                      placeholder="Suchen..."
+                      placeholder="Search..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="asset-selector-input"
@@ -138,6 +145,11 @@ export default function BuySelectPage() {
                         <div style={{ fontSize: "14px", fontWeight: "600", color: "var(--text)" }}>
                           {a.price.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}
                         </div>
+                        {a.change24h && (
+                          <div style={{ fontSize: "11px", color: a.change24h.startsWith("+") ? "var(--success)" : "var(--danger)" }}>
+                            {a.change24h}
+                          </div>
+                        )}
                         {a.balance && (
                           <div className="asset-balance">
                             {a.balance.toLocaleString("de-DE")} {a.symbol}
@@ -153,12 +165,12 @@ export default function BuySelectPage() {
 
           {/* Amount Input */}
           <div className="form-row">
-            <label>Betrag (EUR)</label>
+            <label>Amount (EUR)</label>
             <input 
               type="number" 
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="z. B. 100"
+              placeholder="e.g. 100"
               className="order-input"
               style={{ textAlign: "left", fontSize: "16px" }}
             />
@@ -177,26 +189,32 @@ export default function BuySelectPage() {
             </div>
           </div>
 
-          {/* Price Estimate */}
+          {/* Enhanced Price Estimate */}
           <div className="price-estimate">
             <div className="price-estimate-row">
-              <span className="price-estimate-label">Aktueller Preis</span>
+              <span className="price-estimate-label">Price</span>
               <span className="price-estimate-value">
                 {asset.price.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}
               </span>
             </div>
             <div className="price-estimate-row">
-              <span className="price-estimate-label">Erhaltene Menge</span>
+              <span className="price-estimate-label">You get</span>
               <span className="price-estimate-value highlight">
                 {estimatedAmount} {asset.symbol}
               </span>
             </div>
             <div className="price-estimate-row">
-              <span className="price-estimate-label">Gebühr (1%)</span>
+              <span className="price-estimate-label">Fee (1.5%)</span>
               <span className="price-estimate-value">{fee} €</span>
             </div>
+            {parseFloat(savings) > 0 && (
+              <div className="price-estimate-row" style={{ color: "var(--success)" }}>
+                <span className="price-estimate-label">VIP Discount</span>
+                <span className="price-estimate-value">-{savings} €</span>
+              </div>
+            )}
             <div className="price-estimate-row" style={{ borderTop: "none", paddingTop: 0 }}>
-              <span className="price-estimate-label" style={{ fontWeight: "600" }}>Gesamt</span>
+              <span className="price-estimate-label" style={{ fontWeight: "600" }}>Total</span>
               <span className="price-estimate-value highlight" style={{ fontSize: "16px" }}>
                 {total} €
               </span>
@@ -210,10 +228,10 @@ export default function BuySelectPage() {
               onClick={() => router.push('/dashboard/portfolio')}
               style={{ flex: 1, padding: "14px", border: "1px solid var(--border)" }}
             >
-              Abbrechen
+              Cancel
             </button>
             <button 
-              className="btn-enhanced buy" 
+              className="btn-primary" 
               onClick={next}
               disabled={!amount || parseFloat(amount) <= 0}
               style={{ flex: 2 }}
@@ -221,7 +239,7 @@ export default function BuySelectPage() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: "20px", height: "20px" }}>
                 <path d="M12 5v14M5 12h14" />
               </svg>
-              Weiter zur Bestätigung
+              Continue to Confirmation
             </button>
           </div>
         </main>
