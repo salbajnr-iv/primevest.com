@@ -85,7 +85,7 @@ export default function FAQPage() {
         {
           id: 7,
           question: "Which trading platforms do you offer?",
-          answer: "We provide multiple platforms including MetaTrader 4, MetaTrader 5, our web-based Bitpanda Pro platform, and mobile apps for iOS and Android. All platforms offer the same competitive pricing and execution quality."
+          answer: "We provide multiple platforms including MetaTrader 4, MetaTrader 5, our web-based PrimeVest Capital platform, and mobile apps for iOS and Android. All platforms offer the same competitive pricing and execution quality."
         },
         {
           id: 8,
@@ -128,7 +128,7 @@ export default function FAQPage() {
       questions: [
         {
           id: 13,
-          question: "Is my money safe with Bitpanda Pro?",
+          question: "Is my money safe with PrimeVest Capital?",
           answer: "Yes, client funds are held in segregated accounts with top-tier European banks. We're regulated by relevant financial authorities and maintain strict compliance with international standards. Additionally, we have comprehensive insurance coverage."
         },
         {
@@ -156,7 +156,7 @@ export default function FAQPage() {
         {
           id: 17,
           question: "Do you provide educational resources?",
-          answer: "Yes, we offer comprehensive educational materials including trading guides, video tutorials, webinars, market analysis, and trading strategies. Our Bitpanda Academy helps both beginners and experienced traders improve their skills."
+          answer: "Yes, we offer comprehensive educational materials including trading guides, video tutorials, webinars, market analysis, and trading strategies. Our PrimeVest Academy helps both beginners and experienced traders improve their skills."
         },
         {
           id: 18,
@@ -190,7 +190,7 @@ export default function FAQPage() {
             <Link href="/" className="flex items-center group">
               <Image
                 src="/bitpanda-logo.svg"
-                alt="Bitpanda Pro"
+                alt="PrimeVest Capital"
                 width={140}
                 height={35}
                 className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"

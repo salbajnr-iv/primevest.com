@@ -6,37 +6,37 @@ import AuthProvider from "@/components/AuthProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export const metadata: Metadata = {
-  title: "Bitpanda Pro - Professional Trading Platform",
-  description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with Bitpanda Pro. European regulated crypto & securities broker platform.",
-  keywords: "Bitpanda Pro, cryptocurrency, crypto, trading, invest, stocks, ETFs, precious metals, bitcoin, ethereum, professional trading",
-  authors: [{ name: "Bitpanda" }],
-  creator: "Bitpanda",
-  publisher: "Bitpanda",
+  title: "PrimeVest Capital - Professional Trading Platform",
+  description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest Capital. European regulated crypto & securities broker platform.",
+  keywords: "PrimeVest Capital, cryptocurrency, crypto, trading, invest, stocks, ETFs, precious metals, bitcoin, ethereum, professional trading",
+  authors: [{ name: "PrimeVest Capital" }],
+  creator: "PrimeVest Capital",
+  publisher: "PrimeVest Capital",
   robots: "index, follow",
   referrer: "origin",
   alternates: {
-    canonical: "https://www.bitpandapro.com"
+    canonical: "https://www.primevestcapital.com"
   },
   openGraph: {
     type: "website",
-    title: "Bitpanda Pro - Professional Trading Platform",
-    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with Bitpanda Pro. European regulated crypto & securities broker platform.",
-    url: "https://www.bitpandapro.com",
-    siteName: "Bitpanda Pro",
+    title: "PrimeVest Capital - Professional Trading Platform",
+    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest Capital. European regulated crypto & securities broker platform.",
+    url: "https://www.primevestcapital.com",
+    siteName: "PrimeVest Capital",
     images: [
       {
         url: "https://cdn.bitpanda.com/media/og-images-open-graph/bitpanda-og.png",
         width: 1200,
         height: 630,
-        alt: "Bitpanda Pro - Professional Trading Platform"
+        alt: "PrimeVest Capital - Professional Trading Platform"
       }
     ]
   },
   twitter: {
     card: "summary",
-    site: "@Bitpanda_global",
-    title: "Bitpanda Pro - Professional Trading Platform",
-    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with Bitpanda Pro. European regulated crypto & securities broker platform."
+    site: "@PrimeVestCapital",
+    title: "PrimeVest Capital - Professional Trading Platform",
+    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest Capital. European regulated crypto & securities broker platform."
   }
 };
 
