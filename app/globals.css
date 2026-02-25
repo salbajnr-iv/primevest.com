@@ -410,9 +410,10 @@ body {
   height: 100%;
   font-family: var(--font-family-default);
   -webkit-font-smoothing: antialiased;
-  /* Prevent automatic text size adjustment on mobile - webkit for Safari/Chrome, standard for others */
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+  /* Prevent automatic text size adjustment on mobile - modern browsers */
+  @supports (text-size-adjust: 100%) {
+    text-size-adjust: 100%;
+  }
   background-color: var(--color-screen-background-primary);
   color: var(--color-neutrals-text-primary);
 }
@@ -4520,8 +4521,10 @@ h2 {
   display: flex;
   gap: 10px;
   padding: 6px 0;
-  /* Hide scrollbar for modern browsers - fallback for older browsers available */
-  scrollbar-width: none;
+  /* Hide scrollbar for modern browsers - Firefox only, fallback for older browsers available */
+  @supports (scrollbar-width: none) {
+    scrollbar-width: none;
+  }
   /* Hide scrollbar for IE and Edge */
   -ms-overflow-style: none;
 }
@@ -5306,9 +5309,11 @@ h2 {
   flex-direction: column;
   max-height: 400px;
   overflow-y: auto;
-  /* Custom scrollbar for Firefox - fallback for older browsers available */
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  /* Custom scrollbar for Firefox - wrapped in @supports for browser compatibility */
+  @supports (scrollbar-width: thin) and (scrollbar-color: var(--border) transparent) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
 }
 
 .trades-list::-webkit-scrollbar {

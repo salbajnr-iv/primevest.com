@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import type { User, Session, AuthError } from '@supabase/supabase-js'
 
@@ -28,7 +28,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   )
 
   // Check if user is admin
-  const checkAdminStatus = async (userId: string): Promise<boolean> => {
+  const checkAdminStatus = useCallback(async (userId: string): Promise<boolean> => {
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -49,7 +49,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       console.warn('Error checking admin status')
       return false
     }
-  }
+  }, [supabase])
 
   useEffect(() => {
     // Get initial session
@@ -85,7 +85,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe()
     }
-  }, [supabase.auth])
+  }, [supabase.auth, checkAdminStatus])
 
   const signIn = async (email: string, password: string) => {
     const result = await supabase.auth.signInWithPassword({ email, password })

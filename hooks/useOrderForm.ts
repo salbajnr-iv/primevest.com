@@ -49,7 +49,6 @@ export const tradingPairs: TradingPair[] = [
 ];
 
 // Order fee structure
-const makerFee = 0.001; // 0.1%
 const takerFee = 0.0015; // 0.15%
 
 export function useOrderForm(pair: TradingPair, availableBalance: number = 10000, initialSide?: OrderSide) {
@@ -64,7 +63,7 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
   const [lastOrderTime, setLastOrderTime] = React.useState<Date | null>(null);
 
   // Calculate order total
-  const calculateTotal = React.useCallback((amount: string, price: string, orderType: OrderType): string => {
+  const calculateTotal = React.useCallback((amount: string, price: string): string => {
     const amountNum = parseFloat(amount);
     const priceNum = parseFloat(price);
     
@@ -79,10 +78,10 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
   // Update total when amount or price changes
   React.useEffect(() => {
     if (formData.amount && formData.orderType === "limit") {
-      const total = calculateTotal(formData.amount, formData.price, "limit");
+      const total = calculateTotal(formData.amount, formData.price);
       setFormData(prev => ({ ...prev, total }));
     } else if (formData.amount && formData.orderType === "market") {
-      const total = calculateTotal(formData.amount, pair.price.toString(), "market");
+      const total = calculateTotal(formData.amount, pair.price.toString());
       setFormData(prev => ({ ...prev, total, price: pair.price.toFixed(pair.priceDecimals) }));
     }
   }, [formData.amount, formData.price, formData.orderType, pair.price, pair.priceDecimals, calculateTotal]);
@@ -207,15 +206,15 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
       // Recalculate total if amount or price changes
       if (field === "amount" || field === "price") {
         if (newData.orderType === "limit") {
-          newData.total = calculateTotal(newData.amount, newData.price, "limit");
+          newData.total = calculateTotal(newData.amount, newData.price);
         } else {
-          newData.total = calculateTotal(newData.amount, pair.price.toString(), "market");
+          newData.total = calculateTotal(newData.amount, pair.price.toString());
         }
       }
       
       return newData;
     });
-  }, [pair.price, pair.priceDecimals, calculateTotal]);
+  }, [pair.price, calculateTotal]);
 
   // Set max amount
   const setMaxAmount = React.useCallback(() => {

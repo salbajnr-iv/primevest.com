@@ -57,7 +57,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900 overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 text-gray-900 overflow-hidden">
       {/* Header */}
       <motion.header 
         initial={{ y: -100 }}
@@ -228,7 +228,7 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="relative py-20 px-4 md:px-8 bg-gradient-to-br from-gray-50 to-gray-100 border-b border-gray-200 overflow-hidden section-padding"
+        className="relative py-20 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 border-b border-gray-200 overflow-hidden section-padding"
       >
         {/* Animated background elements */}
         <div className="absolute inset-0">
@@ -249,7 +249,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="text-display font-bold text-gray-900 leading-tight bg-gradient-to-r from-gray-900 via-emerald-600 to-emerald-700 bg-clip-text text-transparent transition-professional"
+                  className="text-display font-bold leading-tight bg-linear-to-r from-gray-900 via-emerald-600 to-emerald-700 bg-clip-text text-transparent transition-professional"
                 >
                   Trade Forex, Stocks, Crypto & More
                 </motion.h1>
@@ -271,7 +271,7 @@ export default function Home() {
               >
                 <Button 
                   onClick={handleStartTrading} 
-                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-4 text-lg rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 btn-premium"
+                  className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-4 text-lg rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 btn-premium"
                 >
                   Start Trading
                 </Button>
@@ -307,16 +307,16 @@ export default function Home() {
             >
               <div className="relative">
                 {/* Glowing effect around the dashboard */}
-                <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/10 to-blue-500/10 rounded-3xl blur-xl opacity-75 animate-pulse"></div>
+                <div className="absolute -inset-4 bg-linear-to-r from-emerald-500/10 to-blue-500/10 rounded-3xl blur-xl opacity-75 animate-pulse"></div>
                 
                 {/* Main dashboard container */}
-                <div className="relative h-96 w-full bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 p-4 sm:p-6 flex flex-col shadow-xl overflow-hidden group card-elevated">
+                <div className="relative h-96 w-full bg-linear-to-br from-white to-gray-50 rounded-2xl border border-gray-200 p-4 sm:p-6 flex flex-col shadow-xl overflow-hidden group card-elevated">
                   {/* Micro-interaction: subtle glow on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none"></div>
                   
                   {/* Simulated chart area */}
                   <div className="flex-1 relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/10 to-transparent rounded-xl"></div>
+                    <div className="absolute inset-0 bg-linear-to-br from-emerald-50/10 to-transparent rounded-xl"></div>
                     
                     {/* Simulated price chart */}
                     <div className="absolute bottom-0 left-0 right-0 h-3/4">
@@ -380,14 +380,14 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-b from-gray-50 to-gray-100 section-padding"
+        className="py-24 px-4 md:px-8 bg-linear-to-b from-gray-50 to-gray-100 section-padding"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <h2 className="text-heading font-bold text-gray-900 mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
+            <h2 className="text-heading font-bold mb-6 bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
               Multiple Assets, One Platform
             </h2>
             <p className="text-body text-gray-600 max-w-3xl mx-auto transition-professional">
@@ -413,12 +413,12 @@ export default function Home() {
               >
                 <div className="relative bg-white border border-gray-200 rounded-2xl p-8 hover:border-emerald-300 transition-all duration-300 cursor-pointer h-full flex flex-col justify-between shadow-lg hover:shadow-2xl overflow-hidden card-premium">
                   {/* Animated background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-white to-gray-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-700"></div>
                   <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/5 rounded-full translate-y-12 -translate-x-12 group-hover:scale-150 transition-transform duration-700"></div>
                   
                   <div className="relative z-10">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 border border-gray-300 flex items-center justify-center mb-6 group-hover:rotate-6 transition-transform duration-300">
+                    <div className="w-16 h-16 rounded-xl bg-linear-to-br from-gray-100 to-gray-200 border border-gray-300 flex items-center justify-center mb-6 group-hover:rotate-6 transition-transform duration-300">
                       <span className="text-3xl">{asset.icon}</span>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors duration-300 transition-professional">{asset.title}</h3>
@@ -438,7 +438,7 @@ export default function Home() {
           >
             <Button 
               onClick={handleExploreAssets} 
-              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
+              className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
             >
               Explore All Assets
             </Button>
@@ -451,14 +451,14 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-br from-gray-50 to-gray-100 section-padding"
+        className="py-24 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 section-padding"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <h2 className="text-heading font-bold text-gray-900 mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
+            <h2 className="text-heading font-bold mb-6 bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
               Built for Traders
             </h2>
             <p className="text-body text-gray-600 transition-professional">Everything you need to trade successfully</p>
@@ -531,7 +531,7 @@ export default function Home() {
               >
                 <div className="relative bg-white border border-gray-200 rounded-2xl p-8 hover:border-emerald-300 transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden card-premium">
                   {/* Animated background elements */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="absolute top-4 right-4 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
                   
                   <div className="relative z-10">
@@ -555,14 +555,14 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-br from-gray-50 to-gray-100 section-padding"
+        className="py-24 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 section-padding"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <h2 className="text-heading font-bold text-gray-900 mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
+            <h2 className="text-heading font-bold mb-6 bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
               Reliable. Trusted. Awarded.
             </h2>
             <p className="text-body text-gray-600 transition-professional">
@@ -624,14 +624,14 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-br from-gray-50 to-gray-100 section-padding"
+        className="py-24 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 section-padding"
       >
         <div className="max-w-5xl mx-auto">
           <motion.div 
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
+            <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
               Trade in 3 Simple Steps
             </h2>
             <p className="text-xl text-gray-600 transition-professional">
@@ -641,7 +641,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative grid-responsive">
             {/* Connecting lines for desktop */}
-            <div className="hidden md:flex absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-200 via-emerald-400 to-emerald-200 -z-10 transform -translate-y-1/2"></div>
+            <div className="hidden md:flex absolute top-1/2 left-0 right-0 h-0.5 bg-linear-to-r from-emerald-200 via-emerald-400 to-emerald-200 -z-10 transform -translate-y-1/2"></div>
             
             {[
               {
@@ -683,11 +683,11 @@ export default function Home() {
               >
                 <div className="relative bg-white border border-gray-200 rounded-2xl p-8 text-center hover:border-emerald-300 transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden card-premium">
                   {/* Animated background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   
                   <div className="relative z-10">
                     <div className="mb-6 flex justify-center">
-                      <div className="relative w-20 h-20 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full flex items-center justify-center border-2 border-emerald-200 group-hover:border-emerald-500 group-hover:from-emerald-200 group-hover:to-emerald-300 transition-all duration-300">
+                      <div className="relative w-20 h-20 bg-linear-to-br from-emerald-100 to-emerald-200 rounded-full flex items-center justify-center border-2 border-emerald-200 group-hover:border-emerald-500 group-hover:from-emerald-200 group-hover:to-emerald-300 transition-all duration-300">
                         <span className="text-3xl font-bold text-emerald-700">{item.step}</span>
                       </div>
                       <div className="absolute top-6 right-0 text-emerald-500 transform -translate-x-8 group-hover:animate-bounce">
@@ -708,7 +708,7 @@ export default function Home() {
           >
             <Button 
               onClick={handleStartTrading} 
-              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
+              className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
             >
               Start Trading
             </Button>
@@ -727,14 +727,14 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-br from-gray-50 to-gray-100 section-padding"
+        className="py-24 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 section-padding"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
+            <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
               Download Our App
             </h2>
             <p className="text-xl text-gray-600 transition-professional">
@@ -789,7 +789,7 @@ export default function Home() {
               >
                 <div className="relative bg-white border border-gray-200 rounded-2xl p-8 text-center hover:border-emerald-300 transition-all duration-300 shadow-lg hover:shadow-2xl flex flex-col h-full overflow-hidden card-premium">
                   {/* Animated background elements */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="absolute top-4 right-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
                   
                   <div className="relative z-10 flex flex-col h-full">
@@ -801,18 +801,18 @@ export default function Home() {
                       </div>
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-emerald-600 transition-colors duration-300 transition-professional">{app.title}</h3>
-                    <p className="text-gray-600 mb-8 flex-grow">{app.desc}</p>
+                    <p className="text-gray-600 mb-8 grow">{app.desc}</p>
                     {app.isInternalLink ? (
                       <Button 
                         onClick={handleStartTrading} 
-                        className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg w-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl btn-premium"
+                        className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg w-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl btn-premium"
                       >
                         {app.buttonText}
                       </Button>
                     ) : (
                       <Button 
                         asChild 
-                        className="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-lg w-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl border border-gray-600 btn-premium"
+                        className="bg-linear-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-lg w-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl border border-gray-600 btn-premium"
                       >
                         <a href={app.url} target="_blank" rel="noopener noreferrer">
                           {app.buttonText}
@@ -832,7 +832,7 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-r from-emerald-500 to-emerald-600 section-padding"
+        className="py-24 px-4 md:px-8 bg-linear-to-r from-emerald-500 to-emerald-600 section-padding"
       >
         <div className="max-w-4xl mx-auto text-center">
           <motion.h2 
@@ -927,7 +927,7 @@ export default function Home() {
                   className="flex-1 bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition"
                   suppressHydrationWarning
                 />
-                <button className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                <button className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
                   →
                 </button>
               </div>

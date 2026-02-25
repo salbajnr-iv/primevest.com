@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import type { User } from '@supabase/supabase-js'
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
@@ -41,11 +42,11 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  let user: any = null
+  let user: User | null = null
   try {
     const { data } = await supabase.auth.getUser()
     user = data.user
-  } catch (_) {
+  } catch {
     // If Supabase fails (network/env), bypass gating to avoid 404s
     return response
   }

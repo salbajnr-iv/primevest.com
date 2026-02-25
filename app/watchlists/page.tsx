@@ -7,7 +7,7 @@ import BottomNav from "@/components/BottomNav";
 import { usePriceSimulation, MarketData, formatPrice, formatCompact, getCoinColor } from "@/hooks/usePriceSimulation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/lib/i18n/translations";
-
+            
 const allAssets: MarketData[] = [
   { id: "btc", name: "Bitcoin", symbol: "BTC", price: 43250.0, change24h: 2.45, marketCap: 842000000000, volume24h: 28400000000, high24h: 43800, low24h: 42100, iconSrc: "/btc-logo.png" },
   { id: "eth", name: "Ethereum", symbol: "ETH", price: 2280.5, change24h: 1.82, marketCap: 274000000000, volume24h: 12100000000, high24h: 2320, low24h: 2180, iconSrc: "/eth-logo.png" },
@@ -89,87 +89,82 @@ export default function WatchlistsPage() {
       </div>
     );
 
+
   return (
     <div className="dashboard-container">
-      <div className="dashboard-app container-pro">
+      <div className="dashboard-app">
         <header className="header">
-          <div className="row-between" style={{ width: '100%' }}>
-            <div className="asset-inline">
-              <Link href="/" className="btn" aria-label={t("common.back")}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polyline points="15 18 9 12 15 6" /></svg>
-              </Link>
-              <div>
-                <div className="header-eyebrow">PRICES</div>
-                <div className="header-title">{t("markets.favorites")} / Watchlists</div>
-              </div>
-            </div>
-            <button className="btn btn-primary" onClick={() => setShowCreateModal(true)} aria-label={t("common.submit")} title="Create new watchlist">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-              <span>Create</span>
-            </button>
+          <div className="header-left">
+            <Link href="/" className="header-back" aria-label={t("common.back")}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polyline points="15 18 9 12 15 6" /></svg>
+            </Link>
+            <span className="header-eyebrow">PRICES</span>
+            <div className="header-title">{t("markets.favorites")} / Watchlists</div>
           </div>
+          <button className="sync-btn" onClick={() => setShowCreateModal(true)} aria-label={t("common.submit")} title="Create new watchlist">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+          </button>
         </header>
 
         <section className="hero-section">
-          <h1 className="title-lg">{t("markets.favorites")}</h1>
-          <p className="subtitle">{t("markets.search")}</p>
+          <h1 className="hero-title">{t("markets.favorites")}</h1>
+          <p className="hero-subtitle">{t("markets.search")}</p>
         </section>
 
-        <div className="market-categories" role="tablist" aria-label="Watchlists" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '8px 0 16px' }}>
-          {Object.keys(watchlists).map((name) => (
-            <button
-              key={name}
-              className={`chip ${activeWatchlist === name ? "chip-active" : ""}`}
-              onClick={() => setActiveWatchlist(name)}
-              role="tab"
-              aria-selected={activeWatchlist === name ? "true" : "false"}
-            >
-              {name} ({watchlists[name].length})
-            </button>
-          ))}
+        <div className="market-categories" role="tablist" aria-label="Watchlists">
+          {Object.keys(watchlists).map((name) => {
+            const isSelected = activeWatchlist === name;
+            return (
+              <button
+                key={name}
+                className={`category-chip ${isSelected ? "active" : ""}`}
+                onClick={() => setActiveWatchlist(name)}
+                role="tab"
+                aria-selected={isSelected ? "true" : "false"}
+              >
+                {name} ({watchlists[name].length})
+              </button>
+            );
+          })}
         </div>
 
-        <section className="market-list card-surface" aria-labelledby="market-list-header">
-          <div id="market-list-header" className="grid-header">
-            <span>Asset</span>
-            <span>{t("markets.price")}</span>
-            <span>{t("markets.change")}</span>
-            <span>{t("markets.marketCap")}</span>
-            <span style={{ textAlign: 'right' }}>Action</span>
-          </div>
+        <section className="market-list" aria-labelledby="market-list-header">
+          <div id="market-list-header" className="market-list-header"><span>Asset</span><span>{t("markets.price")}</span><span>{t("markets.change")}</span><span>{t("markets.marketCap")}</span></div>
           <div className="market-list-body">
             {getWatchlistData(watchlists[activeWatchlist] || []).length === 0 ? (
-              <div className="empty-watchlist text-center muted" role="note" style={{ padding: '24px 16px' }}>
-                <p className="text-strong" style={{ margin: 0 }}>No assets yet</p>
-                <p style={{ margin: '6px 0 0' }}>Use the Create button or the list below to add assets</p>
+              <div className="empty-watchlist" role="note">
+                <p>{t("markets.favorites")}: 0</p>
+                <p>Click the + button to add assets</p>
               </div>
             ) : (
               getWatchlistData(watchlists[activeWatchlist] || []).map((asset) => (
-                <div key={asset.id} className="grid-row">
-                  <div className="asset-inline">
-                    <div className="asset-chip" style={{ background: getCoinColor(asset.symbol) }} aria-hidden="true">
-                      {asset.iconSrc && <Image src={asset.iconSrc} alt={asset.name} width={18} height={18} unoptimized />}
+                <div key={asset.id} className="market-row">
+                  <div className="market-asset">
+                    <div className="asset-icon" style={{ background: getCoinColor(asset.symbol) }} aria-hidden="true">
+                      {asset.iconSrc && <Image src={asset.iconSrc} alt={asset.name} width={20} height={20} unoptimized style={{ borderRadius: "50%" }} />}
                     </div>
-                    <div style={{ display: 'grid', lineHeight: 1 }}>
-                      <span className="text-strong">{asset.name}</span>
-                      <span className="muted" style={{ fontSize: 12 }}>{asset.symbol}</span>
+                    <div className="asset-info">
+                      <span className="asset-name">{asset.name}</span>
+                      <span className="asset-symbol">{asset.symbol}</span>
                     </div>
                   </div>
-                  <div className="text-tabular text-strong">
-                    €{formatPrice(asset.price, asset.symbol)}
+                  <div className="market-price">
+                    <span className="price-value">€{formatPrice(asset.price, asset.symbol)}</span>
                   </div>
-                  <div className={`text-strong ${asset.change24h >= 0 ? "positive" : "negative"}`} aria-label={`${asset.change24h.toFixed(2)} percent ${asset.change24h >= 0 ? "up" : "down"}`} style={{ color: asset.change24h >= 0 ? '#0F9D58' : '#D93025' }}>
+                  <div className={`market-change ${asset.change24h >= 0 ? "positive" : "negative"}`} aria-label={`${asset.change24h.toFixed(2)} percent ${asset.change24h >= 0 ? "up" : "down"}`}>
                     {asset.change24h >= 0 ? "+" : ""}{asset.change24h.toFixed(2)}%
                   </div>
-                  <div className="text-tabular">
-                    {formatCompact(asset.marketCap)}
+                  <div className="market-cap">
+                    <span className="cap-value">{formatCompact(asset.marketCap)}</span>
                   </div>
                   <button
                     onClick={() => toggleAsset(asset.id)}
                     aria-label={watchlists[activeWatchlist]?.includes(asset.id) ? "Remove from watchlist" : "Add to watchlist"}
-                    className={watchlists[activeWatchlist]?.includes(asset.id) ? 'btn btn-ghost-success' : 'btn btn-ghost'}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "#0f9d58", padding: 8 }}
                   >
-                    {watchlists[activeWatchlist]?.includes(asset.id) ? 'Added' : 'Add'}
+                    <svg viewBox="0 0 24 24" fill="currentColor" width={16} height={16} aria-hidden="true">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
                   </button>
                 </div>
               ))
@@ -177,38 +172,36 @@ export default function WatchlistsPage() {
           </div>
         </section>
 
-        <section className="info-section section">
-          <div className="row-between section-title" style={{ marginBottom: 8 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 650, margin: 0 }}>Add to Watchlist</h3>
-          </div>
-          <p className="muted" style={{ fontSize: 13, margin: '0 0 12px' }}>Browse all assets and add them to your watchlist:</p>
-          <div className="asset-grid">
-            {marketData.map((asset) => (
-              <div key={asset.id} className="asset-card">
-                <div className="asset-card-left">
-                  <div className="asset-card-icon" aria-hidden="true">
-                    {asset.iconSrc && <Image src={asset.iconSrc} alt={asset.name} width={16} height={16} unoptimized />}
+        <section className="info-section">
+          <h3 className="section-title">Add to Watchlist</h3>
+          <p className="add-watchlist-description">Browse all assets and add them to your watchlist:</p>
+          <div className="asset-list-container">
+            {marketData.map((asset) => {
+              const isInWatchlist = watchlists[activeWatchlist]?.includes(asset.id) ?? false;
+              return (
+                <div key={asset.id} className="asset-list-item">
+                  <div className="asset-list-item-left">
+                    <div className="asset-icon asset-icon-small" aria-hidden="true">
+                      {asset.iconSrc && <Image src={asset.iconSrc} alt={asset.name} width={16} height={16} unoptimized style={{ borderRadius: "50%" }} />}
+                    </div>
+                    <span className="asset-symbol">{asset.symbol}</span>
                   </div>
-                  <div style={{ display: 'grid', lineHeight: 1 }}>
-                    <span className="text-strong">{asset.symbol}</span>
-                    <span className="muted" style={{ fontSize: 12 }}>{asset.name}</span>
-                  </div>
+                  <button
+                    onClick={() => toggleAsset(asset.id)}
+                    className={`asset-add-btn ${isInWatchlist ? "added" : ""}`}
+                    aria-pressed={isInWatchlist ? "true" : "false"}
+                    aria-label={isInWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+                  >
+                    {isInWatchlist ? "Added" : "Add"}
+                  </button>
                 </div>
-                <button
-                  onClick={() => toggleAsset(asset.id)}
-                  className={watchlists[activeWatchlist]?.includes(asset.id) ? 'btn btn-ghost-success' : 'btn btn-ghost'}
-                  aria-pressed={watchlists[activeWatchlist]?.includes(asset.id) ? "true" : "false"}
-                  aria-label={watchlists[activeWatchlist]?.includes(asset.id) ? "Remove from watchlist" : "Add to watchlist"}
-                >
-                  {watchlists[activeWatchlist]?.includes(asset.id) ? 'Added' : 'Add'}
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
-        <div className="cta">
-          <Link href="/dashboard/trade" className="btn-cta">
+        <div className="cta-section">
+          <Link href="/dashboard/trade" className="cta-button">
             Start Trading
           </Link>
         </div>
@@ -229,14 +222,12 @@ export default function WatchlistsPage() {
                 placeholder="Watchlist name..."
                 value={newWatchlistName}
                 onChange={(e) => setNewWatchlistName(e.target.value)}
-                className="form-input"
+                className="modal-input"
                 aria-label="Watchlist name"
               />
-              <div className="modal-footer">
-                <button onClick={createWatchlist} className="btn btn-primary">
-                  Create Watchlist
-                </button>
-              </div>
+              <button onClick={createWatchlist} className="modal-submit-btn">
+                Create Watchlist
+              </button>
             </div>
           </div>
         </div>
