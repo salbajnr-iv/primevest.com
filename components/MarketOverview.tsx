@@ -33,6 +33,17 @@ export default function MarketOverview({
   fearGreedIndex,
   fearGreedLabel,
 }: MarketOverviewProps) {
+  // Calculate gradient position based on index
+  const getFearGreedColor = (index: number) => {
+    if (index < 25) return "#d64545"; // Extreme Fear - Red
+    if (index < 45) return "#ff9800"; // Fear - Orange
+    if (index < 55) return "#ffeb3b"; // Neutral - Yellow
+    if (index < 75) return "#2cec9a"; // Greed - Light Green
+    return "#0f9d58"; // Extreme Greed - Green
+  };
+
+  const fearGreedColor = getFearGreedColor(fearGreedIndex);
+
   return (
     <section className="market-overview">
       <div className="market-header">
@@ -87,17 +98,40 @@ export default function MarketOverview({
           </div>
         </div>
 
-        <div className="market-stat-card fear-greed">
-          <div className="stat-content">
+        <div className="market-stat-card fear-greed" style={{ gridColumn: 'span 2' }}>
+          <div className="stat-content" style={{ width: '100%' }}>
             <div className="stat-label">Fear & Greed Index</div>
-            <div className="fear-greed-value">{fearGreedIndex}</div>
-            <div className="fear-greed-label">{fearGreedLabel}</div>
+            <div className="fear-greed-value" style={{ color: fearGreedColor }}>
+              {fearGreedIndex}
+            </div>
+            <div className="fear-greed-label" style={{ color: fearGreedColor }}>
+              {fearGreedLabel}
+            </div>
           </div>
-          <div className="fear-greed-bar">
-            <div 
-              className="fear-greed-fill" 
-              style={{ width: `${fearGreedIndex}%` }}
-            ></div>
+          {/* Enhanced Gauge */}
+          <div style={{ width: '100%', marginTop: '12px' }}>
+            <div className="fear-greed-gauge">
+              <div 
+                className="fear-greed-indicator"
+                style={{ 
+                  left: `calc(${fearGreedIndex}% - 8px)`,
+                  background: fearGreedColor,
+                  boxShadow: `0 0 10px ${fearGreedColor}`,
+                }}
+              />
+            </div>
+            {/* Scale labels */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              marginTop: '8px',
+              fontSize: '10px',
+              color: 'var(--muted)',
+            }}>
+              <span>Fear</span>
+              <span>Neutral</span>
+              <span>Greed</span>
+            </div>
           </div>
         </div>
       </div>
@@ -136,4 +170,3 @@ export default function MarketOverview({
     </section>
   );
 }
-

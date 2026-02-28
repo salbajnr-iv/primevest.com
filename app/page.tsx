@@ -74,8 +74,8 @@ export default function Home() {
           >
             <Link href="/" className="flex items-center group">
               <Image
-                src="/bitpanda-logo.svg"
-                alt="PrimeVest Capital"
+                src="/primevest-logo.svg"
+                alt="PrimeVest Financial Solutions, Inc."
                 width={140}
                 height={35}
                 className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
@@ -145,7 +145,7 @@ export default function Home() {
                 </svg>
               </button>
               <div className="absolute top-full left-0 mt-2 w-52 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-gray-100 py-2">
-                <Link href="/demo" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-t-lg transition-colors duration-200 text-sm">PrimeVest Capital App</Link>
+                <Link href="/demo" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-t-lg transition-colors duration-200 text-sm">PrimeVest Financial Solutions, Inc. App</Link>
                 <Link href="/dashboard/trade" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">Web Trader</Link>
                 <Link href="#" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">MetaTrader 4</Link>
                 <Link href="/platforms/mt4-mobile" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">MT4 Mobile</Link>

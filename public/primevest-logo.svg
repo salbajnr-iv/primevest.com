@@ -1,0 +1,25 @@
+<svg width="2500" height="1898" viewBox="0 0 2500 1898" xmlns="http://www.w3.org/2000/svg">
+  <!-- Black background -->
+  <rect width="2500" height="1898" fill="#000000"/>
+  
+  <!-- Green three bars of increasing height -->
+  <rect x="900" y="1200" width="120" height="400" fill="#10b981" rx="8"/>
+  <rect x="1100" y="1000" width="120" height="600" fill="#10b981" rx="8"/>
+  <rect x="1300" y="800" width="120" height="800" fill="#10b981" rx="8"/>
+  
+  <!-- Upward-curving arrow beneath bars -->
+  <path d="M 850 1450 Q 1160 1650, 1470 1450" stroke="#10b981" stroke-width="40" fill="none" stroke-linecap="round"/>
+  <polygon points="1470,1450 1430,1380 1500,1410" fill="#10b981"/>
+  
+  <!-- Two concentric incomplete circles -->
+  <circle cx="1160" cy="1100" r="450" stroke="#10b981" stroke-width="30" fill="none" 
+          stroke-dasharray="600 1200" stroke-dashoffset="-300" transform="rotate(-15 1160 1100)"/>
+  <circle cx="1160" cy="1100" r="550" stroke="#10b981" stroke-width="20" fill="none" 
+          stroke-dasharray="800 1600" stroke-dashoffset="-400" transform="rotate(15 1160 1100)"/>
+  
+  <!-- Company name -->
+  <text x="1250" y="1650" font-family="Arial, sans-serif" font-size="80" font-weight="bold" 
+        text-anchor="middle" fill="#10b981">PrimeVest</text>
+  <text x="1250" y="1730" font-family="Arial, sans-serif" font-size="50" font-weight="600" 
+        text-anchor="middle" fill="#10b981">Financial Solutions, Inc.</text>
+</svg>

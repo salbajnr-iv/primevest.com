@@ -95,15 +95,35 @@ export default function WatchlistsPage() {
       <div className="dashboard-app">
         <header className="header">
           <div className="header-left">
-            <Link href="/" className="header-back" aria-label={t("common.back")}>
+            <Link href="/dashboard" className="header-back" aria-label={t("common.back")}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><polyline points="15 18 9 12 15 6" /></svg>
             </Link>
             <span className="header-eyebrow">PRICES</span>
-            <div className="header-title">{t("markets.favorites")} / Watchlists</div>
+            <div className="header-title">
+              {t("markets.favorites")} / Watchlists
+              <span className="live-dot" style={{ marginLeft: 8 }}></span>
+            </div>
           </div>
-          <button className="sync-btn" onClick={() => setShowCreateModal(true)} aria-label={t("common.submit")} title="Create new watchlist">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="sync-btn" onClick={() => {}} title="Refresh" aria-label="Refresh">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
+                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                <path d="M16 21h5v-5" />
+              </svg>
+            </button>
+            <button className="sync-btn" onClick={() => setShowCreateModal(true)} aria-label={t("common.submit")} title="Create new watchlist">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            </button>
+            <button className="sync-btn" onClick={() => setIsSidebarOpen(true)} aria-label="Open menu" title="Open menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+          </div>
         </header>
 
         <section className="hero-section">

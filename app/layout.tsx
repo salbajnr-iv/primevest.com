@@ -6,37 +6,37 @@ import AuthProvider from "@/components/AuthProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export const metadata: Metadata = {
-  title: "PrimeVest Capital - Professional Trading Platform",
-  description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest Capital. European regulated crypto & securities broker platform.",
-  keywords: "PrimeVest Capital, cryptocurrency, crypto, trading, invest, stocks, ETFs, precious metals, bitcoin, ethereum, professional trading",
-  authors: [{ name: "PrimeVest Capital" }],
-  creator: "PrimeVest Capital",
-  publisher: "PrimeVest Capital",
+  title: "PrimeVest Financial Solutions, Inc. - Professional Trading Platform",
+  description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest Financial Solutions, Inc. European regulated crypto & securities broker platform.",
+  keywords: "PrimeVest Financial Solutions, Inc., cryptocurrency, crypto, trading, invest, stocks, ETFs, precious metals, bitcoin, ethereum, professional trading",
+  authors: [{ name: "PrimeVest Financial Solutions, Inc." }],
+  creator: "PrimeVest Financial Solutions, Inc.",
+  publisher: "PrimeVest Financial Solutions, Inc.",
   robots: "index, follow",
   referrer: "origin",
   alternates: {
-    canonical: "https://www.primevestcapital.com"
+    canonical: "https://www.primevestfinancialsolutions.com"
   },
   openGraph: {
     type: "website",
-    title: "PrimeVest Capital - Professional Trading Platform",
-    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest Capital. European regulated crypto & securities broker platform.",
-    url: "https://www.primevestcapital.com",
-    siteName: "PrimeVest Capital",
+    title: "PrimeVest Financial Solutions, Inc. - Professional Trading Platform",
+    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest Financial Solutions, Inc. European regulated crypto & securities broker platform.",
+    url: "https://www.primevestfinancialsolutions.com",
+    siteName: "PrimeVest Financial Solutions, Inc.",
     images: [
       {
-        url: "https://cdn.bitpanda.com/media/og-images-open-graph/bitpanda-og.png",
+        url: "https://www.primevestfinancialsolutions.com/primevest-og.png",
         width: 1200,
         height: 630,
-        alt: "PrimeVest Capital - Professional Trading Platform"
+        alt: "PrimeVest Financial Solutions, Inc. - Professional Trading Platform"
       }
     ]
   },
   twitter: {
     card: "summary",
-    site: "@PrimeVestCapital",
-    title: "PrimeVest Capital - Professional Trading Platform",
-    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest Capital. European regulated crypto & securities broker platform."
+    site: "@PrimeVestFinancialSolutions",
+    title: "PrimeVest Financial Solutions, Inc. - Professional Trading Platform",
+    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest Financial Solutions, Inc. European regulated crypto & securities broker platform."
   }
 };
 
