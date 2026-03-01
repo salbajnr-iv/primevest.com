@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import type { User, Session, UserMetadata, AuthError } from '@supabase/supabase-js'
+import { SupabaseErrorHandler } from '@/lib/supabase/error-handler'
 
 interface AuthContextType {
   user: User | null
@@ -37,19 +38,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    // Get initial session with retry logic
+    const getInitialSession = async () => {
+      try {
+        await SupabaseErrorHandler.withRetry(async () => {
+          const { data: { session } } = await supabase.auth.getSession()
+          setSession(session)
+          setUser(session?.user ?? null)
+          setLoading(false)
+        })
+      } catch (error) {
+        console.warn('Failed to get initial session, continuing in guest mode')
+        setSession(null)
+        setUser(null)
+        setLoading(false)
+      }
+    }
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    getInitialSession()
+
+    // Listen for auth changes with error handling
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        try {
+          setSession(session)
+          setUser(session?.user ?? null)
+          setLoading(false)
+        } catch (error) {
+          console.warn('Auth state change error:', error)
+        }
+      }
+    )
 
     return () => {
       subscription.unsubscribe()
@@ -58,7 +77,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError, data: undefined }
-    return await supabase.auth.signInWithPassword({ email, password })
+    
+    try {
+      return await SupabaseErrorHandler.withRetry(async () => {
+        return await supabase.auth.signInWithPassword({ email, password })
+      })
+    } catch (error) {
+      return await SupabaseErrorHandler.handleSupabaseError(error, () => ({
+        error: { name: 'NetworkError', message: 'Authentication service unavailable', status: 0 } as AuthError,
+        data: undefined
+      })) as { error: AuthError | null; data?: { user: User | null; session: Session | null } }
+    }
   }
 
   const signUp = async (

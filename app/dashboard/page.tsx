@@ -4,208 +4,465 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import TradeWHeader from "@/components/TradeWHeader";
-import TradeWAccountOverview from "@/components/TradeWAccountOverview";
-import TradeWPositions from "@/components/TradeWPositions";
-import TradeWSecurityCard from "@/components/TradeWSecurityCard";
-import TradeWRecommendations from "@/components/TradeWRecommendations";
-import TradeWMobileBanner from "@/components/TradeWMobileBanner";
 import BottomNav from "@/components/BottomNav";
-import Sidebar from "@/components/Sidebar";
 
-// ---- TRADE W DATA ----
+export const dynamic = "force-dynamic";
 
-const accounts = [
+/* ─── Types ─────────────────────────────────────────────────────── */
+
+interface Account {
+  id: string;
+  name: string;
+  label: string;
+  balance: string;
+  currency: string;
+  change: string;
+  trend: "up" | "down";
+  equity: string;
+  profit: string;
+  leverage: string;
+}
+
+interface Market {
+  id: string;
+  name: string;
+  symbol: string;
+  price: number;
+  change: number;
+  icon: string;
+}
+
+interface Transaction {
+  id: string;
+  type: "buy" | "sell" | "deposit";
+  asset: string;
+  amount: string;
+  value: string;
+  time: string;
+}
+
+/* ─── Mock Data ─────────────────────────────────────────────────── */
+
+const accounts: Account[] = [
   {
-    id: "1",
+    id: "main",
     name: "Main Account",
     label: "Trade W",
     balance: "25,430.50",
     currency: "€",
     change: "+2.34%",
-    trend: "up" as const,
+    trend: "up",
+    equity: "25,430.50",
+    profit: "+597.50",
+    leverage: "1:100",
   },
   {
-    id: "2",
+    id: "crypto",
     name: "Crypto Wallet",
-    label: "BTC/ETH",
+    label: "BTC / ETH",
     balance: "18,750.00",
     currency: "€",
     change: "+5.67%",
-    trend: "up" as const,
+    trend: "up",
+    equity: "18,750.00",
+    profit: "+1,006.25",
+    leverage: "1:10",
   },
   {
-    id: "3",
+    id: "savings",
     name: "Savings Account",
     label: "High Yield",
     balance: "8,250.00",
     currency: "€",
     change: "+0.85%",
-    trend: "up" as const,
+    trend: "up",
+    equity: "8,250.00",
+    profit: "+69.63",
+    leverage: "N/A",
   },
   {
-    id: "4",
+    id: "trading",
     name: "Trading Account",
     label: "MT5",
     balance: "12,180.75",
     currency: "€",
     change: "-1.23%",
-    trend: "down" as const,
+    trend: "down",
+    equity: "12,180.75",
+    profit: "-151.87",
+    leverage: "1:500",
   },
 ];
 
-const portfolioSummary = {
-  totalValue: 64611.25,
-  dailyChange: 1245.50,
-  dailyChangePercent: 1.96,
-  totalReturn: 8934.75,
-  totalReturnPercent: 16.04,
-};
+const markets: Market[] = [
+  { id: "1", name: "Bitcoin",  symbol: "BTC",  price: 43250.00, change: 2.45,  icon: "₿" },
+  { id: "2", name: "Ethereum", symbol: "ETH",  price: 2280.50,  change: 1.82,  icon: "Ξ" },
+  { id: "3", name: "Gold",     symbol: "XAU",  price: 2051.20,  change: -0.65, icon: "🥇" },
+  { id: "4", name: "S&P 500",  symbol: "SPX",  price: 4521.75,  change: 0.89,  icon: "📈" },
+];
 
-const recentTransactions = [
+const transactions: Transaction[] = [
+  { id: "1", type: "buy",     asset: "BTC", amount: "0.025", value: "1,081.25",  time: "2 hours ago" },
+  { id: "2", type: "sell",    asset: "ETH", amount: "0.5",   value: "1,140.25",  time: "5 hours ago" },
+  { id: "3", type: "deposit", asset: "EUR", amount: "5,000", value: "5,000.00",  time: "1 day ago"   },
+];
+
+/* ─── Sidebar Icons ─────────────────────────────────────────────── */
+
+function IconOverview() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" width="17" height="17">
+      <rect x="2" y="2" width="7" height="7" rx="1.5" />
+      <rect x="11" y="2" width="7" height="7" rx="1.5" />
+      <rect x="2" y="11" width="7" height="7" rx="1.5" />
+      <rect x="11" y="11" width="7" height="7" rx="1.5" />
+    </svg>
+  );
+}
+
+function IconAssets() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" width="17" height="17">
+      <circle cx="10" cy="10" r="8" />
+      <path d="M10 10 L10 2" />
+      <path d="M10 10 L16 14" />
+      <path d="M10 10 L4 14" />
+    </svg>
+  );
+}
+
+function IconTransfer() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" width="17" height="17">
+      <path d="M4 6h12M13 3l3 3-3 3" />
+      <path d="M16 14H4M7 11l-3 3 3 3" />
+    </svg>
+  );
+}
+
+function IconOrder() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" width="17" height="17">
+      <rect x="4" y="2" width="12" height="16" rx="1.5" />
+      <path d="M7 7h6M7 10h6M7 13h4" />
+    </svg>
+  );
+}
+
+function IconVerification() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" width="17" height="17">
+      <path d="M10 2L3 5v5c0 4.4 3.1 8.5 7 9.5 3.9-1 7-5.1 7-9.5V5l-7-3z" />
+      <path d="M7 10l2 2 4-4" />
+    </svg>
+  );
+}
+
+function IconSettings() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" width="17" height="17">
+      <circle cx="10" cy="10" r="3" />
+      <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" />
+    </svg>
+  );
+}
+
+function IconPlatform() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" width="17" height="17">
+      <path d="M3 14l4-5 3 3 3-4 4 6" />
+      <rect x="2" y="2" width="16" height="14" rx="1.5" />
+    </svg>
+  );
+}
+
+function IconTasks() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" width="17" height="17">
+      <path d="M5 3h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
+      <path d="M7 10l2 2 4-4" />
+    </svg>
+  );
+}
+
+function IconSupport() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" width="17" height="17">
+      <path d="M3 10a7 7 0 1114 0" />
+      <path d="M3 10v2a2 2 0 002 2h1M17 10v2a2 2 0 01-2 2h-1" />
+    </svg>
+  );
+}
+
+/* ─── Nav Config ────────────────────────────────────────────────── */
+
+const navGroups = [
   {
-    id: "1",
-    type: "buy" as const,
-    asset: "BTC",
-    amount: "0.025",
-    value: "1,081.25",
-    time: "2 hours ago",
-    status: "completed" as const,
+    label: "Account",
+    items: [
+      { href: "/dashboard/overview", label: "Overview",          Icon: IconOverview,      active: false },
+      { href: "/dashboard",          label: "Assets",            Icon: IconAssets,        active: true  },
+      { href: "/wallets/transfer",   label: "Internal Transfer", Icon: IconTransfer,      active: false },
+      { href: "/dashboard/orders",   label: "Order",             Icon: IconOrder,         active: false },
+      { href: "/dashboard/verify",   label: "Verification",      Icon: IconVerification,  active: false },
+      { href: "/settings",           label: "Settings",          Icon: IconSettings,      active: false },
+    ],
   },
   {
-    id: "2",
-    type: "sell" as const,
-    asset: "ETH",
-    amount: "0.5",
-    value: "1,140.25",
-    time: "5 hours ago",
-    status: "completed" as const,
-  },
-  {
-    id: "3",
-    type: "deposit" as const,
-    asset: "EUR",
-    amount: "5,000",
-    value: "5,000.00",
-    time: "1 day ago",
-    status: "completed" as const,
+    label: "Platform",
+    items: [
+      { href: "/platforms",  label: "Platform",          Icon: IconPlatform, active: false },
+      { href: "/tools",      label: "Task Center",       Icon: IconTasks,    active: false },
+      { href: "/support",    label: "Customer Service",  Icon: IconSupport,  active: false },
+    ],
   },
 ];
 
-const marketHighlights = [
-  {
-    id: "1",
-    name: "Bitcoin",
-    symbol: "BTC",
-    price: 43250.00,
-    change: 2.45,
-    icon: "₿",
-  },
-  {
-    id: "2",
-    name: "Ethereum",
-    symbol: "ETH",
-    price: 2280.50,
-    change: 1.82,
-    icon: "Ξ",
-  },
-  {
-    id: "3",
-    name: "Gold",
-    symbol: "XAU",
-    price: 2051.20,
-    change: -0.65,
-    icon: "🥇",
-  },
-  {
-    id: "4",
-    name: "S&P 500",
-    symbol: "SPX",
-    price: 4521.75,
-    change: 0.89,
-    icon: "📈",
-  },
-];
+/* ─── Sidebar Component ─────────────────────────────────────────── */
 
-const positions = [
-  {
-    id: "1",
-    symbol: "EUR/USD",
-    type: "buy" as const,
-    volume: "0.10",
-    openPrice: "1.0856",
-    currentPrice: "1.0892",
-    profit: "+36.00",
-    profitPercent: "+0.33",
-  },
-  {
-    id: "2",
-    symbol: "GBP/USD",
-    type: "sell" as const,
-    volume: "0.15",
-    openPrice: "1.2745",
-    currentPrice: "1.2728",
-    profit: "+25.50",
-    profitPercent: "+0.13",
-  },
-  {
-    id: "3",
-    symbol: "XAU/USD",
-    type: "buy" as const,
-    volume: "0.05",
-    openPrice: "2,045.80",
-    currentPrice: "2,051.20",
-    profit: "+27.00",
-    profitPercent: "+0.26",
-  },
-];
+function DashboardSidebar() {
+  return (
+    <aside className="tw-sidebar">
+      <div className="tw-sidebar-header">
+        <Link href="/dashboard" className="tw-logo">
+          <span className="tw-logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" />
+            </svg>
+          </span>
+          PrimeVest
+        </Link>
+      </div>
 
-const recommendations = [
-  {
-    id: "1",
-    name: "EUR/USD",
-    price: "1.0892",
-    change: "0.0036",
-    changePercent: "0.33",
-    trend: "up" as const,
-  },
-  {
-    id: "2",
-    name: "GBP/JPY",
-    price: "183.45",
-    change: "-0.82",
-    changePercent: "0.45",
-    trend: "down" as const,
-  },
-  {
-    id: "3",
-    name: "XAU/USD",
-    price: "2,051.20",
-    change: "5.40",
-    changePercent: "0.26",
-    trend: "up" as const,
-  },
-  {
-    id: "4",
-    name: "BTC/USD",
-    price: "43,250.00",
-    change: "-125.00",
-    changePercent: "0.29",
-    trend: "down" as const,
-  },
-];
+      <nav className="tw-nav">
+        {navGroups.map((group) => (
+          <div key={group.label} className="tw-nav-group">
+            <span className="tw-nav-group-label">{group.label}</span>
+            {group.items.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`tw-nav-item${item.active ? " tw-nav-item--active" : ""}`}
+              >
+                <span className="tw-nav-icon">
+                  <item.Icon />
+                </span>
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        ))}
+      </nav>
+    </aside>
+  );
+}
 
-// ---- COMPONENT ----
+/* ─── Page Header ───────────────────────────────────────────────── */
 
-export default function DashboardPage() {
+function PageHeader({ userName }: { userName: string }) {
+  return (
+    <header className="tw-header">
+      <div className="tw-breadcrumb">
+        <span>Dashboard</span>
+        <span className="tw-breadcrumb-sep">/</span>
+        <span>Asset Center</span>
+      </div>
+
+      <div className="tw-header-user">
+        <div className="tw-avatar">{userName.charAt(0).toUpperCase()}</div>
+        <div>
+          <p className="tw-user-name">{userName}</p>
+          <p className="tw-user-status">⚠ Not Verified</p>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ─── Asset Summary Banner ──────────────────────────────────────── */
+
+function AssetSummary({
+  totalBalance,
+  accounts,
+  onAccountClick,
+}: {
+  totalBalance: number;
+  accounts: Account[];
+  onAccountClick: (id: string) => void;
+}) {
+  const fmt = (n: number) =>
+    `€${n.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  return (
+    <div className="tw-asset-summary">
+      <div className="tw-asset-total">
+        <p className="tw-asset-total-label">Total assets</p>
+        <p className="tw-asset-total-value">{fmt(totalBalance)}</p>
+      </div>
+
+      <div className="tw-asset-accounts">
+        {accounts.map((acct) => (
+          <div
+            key={acct.id}
+            className="tw-asset-account-col"
+            role="button"
+            tabIndex={0}
+            onClick={() => onAccountClick(acct.id)}
+            onKeyDown={(e) => e.key === "Enter" && onAccountClick(acct.id)}
+          >
+            <p className="tw-asset-account-name">{acct.name}</p>
+            <p className="tw-asset-account-value">
+              {acct.currency}{acct.balance}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Account Tab Panel ─────────────────────────────────────────── */
+
+function AccountTabPanel({ account }: { account: Account }) {
+  return (
+    <div className="tw-tab-panel">
+      {/* Header row */}
+      <div className="tw-account-detail-header">
+        <div>
+          <p className="tw-account-detail-name">{account.name}</p>
+          <p className="tw-account-detail-sublabel">{account.label}</p>
+        </div>
+        <div className="tw-account-detail-balance">
+          <p className="tw-account-detail-balance-value">
+            {account.currency}{account.balance}
+          </p>
+          <p className={`tw-account-detail-balance-change ${account.trend === "up" ? "tw-change-up" : "tw-change-down"}`}>
+            {account.change}
+          </p>
+        </div>
+      </div>
+
+      {/* Info grid */}
+      <div className="tw-account-info-grid">
+        <div className="tw-account-info-item">
+          <p className="tw-account-info-label">Balance</p>
+          <p className="tw-account-info-value">{account.currency}{account.balance}</p>
+        </div>
+        <div className="tw-account-info-item">
+          <p className="tw-account-info-label">Equity</p>
+          <p className="tw-account-info-value">{account.currency}{account.equity}</p>
+        </div>
+        <div className="tw-account-info-item">
+          <p className="tw-account-info-label">Profit / Loss</p>
+          <p className={`tw-account-info-value ${account.trend === "up" ? "tw-change-up" : "tw-change-down"}`}>
+            {account.currency}{account.profit}
+          </p>
+        </div>
+        <div className="tw-account-info-item">
+          <p className="tw-account-info-label">24h Change</p>
+          <p className={`tw-account-info-value ${account.trend === "up" ? "tw-change-up" : "tw-change-down"}`}>
+            {account.change}
+          </p>
+        </div>
+        <div className="tw-account-info-item">
+          <p className="tw-account-info-label">Leverage</p>
+          <p className="tw-account-info-value">{account.leverage}</p>
+        </div>
+        <div className="tw-account-info-item">
+          <p className="tw-account-info-label">Currency</p>
+          <p className="tw-account-info-value">EUR</p>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="tw-account-detail-actions">
+        <button className="tw-btn tw-btn--primary">Deposit</button>
+        <button className="tw-btn">Withdraw</button>
+        <button className="tw-btn">Transfer</button>
+        <Link href="/dashboard/trade" className="tw-btn">Trade</Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Market Highlights ─────────────────────────────────────────── */
+
+function MarketHighlights({ markets }: { markets: Market[] }) {
+  const fmtPrice = (p: number) =>
+    `€${p.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  return (
+    <section className="tw-section">
+      <div className="tw-section-header">
+        <h2 className="tw-section-title">Market Highlights</h2>
+        <Link href="/crypto" className="tw-view-all">View all →</Link>
+      </div>
+
+      <div className="tw-market-grid">
+        {markets.map((m) => (
+          <div key={m.id} className="tw-market-card">
+            <div className="tw-market-card-header">
+              <div>
+                <p className="tw-market-card-name">{m.name}</p>
+                <p className="tw-market-card-symbol">{m.symbol}</p>
+              </div>
+              <div className="tw-market-card-icon">{m.icon}</div>
+            </div>
+            <p className="tw-market-card-price">{fmtPrice(m.price)}</p>
+            <p className={`tw-market-card-change ${m.change >= 0 ? "tw-change-up" : "tw-change-down"}`}>
+              {m.change >= 0 ? "+" : ""}{m.change.toFixed(2)}%
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ─── Recent Activity ───────────────────────────────────────────── */
+
+function RecentActivity({ transactions }: { transactions: Transaction[] }) {
+  const txLabel = (tx: Transaction) =>
+    tx.type === "deposit" ? "Deposit" : `${tx.type.charAt(0).toUpperCase()}${tx.type.slice(1)} ${tx.asset}`;
+
+  return (
+    <section className="tw-section">
+      <div className="tw-section-header">
+        <h2 className="tw-section-title">Recent Activity</h2>
+        <Link href="/reports" className="tw-view-all">View all →</Link>
+      </div>
+
+      <div className="tw-activity-card">
+        {transactions.map((tx) => (
+          <div key={tx.id} className="tw-activity-item">
+            <div className={`tw-activity-icon tw-activity-icon--${tx.type}`}>
+              {tx.type === "buy" ? "↑" : tx.type === "sell" ? "↓" : "+"}
+            </div>
+
+            <div className="tw-activity-info">
+              <p className="tw-activity-title">{txLabel(tx)}</p>
+              <p className="tw-activity-time">{tx.time}</p>
+            </div>
+
+            <div className="tw-activity-amount">
+              <p className="tw-activity-value">€{tx.value}</p>
+              {tx.type !== "deposit" && (
+                <p className="tw-activity-units">{tx.amount} {tx.asset}</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ─── Main Dashboard ────────────────────────────────────────────── */
+
+function DashboardContent() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [isClient, setIsClient] = React.useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const [activeTab, setActiveTab] = React.useState<string>("main");
 
   React.useEffect(() => {
     if (!loading && !user) {
@@ -213,223 +470,93 @@ export default function DashboardPage() {
     }
   }, [user, loading, router]);
 
+  const totalBalance = accounts.reduce(
+    (sum, a) => sum + parseFloat(a.balance.replace(/,/g, "")),
+    0
+  );
+
   const userName = user?.email?.split("@")[0] || "User";
-
-  const handleSecurityUpgrade = () => {
-    router.push("/dashboard/security");
-  };
-
-  const handleMobileDownload = () => {
-    window.open("https://apps.apple.com", "_blank");
-  };
-
-  const totalBalance = accounts.reduce((sum, account) => {
-    return sum + parseFloat(account.balance.replace(",", ""));
-  }, 0).toFixed(2);
-
-  const quickActions = [
-    { id: "buy", label: "Buy", icon: "📈", href: "/dashboard/trade?side=buy" },
-    { id: "sell", label: "Sell", icon: "📉", href: "/dashboard/trade?side=sell" },
-    { id: "transfer", label: "Transfer", icon: "💸", href: "/dashboard/transfer" },
-    { id: "deposit", label: "Deposit", icon: "💰", href: "/dashboard/deposit" },
-  ];
-
-  const formatCurrency = (amount: number, currency: string = "€") => {
-    return `${currency}${amount.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
-  const formatChange = (change: number, percent: boolean = false) => {
-    const sign = change >= 0 ? "+" : "";
-    const value = percent ? `${change.toFixed(2)}%` : formatCurrency(Math.abs(change));
-    return { sign, value, isPositive: change >= 0 };
-  };
+  const activeAccount = accounts.find((a) => a.id === activeTab) ?? accounts[0];
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
-        </div>
+      <div className="tw-loading">
+        <div className="tw-spinner" />
+        <span>Loading dashboard…</span>
       </div>
     );
   }
 
   return (
-    <div className="tradew-dashboard">
-      {/* Trade W Header */}
-      <TradeWHeader activeTab="overview" />
-
-      {/* Trade W Main Layout */}
-      <div className="tradew-main">
-        {/* Main Content Area */}
-        <div className="tradew-overview">
-          <div className="tradew-overview-header">
-            <h1 className="tradew-overview-title">Overview</h1>
-            <div className="tradew-overview-actions">
-              <button className="tradew-btn tradew-btn-outline" aria-label="Select time period - Last 7 days">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8 2v6l2.5 2.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Last 7 days
-              </button>
-              <button className="tradew-btn tradew-btn-outline" aria-label="Compare portfolio data">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M2 8h12M8 2v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-                Compare
-              </button>
-            </div>
-          </div>
-
-          {/* Portfolio Summary Card */}
-          <div className="tradew-portfolio-summary">
-            <div className="tradew-portfolio-header">
-              <h2 className="tradew-portfolio-title">Portfolio Overview</h2>
-              <div className="tradew-portfolio-period">
-                <select className="tradew-period-select">
-                  <option>24H</option>
-                  <option>7D</option>
-                  <option>30D</option>
-                  <option>1Y</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className="tradew-portfolio-value">
-              <span className="tradew-portfolio-amount">{formatCurrency(portfolioSummary.totalValue)}</span>
-              <div className="tradew-portfolio-change">
-                {(() => {
-                  const change = formatChange(portfolioSummary.dailyChange);
-                  return (
-                    <span className={`tradew-change ${change.isPositive ? "positive" : "negative"}`}>
-                      {change.sign}{change.value} ({change.sign}{portfolioSummary.dailyChangePercent.toFixed(2)}%)
-                    </span>
-                  );
-                })()}
-                <span className="tradew-change-label">Today</span>
-              </div>
-            </div>
-
-            <div className="tradew-portfolio-stats">
-              <div className="tradew-stat">
-                <span className="tradew-stat-label">Total Return</span>
-                {(() => {
-                  const totalReturn = formatChange(portfolioSummary.totalReturn);
-                  return (
-                    <span className={`tradew-stat-value ${totalReturn.isPositive ? "positive" : "negative"}`}>
-                      {totalReturn.sign}{totalReturn.value} ({totalReturn.sign}{portfolioSummary.totalReturnPercent.toFixed(2)}%)
-                    </span>
-                  );
-                })()}
-              </div>
-              <div className="tradew-stat">
-                <span className="tradew-stat-label">Assets</span>
-                <span className="tradew-stat-value">{accounts.length}</span>
-              </div>
-            </div>
-
-            <div className="tradew-quick-actions">
-              {quickActions.map((action) => (
-                <Link key={action.id} href={action.href} className="tradew-quick-action">
-                  <span className="tradew-action-icon">{action.icon}</span>
-                  <span className="tradew-action-label">{action.label}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Account Overview */}
-          <TradeWAccountOverview
-            totalBalance={totalBalance}
-            currency="€"
-            accounts={accounts}
-          />
-
-          {/* Market Highlights */}
-          <div className="tradew-market-highlights">
-            <div className="tradew-highlights-header">
-              <h3 className="tradew-highlights-title">Market Highlights</h3>
-              <Link href="/markets" className="tradew-highlights-more">View all</Link>
-            </div>
-            <div className="tradew-highlights-grid">
-              {marketHighlights.map((market) => (
-                <div key={market.id} className="tradew-highlight-card">
-                  <div className="tradew-highlight-header">
-                    <span className="tradew-highlight-icon">{market.icon}</span>
-                    <div className="tradew-highlight-info">
-                      <span className="tradew-highlight-name">{market.name}</span>
-                      <span className="tradew-highlight-symbol">{market.symbol}</span>
-                    </div>
-                  </div>
-                  <div className="tradew-highlight-price">{formatCurrency(market.price)}</div>
-                  <div className={`tradew-highlight-change ${market.change >= 0 ? "positive" : "negative"}`}>
-                    {market.change >= 0 ? "+" : ""}{market.change.toFixed(2)}%
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent Transactions */}
-          <div className="tradew-recent-transactions">
-            <div className="tradew-transactions-header">
-              <h3 className="tradew-transactions-title">Recent Activity</h3>
-              <Link href="/dashboard/history" className="tradew-transactions-more">View all</Link>
-            </div>
-            <div className="tradew-transactions-list">
-              {recentTransactions.map((transaction) => (
-                <div key={transaction.id} className="tradew-transaction-item">
-                  <div className={`tradew-transaction-icon tradew-transaction-${transaction.type}`}>
-                    {transaction.type === "buy" && "📈"}
-                    {transaction.type === "sell" && "📉"}
-                    {transaction.type === "deposit" && "💰"}
-                  </div>
-                  <div className="tradew-transaction-info">
-                    <div className="tradew-transaction-asset">
-                      {transaction.type === "deposit" ? "Deposit" : `${transaction.type.toUpperCase()} ${transaction.asset}`}
-                    </div>
-                    <div className="tradew-transaction-time">{transaction.time}</div>
-                  </div>
-                  <div className="tradew-transaction-amount">
-                    <div className="tradew-transaction-value">{formatCurrency(parseFloat(transaction.value))}</div>
-                    <div className="tradew-transaction-quantity">
-                      {transaction.type !== "deposit" && `${transaction.amount} ${transaction.asset}`}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Positions Table */}
-          <TradeWPositions positions={positions} />
-
-          {/* Mobile App Banner */}
-          <TradeWMobileBanner onDownloadClick={handleMobileDownload} />
-        </div>
-
+    <div className="tw-dashboard">
+      <div className="tw-layout">
         {/* Sidebar */}
-        <div className="tradew-sidebar">
-          <TradeWSecurityCard
-            securityLevel="medium"
-            onUpgrade={handleSecurityUpgrade}
-          />
-          
-          <TradeWRecommendations recommendations={recommendations} />
-        </div>
+        <DashboardSidebar />
+
+        {/* Main */}
+        <main className="tw-main">
+          <PageHeader userName={userName} />
+
+          <div className="tw-content">
+            {/* Page title */}
+            <h1 className="tw-page-title">Asset</h1>
+
+            {/* Total asset summary */}
+            <AssetSummary
+              totalBalance={totalBalance}
+              accounts={accounts}
+              onAccountClick={setActiveTab}
+            />
+
+            {/* Account type tabs */}
+            <div className="tw-tabs">
+              <div className="tw-tabs-list">
+                {accounts.map((acct) => (
+                  <button
+                    key={acct.id}
+                    className={`tw-tab${activeTab === acct.id ? " tw-tab--active" : ""}`}
+                    onClick={() => setActiveTab(acct.id)}
+                  >
+                    {acct.name}
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ marginTop: "16px" }}>
+                <AccountTabPanel account={activeAccount} />
+              </div>
+            </div>
+
+            {/* Market Highlights */}
+            <MarketHighlights markets={markets} />
+
+            {/* Recent Activity */}
+            <RecentActivity transactions={transactions} />
+          </div>
+
+          <footer className="tw-footer">
+            © 2016–2026 PrimeVest Financial Solutions, Inc. All Rights Reserved
+          </footer>
+        </main>
       </div>
 
-      {/* Mobile Navigation */}
-      <BottomNav />
-
-      {/* Mobile Sidebar */}
-      {isClient && (
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-        />
-      )}
+      {/* Mobile nav */}
+      <BottomNav onMenuClick={() => {}} isMenuActive={false} />
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="tw-loading">
+          <div className="tw-spinner" />
+          <span>Loading…</span>
+        </div>
+      }
+    >
+      <DashboardContent />
+    </React.Suspense>
   );
 }

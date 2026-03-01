@@ -5,9 +5,13 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
+import { Search, ChevronDown, ChevronUp, MessageCircle, Mail, Phone } from "lucide-react";
 
 export default function FAQPage() {
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(["getting-started"]);
 
   const handleBackToHome = () => {
     window.location.href = "/";
@@ -16,6 +20,37 @@ export default function FAQPage() {
   const handleContactSupport = () => {
     window.location.href = "/support";
   };
+
+  const toggleQuestion = (questionId: number) => {
+    setOpenQuestion(openQuestion === questionId ? null : questionId);
+  };
+
+  const toggleCategory = (categoryId: string) => {
+    setExpandedCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const filteredCategories = faqCategories.map(category => ({
+    ...category,
+    questions: category.questions.filter(q => 
+      q.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      q.answer.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  })).filter(category => 
+    (selectedCategory === "all" || category.id === selectedCategory) &&
+    category.questions.length > 0
+  );
+
+  const allQuestions = faqCategories.flatMap(cat => cat.questions);
+  const searchResults = searchTerm 
+    ? allQuestions.filter(q => 
+        q.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        q.answer.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   // Animation variants
   const fadeInUp = {
@@ -171,6 +206,14 @@ export default function FAQPage() {
     setOpenQuestion(openQuestion === id ? null : id);
   };
 
+  const toggleCategory = (id: string) => {
+    if (expandedCategories.includes(id)) {
+      setExpandedCategories(expandedCategories.filter((categoryId) => categoryId !== id));
+    } else {
+      setExpandedCategories([...expandedCategories, id]);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900 overflow-hidden">
       {/* Header */}
@@ -190,7 +233,7 @@ export default function FAQPage() {
             <Link href="/" className="flex items-center group">
               <Image
                 src="/bitpanda-logo.svg"
-                alt="PrimeVest Capital"
+                alt="Bitpanda Pro"
                 width={140}
                 height={35}
                 className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
@@ -225,14 +268,13 @@ export default function FAQPage() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="relative py-20 px-4 md:px-8 bg-gradient-to-br from-gray-50 to-gray-100 border-b border-gray-200 overflow-hidden section-padding"
+        className="relative py-20 px-4 md:px-8 bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 border-b border-gray-200 overflow-hidden"
       >
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/5 rounded-full mix-blend-soft-light filter blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-blue-500/5 rounded-full mix-blend-soft-light filter blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full mix-blend-soft-light filter blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-blue-500/10 rounded-full mix-blend-soft-light filter blur-3xl animate-pulse delay-1000"></div>
         </div>
         
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="max-w-4xl mx-auto relative z-10 text-center">
           <motion.div 
             variants={fadeInUp}
@@ -243,7 +285,7 @@ export default function FAQPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="text-display font-bold text-gray-900 leading-tight bg-gradient-to-r from-gray-900 via-emerald-600 to-emerald-700 bg-clip-text text-transparent transition-professional"
+                className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight"
               >
                 Frequently Asked Questions
               </motion.h1>
@@ -251,10 +293,9 @@ export default function FAQPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="text-body text-gray-600 max-w-2xl mx-auto transition-professional"
+                className="text-xl text-gray-600 max-w-2xl mx-auto"
               >
-                Find answers to common questions about trading, accounts, platforms, and more. 
-                Can&apos;t find what you&apos;re looking for? Our support team is here to help.
+                Find answers to common questions about our platform and services
               </motion.p>
             </div>
             
@@ -262,17 +303,17 @@ export default function FAQPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 pt-4 justify-center transition-professional"
+              className="flex flex-col sm:flex-row gap-4 pt-4 justify-center"
             >
               <Button 
                 onClick={handleContactSupport} 
-                className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-4 text-lg rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 btn-premium"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 text-lg rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
                 Contact Support
               </Button>
               <Button 
                 onClick={handleBackToHome} 
-                className="border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-500/10 hover:border-emerald-600 px-8 py-4 text-lg rounded-lg bg-transparent transition-all duration-300 font-semibold shadow-sm hover:shadow-md hover:scale-105 btn-premium"
+                className="border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600/10 px-8 py-4 text-lg rounded-lg bg-transparent font-semibold transition-all duration-300"
               >
                 Back to Home
               </Button>
@@ -281,168 +322,295 @@ export default function FAQPage() {
         </div>
       </motion.section>
 
-      {/* FAQ Categories */}
+      {/* Search Section */}
       <motion.section 
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-b from-gray-50 to-gray-100 section-padding"
+        className="py-16 px-4 md:px-8 bg-gradient-to-b from-gray-50 to-white"
+      >
+        <div className="max-w-4xl mx-auto">
+          <motion.div 
+            variants={fadeInUp}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How Can We Help?</h2>
+            <p className="text-lg text-gray-600">Search for answers or browse by category</p>
+          </motion.div>
+
+          {/* Search Bar */}
+          <motion.div 
+            variants={fadeInUp}
+            className="mb-8"
+          >
+            <div className="relative max-w-2xl mx-auto">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search for answers..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white shadow-lg"
+              />
+            </div>
+          </motion.div>
+
+          {/* Category Filter */}
+          <motion.div 
+            variants={fadeInUp}
+            className="flex flex-wrap justify-center gap-3 mb-12"
+          >
+            <Button
+              onClick={() => setSelectedCategory("all")}
+              className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
+                selectedCategory === "all"
+                  ? "bg-emerald-600 text-white shadow-lg"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              All Categories
+            </Button>
+            {faqCategories.map((category) => (
+              <Button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
+                  selectedCategory === category.id
+                    ? "bg-emerald-600 text-white shadow-lg"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                <span className="mr-2">{category.icon}</span>
+                {category.title}
+              </Button>
+            ))}
+          </motion.div>
+
+          {/* Search Results */}
+          {searchTerm && searchResults.length > 0 && (
+            <motion.div 
+              variants={fadeInUp}
+              className="mb-12"
+            >
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Search Results ({searchResults.length})</h3>
+              <div className="space-y-4">
+                {searchResults.map((result) => (
+                  <motion.div
+                    key={result.id}
+                    variants={fadeInUp}
+                    className="bg-white rounded-xl border border-gray-200 p-6 shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <button
+                      onClick={() => toggleQuestion(result.id)}
+                      className="w-full text-left"
+                    >
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-lg font-semibold text-gray-900">{result.question}</h4>
+                        {openQuestion === result.id ? (
+                          <ChevronUp className="w-5 h-5 text-emerald-600" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-gray-400" />
+                        )}
+                      </div>
+                    </button>
+                    {openQuestion === result.id && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4 pt-4 border-t border-gray-100"
+                      >
+                        <p className="text-gray-600 leading-relaxed">{result.answer}</p>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* No Results */}
+          {searchTerm && searchResults.length === 0 && (
+            <motion.div 
+              variants={fadeInUp}
+              className="text-center py-12"
+            >
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-10 h-10 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No results found</h3>
+              <p className="text-gray-600">Try searching with different keywords or browse our categories</p>
+            </motion.div>
+          )}
+        </div>
+      </motion.section>
+
+      {/* FAQ Categories */}
+      {!searchTerm && (
+        <motion.section 
+          initial="initial"
+          animate="animate"
+          variants={staggerContainer}
+          className="py-16 px-4 md:px-8 bg-white"
+        >
+          <div className="max-w-4xl mx-auto">
+            <div className="space-y-8">
+              {filteredCategories.map((category, categoryIndex) => (
+                <motion.div
+                  key={category.id}
+                  variants={fadeInUp}
+                  transition={{ delay: 0.1 * categoryIndex }}
+                  className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden"
+                >
+                  {/* Category Header */}
+                  <button
+                    onClick={() => toggleCategory(category.id)}
+                    className="w-full px-8 py-6 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                          <span className="text-2xl">{category.icon}</span>
+                        </div>
+                        <div className="text-left">
+                          <h3 className="text-xl font-bold text-gray-900">{category.title}</h3>
+                          <p className="text-sm text-gray-600">{category.questions.length} questions</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {expandedCategories.includes(category.id) ? (
+                          <ChevronUp className="w-5 h-5 text-gray-400" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-gray-400" />
+                        )}
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Questions */}
+                  {expandedCategories.includes(category.id) && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      transition={{ duration: 0.3 }}
+                      className="px-8 py-6"
+                    >
+                      <div className="space-y-4">
+                        {category.questions.map((qa, questionIndex) => (
+                          <motion.div
+                            key={qa.id}
+                            variants={fadeInUp}
+                            transition={{ delay: 0.05 * questionIndex }}
+                            className="bg-white rounded-xl border border-gray-200 p-6 hover:border-emerald-200 transition-all duration-300"
+                          >
+                            <button
+                              onClick={() => toggleQuestion(qa.id)}
+                              className="w-full text-left"
+                            >
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-lg font-semibold text-gray-900">{qa.question}</h4>
+                                {openQuestion === qa.id ? (
+                                  <ChevronUp className="w-5 h-5 text-emerald-600" />
+                                ) : (
+                                  <ChevronDown className="w-5 h-5 text-gray-400" />
+                                )}
+                              </div>
+                            </button>
+                            {openQuestion === qa.id && (
+                              <motion.div 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                transition={{ duration: 0.3 }}
+                                className="mt-4 pt-4 border-t border-gray-100"
+                              >
+                                <p className="text-gray-600 leading-relaxed">{qa.answer}</p>
+                              </motion.div>
+                            )}
+                          </motion.div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.section>
+      )}
+
+      {/* Contact Support Section */}
+      <motion.section 
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+        className="py-20 px-4 md:px-8 bg-gradient-to-r from-emerald-50 to-blue-50"
       >
         <div className="max-w-6xl mx-auto">
           <motion.div 
             variants={fadeInUp}
-            className="text-center mb-16"
+            className="text-center mb-12"
           >
-            <h2 className="text-heading font-bold text-gray-900 mb-4 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
-              Browse by Category
-            </h2>
-            <p className="text-body text-gray-600 transition-professional">
-              Find answers quickly by selecting a category below
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Still Need Help?</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Our support team is here to help you with any questions or concerns
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
-            {faqCategories.map((category, index) => (
-              <motion.div 
-                key={category.id}
-                variants={fadeInUp}
-                whileHover={{ y: -10 }}
-                transition={{ delay: 0.1 * index }}
-                className="group relative"
-              >
-                <div className="relative bg-white border border-gray-200 rounded-2xl p-8 hover:border-emerald-300 transition-all duration-300 cursor-pointer h-full flex flex-col justify-between shadow-lg hover:shadow-2xl overflow-hidden card-premium">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-700"></div>
-                  
-                  <div className="relative z-10 text-center">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 border border-gray-300 flex items-center justify-center mb-6 mx-auto group-hover:rotate-6 transition-transform duration-300">
-                      <span className="text-3xl">{category.icon}</span>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-emerald-600 transition-colors duration-300 transition-professional">{category.title}</h3>
-                    <p className="text-gray-600">{category.questions.length} questions</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Detailed FAQ List */}
-          <div className="space-y-6">
-            {faqCategories.map((category) => (
-              <motion.div 
-                key={category.id}
-                variants={fadeInUp}
-                className="bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden"
-              >
-                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-900 flex items-center gap-3">
-                    <span>{category.icon}</span>
-                    {category.title}
-                  </h3>
-                </div>
-                
-                <div className="divide-y divide-gray-200">
-                  {category.questions.map((faq) => (
-                    <div key={faq.id} className="transition-colors hover:bg-gray-50">
-                      <button
-                        onClick={() => toggleQuestion(faq.id)}
-                        className="w-full px-6 py-5 text-left flex items-center justify-between group focus:outline-none"
-                      >
-                        <span className="font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors">
-                          {faq.question}
-                        </span>
-                        <svg 
-                          className={"w-5 h-5 text-gray-500 group-hover:text-emerald-500 transition-transform duration-300 " + (openQuestion === faq.id ? 'rotate-180' : '')}
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                      
-                      <div 
-                        className={`overflow-hidden transition-all duration-300 ${
-                          openQuestion === faq.id ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                        }`}
-                      >
-                        <div className="px-6 pb-5 pt-0">
-                          <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Still Need Help */}
-          <motion.div 
-            variants={fadeInUp}
-            className="mt-16 text-center bg-gradient-to-r from-emerald-50 to-blue-50 rounded-2xl p-12 border border-emerald-200"
-          >
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Still Need Help?</h3>
-            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-              Our support team is available 24/7 to assist you with any questions or issues you may have. 
-              Get instant help through live chat or contact us directly.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                onClick={handleContactSupport} 
-                className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
-              >
-                Contact Support Team
-              </Button>
-              <Button 
-                onClick={() => window.location.href = "/support"} 
-                className="border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-500/10 hover:border-emerald-600 px-8 py-3 rounded-lg bg-transparent transition-all duration-300 font-semibold btn-premium"
-              >
-                Visit Help Center
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </motion.section>
-
-      {/* CTA Footer */}
-      <motion.section 
-        initial="initial"
-        animate="animate"
-        variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-r from-emerald-500 to-emerald-600 section-padding"
-      >
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.h2 
-            variants={fadeInUp}
-            className="text-5xl md:text-6xl font-bold text-white mb-6"
-          >
-            Ready to Get Started?
-          </motion.h2>
-          <motion.p 
-            variants={fadeInUp}
-            className="text-xl text-emerald-100 mb-10 max-w-2xl mx-auto"
-          >
-            Join thousands of successful traders on our platform. 
-            Open an account today and experience professional trading with our comprehensive support and tools.
-          </motion.p>
-          <motion.div 
-            variants={fadeInUp}
-            className="flex flex-col sm:flex-row justify-center gap-4"
-          >
-            <Button 
-              onClick={() => window.location.href = "/auth/signup"} 
-              className="bg-white text-emerald-600 hover:bg-gray-100 px-12 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <motion.div
+              variants={fadeInUp}
+              whileHover={{ y: -5 }}
+              className="bg-white rounded-2xl p-8 text-center shadow-lg border border-gray-200 hover:shadow-2xl transition-all duration-300"
             >
-              Open Account
-            </Button>
-            <Button 
-              onClick={handleBackToHome} 
-              className="border-2 border-white text-white hover:bg-white/10 px-12 py-4 rounded-xl text-lg font-semibold transition-all duration-300 btn-premium"
+              <div className="w-16 h-16 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-6">
+                <MessageCircle className="w-8 h-8 text-emerald-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Live Chat</h3>
+              <p className="text-gray-600 mb-6">Get instant help from our support team</p>
+              <Button 
+                onClick={handleContactSupport}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Start Chat
+              </Button>
+            </motion.div>
+
+            <motion.div
+              variants={fadeInUp}
+              whileHover={{ y: -5 }}
+              className="bg-white rounded-2xl p-8 text-center shadow-lg border border-gray-200 hover:shadow-2xl transition-all duration-300"
             >
-              Back to Home
-            </Button>
-          </motion.div>
+              <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-6">
+                <Mail className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Email Support</h3>
+              <p className="text-gray-600 mb-6">Send us a message and we&apos;ll respond within 24 hours</p>
+              <Button 
+                onClick={() => window.location.href = "mailto:support@bitpanda.com"}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Send Email
+              </Button>
+            </motion.div>
+
+            <motion.div
+              variants={fadeInUp}
+              whileHover={{ y: -5 }}
+              className="bg-white rounded-2xl p-8 text-center shadow-lg border border-gray-200 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="w-16 h-16 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-6">
+                <Phone className="w-8 h-8 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Phone Support</h3>
+              <p className="text-gray-600 mb-6">Call us for immediate assistance</p>
+              <Button 
+                onClick={() => window.location.href = "tel:+1234567890"}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Call Now
+              </Button>
+            </motion.div>
+          </div>
         </div>
       </motion.section>
     </div>

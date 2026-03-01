@@ -65,7 +65,7 @@ export default function BottomNav({ onMenuClick, isMenuActive }: BottomNavProps)
   return (
     <>
       {/* Mobile Navigation */}
-      <nav className="nav hide-on-desktop">
+      <nav className="nav hide-on-desktop responsive-animation">
         <div className="nav-inner">
           <NavItem
             href="/dashboard"
@@ -151,13 +151,13 @@ export default function BottomNav({ onMenuClick, isMenuActive }: BottomNavProps)
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setIsMenuOpen(false)}>
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="lg:hidden fixed inset-0 z-50 bg-black/50 responsive-animation" onClick={() => setIsMenuOpen(false)}>
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-4 sm:p-6 max-h-[80vh] overflow-y-auto responsive-animation" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold">Menu</h3>
+              <h3 className="text-lg font-semibold text-responsive-lg">Menu</h3>
               <button
                 onClick={() => setIsMenuOpen(false)}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors responsive-animation"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
                   <path d="M18 6L6 18M6 6l12 12" />
@@ -165,157 +165,157 @@ export default function BottomNav({ onMenuClick, isMenuActive }: BottomNavProps)
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 sm:space-y-6">
               {/* Invest Section */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Invest</h4>
+                <h4 className="font-medium text-gray-900 mb-3 text-responsive-sm">Invest</h4>
                 <div className="space-y-2">
-                  <Link href="/crypto" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/crypto" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <Image src="https://sbcdn.bitpanda.com/150x150/8d8c9de4b4/menu-icons-_crypto.svg" alt="Cryptocurrencies" width={24} height={24} className="mr-3" />
-                    <span className="text-sm">Cryptocurrencies</span>
+                    <span className="text-sm text-responsive-sm">Cryptocurrencies</span>
                   </Link>
-                  <Link href="/stocks" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/stocks" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <Image src="https://sbcdn.bitpanda.com/150x150/4aad9dd252/menu-icons-_stocks.svg" alt="Stocks" width={24} height={24} className="mr-3" />
-                    <span className="text-sm">Stocks*</span>
+                    <span className="text-sm text-responsive-sm">Stocks*</span>
                   </Link>
-                  <Link href="/etfs" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/etfs" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <Image src="https://sbcdn.bitpanda.com/150x150/fbd0d7db23/menu-icons-_etfs.svg" alt="ETFs" width={24} height={24} className="mr-3" />
-                    <span className="text-sm">ETFs*</span>
+                    <span className="text-sm text-responsive-sm">ETFs*</span>
                   </Link>
-                  <Link href="/metals" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/metals" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <Image src="https://sbcdn.bitpanda.com/150x150/0e9a595fd4/menu-icons-_metals.svg" alt="Precious Metals" width={24} height={24} className="mr-3" />
-                    <span className="text-sm">Precious Metals</span>
+                    <span className="text-sm text-responsive-sm">Precious Metals</span>
                   </Link>
                 </div>
               </div>
 
               {/* Trading Section */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Trading</h4>
+                <h4 className="font-medium text-gray-900 mb-3 text-responsive-sm">Trading</h4>
                 <div className="space-y-2">
-                  <Link href="/pro" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/pro" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <span className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                         <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                       </svg>
                     </span>
-                    <span className="text-sm">Pro Trading</span>
+                    <span className="text-sm text-responsive-sm">Pro Trading</span>
                   </Link>
-                  <Link href="/algo" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/algo" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <span className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
                       </svg>
                     </span>
-                    <span className="text-sm">Algo Trading</span>
+                    <span className="text-sm text-responsive-sm">Algo Trading</span>
                   </Link>
                 </div>
               </div>
 
               {/* Learn Section */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Learn</h4>
+                <h4 className="font-medium text-gray-900 mb-3 text-responsive-sm">Learn</h4>
                 <div className="space-y-2">
-                  <Link href="/tutorials" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/tutorials" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <span className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mr-3">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                         <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
                         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
                       </svg>
                     </span>
-                    <span className="text-sm">Tutorials</span>
+                    <span className="text-sm text-responsive-sm">Tutorials</span>
                   </Link>
-                  <Link href="/academy" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/academy" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <span className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                         <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
                         <path d="M6 12v5c3 3 9 3 12 0v-5" />
                       </svg>
                     </span>
-                    <span className="text-sm">Academy</span>
+                    <span className="text-sm text-responsive-sm">Academy</span>
                   </Link>
-                  <Link href="/blog" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/blog" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <span className="w-6 h-6 bg-pink-100 rounded-full flex items-center justify-center mr-3">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                         <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                       </svg>
                     </span>
-                    <span className="text-sm">Blog</span>
+                    <span className="text-sm text-responsive-sm">Blog</span>
                   </Link>
                 </div>
               </div>
 
               {/* Prices Section */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Prices</h4>
+                <h4 className="font-medium text-gray-900 mb-3 text-responsive-sm">Prices</h4>
                 <div className="space-y-2">
-                  <Link href="/markets" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/markets" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <span className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                         <path d="M3 3v18h18" />
                         <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />
                       </svg>
                     </span>
-                    <span className="text-sm">Markets</span>
+                    <span className="text-sm text-responsive-sm">Markets</span>
                   </Link>
-                  <Link href="/watchlists" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/watchlists" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <span className="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
                     </span>
-                    <span className="text-sm">Watchlists</span>
+                    <span className="text-sm text-responsive-sm">Watchlists</span>
                   </Link>
                 </div>
               </div>
 
               {/* More Options */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">More</h4>
+                <h4 className="font-medium text-gray-900 mb-3 text-responsive-sm">More</h4>
                 <div className="space-y-2">
-                  <Link href="/fees" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/fees" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <span className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center mr-3">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                       </svg>
                     </span>
-                    <span className="text-sm">Fees</span>
+                    <span className="text-sm text-responsive-sm">Fees</span>
                   </Link>
-                  <Link href="/support" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                  <Link href="/support" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation" onClick={() => setIsMenuOpen(false)}>
                     <span className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center mr-3">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                         <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </span>
-                    <span className="text-sm">Support</span>
+                    <span className="text-sm text-responsive-sm">Support</span>
                   </Link>
                 </div>
               </div>
 
               {/* Account Section */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Account</h4>
+                <h4 className="font-medium text-gray-900 mb-3 text-responsive-sm">Account</h4>
                 <div className="space-y-2">
-                  <Link href="/auth/signin" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors border border-gray-300" onClick={() => setIsMenuOpen(false)}>
-                    <span className="text-sm font-medium">Log in</span>
+                  <Link href="/auth/signin" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors border border-gray-300 responsive-animation" onClick={() => setIsMenuOpen(false)}>
+                    <span className="text-sm font-medium text-responsive-sm">Log in</span>
                   </Link>
-                  <Link href="/auth/signup" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors bg-blue-600 text-white" onClick={() => setIsMenuOpen(false)}>
-                    <span className="text-sm font-medium">Sign up</span>
+                  <Link href="/auth/signup" className="flex items-center p-3 rounded-xl hover:bg-gray-50 transition-colors bg-blue-600 text-white responsive-animation" onClick={() => setIsMenuOpen(false)}>
+                    <span className="text-sm font-medium text-responsive-sm">Sign up</span>
                   </Link>
                 </div>
               </div>
 
               {/* Language Selector */}
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Language</h4>
+                <h4 className="font-medium text-gray-900 mb-3 text-responsive-sm">Language</h4>
                 <div className="space-y-2">
                   {languages.map((lang) => (
                     <button
                       key={lang.code}
-                      className="w-full text-left p-3 rounded-xl hover:bg-gray-50 transition-colors"
+                      className="w-full text-left p-3 rounded-xl hover:bg-gray-50 transition-colors responsive-animation"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      <span className="text-sm">{lang.name}</span>
+                      <span className="text-sm text-responsive-sm">{lang.name}</span>
                     </button>
                   ))}
                 </div>

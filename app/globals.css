@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "../styles/landing-animations.css";
 @import "../styles/utilities.css";
+@import "../styles/responsive.css";
+@import "../styles/micro-interactions.css";
+@import "../styles/dashboard-professional.css";
+@import "../styles/dashboard-enhancements.css";
+@import "../styles/tradewill-dashboard.css";
+@import "../styles/tradewill-fix.css";
 
 /* Smooth scrolling and parallax effects */
 html {
