@@ -124,38 +124,18 @@ export default function AdminSignInPage() {
           </form>
 
           {/* Security Notice */}
-<<<<<<< HEAD
-<<<<<<< HEAD
           <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <div className="flex items-center gap-2 text-yellow-700 mb-2">
-=======
-          <div className="mt-6 p-4 bg-gray-700/50 rounded-lg border border-gray-600">
-            <div className="flex items-center gap-2 text-yellow-400 mb-2">
->>>>>>> 02bdcb7 (Initial commit)
-=======
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="flex items-center gap-2 text-yellow-700 mb-2">
->>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <span className="text-sm font-medium">Restricted Access</span>
             </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
             <p className="text-xs text-gray-600">
-=======
-            <p className="text-xs text-gray-400">
->>>>>>> 02bdcb7 (Initial commit)
-=======
-            <p className="text-xs text-gray-600">
->>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)
               This area is restricted to authorized administrators only. All actions are logged and monitored.
             </p>
           </div>
         </CardContent>
-<<<<<<< HEAD
-<<<<<<< HEAD
         <CardFooter className="flex flex-col space-y-4 pt-4 border-t border-gray-200">
           <div className="text-center text-sm">
             <span className="text-gray-600">Back to </span>
@@ -168,27 +148,6 @@ export default function AdminSignInPage() {
             <Link href="/auth/signin" className="text-blue-800 hover:text-blue-900 hover:underline font-medium transition-colors">
               Sign In
             </Link>
-=======
-        <CardFooter className="flex flex-col space-y-4 pt-4 border-t border-gray-700">
-=======
-        <CardFooter className="flex flex-col space-y-4 pt-4 border-t border-gray-200">
->>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)
-          <div className="text-center text-sm">
-            <span className="text-gray-600">Back to </span>
-            <Link href="/" className="text-green-800 hover:text-green-900 hover:underline font-medium transition-colors">
-              Main Website
-            </Link>
-          </div>
-          <div className="text-center text-sm">
-            <span className="text-gray-600">User login: </span>
-            <Link href="/auth/signin" className="text-blue-800 hover:text-blue-900 hover:underline font-medium transition-colors">
-              Sign In
-<<<<<<< HEAD
-            </a>
->>>>>>> 02bdcb7 (Initial commit)
-=======
-            </Link>
->>>>>>> 6e52326 (Add admin sign-in redirect page and enhance admin authentication flow)
           </div>
         </CardFooter>
       </Card>
