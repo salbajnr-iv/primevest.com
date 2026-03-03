@@ -2,21 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-<<<<<<< HEAD
 import { createClient } from "@supabase/supabase-js";
-=======
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
-import DashboardHeader from "@/components/DashboardHeader";
-
-export default function SellReviewPage() {
-  const router = useRouter();
-  const [asset, setAsset] = React.useState("-");
-  const [amount, setAmount] = React.useState("0");
-<<<<<<< HEAD
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
-=======
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -24,7 +10,6 @@ export default function SellReviewPage() {
     setAmount(params.get("amount") || "0");
   }, []);
 
-<<<<<<< HEAD
   async function confirm() {
     setLoading(true);
     setError("");
@@ -80,12 +65,6 @@ export default function SellReviewPage() {
     } finally {
       setLoading(false);
     }
-=======
-  function confirm() {
-    setTimeout(() => {
-      router.push(`/dashboard/sell/success?asset=${encodeURIComponent(asset)}&amount=${amount}&id=ORD-${Date.now()}`);
-    }, 700);
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
   }
 
   return (
@@ -99,7 +78,6 @@ export default function SellReviewPage() {
           <p><strong>Menge:</strong> {amount}</p>
           <p><strong>Geschätzte Gebühren:</strong> 0,50 €</p>
 
-<<<<<<< HEAD
           {error && (
             <div style={{ 
               color: "red", 
@@ -127,11 +105,6 @@ export default function SellReviewPage() {
             >
               {loading ? "wird verarbeitet..." : "Verkaufen"}
             </button>
-=======
-          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-            <button className="btn" onClick={() => router.back()}>Zurück</button>
-            <button className="btn btn-primary" onClick={confirm}>Verkaufen</button>
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
           </div>
         </main>
       </div>

@@ -73,7 +73,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
->>>>>>> 02bdcb7 (Initial commit)
         <div className="w-16 h-16 border-4 border-green-800 border-t-transparent rounded-full animate-spin"></div>
       </div>
     )
@@ -114,7 +113,6 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-gray-900">
->>>>>>> 02bdcb7 (Initial commit)
       <AdminSidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
       <div className={`transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
         <AdminHeader onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />

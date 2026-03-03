@@ -3,14 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { useLanguage } from "@/contexts/LanguageContext";
-=======
->>>>>>> 02bdcb7 (Initial commit)
-=======
-import { useLanguage, SUPPORTED_LANGUAGES } from "@/contexts/LanguageContext";
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 
 interface SettingItemProps {
   label: string;
@@ -40,85 +33,16 @@ function SettingItem({ label, description, icon, href, value, onClick, danger, t
         {toggle && (
           <button 
             className={`toggle-switch ${toggleValue ? "active" : ""}`}
-<<<<<<< HEAD
             aria-label={toggleValue ? "Turn off" : "Turn on"}
-=======
->>>>>>> 02bdcb7 (Initial commit)
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle?.(!toggleValue);
-            }}
-          >
-            <span className="toggle-thumb" />
-          </button>
-        )}
-        {!toggle && (href || onClick) && (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        )}
-      </div>
-    </>
-  );
-
-  if (href) {
-    return <Link href={href} className="setting-item">{content}</Link>;
-  }
-
-  if (onClick) {
-    return <button className="setting-item setting-button" onClick={onClick}>{content}</button>;
-  }
-
-  return <div className="setting-item">{content}</div>;
-}
-
-export default function SettingsPage() {
-  const [isClient, setIsClient] = React.useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [notifications, setNotifications] = React.useState(true);
-  const [emailUpdates, setEmailUpdates] = React.useState(true);
-  const [priceAlerts, setPriceAlerts] = React.useState(true);
-  const [marketingEmails, setMarketingEmails] = React.useState(false);
-<<<<<<< HEAD
-<<<<<<< HEAD
-  const { language: currentLanguage, getLanguageOption, isLoading: isLanguageLoading } = useLanguage();
-=======
->>>>>>> 02bdcb7 (Initial commit)
-=======
-  const { language: currentLanguage, getLanguageOption, isLoading: isLanguageLoading } = useLanguage();
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
-  // Get current language display name
-  const currentLanguageOption = getLanguageOption(currentLanguage);
-  const currentLanguageDisplay = currentLanguageOption 
-    ? `${currentLanguageOption.flag} ${currentLanguageOption.name}`
-    : 'English';
-
-<<<<<<< HEAD
-  if (!isClient) {
-    return (
-      <div className="dashboard-container">
-        <div className="dashboard-app">
-          <div className="loading-spinner-container">
-            <div className="loading-spinner"></div>
-          </div>
-        </div>
-=======
-=======
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
   if (!isClient) {
     return (
       <div className="dashboard-loading">
         <div className="loading-spinner"></div>
->>>>>>> 02bdcb7 (Initial commit)
       </div>
     );
   }
@@ -137,7 +61,6 @@ export default function SettingsPage() {
             <span className="header-eyebrow">SETTINGS</span>
             <div className="header-title">Settings</div>
           </div>
-<<<<<<< HEAD
           <div className="header-actions">
             <button className="menu-btn" onClick={() => setIsSidebarOpen(true)} aria-label="Open menu">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -171,21 +94,6 @@ export default function SettingsPage() {
         <section className="section">
           <h3 className="section-title">Account</h3>
           <div className="card">
-=======
-          <button className="sync-btn" onClick={() => setIsSidebarOpen(true)}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
-        </header>
-
-        {/* ACCOUNT */}
-        <section className="settings-section">
-          <h3 className="section-title">Account</h3>
-          <div className="settings-card">
->>>>>>> 02bdcb7 (Initial commit)
             <SettingItem
               label="Personal Information"
               description="Update your personal details"
@@ -198,11 +106,7 @@ export default function SettingsPage() {
               href="/profile"
             />
             <SettingItem
-<<<<<<< HEAD
               label="Security Settings"
-=======
-              label="Security"
->>>>>>> 02bdcb7 (Initial commit)
               description="Password, 2FA, and security settings"
               icon={
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -226,17 +130,10 @@ export default function SettingsPage() {
           </div>
         </section>
 
-<<<<<<< HEAD
         {/* NOTIFICATIONS SECTION */}
         <section className="section">
           <h3 className="section-title">Notifications</h3>
           <div className="card">
-=======
-        {/* NOTIFICATIONS */}
-        <section className="settings-section">
-          <h3 className="section-title">Notifications</h3>
-          <div className="settings-card">
->>>>>>> 02bdcb7 (Initial commit)
             <SettingItem
               label="Push Notifications"
               icon={
@@ -291,17 +188,10 @@ export default function SettingsPage() {
           </div>
         </section>
 
-<<<<<<< HEAD
         {/* PREFERENCES SECTION */}
         <section className="section">
           <h3 className="section-title">Preferences</h3>
           <div className="card">
-=======
-        {/* PREFERENCES */}
-        <section className="settings-section">
-          <h3 className="section-title">Preferences</h3>
-          <div className="settings-card">
->>>>>>> 02bdcb7 (Initial commit)
             <SettingItem
               label="Currency"
               value="EUR"
@@ -315,15 +205,7 @@ export default function SettingsPage() {
             />
             <SettingItem
               label="Language"
-<<<<<<< HEAD
-<<<<<<< HEAD
               value={isLanguageLoading ? 'Loading...' : currentLanguageDisplay}
-=======
-              value="English"
->>>>>>> 02bdcb7 (Initial commit)
-=======
-              value={isLanguageLoading ? 'Loading...' : currentLanguageDisplay}
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
               icon={
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" />
@@ -354,17 +236,10 @@ export default function SettingsPage() {
           </div>
         </section>
 
-<<<<<<< HEAD
         {/* PRIVACY & LEGAL SECTION */}
         <section className="section">
           <h3 className="section-title">Privacy & Legal</h3>
           <div className="card">
-=======
-        {/* PRIVACY & LEGAL */}
-        <section className="settings-section">
-          <h3 className="section-title">Privacy & Legal</h3>
-          <div className="settings-card">
->>>>>>> 02bdcb7 (Initial commit)
             <SettingItem
               label="Privacy Policy"
               icon={
@@ -388,7 +263,6 @@ export default function SettingsPage() {
               href="/terms"
             />
             <SettingItem
-<<<<<<< HEAD
               label="Cookie Policy"
               icon={
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -402,50 +276,7 @@ export default function SettingsPage() {
               }
               href="/cookies"
             />
-            <SettingItem
-=======
->>>>>>> 02bdcb7 (Initial commit)
-              label="Delete Account"
-              description="Permanently delete your account and data"
-              icon={
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
-              }
-              danger
-              onClick={() => {
-                if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-                  // Handle account deletion
-                  console.log("Delete account");
-                }
-              }}
-            />
-          </div>
-        </section>
-
-<<<<<<< HEAD
-        {/* APP INFO */}
-        <section className="section">
-          <div className="card">
-            <div className="app-info">
-              <div className="app-info-item">
-                <span className="app-info-label">App Version</span>
-                <span className="app-info-value">1.0.0</span>
-              </div>
-              <div className="app-info-item">
-                <span className="app-info-label">Build</span>
-                <span className="app-info-value">#12345</span>
-              </div>
-            </div>
-          </div>
-        </section>
-=======
-        {/* VERSION INFO */}
-        <div className="version-info">
-          <p>Version 1.0.0</p>
-        </div>
->>>>>>> 02bdcb7 (Initial commit)
+            <SettingItem02bdcb7 (Initial commit)
       </div>
 
       <BottomNav 

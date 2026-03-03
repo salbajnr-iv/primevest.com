@@ -79,7 +79,6 @@ const reports: ReportItem[] = [
 ];
 
 function ReportItem({ report }: { report: ReportItem }) {
-<<<<<<< HEAD
   // Define type-specific styling
   const getTypeStyle = () => {
     const colors = {
@@ -96,11 +95,6 @@ function ReportItem({ report }: { report: ReportItem }) {
   return (
     <div className="report-item">
       <div className="report-icon" style={{ backgroundColor: typeStyle.bg }}>
-=======
-  return (
-    <div className="report-item">
-      <div className="report-icon">
->>>>>>> 02bdcb7 (Initial commit)
         {report.icon}
       </div>
       <div className="report-info">
@@ -108,7 +102,6 @@ function ReportItem({ report }: { report: ReportItem }) {
         <p>{report.description}</p>
         <div className="report-meta">
           <span>{report.date}</span>
-<<<<<<< HEAD
           <span className="divider">•</span>
           <span>{report.size}</span>
         </div>
@@ -130,19 +123,6 @@ function ReportItem({ report }: { report: ReportItem }) {
           </svg>
         </button>
       </div>
-=======
-          <span className="dot">•</span>
-          <span>{report.size}</span>
-        </div>
-      </div>
-      <button className="report-download">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-      </button>
->>>>>>> 02bdcb7 (Initial commit)
     </div>
   );
 }
@@ -152,7 +132,6 @@ export default function ReportsPage() {
   const [isClient, setIsClient] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [reportsState, setReportsState] = React.useState<ReportItem[]>(reports);
-<<<<<<< HEAD
   const [thirtyDaysAgo, setThirtyDaysAgo] = React.useState<Date>(new Date());
   const supabase = createClient();
 
@@ -161,11 +140,6 @@ export default function ReportsPage() {
   }, []);
 
   React.useEffect(() => {
-=======
-  const supabase = createClient();
-
-  React.useEffect(() => {
->>>>>>> 02bdcb7 (Initial commit)
     setIsClient(true);
   }, []);
 
@@ -187,7 +161,6 @@ export default function ReportsPage() {
           console.warn('Reports table not available, using static data', error);
           setReportsState(reports);
         } else if (data && data.length > 0) {
-<<<<<<< HEAD
           interface SupabaseReport {
             id: number;
             title: string;
@@ -199,9 +172,6 @@ export default function ReportsPage() {
           }
           
           const mapped = data.map((row: SupabaseReport) => ({
-=======
-          const mapped = data.map((row: any) => ({
->>>>>>> 02bdcb7 (Initial commit)
             id: String(row.id),
             title: row.title || 'Report',
             description: row.description || '',
@@ -210,11 +180,7 @@ export default function ReportsPage() {
             size: row.size || '',
             icon: row.icon || null,
           }));
-<<<<<<< HEAD
           setReportsState(mapped as ReportItem[]);
-=======
-          setReportsState(mapped as any);
->>>>>>> 02bdcb7 (Initial commit)
         } else {
           setReportsState(reports);
         }
@@ -227,17 +193,12 @@ export default function ReportsPage() {
 
   if (!isClient || authLoading) {
     return (
-<<<<<<< HEAD
       <div className="dashboard-container">
         <div className="dashboard-app">
           <div className="loading-spinner-container">
             <div className="loading-spinner"></div>
           </div>
         </div>
-=======
-      <div className="dashboard-loading">
-        <div className="loading-spinner"></div>
->>>>>>> 02bdcb7 (Initial commit)
       </div>
     );
   }
@@ -256,7 +217,6 @@ export default function ReportsPage() {
             <span className="header-eyebrow">DOCUMENTS</span>
             <div className="header-title">Reports</div>
           </div>
-<<<<<<< HEAD
           <div className="header-actions">
             <button className="menu-btn" onClick={() => setIsSidebarOpen(true)}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -320,40 +280,10 @@ export default function ReportsPage() {
                 <button className={`filter-tab`}>Custom</button>
               </div>
             </div>
-=======
-          <button className="sync-btn" onClick={() => setIsSidebarOpen(true)}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
-        </header>
-
-        {/* GENERATE REPORT CARD */}
-        <section className="generate-report">
-          <div className="generate-report-card">
-            <div className="generate-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="18" x2="12" y2="12" />
-                <line x1="9" y1="15" x2="15" y2="15" />
-              </svg>
-            </div>
-            <div className="generate-info">
-              <h3>Generate Custom Report</h3>
-              <p>Create a custom report for any time period</p>
-            </div>
-            <button className="generate-button">
-              Create Report
-            </button>
->>>>>>> 02bdcb7 (Initial commit)
           </div>
         </section>
 
         {/* AVAILABLE REPORTS */}
-<<<<<<< HEAD
         <section className="section">
           <h3 className="section-title">Available Reports</h3>
           <div className="card">
@@ -380,30 +310,6 @@ export default function ReportsPage() {
                 <h4>About Reports</h4>
                 <p>Reports include all your trading activity, deposits, withdrawals, and tax-relevant information. All reports are generated in PDF format.</p>
               </div>
-=======
-        <section className="reports-section">
-          <h3 className="section-title">Available Reports</h3>
-          <div className="reports-list">
-            {reportsState.map((report) => (
-              <ReportItem key={report.id} report={report} />
-            ))}
-          </div>
-        </section>
-
-        {/* INFO CARD */}
-        <section className="reports-info">
-          <div className="info-card">
-            <div className="info-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="16" x2="12" y2="12" />
-                <line x1="12" y1="8" x2="12.01" y2="8" />
-              </svg>
-            </div>
-            <div className="info-content">
-              <h4>About Reports</h4>
-              <p>Reports include all your trading activity, deposits, withdrawals, and tax-relevant information. All reports are generated in PDF format.</p>
->>>>>>> 02bdcb7 (Initial commit)
             </div>
           </div>
         </section>

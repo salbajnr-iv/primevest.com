@@ -1,5 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 # Implementation Plan - Portfolio Features & KYC Enhancement
 
 ## Overview
@@ -209,12 +208,7 @@ This plan outlines the improvements needed to make the portfolio features functi
 - KYC flow has clear steps and progress indication
 - Consistent design across all pages
 - Proper error handling and feedback
-- Responsive design on all screen sizes
-=======
-# Implementation Plan: Add Crypto Logos to Dashboard and Markets
-=======
-# Implementation Plan - Portfolio Features & KYC Enhancement
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
+- Responsive design on all screen sizes815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 
 ## Overview
 This plan outlines the improvements needed to make the portfolio features functional and the KYC verification process more professional and user-friendly.
@@ -335,102 +329,10 @@ This plan outlines the improvements needed to make the portfolio features functi
 - Rejection reason templates
 - Bulk review actions
 
-<<<<<<< HEAD
 ## Testing
 - Verify all crypto logos display correctly
 - Check markets page list and modal
 - Verify watchlist and top positions sections
 - Ensure logos are properly sized and aligned
->>>>>>> 02bdcb7 (Initial commit)
-=======
-### Phase 3: New Reference Pages
-
-#### 3.1 Order History Page
-- Filter by type (Buy, Sell, Swap, Deposit)
-- Date range picker
-- Export to CSV
-- Detailed transaction view
-
-#### 3.2 Asset Details Page
-- Price chart (1H, 1D, 1W, 1M, 1Y)
-- Market statistics
-- Your holdings
-- Quick actions (Buy, Sell, Swap)
-
-#### 3.3 Settings & Preferences
-- Notification preferences
-- Security settings
-- Language selection
-- Theme preferences
-
-## File Changes Required
-
-### New Files to Create
-1. `app/dashboard/orders/page.tsx` - Order history
-2. `app/dashboard/orders/[id]/page.tsx` - Order details
-3. `app/dashboard/withdraw/page.tsx` - Withdrawal flow
-4. `app/profile/verify/step-1/page.tsx` - KYC Step 1
-5. `app/profile/verify/step-2/page.tsx` - KYC Step 2
-6. `app/profile/verify/step-3/page.tsx` - KYC Step 3
-7. `app/profile/verify/status/page.tsx` - KYC Status tracking
-
-### Files to Update
-1. `app/dashboard/portfolio/page.tsx` - Enhanced UI
-2. `app/dashboard/buy/page.tsx` - Enhanced form
-3. `app/dashboard/sell/page.tsx` - Enhanced form
-4. `app/dashboard/swap/page.tsx` - Enhanced swap interface
-5. `app/dashboard/deposit/page.tsx` - Enhanced deposit form
-6. `app/profile/verify/page.tsx` - Multi-step KYC flow
-7. `components/KycUploader.tsx` - Enhanced uploader
-8. `app/globals.css` - Additional styles
-
-## Design Guidelines
-
-### Color Palette
-- Primary Green: `#0f9d58` / `#103e36`
-- Success: `#2cec9a`
-- Warning: `#ff9800`
-- Error: `#d64545`
-- Background Light: `#f4f7f5`
-- Background Dark: `#0b1e16`
-- Card Light: `rgba(255,255,255,0.9)`
-- Card Dark: `rgba(20,40,32,0.9)`
-
-### Typography
-- Headlines: `Bitpanda Compressed` font family
-- Body: `Inter` font family
-- Bold weights for emphasis
-
-### Spacing System
-- Base unit: 4px
-- Small: 8px / 12px
-- Medium: 16px / 24px
-- Large: 32px / 40px
-
-### Border Radius
-- Small: 8px
-- Medium: 16px / 18px
-- Large: 22px / 26px
-- Full: 9999px (pills/chips)
-
-## Implementation Steps
-
-1. **Create TODO.md** - Track all tasks
-2. **Update global styles** - Add new CSS variables and classes
-3. **Enhance portfolio page** - Better UI with portfolio card
-4. **Improve buy/sell flows** - Add quick amounts, price estimates
-5. **Enhance swap page** - Add exchange rate, slippage
-6. **Improve deposit page** - Add bank selection, limits
-7. **Create KYC multi-step flow** - Step-by-step verification
-8. **Add KYC status tracking** - Progress indicators
-9. **Create order history page** - Transaction history
-10. **Test all flows** - Ensure proper navigation
-
-## Success Criteria
-- All portfolio features have professional UI
-- KYC flow has clear steps and progress indication
-- Consistent design across all pages
-- Proper error handling and feedback
-- Responsive design on all screen sizes
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
+>>>>>>> 02bdcb7 (Initial commit)815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 

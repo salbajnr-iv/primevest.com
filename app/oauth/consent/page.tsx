@@ -1,51 +1,20 @@
 'use client'
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { Suspense, useEffect, useRef, useState } from 'react'
-=======
-import { Suspense, useEffect, useState } from 'react'
-=======
-import { Suspense, useEffect, useRef, useState } from 'react'
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 import { useSearchParams } from 'next/navigation'
->>>>>>> 02bdcb7 (Initial commit)
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { createBrowserClient } from '@supabase/ssr'
 
-<<<<<<< HEAD
 type OAuthProvider = 'google' | 'github' | 'facebook' | 'twitter' | 'apple' | 'discord'
 
-=======
->>>>>>> 02bdcb7 (Initial commit)
-function LoadingFallback() {
-  return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-8 h-8 border-4 border-green-800 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading...</p>
-      </div>
-    </div>
-  )
-}
-
-function OAuthConsentContent() {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  const searchParams = useSearchParams()
->>>>>>> 02bdcb7 (Initial commit)
-=======
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [consentData, setConsentData] = useState<{
     application_name: string
     scopes: string[]
     provider?: string
-<<<<<<< HEAD
   }>({
     application_name: 'Bitpanda Pro App',
     scopes: ['openid', 'email', 'profile'],
@@ -82,49 +51,6 @@ function OAuthConsentContent() {
 
     return () => clearTimeout(timer)
   }, [])
-=======
-  } | null>(null)
-
-  // Get OAuth parameters from URL on client
-  const providerRef = useRef<string | null>(null)
-  const scopesRef = useRef<string | null>(null)
-  const redirectToRef = useRef<string | null>(null)
-  const codeChallengeRef = useRef<string | null>(null)
-  const stateRef = useRef<string | null>(null)
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    providerRef.current = params.get('provider')
-    scopesRef.current = params.get('scopes')
-    redirectToRef.current = params.get('redirect_to')
-    codeChallengeRef.current = params.get('code_challenge')
-    stateRef.current = params.get('state')
-
-    // Parse scopes from URL
-    const scopesList = scopesRef.current?.split(',').map(s => s.trim()) || []
-    
-    // Set consent data (in production, this would come from Supabase)
-    setConsentData({
-      application_name: 'Bitpanda Pro App',
-      scopes: scopesList.length > 0 ? scopesList : ['openid', 'email', 'profile'],
-      provider: providerRef.current || undefined
-    })
-    setLoading(false)
-  }, [])
-
-  useEffect(() => {
-    // Parse scopes from URL
-    const scopesList = scopes?.split(',').map(s => s.trim()) || []
-    
-    // Set consent data (in production, this would come from Supabase)
-    setConsentData({
-      application_name: 'Bitpanda Pro App',
-      scopes: scopesList.length > 0 ? scopesList : ['openid', 'email', 'profile'],
-      provider: provider || undefined
-    })
-    setLoading(false)
-  }, [scopes, provider])
->>>>>>> 02bdcb7 (Initial commit)
 
   const handleConsent = async () => {
     try {
@@ -134,7 +60,6 @@ function OAuthConsentContent() {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       )
 
-<<<<<<< HEAD
       const currentProvider = providerRef.current
       const currentScopes = scopesRef.current
       
@@ -144,15 +69,6 @@ function OAuthConsentContent() {
           options: {
             redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
             scopes: currentScopes || 'openid email profile',
-=======
-      // If we have a provider, initiate OAuth flow
-      if (provider) {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: provider as any,
-          options: {
-            redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-            scopes: scopes || 'openid email profile',
->>>>>>> 02bdcb7 (Initial commit)
           }
         })
 
@@ -160,23 +76,12 @@ function OAuthConsentContent() {
           setError(error.message)
           setLoading(false)
         } else if (data.url) {
-<<<<<<< HEAD
           window.location.href = data.url
         }
       } else {
         window.location.href = `/auth/signin?oauth_success=true`
       }
     } catch {
-=======
-          // Redirect to the OAuth provider
-          window.location.href = data.url
-        }
-      } else {
-        // For generic OAuth flow, redirect to the callback
-        window.location.href = `/auth/signin?oauth_success=true`
-      }
-    } catch (err) {
->>>>>>> 02bdcb7 (Initial commit)
       setError('Failed to complete authorization')
       setLoading(false)
     }
@@ -207,11 +112,7 @@ function OAuthConsentContent() {
             Authorize Access
           </CardTitle>
           <CardDescription className="text-gray-600">
-<<<<<<< HEAD
-            {consentData.application_name} wants to access your account
-=======
-            {consentData?.application_name || 'Bitpanda Pro App'} wants to access your account
->>>>>>> 02bdcb7 (Initial commit)
+            {consentData.application_name} wants to access your account02bdcb7 (Initial commit)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -224,17 +125,10 @@ function OAuthConsentContent() {
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <h3 className="font-medium text-gray-900 mb-3">
-<<<<<<< HEAD
                 This will allow {consentData.application_name} to:
               </h3>
               <ul className="space-y-2">
                 {consentData.scopes.map((scope, index) => (
-=======
-                This will allow {consentData?.application_name || 'the application'} to:
-              </h3>
-              <ul className="space-y-2">
-                {consentData?.scopes.map((scope, index) => (
->>>>>>> 02bdcb7 (Initial commit)
                   <li key={index} className="flex items-center text-sm text-gray-600">
                     <svg className="w-5 h-5 text-green-800 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -245,11 +139,7 @@ function OAuthConsentContent() {
               </ul>
             </div>
 
-<<<<<<< HEAD
             {consentData.provider && (
-=======
-            {consentData?.provider && (
->>>>>>> 02bdcb7 (Initial commit)
               <div className="text-center text-sm text-gray-600">
                 <p>Signing in with <strong>{consentData.provider}</strong></p>
               </div>

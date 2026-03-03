@@ -83,7 +83,6 @@ const transactions: Transaction[] = [
   },
 ];
 
-<<<<<<< HEAD
 function TransactionItem({ transaction }: { transaction: Transaction }) {
   // Define type-specific styling
   const getTypeStyle = () => {
@@ -162,65 +161,15 @@ function TransactionItem({ transaction }: { transaction: Transaction }) {
   };
 
   const { icon, bgColor } = getTypeStyle();
-=======
-const typeConfig = {
-  buy: { color: "#2cec9a", label: "Buy" },
-  sell: { color: "#d64545", label: "Sell" },
-  deposit: { color: "#0f9d58", label: "Deposit" },
-  withdrawal: { color: "#ff9800", label: "Withdrawal" },
-  transfer: { color: "#007aff", label: "Transfer" },
-};
-
-function TransactionItem({ transaction }: { transaction: Transaction }) {
-  const config = typeConfig[transaction.type];
->>>>>>> 02bdcb7 (Initial commit)
 
   return (
     <div className="transaction-item">
       <div className="transaction-left">
         <div 
-<<<<<<< HEAD
           className={`transaction-icon ${bgColor ? 'bg-custom' : ''}`}
           data-bg-color={bgColor}
         >
           {icon}
-=======
-          className="transaction-icon"
-          style={{ backgroundColor: `${config.color}20` }}
-        >
-          {transaction.type === "buy" && (
-            <svg viewBox="0 0 24 24" fill="none" stroke={config.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="1" x2="12" y2="23" />
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-          )}
-          {transaction.type === "sell" && (
-            <svg viewBox="0 0 24 24" fill="none" stroke={config.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-              <polyline points="17 18 23 18 23 12" />
-            </svg>
-          )}
-          {transaction.type === "deposit" && (
-            <svg viewBox="0 0 24 24" fill="none" stroke={config.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="19" x2="12" y2="23" />
-              <path d="M8 19l8-5 8 5" />
-            </svg>
-          )}
-          {transaction.type === "withdrawal" && (
-            <svg viewBox="0 0 24 24" fill="none" stroke={config.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="9" />
-              <path d="M8 5l8 5-8 5" />
-            </svg>
-          )}
-          {transaction.type === "transfer" && (
-            <svg viewBox="0 0 24 24" fill="none" stroke={config.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="17 1 21 5 17 9" />
-              <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-              <polyline points="7 23 3 19 7 15" />
-              <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-            </svg>
-          )}
->>>>>>> 02bdcb7 (Initial commit)
         </div>
         <div className="transaction-info">
           <span className="transaction-asset">{transaction.asset}</span>
@@ -228,11 +177,7 @@ function TransactionItem({ transaction }: { transaction: Transaction }) {
         </div>
       </div>
       <div className="transaction-right">
-<<<<<<< HEAD
         <span className={`transaction-amount ${transaction.type === "sell" || transaction.type === "withdrawal" ? "amount-negative" : "amount-positive"}`}>
-=======
-        <span className="transaction-amount" style={{ color: transaction.type === "sell" || transaction.type === "withdrawal" ? "#d64545" : "#0f9d58" }}>
->>>>>>> 02bdcb7 (Initial commit)
           {transaction.type === "buy" || transaction.type === "deposit" ? "+" : "-"}{transaction.amount}
         </span>
         {transaction.value && (
@@ -277,7 +222,6 @@ export default function TransactionsPage() {
           console.warn('Transactions table not available, using mock data', error);
           setTransactionsState(transactions);
         } else if (data && data.length > 0) {
-<<<<<<< HEAD
           interface SupabaseTransaction {
             id: number;
             type: 'buy' | 'sell' | 'deposit' | 'withdrawal' | 'transfer';
@@ -290,19 +234,12 @@ export default function TransactionsPage() {
           }
           
           const mapped = data.map((row: SupabaseTransaction) => ({
-=======
-          const mapped = data.map((row: any) => ({
->>>>>>> 02bdcb7 (Initial commit)
             id: String(row.id),
             type: row.type || 'transfer',
             asset: row.asset || 'USD',
             amount: row.amount || '',
             value: row.value || '',
-<<<<<<< HEAD
             date: row.date || (row.created_at ? new Date(row.created_at).toLocaleString() : ''),
-=======
-            date: row.date || new Date(row.created_at).toLocaleString(),
->>>>>>> 02bdcb7 (Initial commit)
             status: row.status || 'completed',
           }));
           setTransactionsState(mapped);
@@ -323,17 +260,12 @@ export default function TransactionsPage() {
 
   if (!isClient || authLoading) {
     return (
-<<<<<<< HEAD
       <div className="dashboard-container">
         <div className="dashboard-app">
           <div className="loading-spinner-container">
             <div className="loading-spinner"></div>
           </div>
         </div>
-=======
-      <div className="dashboard-loading">
-        <div className="loading-spinner"></div>
->>>>>>> 02bdcb7 (Initial commit)
       </div>
     );
   }
@@ -352,7 +284,6 @@ export default function TransactionsPage() {
             <span className="header-eyebrow">ACTIVITY</span>
             <div className="header-title">Transactions</div>
           </div>
-<<<<<<< HEAD
           <div className="header-actions">
             <button className="menu-btn" onClick={() => setIsSidebarOpen(true)} aria-label="Open menu">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -424,39 +355,6 @@ export default function TransactionsPage() {
                   <TransactionItem key={transaction.id} transaction={transaction} />
                 ))}
               </div>
-=======
-          <button className="sync-btn" onClick={() => setIsSidebarOpen(true)}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
-        </header>
-
-        {/* FILTERS */}
-        <div className="transaction-filters">
-          <div className="filter-tabs">
-            {["all", "buy", "sell", "deposit", "withdrawal"].map((f) => (
-              <button
-                key={f}
-                className={`filter-tab ${filter === f ? "active" : ""}`}
-                onClick={() => setFilter(f)}
-              >
-                {f.charAt(0).toUpperCase() + f.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* TRANSACTIONS LIST */}
-        <section className="transactions-section">
-          <div className="transactions-list">
-            {filteredTransactions.length > 0 ? (
-              filteredTransactions.map((transaction) => (
-                <TransactionItem key={transaction.id} transaction={transaction} />
-              ))
->>>>>>> 02bdcb7 (Initial commit)
             ) : (
               <div className="empty-state">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -470,7 +368,6 @@ export default function TransactionsPage() {
         </section>
 
         {/* EXPORT */}
-<<<<<<< HEAD
         <section className="section">
           <div className="card">
             <div className="export-actions">
@@ -485,18 +382,6 @@ export default function TransactionsPage() {
             </div>
           </div>
         </section>
-=======
-        <div className="export-section">
-          <button className="export-button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            Export Transactions
-          </button>
-        </div>
->>>>>>> 02bdcb7 (Initial commit)
       </div>
 
       <BottomNav 
@@ -507,7 +392,4 @@ export default function TransactionsPage() {
   );
 }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 02bdcb7 (Initial commit)

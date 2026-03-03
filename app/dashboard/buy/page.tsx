@@ -9,7 +9,6 @@ interface Asset {
   name: string;
   price: number;
   balance?: number;
-<<<<<<< HEAD
   change24h?: string;
   marketCap?: string;
   volume24h?: string;
@@ -26,19 +25,6 @@ const assets: Asset[] = [
   { symbol: "DOT", name: "Polkadot", price: 7.85, balance: 25, change24h: "+6,89%", marketCap: "9 B€", volume24h: "0,6 B€" },
   { symbol: "AVAX", name: "Avalanche", price: 23.45, balance: 15, change24h: "+9,12%", marketCap: "8 B€", volume24h: "0,4 B€" },
   { symbol: "MATIC", name: "Polygon", price: 0.92, balance: 850, change24h: "+2,56%", marketCap: "8 B€", volume24h: "0,3 B€" },
-=======
-}
-
-const assets: Asset[] = [
-  { symbol: "BTC", name: "Bitcoin", price: 45234.50, balance: 0.0021 },
-  { symbol: "ETH", name: "Ethereum", price: 2845.30, balance: 0.030 },
-  { symbol: "SOL", name: "Solana", price: 98.45, balance: 0.50 },
-  { symbol: "BNB", name: "Binance Coin", price: 312.80, balance: 0.01 },
-  { symbol: "XRP", name: "Ripple", price: 0.52, balance: 100 },
-  { symbol: "ADA", name: "Cardano", price: 0.45, balance: 500 },
-  { symbol: "DOGE", name: "Dogecoin", price: 0.08, balance: 1000 },
-  { symbol: "DOT", name: "Polkadot", price: 7.85, balance: 25 },
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 ];
 
 export default function BuySelectPage() {
@@ -54,14 +40,9 @@ export default function BuySelectPage() {
   );
 
   const estimatedAmount = amount ? (parseFloat(amount) / asset.price).toFixed(6) : "0";
-<<<<<<< HEAD
   const fee = amount ? (parseFloat(amount) * 0.015).toFixed(2) : "0.00"; // 1.5% fee
   const total = amount ? (parseFloat(amount) + parseFloat(amount) * 0.015).toFixed(2) : "0.00";
-  const savings = amount ? (parseFloat(amount) * 0.005).toFixed(2) : "0.00"; // 0.5% savings with VIP
-=======
-  const fee = amount ? (parseFloat(amount) * 0.01).toFixed(2) : "0.00";
-  const total = amount ? (parseFloat(amount) + parseFloat(amount) * 0.01).toFixed(2) : "0.00";
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
+  const savings = amount ? (parseFloat(amount) * 0.005).toFixed(2) : "0.00"; // 0.5% savings with VIP815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 
   function next() {
     if (!amount || parseFloat(amount) <= 0) return;
@@ -84,21 +65,13 @@ export default function BuySelectPage() {
 
         <main className="page-card">
           <div className="page-header" style={{ marginBottom: "16px" }}>
-<<<<<<< HEAD
             <h2 style={{ margin: 0 }}>Buy</h2>
             <div className="subtitle">Purchase crypto securely in a few taps</div>
-=======
-            <h2 style={{ margin: 0 }}>Kaufen</h2>
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
           </div>
 
           {/* Asset Selector */}
           <div className="form-row">
-<<<<<<< HEAD
             <label>Asset</label>
-=======
-            <label>Asset auswählen</label>
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
             <div className="asset-selector">
               <div 
                 className="asset-selector-input"
@@ -136,11 +109,7 @@ export default function BuySelectPage() {
                   <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
                     <input
                       type="text"
-<<<<<<< HEAD
                       placeholder="Search..."
-=======
-                      placeholder="Suchen..."
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="asset-selector-input"
@@ -176,43 +145,16 @@ export default function BuySelectPage() {
                         <div style={{ fontSize: "14px", fontWeight: "600", color: "var(--text)" }}>
                           {a.price.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}
                         </div>
-<<<<<<< HEAD
                         {a.change24h && (
                           <div style={{ fontSize: "11px", color: a.change24h.startsWith("+") ? "var(--success)" : "var(--danger)" }}>
                             {a.change24h}
                           </div>
                         )}
-=======
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
-                        {a.balance && (
-                          <div className="asset-balance">
-                            {a.balance.toLocaleString("de-DE")} {a.symbol}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Amount Input */}
-          <div className="form-row">
-<<<<<<< HEAD
-            <label>Amount (EUR)</label>
-=======
-            <label>Betrag (EUR)</label>
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
             <input 
               type="number" 
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-<<<<<<< HEAD
               placeholder="e.g. 100"
-=======
-              placeholder="z. B. 100"
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
               className="order-input"
               style={{ textAlign: "left", fontSize: "16px" }}
             />
@@ -231,33 +173,21 @@ export default function BuySelectPage() {
             </div>
           </div>
 
-<<<<<<< HEAD
           {/* Enhanced Price Estimate */}
           <div className="price-estimate">
             <div className="price-estimate-row">
               <span className="price-estimate-label">Price</span>
-=======
-          {/* Price Estimate */}
-          <div className="price-estimate">
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Aktueller Preis</span>
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
               <span className="price-estimate-value">
                 {asset.price.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}
               </span>
             </div>
             <div className="price-estimate-row">
-<<<<<<< HEAD
               <span className="price-estimate-label">You get</span>
-=======
-              <span className="price-estimate-label">Erhaltene Menge</span>
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
               <span className="price-estimate-value highlight">
                 {estimatedAmount} {asset.symbol}
               </span>
             </div>
             <div className="price-estimate-row">
-<<<<<<< HEAD
               <span className="price-estimate-label">Fee (1.5%)</span>
               <span className="price-estimate-value">{fee} €</span>
             </div>
@@ -269,13 +199,6 @@ export default function BuySelectPage() {
             )}
             <div className="price-estimate-row" style={{ borderTop: "none", paddingTop: 0 }}>
               <span className="price-estimate-label" style={{ fontWeight: "600" }}>Total</span>
-=======
-              <span className="price-estimate-label">Gebühr (1%)</span>
-              <span className="price-estimate-value">{fee} €</span>
-            </div>
-            <div className="price-estimate-row" style={{ borderTop: "none", paddingTop: 0 }}>
-              <span className="price-estimate-label" style={{ fontWeight: "600" }}>Gesamt</span>
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
               <span className="price-estimate-value highlight" style={{ fontSize: "16px" }}>
                 {total} €
               </span>
@@ -289,17 +212,10 @@ export default function BuySelectPage() {
               onClick={() => router.push('/dashboard/portfolio')}
               style={{ flex: 1, padding: "14px", border: "1px solid var(--border)" }}
             >
-<<<<<<< HEAD
               Cancel
             </button>
             <button 
               className="btn-primary" 
-=======
-              Abbrechen
-            </button>
-            <button 
-              className="btn-enhanced buy" 
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
               onClick={next}
               disabled={!amount || parseFloat(amount) <= 0}
               style={{ flex: 2 }}
@@ -307,11 +223,7 @@ export default function BuySelectPage() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: "20px", height: "20px" }}>
                 <path d="M12 5v14M5 12h14" />
               </svg>
-<<<<<<< HEAD
-              Continue to Confirmation
-=======
-              Weiter zur Bestätigung
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
+              Continue to Confirmation815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
             </button>
           </div>
         </main>

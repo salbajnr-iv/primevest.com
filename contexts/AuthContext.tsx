@@ -3,10 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import type { User, Session, UserMetadata, AuthError } from '@supabase/supabase-js'
-<<<<<<< HEAD
 import { SupabaseErrorHandler } from '@/lib/supabase/error-handler'
-=======
->>>>>>> 02bdcb7 (Initial commit)
 
 interface AuthContextType {
   user: User | null
@@ -28,7 +25,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
 
-<<<<<<< HEAD
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   const supabase = SUPABASE_URL && SUPABASE_ANON_KEY
@@ -73,34 +69,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     )
-=======
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
->>>>>>> 02bdcb7 (Initial commit)
 
     return () => {
       subscription.unsubscribe()
     }
-<<<<<<< HEAD
   }, [supabase])
 
   const signIn = async (email: string, password: string) => {
@@ -116,12 +88,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: undefined
       })) as { error: AuthError | null; data?: { user: User | null; session: Session | null } }
     }
-=======
-  }, [supabase.auth])
-
-  const signIn = async (email: string, password: string) => {
-    return await supabase.auth.signInWithPassword({ email, password })
->>>>>>> 02bdcb7 (Initial commit)
   }
 
   const signUp = async (
@@ -129,10 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string,
     metadata?: UserMetadata
   ) => {
-<<<<<<< HEAD
     if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError, data: undefined }
-=======
->>>>>>> 02bdcb7 (Initial commit)
     return await supabase.auth.signUp({
       email,
       password,
@@ -144,10 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signInWithOAuth = async (provider: 'google' | 'apple' | 'github') => {
-<<<<<<< HEAD
     if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError }
-=======
->>>>>>> 02bdcb7 (Initial commit)
     const response = await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -161,7 +121,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-<<<<<<< HEAD
     try {
       if (supabase) {
         const { error } = await supabase.auth.signOut()
@@ -182,33 +141,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const resetPassword = async (email: string) => {
     if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError }
-=======
-    await supabase.auth.signOut()
-    // Clear local state
-    setUser(null)
-    setSession(null)
-  }
-
-  const resetPassword = async (email: string) => {
->>>>>>> 02bdcb7 (Initial commit)
     return await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/new-password`,
     })
   }
 
   const updatePassword = async (newPassword: string) => {
-<<<<<<< HEAD
     if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError }
-=======
->>>>>>> 02bdcb7 (Initial commit)
     return await supabase.auth.updateUser({ password: newPassword })
   }
 
   const verifyOtp = async (email: string, token: string) => {
-<<<<<<< HEAD
     if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError }
-=======
->>>>>>> 02bdcb7 (Initial commit)
     return await supabase.auth.verifyOtp({ email, token, type: 'email' })
   }
 

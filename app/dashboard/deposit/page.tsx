@@ -4,7 +4,6 @@ import React from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import { useRouter } from "next/navigation";
 
-<<<<<<< HEAD
 interface PaymentMethod {
   id: string;
   name: string;
@@ -79,17 +78,6 @@ export default function DepositSelectPage() {
       total: String(totalAmount.toFixed(2)),
       ...(selectedPayment.id === "SEPA" && { iban })
     });
-=======
-export default function DepositSelectPage() {
-  const router = useRouter();
-  const [method, setMethod] = React.useState("SEPA");
-  const [amount, setAmount] = React.useState(0);
-  const [iban, setIban] = React.useState("");
-
-  function next() {
-    if (!amount || amount <= 0) return;
-    const params = new URLSearchParams({ method, amount: String(amount), iban });
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
     router.push(`/dashboard/deposit/review?${params.toString()}`);
   }
 
@@ -99,7 +87,6 @@ export default function DepositSelectPage() {
         <DashboardHeader userName={"User"} />
 
         <main className="page-card">
-<<<<<<< HEAD
           <div className="page-header" style={{ marginBottom: 16 }}>
             <h2 style={{ margin: 0 }}>Deposit</h2>
             <div className="subtitle">Add funds securely using your preferred method</div>
@@ -221,33 +208,6 @@ export default function DepositSelectPage() {
               </svg>
               Continue to Confirmation
             </button>
-=======
-          <h2>Einzahlen</h2>
-
-          <div className="form-row">
-            <label>Zahlungsmethode</label>
-            <select value={method} onChange={(e) => setMethod(e.target.value)}>
-              <option value="SEPA">SEPA Überweisung</option>
-              <option value="CARD">Kredit-/Debitkarte</option>
-            </select>
-          </div>
-
-          <div className="form-row">
-            <label>Betrag (EUR)</label>
-            <input type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
-          </div>
-
-          {method === "SEPA" && (
-            <div className="form-row">
-              <label>IBAN</label>
-              <input value={iban} onChange={(e) => setIban(e.target.value)} placeholder="DE..." />
-            </div>
-          )}
-
-          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-            <button className="btn" onClick={() => router.push('/dashboard')}>Abbrechen</button>
-            <button className="btn btn-primary" onClick={next}>Weiter</button>
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
           </div>
         </main>
       </div>

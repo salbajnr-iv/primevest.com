@@ -4,11 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
-<<<<<<< HEAD
 import { usePriceSimulation, MarketData, formatPrice, formatCompact, getCoinColor } from "@/hooks/usePriceSimulation";
-=======
-import { usePriceSimulation, MarketData, formatPrice, formatCompact, getCoinColor, getCoinLogo } from "@/hooks/usePriceSimulation";
->>>>>>> 02bdcb7 (Initial commit)
 
 // Market data with icon paths
 const initialMarketData: MarketData[] = [
@@ -44,11 +40,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
 ];
 
 export default function MarketsPage() {
-<<<<<<< HEAD
   const { data: marketData, lastUpdate } = usePriceSimulation(initialMarketData, 3000);
-=======
-  const { data: marketData, lastUpdate, subscribeToCoin } = usePriceSimulation(initialMarketData, 3000);
->>>>>>> 02bdcb7 (Initial commit)
   const [isClient, setIsClient] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [activeCategory, setActiveCategory] = React.useState("all");
@@ -155,11 +147,7 @@ export default function MarketsPage() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-<<<<<<< HEAD
             <button className="sync-btn" onClick={() => {}} title="Refresh" aria-label="Refresh">
-=======
-            <button className="sync-btn" onClick={() => {}} title="Refresh">
->>>>>>> 02bdcb7 (Initial commit)
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
                 <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                 <path d="M3 3v5h5" />
@@ -167,11 +155,7 @@ export default function MarketsPage() {
                 <path d="M16 21h5v-5" />
               </svg>
             </button>
-<<<<<<< HEAD
             <button className="sync-btn" onClick={() => setIsSidebarOpen(true)} aria-label="Open menu" title="Open menu">
-=======
-            <button className="sync-btn" onClick={() => setIsSidebarOpen(true)}>
->>>>>>> 02bdcb7 (Initial commit)
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="3" y1="12" x2="21" y2="12" />
                 <line x1="3" y1="6" x2="21" y2="6" />
@@ -216,14 +200,10 @@ export default function MarketsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-<<<<<<< HEAD
           <label htmlFor="marketSort" className="sr-only">Sort markets by</label>
           <select 
             id="marketSort"
             aria-label="Sort markets by"
-=======
-          <select 
->>>>>>> 02bdcb7 (Initial commit)
             className="order-input" 
             style={{ width: "auto", padding: "10px 12px", cursor: "pointer" }}
             value={sortBy}
@@ -269,11 +249,7 @@ export default function MarketsPage() {
                     style={{ background: getCoinColor(market.symbol) }}
                   >
                     {market.iconSrc ? (
-<<<<<<< HEAD
                       <Image src={market.iconSrc} alt={market.name} width={20} height={20} unoptimized style={{ borderRadius: '50%' }} />
-=======
-                      <Image src={market.iconSrc} alt={market.name} width={20} height={20} style={{ borderRadius: '50%' }} />
->>>>>>> 02bdcb7 (Initial commit)
                     ) : (
                       <span style={{ color: "#fff", fontWeight: 700, fontSize: 12 }}>
                         {market.symbol.slice(0, 2)}
@@ -296,103 +272,7 @@ export default function MarketsPage() {
                 </div>
                 <button 
                   className="fav-btn"
-<<<<<<< HEAD
                   aria-label="Toggle favorite"
-=======
->>>>>>> 02bdcb7 (Initial commit)
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(market.id);
-                  }}
-                  style={{ 
-                    background: "none", 
-                    border: "none",
-                    cursor: "pointer",
-                    color: favorites.includes(market.id) ? "#0f9d58" : "#ccc",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "4px"
-                  }}
-                >
-                  <svg viewBox="0 0 24 24" fill={favorites.includes(market.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" style={{ width: 16, height: 16 }}>
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                  </svg>
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* TRENDING SECTION */}
-        <section className="trending-section">
-          <h3 className="section-title">Market Movers</h3>
-          <div className="trending-list">
-            {topGainer && (
-              <div className="trending-item" onClick={() => setSelectedCoin(topGainer)}>
-                <div className="trending-icon up">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                    <polyline points="17 6 23 6 23 12" />
-                  </svg>
-                </div>
-                <div className="trending-info">
-                  <span className="trending-name">Top Gainer</span>
-                  <span className="trending-value">{topGainer.symbol} +{topGainer.change24h.toFixed(2)}%</span>
-                </div>
-              </div>
-            )}
-            {topLoser && (
-              <div className="trending-item" onClick={() => setSelectedCoin(topLoser)}>
-                <div className="trending-icon down">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-                    <polyline points="17 18 23 18 23 12" />
-                  </svg>
-                </div>
-                <div className="trending-info">
-                  <span className="trending-name">Top Loser</span>
-                  <span className="trending-value">{topLoser.symbol} {topLoser.change24h.toFixed(2)}%</span>
-                </div>
-              </div>
-            )}
-            <div className="trending-item">
-              <div className="trending-icon volume">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="1" x2="12" y2="23" />
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-              </div>
-              <div className="trending-info">
-                <span className="trending-name">Highest Volume</span>
-                <span className="trending-value">BTC €28.4B</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* LAST UPDATE TIME */}
-        <div style={{ textAlign: "center", marginTop: 12, fontSize: 10, color: "var(--muted)" }}>
-          Last updated: {lastUpdate.toLocaleTimeString()}
-        </div>
-      </div>
-
-      {/* COIN DETAIL MODAL */}
-      {selectedCoin && (
-        <div className="modal-overlay" onClick={() => setSelectedCoin(null)}>
-          <div className="modal-content" style={{ maxWidth: 400 }} onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div 
-                  className="asset-icon" 
-                  style={{ background: getCoinColor(selectedCoin.symbol), width: 44, height: 44 }}
-                >
-                  {selectedCoin.iconSrc ? (
-<<<<<<< HEAD
-                    <Image src={selectedCoin.iconSrc} alt={selectedCoin.name} width={32} height={32} unoptimized style={{ borderRadius: '50%' }} />
-=======
-                    <Image src={selectedCoin.iconSrc} alt={selectedCoin.name} width={32} height={32} style={{ borderRadius: '50%' }} />
->>>>>>> 02bdcb7 (Initial commit)
                   ) : (
                     <span style={{ color: "#fff", fontWeight: 700 }}>
                       {selectedCoin.symbol.slice(0, 2)}
@@ -404,11 +284,7 @@ export default function MarketsPage() {
                   <span style={{ color: "var(--muted)", fontSize: 13 }}>{selectedCoin.symbol}</span>
                 </div>
               </div>
-<<<<<<< HEAD
               <button className="modal-close" onClick={() => setSelectedCoin(null)} aria-label="Close" title="Close">
-=======
-              <button className="modal-close" onClick={() => setSelectedCoin(null)}>
->>>>>>> 02bdcb7 (Initial commit)
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
@@ -443,7 +319,6 @@ export default function MarketsPage() {
               </div>
 
               <div style={{ display: "flex", gap: 10 }}>
-<<<<<<< HEAD
                 <Link 
                   href={`/dashboard/trade?pair=${selectedCoin.symbol.toLowerCase()}-eur&side=buy`}
                   className="order-button buy" 
@@ -456,12 +331,6 @@ export default function MarketsPage() {
                   className="order-button sell" 
                   style={{ flex: 1, textAlign: "center", textDecoration: "none" }}
                 >
-=======
-                <Link href="/dashboard/trade" className="order-button buy" style={{ flex: 1, textAlign: "center", textDecoration: "none" }}>
-                  Buy {selectedCoin.symbol}
-                </Link>
-                <Link href="/dashboard/trade" className="order-button sell" style={{ flex: 1, textAlign: "center", textDecoration: "none" }}>
->>>>>>> 02bdcb7 (Initial commit)
                   Sell {selectedCoin.symbol}
                 </Link>
               </div>

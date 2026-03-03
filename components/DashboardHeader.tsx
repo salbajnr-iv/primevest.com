@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-<<<<<<< HEAD
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
 import NotificationBadge from "./NotificationBadge";
@@ -21,21 +20,11 @@ export default function DashboardHeader({
 }: DashboardHeaderProps) {
   const isPositive = !portfolioChange.startsWith('-');
 
-=======
-import ThemeToggle from "./ThemeToggle";
-
-interface DashboardHeaderProps {
-  userName?: string;
-}
-
-export default function DashboardHeader({ userName }: DashboardHeaderProps) {
->>>>>>> 02bdcb7 (Initial commit)
   return (
     <header className="header">
       <div className="header-left">
         <span className="header-eyebrow">PORTFOLIO</span>
         <div className="header-title">
-<<<<<<< HEAD
           {userName} · Wert
           <span className="status-dot"></span>
         </div>
@@ -61,13 +50,6 @@ export default function DashboardHeader({ userName }: DashboardHeaderProps) {
         </Link>
         <ThemeToggle />
       </div>
-=======
-          {userName || "User"} · Wert
-          <span className="status-dot"></span>
-        </div>
-      </div>
-      <ThemeToggle />
->>>>>>> 02bdcb7 (Initial commit)
     </header>
   );
 }

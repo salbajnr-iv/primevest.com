@@ -56,24 +56,6 @@ const adminNavItems = [
     ),
   },
   {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
-    name: 'KYC Requests',
-    href: '/admin/kyc',
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5s-3 1.343-3 3 1.343 3 3 3zM4 19a8 8 0 0116 0" />
-      </svg>
-    ),
-  },
-  {
-<<<<<<< HEAD
-=======
->>>>>>> 02bdcb7 (Initial commit)
-=======
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
     name: 'Settings',
     href: '/admin/settings',
     icon: (
@@ -90,7 +72,6 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
   const { user, signOut } = useAdminAuth()
 
   const handleSignOut = async () => {
-<<<<<<< HEAD
     try {
       await signOut()
       // Use router for navigation instead of direct href assignment
@@ -100,10 +81,6 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
       // Still redirect even if logout fails
       window.location.href = '/admin/auth/signin'
     }
-=======
-    await signOut()
-    window.location.href = '/admin/auth/signin'
->>>>>>> 02bdcb7 (Initial commit)
   }
 
   return (
@@ -118,11 +95,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
       
       {/* Sidebar */}
       <aside
-<<<<<<< HEAD
         className={`fixed top-0 left-0 z-50 h-screen bg-gray-800 dark:bg-gray-900 border-r border-gray-700 dark:border-gray-700 transition-all duration-300 ${
-=======
-        className={`fixed top-0 left-0 z-50 h-screen bg-gray-800 border-r border-gray-700 transition-all duration-300 ${
->>>>>>> 02bdcb7 (Initial commit)
           isOpen ? 'w-64' : 'w-20'
         }`}
       >
@@ -141,33 +114,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
           <button
             onClick={onToggle}
             className="p-2 rounded-lg hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
-<<<<<<< HEAD
             aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
-=======
->>>>>>> 02bdcb7 (Initial commit)
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M11 19l-7-7 7-7m8 14l-7-7 7-7" : "M13 5l7 7-7 7M5 5l7 7-7 7"} />
-            </svg>
-          </button>
-        </div>
-
-        {/* Navigation */}
-        <nav className="p-4 space-y-2">
-          {adminNavItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-green-800 text-white'
-<<<<<<< HEAD
-                    : 'text-gray-400 dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-800 hover:text-white dark:hover:text-white'
-=======
-                    : 'text-gray-400 hover:bg-gray-700 hover:text-white'
->>>>>>> 02bdcb7 (Initial commit)
                 }`}
               >
                 <span className={isActive ? 'text-white' : 'text-gray-400'}>{item.icon}</span>
@@ -196,11 +143,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
               </div>
               <button
                 onClick={handleSignOut}
-<<<<<<< HEAD
                 className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-700 dark:bg-gray-800 hover:bg-gray-600 dark:hover:bg-gray-700 text-white rounded-lg transition-colors text-sm"
-=======
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm"
->>>>>>> 02bdcb7 (Initial commit)
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -211,12 +154,8 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
           ) : (
             <button
               onClick={handleSignOut}
-<<<<<<< HEAD
               className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-700 dark:bg-gray-800 hover:bg-gray-600 dark:hover:bg-gray-700 text-white rounded-lg transition-colors"
               aria-label="Sign out"
-=======
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
->>>>>>> 02bdcb7 (Initial commit)
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

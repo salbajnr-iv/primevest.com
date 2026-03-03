@@ -1,5 +1,4 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 # TODO - Portfolio Features & KYC Enhancement
 
 ## Phase 1: UI/UX Improvements (IN PROGRESS)
@@ -172,12 +171,7 @@
 
 ---
 Last Updated: $(date)
-Status: In Progress
-=======
-# Dashboard Enhancement Plan
-=======
-# TODO - Portfolio Features & KYC Enhancement
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
+Status: In Progress815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 
 ## Phase 1: UI/UX Improvements (IN PROGRESS)
 
@@ -243,120 +237,10 @@ Status: In Progress
 
 ## Phase 2: KYC Enhancement
 
-<<<<<<< HEAD
 ### Testing:
 - [ ] Verify all cards render correctly
 - [ ] Test dark mode compatibility
 - [ ] Ensure responsive layout on mobile
 - [ ] Check all icons and images load properly
->>>>>>> 02bdcb7 (Initial commit)
-=======
-### 2.1 Create Multi-Step KYC Flow
-- [ ] Create KYC Step 1: Personal Information page
-- [ ] Create KYC Step 2: Document Selection page
-- [ ] Create KYC Step 3: Document Upload page
-- [ ] Create KYC Step 4: Verification & Submit page
-- [ ] Create KYC Status tracking page
-
-### 2.2 Enhance KycUploader Component
-- [ ] Add drag and drop support
-- [ ] Add document type selection
-- [ ] Add file size/quality validation
-- [ ] Add document preview
-- [ ] Add progress indicator
-- [ ] Add multiple file upload support
-
-### 2.3 Update KYC Verification Page
-- [ ] Replace with multi-step wizard
-- [ ] Add progress bar
-- [ ] Add step indicators
-- [ ] Add back/next navigation
-- [ ] Add form validation at each step
-- [ ] Add summary before submit
-
-### 2.4 Add KYC Status Components
-- [ ] Create status badge component
-- [ ] Create progress bar component
-- [ ] Create document list component
-- [ ] Create feedback message component
-
-## Phase 3: New Reference Pages
-
-### 3.1 Order History Page
-- [ ] Create `/app/dashboard/orders/page.tsx`
-- [ ] Add filter by type (Buy, Sell, Swap, Deposit)
-- [ ] Add date range picker
-- [ ] Add export to CSV functionality
-- [ ] Add detailed transaction view
-
-### 3.2 Asset Details Page
-- [ ] Create `/app/dashboard/assets/[symbol]/page.tsx`
-- [ ] Add price chart (1H, 1D, 1W, 1M, 1Y)
-- [ ] Add market statistics
-- [ ] Add your holdings section
-- [ ] Add quick actions (Buy, Sell, Swap)
-
-### 3.3 Withdrawal Flow
-- [ ] Create `/app/dashboard/withdraw/page.tsx`
-- [ ] Create `/app/dashboard/withdraw/review/page.tsx`
-- [ ] Create `/app/dashboard/withdraw/success/page.tsx`
-- [ ] Add withdrawal limits display
-- [ ] Add address book functionality
-
-## Phase 4: Testing & Polish
-
-### 4.1 Visual Testing
-- [ ] Test all pages on mobile (375px - 428px)
-- [ ] Test all pages on tablet (768px - 1024px)
-- [ ] Test all pages on desktop (1280px+)
-- [ ] Check dark mode rendering
-- [ ] Check light mode rendering
-
-### 4.2 Navigation Testing
-- [ ] Test all navigation flows
-- [ ] Test back/forward browser navigation
-- [ ] Test deep linking to specific pages
-- [ ] Test 404 handling
-
-### 4.3 Performance Testing
-- [ ] Check page load times
-- [ ] Optimize images
-- [ ] Check bundle size
-- [ ] Test animation smoothness
-
-## IMPLEMENTATION ORDER
-
-### Day 1 - Foundation & Portfolio
-- [x] Create implementation plan
-- [x] Create TODO tracking file
-- [ ] Update global.css with new styles
-- [ ] Enhance Portfolio page
-
-### Day 2 - Trading Flows
-- [ ] Enhance Buy page
-- [ ] Enhance Sell page
-- [ ] Enhance Swap page
-- [ ] Enhance Deposit page
-- [ ] Enhance Portfolio Manage page
-
-### Day 3 - KYC Enhancement
-- [ ] Create KYC multi-step flow pages
-- [ ] Enhance KycUploader component
-- [ ] Update KYC verification page
-- [ ] Create KYC status tracking
-
-### Day 4 - New Reference Pages
-- [ ] Create Order History page
-- [ ] Create Asset Details page
-- [ ] Create Withdrawal flow
-
-### Day 5 - Polish & Testing
-- [ ] Test all flows
-- [ ] Fix any issues
-- [ ] Final polish
-
----
-Last Updated: $(date)
-Status: In Progress
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
+>>>>>>> 02bdcb7 (Initial commit)815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 

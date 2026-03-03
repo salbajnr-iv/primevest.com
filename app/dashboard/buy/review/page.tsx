@@ -4,21 +4,7 @@ export const dynamic = "force-dynamic";
 
 import React from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-<<<<<<< HEAD
 import { createClient } from "@supabase/supabase-js";
-=======
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
-import DashboardHeader from "@/components/DashboardHeader";
-
-export default function BuyReviewPage() {
-  const router = useRouter();
-  const [asset, setAsset] = React.useState("-");
-  const [amount, setAmount] = React.useState("0");
-<<<<<<< HEAD
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
-=======
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -26,7 +12,6 @@ export default function BuyReviewPage() {
     setAmount(params.get("amount") || "0");
   }, []);
 
-<<<<<<< HEAD
   async function confirm() {
     setLoading(true);
     setError("");
@@ -82,13 +67,6 @@ export default function BuyReviewPage() {
     } finally {
       setLoading(false);
     }
-=======
-  function confirm() {
-    // simulate an API call and then redirect to success with an id
-    setTimeout(() => {
-      router.push(`/dashboard/buy/success?asset=${encodeURIComponent(asset)}&amount=${amount}&id=ORD-${Date.now()}`);
-    }, 700);
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
   }
 
   return (
@@ -102,7 +80,6 @@ export default function BuyReviewPage() {
           <p><strong>Betrag (EUR):</strong> {amount} €</p>
           <p><strong>Geschätzte Gebühren:</strong> 0,50 €</p>
 
-<<<<<<< HEAD
           {error && (
             <div style={{ 
               color: "red", 
@@ -130,11 +107,6 @@ export default function BuyReviewPage() {
             >
               {loading ? "wird verarbeitet..." : "Kaufen"}
             </button>
-=======
-          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-            <button className="btn" onClick={() => router.back()}>Zurück</button>
-            <button className="btn btn-primary" onClick={confirm}>Kaufen</button>
->>>>>>> 815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
           </div>
         </main>
       </div>
