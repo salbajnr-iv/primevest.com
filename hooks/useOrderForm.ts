@@ -49,12 +49,11 @@ export const tradingPairs: TradingPair[] = [
 ];
 
 // Order fee structure
-const makerFee = 0.001; // 0.1%
 const takerFee = 0.0015; // 0.15%
 
-export function useOrderForm(pair: TradingPair, availableBalance: number = 10000) {
+export function useOrderForm(pair: TradingPair, availableBalance: number = 10000, initialSide?: OrderSide) {
   const [formData, setFormData] = React.useState<OrderFormData>({
-    side: "buy",
+    side: initialSide || "buy",
     orderType: "limit",
     amount: "",
     price: pair.price.toFixed(pair.priceDecimals),
@@ -64,7 +63,7 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
   const [lastOrderTime, setLastOrderTime] = React.useState<Date | null>(null);
 
   // Calculate order total
-  const calculateTotal = React.useCallback((amount: string, price: string, orderType: OrderType): string => {
+  const calculateTotal = React.useCallback((amount: string, price: string): string => {
     const amountNum = parseFloat(amount);
     const priceNum = parseFloat(price);
     
@@ -79,10 +78,10 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
   // Update total when amount or price changes
   React.useEffect(() => {
     if (formData.amount && formData.orderType === "limit") {
-      const total = calculateTotal(formData.amount, formData.price, "limit");
+      const total = calculateTotal(formData.amount, formData.price);
       setFormData(prev => ({ ...prev, total }));
     } else if (formData.amount && formData.orderType === "market") {
-      const total = calculateTotal(formData.amount, pair.price.toString(), "market");
+      const total = calculateTotal(formData.amount, pair.price.toString());
       setFormData(prev => ({ ...prev, total, price: pair.price.toFixed(pair.priceDecimals) }));
     }
   }, [formData.amount, formData.price, formData.orderType, pair.price, pair.priceDecimals, calculateTotal]);
@@ -132,32 +131,71 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
   }, []);
 
   // Submit order
-  const submitOrder = React.useCallback(() => {
+  const submitOrder = React.useCallback(async () => {
     const validation = validateOrder();
     if (!validation.isValid) {
       return { success: false, errors: validation.errors };
     }
 
-    // Add to order history
-    const newOrder: OrderFormData = {
-      ...formData,
-      amount: parseFloat(formData.amount).toFixed(pair.amountDecimals),
-      total: parseFloat(formData.total).toFixed(2),
-    };
+    try {
+      // Get auth token from localStorage
+      const token = localStorage.getItem('supabase.auth.token');
+      if (!token) {
+        return { success: false, errors: ['Authentication required'] };
+      }
 
-    setOrderHistory(prev => [newOrder, ...prev].slice(0, 10)); // Keep last 10 orders
-    setLastOrderTime(new Date());
+      const authToken = JSON.parse(token).access_token;
 
-    // Reset form
-    setFormData({
-      side: formData.side,
-      orderType: formData.orderType,
-      amount: "",
-      price: pair.price.toFixed(pair.priceDecimals),
-      total: "",
-    });
+      // Prepare order data for API
+      const orderData = {
+        side: formData.side,
+        asset: pair.base,
+        amount: parseFloat(formData.amount),
+        price: formData.orderType === "limit" ? parseFloat(formData.price) : null,
+        total: parseFloat(formData.total),
+        orderType: formData.orderType,
+      };
 
-    return { success: true, order: newOrder };
+      // Submit to API
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { success: false, errors: [result.error || 'Failed to submit order'] };
+      }
+
+      // Add to local order history
+      const newOrder: OrderFormData = {
+        ...formData,
+        amount: parseFloat(formData.amount).toFixed(pair.amountDecimals),
+        total: parseFloat(formData.total).toFixed(2),
+      };
+
+      setOrderHistory(prev => [newOrder, ...prev].slice(0, 10)); // Keep last 10 orders
+      setLastOrderTime(new Date());
+
+      // Reset form
+      setFormData({
+        side: formData.side,
+        orderType: formData.orderType,
+        amount: "",
+        price: pair.price.toFixed(pair.priceDecimals),
+        total: "",
+      });
+
+      return { success: true, order: result.order };
+    } catch (error) {
+      console.error('Order submission error:', error);
+      return { success: false, errors: ['Network error. Please try again.'] };
+    }
   }, [formData, pair, validateOrder]);
 
   // Update form data
@@ -168,15 +206,15 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
       // Recalculate total if amount or price changes
       if (field === "amount" || field === "price") {
         if (newData.orderType === "limit") {
-          newData.total = calculateTotal(newData.amount, newData.price, "limit");
+          newData.total = calculateTotal(newData.amount, newData.price);
         } else {
-          newData.total = calculateTotal(newData.amount, pair.price.toString(), "market");
+          newData.total = calculateTotal(newData.amount, pair.price.toString());
         }
       }
       
       return newData;
     });
-  }, [pair.price, pair.priceDecimals, calculateTotal]);
+  }, [pair.price, calculateTotal]);
 
   // Set max amount
   const setMaxAmount = React.useCallback(() => {

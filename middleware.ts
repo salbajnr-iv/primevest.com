@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import type { User } from '@supabase/supabase-js'
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
@@ -8,9 +9,17 @@ export async function updateSession(request: NextRequest) {
     },
   })
 
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  // If env vars are missing, skip Supabase auth to avoid request failures/404s
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return response
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
@@ -33,9 +42,14 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  let user: User | null = null
+  try {
+    const { data } = await supabase.auth.getUser()
+    user = data.user
+  } catch {
+    // If Supabase fails (network/env), bypass gating to avoid 404s
+    return response
+  }
 
   // Admin-only routes
   const adminRoutes = ['/admin/dashboard', '/admin/users', '/admin/transactions', '/admin/balances', '/admin/audit', '/admin/settings']
@@ -119,10 +133,9 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
-     * - api routes (optional)
-     * - /admin routes (handled separately)
+     * - api routes
      */
-    '/((?!_next/static|_next/image|favicon.ico|public|api|admin).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public|api).*)',
   ],
 }
 

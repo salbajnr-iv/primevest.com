@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import type { User, Session, UserMetadata, AuthError } from '@supabase/supabase-js'
+import { SupabaseErrorHandler } from '@/lib/supabase/error-handler'
 
 interface AuthContextType {
   user: User | null
@@ -24,35 +25,69 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabase = SUPABASE_URL && SUPABASE_ANON_KEY
+    ? createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    if (!supabase) {
+      // Guest mode if Supabase env vars are missing
+      setTimeout(() => setLoading(false), 0)
+      return
+    }
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    // Get initial session with retry logic
+    const getInitialSession = async () => {
+      try {
+        await SupabaseErrorHandler.withRetry(async () => {
+          const { data: { session } } = await supabase.auth.getSession()
+          setSession(session)
+          setUser(session?.user ?? null)
+          setLoading(false)
+        })
+      } catch (error) {
+        console.warn('Failed to get initial session, continuing in guest mode')
+        setSession(null)
+        setUser(null)
+        setLoading(false)
+      }
+    }
+
+    getInitialSession()
+
+    // Listen for auth changes with error handling
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        try {
+          setSession(session)
+          setUser(session?.user ?? null)
+          setLoading(false)
+        } catch (error) {
+          console.warn('Auth state change error:', error)
+        }
+      }
+    )
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [supabase.auth])
+  }, [supabase])
 
   const signIn = async (email: string, password: string) => {
-    return await supabase.auth.signInWithPassword({ email, password })
+    if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError, data: undefined }
+    
+    try {
+      return await SupabaseErrorHandler.withRetry(async () => {
+        return await supabase.auth.signInWithPassword({ email, password })
+      })
+    } catch (error) {
+      return await SupabaseErrorHandler.handleSupabaseError(error, () => ({
+        error: { name: 'NetworkError', message: 'Authentication service unavailable', status: 0 } as AuthError,
+        data: undefined
+      })) as { error: AuthError | null; data?: { user: User | null; session: Session | null } }
+    }
   }
 
   const signUp = async (
@@ -60,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string,
     metadata?: UserMetadata
   ) => {
+    if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError, data: undefined }
     return await supabase.auth.signUp({
       email,
       password,
@@ -71,6 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signInWithOAuth = async (provider: 'google' | 'apple' | 'github') => {
+    if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError }
     const response = await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -84,23 +121,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    // Clear local state
-    setUser(null)
-    setSession(null)
+    try {
+      if (supabase) {
+        const { error } = await supabase.auth.signOut()
+        if (error) {
+          console.error('Sign out error:', error)
+        }
+      }
+      // Clear local state regardless of API call result
+      setUser(null)
+      setSession(null)
+    } catch (error) {
+      console.error('Unexpected sign out error:', error)
+      // Still clear local state on error
+      setUser(null)
+      setSession(null)
+    }
   }
 
   const resetPassword = async (email: string) => {
+    if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError }
     return await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/new-password`,
     })
   }
 
   const updatePassword = async (newPassword: string) => {
+    if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError }
     return await supabase.auth.updateUser({ password: newPassword })
   }
 
   const verifyOtp = async (email: string, token: string) => {
+    if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError }
     return await supabase.auth.verifyOtp({ email, token, type: 'email' })
   }
 

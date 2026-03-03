@@ -34,61 +34,15 @@ function SettingItem({ label, description, icon, href, value, onClick, danger, t
           <button 
             className={`toggle-switch ${toggleValue ? "active" : ""}`}
             aria-label={toggleValue ? "Turn off" : "Turn on"}
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle?.(!toggleValue);
-            }}
-          >
-            <span className="toggle-thumb" />
-          </button>
-        )}
-        {!toggle && (href || onClick) && (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        )}
-      </div>
-    </>
-  );
-
-  if (href) {
-    return <Link href={href} className="setting-item">{content}</Link>;
-  }
-
-  if (onClick) {
-    return <button className="setting-item setting-button" onClick={onClick}>{content}</button>;
-  }
-
-  return <div className="setting-item">{content}</div>;
-}
-
-export default function SettingsPage() {
-  const [isClient, setIsClient] = React.useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [notifications, setNotifications] = React.useState(true);
-  const [emailUpdates, setEmailUpdates] = React.useState(true);
-  const [priceAlerts, setPriceAlerts] = React.useState(true);
-  const [marketingEmails, setMarketingEmails] = React.useState(false);
-  const { language: currentLanguage, getLanguageOption, isLoading: isLanguageLoading } = useLanguage();
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Get current language display name
-  const currentLanguageOption = getLanguageOption(currentLanguage);
-  const currentLanguageDisplay = currentLanguageOption 
-    ? `${currentLanguageOption.flag} ${currentLanguageOption.name}`
-    : 'English';
-
   if (!isClient) {
     return (
-      <div className="dashboard-container">
-        <div className="dashboard-app">
-          <div className="loading-spinner-container">
-            <div className="loading-spinner"></div>
-          </div>
-        </div>
+      <div className="dashboard-loading">
+        <div className="loading-spinner"></div>
       </div>
     );
   }
@@ -322,41 +276,7 @@ export default function SettingsPage() {
               }
               href="/cookies"
             />
-            <SettingItem
-              label="Delete Account"
-              description="Permanently delete your account and data"
-              icon={
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
-              }
-              danger
-              onClick={() => {
-                if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-                  // Handle account deletion
-                  console.log("Delete account");
-                }
-              }}
-            />
-          </div>
-        </section>
-
-        {/* APP INFO */}
-        <section className="section">
-          <div className="card">
-            <div className="app-info">
-              <div className="app-info-item">
-                <span className="app-info-label">App Version</span>
-                <span className="app-info-value">1.0.0</span>
-              </div>
-              <div className="app-info-item">
-                <span className="app-info-label">Build</span>
-                <span className="app-info-value">#12345</span>
-              </div>
-            </div>
-          </div>
-        </section>
+            <SettingItem02bdcb7 (Initial commit)
       </div>
 
       <BottomNav 

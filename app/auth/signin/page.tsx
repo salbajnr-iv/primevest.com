@@ -96,6 +96,7 @@ export default function SignInPage() {
                 className="w-full p-3 border border-gray-300 bg-white text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="you@example.com"
                 required
+                suppressHydrationWarning
               />
             </div>
 
@@ -119,6 +120,7 @@ export default function SignInPage() {
                 className="w-full p-3 border border-gray-300 bg-white text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="••••••••"
                 required
+                suppressHydrationWarning
               />
             </div>
 

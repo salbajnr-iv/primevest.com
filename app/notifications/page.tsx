@@ -253,6 +253,7 @@ export default function NotificationsPage() {
 
   React.useEffect(() => {
     if (authLoading || !authUser) {
+      // not signed in or still loading - show nothing or fallback mock
       setNotificationsList(notifications);
       return;
     }

@@ -104,12 +104,16 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Portfolio',
+    'portfolio.all': 'All',
+    'portfolio.gaining': 'Gaining',
+    'portfolio.losing': 'Losing',
     'portfolio.assets': 'Assets',
     'portfolio.totalValue': 'Total Value',
     'portfolio.holdings': 'Your Holdings',
     'portfolio.manage': 'Manage',
     'portfolio.recentActivity': 'Recent Activity',
     'portfolio.viewAll': 'View All',
+
     'portfolio.allocate': 'Allocate',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Rewards',
@@ -269,12 +273,16 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Cartera',
+    'portfolio.all': 'Todos',
+    'portfolio.gaining': 'Ganando',
+    'portfolio.losing': 'Perdiendo',
     'portfolio.assets': 'Activos',
     'portfolio.totalValue': 'Valor Total',
     'portfolio.holdings': 'Tus participaciones',
     'portfolio.manage': 'Gestionar',
     'portfolio.recentActivity': 'Actividad reciente',
     'portfolio.viewAll': 'Ver todo',
+
     'portfolio.allocate': 'Asignar',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Recompensas',
@@ -434,12 +442,16 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Portfolio',
+    'portfolio.all': 'Alle',
+    'portfolio.gaining': 'Gewinn',
+    'portfolio.losing': 'Verlust',
     'portfolio.assets': 'Vermögenswerte',
     'portfolio.totalValue': 'Gesamtwert',
     'portfolio.holdings': 'Deine Bestände',
     'portfolio.manage': 'Verwalten',
     'portfolio.recentActivity': 'Letzte Aktivitäten',
     'portfolio.viewAll': 'Alles anzeigen',
+
     'portfolio.allocate': 'Zuweisen',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Belohnungen',
@@ -599,12 +611,16 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Portefeuille',
+    'portfolio.all': 'Tous',
+    'portfolio.gaining': 'Gagnant',
+    'portfolio.losing': 'Perdant',
     'portfolio.assets': 'Actifs',
     'portfolio.totalValue': 'Valeur totale',
     'portfolio.holdings': 'Vos participations',
     'portfolio.manage': 'Gérer',
     'portfolio.recentActivity': 'Activité récente',
     'portfolio.viewAll': 'Voir tout',
+
     'portfolio.allocate': 'Allouer',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Récompenses',
@@ -764,12 +780,16 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Portfolio
     'portfolio.title': 'Portafoglio',
+    'portfolio.all': 'Tutti',
+    'portfolio.gaining': 'In guadagno',
+    'portfolio.losing': 'In perdita',
     'portfolio.assets': 'Asset',
     'portfolio.totalValue': 'Valore Totale',
     'portfolio.holdings': 'I tuoi asset',
     'portfolio.manage': 'Gestisci',
     'portfolio.recentActivity': 'Attività recente',
     'portfolio.viewAll': 'Vedi tutto',
+
     'portfolio.allocate': 'Allocare',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Ricompense',

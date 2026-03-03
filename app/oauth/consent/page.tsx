@@ -1,6 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -8,18 +9,6 @@ import { createBrowserClient } from '@supabase/ssr'
 
 type OAuthProvider = 'google' | 'github' | 'facebook' | 'twitter' | 'apple' | 'discord'
 
-function LoadingFallback() {
-  return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-8 h-8 border-4 border-green-800 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading...</p>
-      </div>
-    </div>
-  )
-}
-
-function OAuthConsentContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [consentData, setConsentData] = useState<{
@@ -123,7 +112,7 @@ function OAuthConsentContent() {
             Authorize Access
           </CardTitle>
           <CardDescription className="text-gray-600">
-            {consentData.application_name} wants to access your account
+            {consentData.application_name} wants to access your account02bdcb7 (Initial commit)
           </CardDescription>
         </CardHeader>
         <CardContent>

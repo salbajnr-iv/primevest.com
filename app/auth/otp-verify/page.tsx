@@ -21,6 +21,10 @@ function OtpVerifyForm() {
     const params = new URLSearchParams(window.location.search);
     setType(params.get('type') || 'email')
   }, [])
+  const { verifyOtp } = useAuth()
+  const [type, setType] = useState('email')
+
+  const type = searchParams.get('type') || 'email'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

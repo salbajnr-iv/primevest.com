@@ -1,0 +1,187 @@
+/* Utility classes for professional layout and consistent styling */
+
+/* Container */
+.container-pro {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-medium) var(--spacing-small);
+}
+
+/* Typography */
+.title-lg {
+  font-size: 28px;
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.muted { color: var(--muted); }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-extra-small-2);
+  height: 36px;
+  padding: 0 var(--spacing-extra-small);
+  border-radius: var(--radius-small);
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  font-weight: var(--font-weight-semi-bold);
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--green);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn-ghost {
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost-success {
+  background: rgba(15,157,88,0.12);
+  color: var(--green);
+  border-color: transparent;
+}
+
+/* Chips */
+.chip {
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  padding: var(--spacing-extra-small-2) var(--spacing-extra-small);
+  font-size: 13px;
+  background: #fff;
+  color: var(--text);
+}
+
+.chip-active {
+  background: rgba(15,157,88,0.1);
+  color: var(--green);
+  border-color: transparent;
+}
+
+/* Cards and Lists */
+.card-surface {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-large);
+}
+
+.grid-header {
+  display: grid;
+  grid-template-columns: minmax(200px,1.5fr) 1fr 0.7fr 1fr auto;
+  gap: var(--spacing-extra-small);
+  padding: var(--spacing-extra-small) var(--spacing-small);
+  font-size: 12px;
+  color: var(--muted);
+  background: rgba(0,0,0,0.02);
+}
+
+.grid-row {
+  display: grid;
+  grid-template-columns: minmax(200px,1.5fr) 1fr 0.7fr 1fr auto;
+  gap: var(--spacing-extra-small);
+  align-items: center;
+  padding: 14px var(--spacing-small);
+  border-top: 1px solid var(--color-neutrals-stroke-secondary);
+}
+
+.asset-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-extra-small-2);
+}
+
+.asset-chip {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+}
+
+/* Asset Grid */
+.asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-extra-small);
+}
+
+.asset-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-extra-small);
+  padding: var(--spacing-extra-small) var(--spacing-extra-small);
+  border: 1px solid var(--color-neutrals-stroke-secondary);
+  border-radius: var(--radius-medium);
+  background: #fff;
+}
+
+.asset-card-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.asset-card-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgba(0,0,0,0.04);
+}
+
+/* CTA */
+.cta {
+  display: flex;
+  justify-content: center;
+  padding: 28px 0 var(--spacing-extra-small-2);
+}
+
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-extra-small-2);
+  padding: var(--spacing-extra-small) var(--spacing-small);
+  border-radius: var(--radius-medium);
+  background: #111827;
+  color: #fff;
+  font-weight: var(--font-weight-semi-bold);
+}
+
+/* Layout helpers */
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.col-gap-sm { gap: var(--spacing-extra-small-2); }
+.col-gap-md { gap: var(--spacing-extra-small); }
+
+/* Text helpers */
+.text-strong { font-weight: var(--font-weight-semi-bold); }
+.text-tabular { font-variant-numeric: tabular-nums; }
+
+/* Responsive helpers */
+@media (max-width: 640px) {
+  .grid-header, .grid-row {
+    grid-template-columns: minmax(160px,1.5fr) 1fr 0.7fr 1fr auto;
+  }
+}

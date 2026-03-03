@@ -9,7 +9,7 @@ interface Stats {
   activeUsers: number
   inactiveUsers: number
   totalBalance: number
-  avgBalance: number
+  avgBalance: number02bdcb7 (Initial commit)
 }
 
 interface RecentActivity {
@@ -45,13 +45,6 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Try to fetch user stats from the database function
-        const { data: statsData, error: statsError } = await supabase
-          .rpc('get_user_stats')
-          .single()
-
-        if (!statsError && statsData) {
-          const typedStats = statsData as Record<string, unknown>
           setStats({
             totalUsers: Number(typedStats.total_users) || 0,
             activeUsers: Number(typedStats.active_users) || 0,
@@ -80,7 +73,7 @@ export default function AdminDashboardPage() {
         }
 
         // Fetch recent admin actions
-        const { data: actionsData, error: actionsError } = await supabase
+        const { data: actionsData } = await supabase
           .from('admin_actions')
           .select('*')
           .order('created_at', { ascending: false })
@@ -119,6 +112,16 @@ export default function AdminDashboardPage() {
         return 'Deactivated all non-admin users'
       default:
         return `Performed ${action.action_type.replace(/_/g, ' ')} operation`
+      case 'user_status_change':
+        return `Changed user status to ${action.new_value?.is_active ? 'active' : 'inactive'}`
+      case 'settings_update':
+        return 'Updated admin settings'
+      case 'mass_reset_balances':
+        return 'Reset all user balances to zero'
+      case 'mass_deactivate_users':
+        return 'Deactivated all non-admin users'
+      default:
+        return `Performed ${action.action_type} operation`
     }
   }
 
@@ -152,17 +155,6 @@ export default function AdminDashboardPage() {
           }
         />
         <StatCard
-          title="Active Users"
-          value={stats.activeUsers.toLocaleString()}
-          subtext={`${stats.totalUsers > 0 ? Math.round((stats.activeUsers / stats.totalUsers) * 100) : 0}% of total`}
-          color="green"
-          icon={
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          }
-        />
-        <StatCard
           title="Total Balance"
           value={`€${stats.totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           subtext={`Avg: €${stats.avgBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
@@ -184,57 +176,19 @@ export default function AdminDashboardPage() {
             </svg>
           }
         />
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <QuickActionCard
-          title="Add Balance"
-          description="Credit user account"
-          href="/admin/users?action=add-balance"
+        <StatCard
+          title="Avg Balance"
+          value={`€${stats.avgBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          subtext="Per user"
+          color="orange"
           icon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           }
-        />
-        <QuickActionCard
-          title="Reduce Balance"
-          description="Debit user account"
-          href="/admin/users?action=reduce-balance"
-          icon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-            </svg>
-          }
-        />
-        <QuickActionCard
-          title="View Users"
-          description="Manage user accounts"
-          href="/admin/users"
-          icon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-          }
-        />
-        <QuickActionCard
-          title="Audit Log"
-          description="View all admin actions"
-          href="/admin/audit"
-          icon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-          }
-        />
-      </div>
-
-      {/* Recent Activity */}
-      <div className="bg-gray-800 rounded-xl border border-gray-700">
-        <div className="p-6 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">Recent Admin Activity</h2>
-          <a href="/admin/audit" className="text-green-500 hover:text-green-400 text-sm font-medium no-underline">View All</a>
+          trend="-3%"
+          trendUp={false}
+          color="orange"
         </div>
         <div className="divide-y divide-gray-700">
           {recentActivities.length > 0 ? (
@@ -283,7 +237,7 @@ function StatCard({
   title: string
   value: string
   icon: React.ReactNode
-  subtext?: string
+  subtext?: string02bdcb7 (Initial commit)
   color: 'blue' | 'green' | 'purple' | 'orange'
 }) {
   const colorClasses = {

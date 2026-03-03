@@ -5,72 +5,29 @@ import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
-
-interface StatementItem {
-  id: string;
-  date: string;
-  description: string;
-  amount: string;
-  balance: string;
-  type: "credit" | "debit";
-}
-
-const statementData: StatementItem[] = [
-  { id: "1", date: "Jan 31, 2024", description: "Opening Balance", amount: "", balance: "€5,000.00", type: "credit" },
-  { id: "2", date: "Jan 30, 2024", description: "Buy - Bitcoin", amount: "-€256.50", balance: "€5,000.00", type: "debit" },
-  { id: "3", date: "Jan 29, 2024", description: "Deposit - SEPA", amount: "+€1,000.00", balance: "€5,256.50", type: "credit" },
-  { id: "4", date: "Jan 28, 2024", description: "Sell - Ethereum", amount: "+€412.80", balance: "€4,256.50", type: "credit" },
-  { id: "5", date: "Jan 27, 2024", description: "Buy - Solana", amount: "-€680.00", balance: "€3,843.70", type: "debit" },
-  { id: "6", date: "Jan 26, 2024", description: "Withdrawal", amount: "-€500.00", balance: "€4,523.70", type: "debit" },
-  { id: "7", date: "Jan 25, 2024", description: "Deposit - SEPA", amount: "+€2,000.00", balance: "€5,023.70", type: "credit" },
-  { id: "8", date: "Jan 24, 2024", description: "Buy - Bitcoin", amount: "-€150.00", balance: "€3,023.70", type: "debit" },
-  { id: "9", date: "Jan 23, 2024", description: "Trading Fee", amount: "-€2.50", balance: "€3,173.70", type: "debit" },
-  { id: "10", date: "Jan 22, 2024", description: "Buy - Ethereum", amount: "-€320.00", balance: "€3,176.20", type: "debit" },
-];
-
-export default function StatementPage() {
-  const { user: authUser, loading: authLoading } = useAuth();
-  const [isClient, setIsClient] = React.useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [selectedMonth] = React.useState("January 2024");
-  const [statementDataState, setStatementDataState] = React.useState<StatementItem[]>([]);
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Download, Calendar, TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight } from "lucide-react";
   const supabase = createClient();
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
 
-  React.useEffect(() => {
-    if (authLoading || !authUser) {
-      setStatementDataState(statementData);
-      return;
+  const fadeInUp = {
+    initial: { opacity: 0, y: 30 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, ease: "easeOut" }
+  };
+
+  const staggerContainer = {
+    animate: {
+      transition: {
+        staggerChildren: 0.1
+      }
     }
+  };
 
-    (async () => {
-      try {
-        const { data, error } = await supabase
-          .from('transactions')
-          .select('*')
-          .eq('user_id', authUser.id)
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.warn('Transactions table is not available or query failed. Falling back to mock data.', error);
-          setStatementDataState(statementData);
-        } else if (data && data.length > 0) {
-          interface SupabaseTransaction {
-            id: number;
-            date?: string;
-            created_at?: string;
-            description: string;
-            type: 'credit' | 'debit';
-            amount: string;
-            balance: string;
-          }
-          
-          const mapped: StatementItem[] = data.map((row: SupabaseTransaction) => ({
-            id: String(row.id),
-            date: row.date || (row.created_at ? new Date(row.created_at).toLocaleDateString() : ''),
             description: row.description || row.type || 'Transaction',
             amount: row.amount || '',
             balance: row.balance || '',
@@ -107,120 +64,323 @@ export default function StatementPage() {
     .filter(item => item.amount.startsWith("-"))
     .reduce((sum, item) => sum + parseFloat(item.amount.replace(/[€-]/g, "")), 0);
 
+  const netChange = totalCredits - totalDebits;
+  const openingBalance = 5000.00;
+  const closingBalance = openingBalance + netChange;
+
+  const handleExport = () => {
+    // Simulate export functionality
+    const filename = `statement-${selectedMonth.toLowerCase().replace(' ', '-')}.${exportFormat}`;
+    console.log(`Exporting statement as ${filename}`);
+    // In a real implementation, this would generate and download the file
+    alert(`Statement exported as ${filename}`);
+  };
+
+  const months = ["January 2024", "February 2024", "March 2024", "December 2023"];
+  
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    const currentIndex = months.indexOf(selectedMonth);
+    if (direction === 'prev' && currentIndex > 0) {
+      setSelectedMonth(months[currentIndex - 1]);
+    } else if (direction === 'next' && currentIndex < months.length - 1) {
+      setSelectedMonth(months[currentIndex + 1]);
+    }
+  };
+
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        {/* HEADER */}
-        <header className="header">
-          <div className="header-left">
-            <Link href="/dashboard" className="header-back">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900 overflow-hidden">
+      {/* Header */}
+      <motion.header 
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-sm"
+      >
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex items-center"
+          >
+            <Link href="/dashboard" className="flex items-center group">
+              <svg className="w-6 h-6 mr-3 text-gray-600 group-hover:text-emerald-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
+              <span className="text-sm font-medium text-gray-500 mr-3">ACCOUNT</span>
+              <h1 className="text-xl font-bold text-gray-900">Account Statement</h1>
             </Link>
-            <span className="header-eyebrow">ACCOUNT</span>
-            <div className="header-title">Statement</div>
-          </div>
-          <div className="header-actions">
-            <button className="menu-btn" onClick={() => setIsSidebarOpen(true)} aria-label="Open menu">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="18" x2="21" y2="18" />
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+            className="flex items-center gap-3"
+          >
+            <Button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="bg-white hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-lg border border-gray-300 font-medium text-sm transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
-            </button>
-          </div>
-        </header>
+            </Button>
+          </motion.div>
+        </div>
+      </motion.header>
 
-        {/* DATE SELECTOR */}
-        <section className="section">
-          <div className="card">
-            <div className="date-selector">
-              <button className="btn btn-icon" aria-label="Previous month">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="15 18 9 12 15 6" />
+      {/* Hero Section */}
+      <motion.section 
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+        className="relative py-16 px-4 md:px-8 bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 border-b border-gray-200 overflow-hidden"
+      >
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full mix-blend-soft-light filter blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-blue-500/10 rounded-full mix-blend-soft-light filter blur-3xl animate-pulse delay-1000"></div>
+        </div>
+        
+        <div className="max-w-4xl mx-auto relative z-10">
+          <motion.div 
+            variants={fadeInUp}
+            className="text-center mb-8"
+          >
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4">
+              Account Statement
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Track your trading activity and account balance over time
+            </p>
+          </motion.div>
+
+          {/* Month Selector */}
+          <motion.div 
+            variants={fadeInUp}
+            className="flex justify-center"
+          >
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-2 flex items-center gap-2">
+              <Button
+                onClick={() => navigateMonth('prev')}
+                disabled={months.indexOf(selectedMonth) === 0}
+                className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                variant="ghost"
+                size="sm"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-              </button>
-              <span className="selected-date">{selectedMonth}</span>
-              <button className="btn btn-icon" aria-label="Next month">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="9 18 15 12 9 6" />
+              </Button>
+              
+              <div className="px-6 py-3 min-w-[150px] text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <Calendar className="w-5 h-5 text-emerald-600" />
+                  <span className="font-semibold text-gray-900">{selectedMonth}</span>
+                </div>
+              </div>
+              
+              <Button
+                onClick={() => navigateMonth('next')}
+                disabled={months.indexOf(selectedMonth) === months.length - 1}
+                className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                variant="ghost"
+                size="sm"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
+              </Button>
             </div>
-          </div>
-        </section>
+          </motion.div>
+        </div>
+      </motion.section>
 
-        {/* SUMMARY */}
-        <section className="section">
-          <div className="summary-card">
-            <div className="summary-row">
-              <div className="summary-item">
-                <span className="summary-label">Opening Balance</span>
-                <span className="summary-value">€5,000.00</span>
+      {/* Summary Cards */}
+      <motion.section 
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+        className="py-12 px-4 md:px-8"
+      >
+        <div className="max-w-6xl mx-auto">
+          <motion.div 
+            variants={fadeInUp}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          >
+            <motion.div
+              variants={fadeInUp}
+              whileHover={{ y: -5 }}
+              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <DollarSign className="w-6 h-6 text-blue-600" />
+                </div>
+                <span className="text-sm text-gray-500">Opening</span>
               </div>
-              <div className="summary-item">
-                <span className="summary-label">Closing Balance</span>
-                <span className="summary-value">€3,176.20</span>
-              </div>
-            </div>
-            <div className="summary-divider"></div>
-            <div className="summary-row">
-              <div className="summary-item">
-                <span className="summary-label">Total Credits</span>
-                <span className="summary-value credit">+€{totalCredits.toFixed(2)}</span>
-              </div>
-              <div className="summary-item">
-                <span className="summary-label">Total Debits</span>
-                <span className="summary-value debit">-€{totalDebits.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-        </section>
+              <div className="text-2xl font-bold text-gray-900">€{openingBalance.toFixed(2)}</div>
+            </motion.div>
 
-        {/* STATEMENT TABLE */}
-        <section className="section">
-          <h3 className="section-title">Transaction Details</h3>
-          <div className="card">
-            <div className="statement-container">
-              <div className="statement-header">
-                <span>Date</span>
-                <span>Description</span>
-                <span>Amount</span>
-                <span>Balance</span>
+            <motion.div
+              variants={fadeInUp}
+              whileHover={{ y: -5 }}
+              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                  <ArrowUpRight className="w-6 h-6 text-emerald-600" />
+                </div>
+                <span className="text-sm text-gray-500">Credits</span>
               </div>
-              <div className="statement-body">
-                {statementDataState.map((item) => (
-                  <div key={item.id} className="statement-row">
-                    <span className="row-date">{item.date}</span>
-                    <span className="row-description">{item.description}</span>
-                    <span className={`row-amount ${item.type}`}>
-                      {item.amount || "—"}
-                    </span>
-                    <span className="row-balance">{item.balance}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
+              <div className="text-2xl font-bold text-emerald-600">+€{totalCredits.toFixed(2)}</div>
+            </motion.div>
 
-        {/* EXPORT */}
-        <section className="section">
-          <div className="card">
-            <div className="export-actions">
-              <button className="btn btn-primary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Download Statement (PDF)
-              </button>
+            <motion.div
+              variants={fadeInUp}
+              whileHover={{ y: -5 }}
+              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                  <ArrowDownRight className="w-6 h-6 text-red-600" />
+                </div>
+                <span className="text-sm text-gray-500">Debits</span>
+              </div>
+              <div className="text-2xl font-bold text-red-600">-€{totalDebits.toFixed(2)}</div>
+            </motion.div>
+
+            <motion.div
+              variants={fadeInUp}
+              whileHover={{ y: -5 }}
+              className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl p-6 shadow-lg border border-emerald-200 hover:shadow-2xl transition-all duration-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-12 h-12 ${netChange >= 0 ? 'bg-emerald-100' : 'bg-red-100'} rounded-xl flex items-center justify-center`}>
+                  {netChange >= 0 ? 
+                    <TrendingUp className="w-6 h-6 text-emerald-600" /> : 
+                    <TrendingDown className="w-6 h-6 text-red-600" />
+                  }
+                </div>
+                <span className="text-sm text-gray-500">Closing</span>
+              </div>
+              <div className={`text-2xl font-bold ${netChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                €{closingBalance.toFixed(2)}
+              </div>
+              <div className={`text-sm mt-1 ${netChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                {netChange >= 0 ? '+' : ''}€{netChange.toFixed(2)} net change
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Transaction Table */}
+      <motion.section 
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+        className="py-8 px-4 md:px-8"
+      >
+        <div className="max-w-6xl mx-auto">
+          <motion.div 
+            variants={fadeInUp}
+            className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden"
+          >
+            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Transaction Details</h2>
             </div>
-          </div>
-        </section>
-      </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Description</th>
+                    <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">Amount</th>
+                    <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">Balance</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {statementDataState.map((item, index) => (
+                    <motion.tr 
+                      key={item.id}
+                      variants={fadeInUp}
+                      whileHover={{ backgroundColor: "rgba(16, 185, 129, 0.05)" }}
+                      className="transition-colors"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">{item.date}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-900">{item.description}</div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        {item.amount && (
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${
+                            item.type === 'credit' 
+                              ? 'bg-emerald-100 text-emerald-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {item.type === 'credit' ? '+' : '-'}€{Math.abs(parseFloat(item.amount.replace(/[€,+]/g, ''))).toFixed(2)}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="text-sm font-semibold text-gray-900">
+                          {item.balance || '—'}
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Export Section */}
+      <motion.section 
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+        className="py-12 px-4 md:px-8"
+      >
+        <div className="max-w-4xl mx-auto">
+          <motion.div 
+            variants={fadeInUp}
+            className="bg-gradient-to-r from-emerald-50 to-blue-50 rounded-2xl p-8 border border-emerald-200"
+          >
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+              <div className="text-center lg:text-left">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Export Your Statement</h3>
+                <p className="text-gray-600">Download your account statement in your preferred format for record-keeping</p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <select
+                  value={exportFormat}
+                  onChange={(e) => setExportFormat(e.target.value)}
+                  className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                >
+                  <option value="pdf">PDF Document</option>
+                  <option value="csv">CSV Spreadsheet</option>
+                  <option value="excel">Excel File</option>
+                </select>
+                
+                <Button 
+                  onClick={handleExport}
+                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2"
+                >
+                  <Download className="w-5 h-5" />
+                  Download Statement
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </motion.section>
 
       <BottomNav 
         onMenuClick={() => setIsSidebarOpen(true)} 

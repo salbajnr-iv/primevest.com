@@ -3,14 +3,6 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import DashboardHeader from "@/components/DashboardHeader";
-
-export default function SellReviewPage() {
-  const router = useRouter();
-  const [asset, setAsset] = React.useState("-");
-  const [amount, setAmount] = React.useState("0");
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);

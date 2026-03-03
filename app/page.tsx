@@ -5,6 +5,189 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import BitpandaNavbar from "@/components/BitpandaNavbar";
+import CryptoTicker from "@/components/CryptoTicker";
+
+// Crypto data
+const topCryptos = [
+  { symbol: "BTC", name: "Bitcoin", price: "€45,234.56", change: "+2.34%", volume: "€28.5B", logo: "/btc-logo.png" },
+  { symbol: "ETH", name: "Ethereum", price: "€2,876.43", change: "-1.23%", volume: "€12.8B", logo: "/eth-logo.png" },
+  { symbol: "BNB", name: "BNB", price: "€298.76", change: "+3.45%", volume: "€2.1B", logo: "/bnb-logo.png" },
+  { symbol: "ADA", name: "Cardano", price: "€0.4521", change: "+1.87%", volume: "€890M", logo: "/ada-logo.png" },
+  { symbol: "SOL", name: "Solana", price: "€98.32", change: "+4.12%", volume: "€1.2B", logo: "/sol-logo.png" },
+  { symbol: "XRP", name: "XRP", price: "€0.6234", change: "-0.45%", volume: "€1.8B", logo: "/xrp-logo.png" }
+];
+
+// Investment options
+const investmentOptions = [
+  {
+    title: "Cryptocurrencies",
+    description: "Buy, sell, and swap the cryptocurrencies you want anytime, anywhere.",
+    image: "https://a.storyblok.com/f/176646/960x600/6795a4c32d/website_homepage_cryptocurrencies.png",
+    link: "/crypto"
+  },
+  {
+    title: "Stocks*",
+    description: "Invest in fractions of your favourite companies without buying a full share.",
+    image: "https://a.storyblok.com/f/176646/960x600/cc80628f6b/website_homepage_stocks.png",
+    link: "/stocks"
+  },
+  {
+    title: "ETFs*",
+    description: "Invest in fractions of your favourite ETFs* without buying a full share.",
+    image: "https://a.storyblok.com/f/176646/960x600/bc62fd7985/website_homepage_etfs.png",
+    link: "/etfs"
+  },
+  {
+    title: "Commodities*",
+    description: "Fortify your portfolio with commodities* and shield it against inflation.",
+    image: "https://a.storyblok.com/f/176646/960x600/ff72d39829/website_homepage_commodities.png",
+    link: "/commodities"
+  },
+  {
+    title: "Crypto Indices",
+    description: "Auto-invest in the whole crypto market with a single click.",
+    image: "https://a.storyblok.com/f/176646/960x600/b971c0ccf7/website_homepage_crypto-indices.png",
+    link: "/indices"
+  },
+  {
+    title: "Precious Metals",
+    description: "Diversify your portfolio by investing in physically-backed precious metals.",
+    image: "https://a.storyblok.com/f/176646/960x600/5c79402c90/website_homepage_metals.png",
+    link: "/metals"
+  }
+];
+
+// Steps data
+const steps = [
+  {
+    number: "01",
+    title: "Register",
+    description: "Sign up to create your free Bitpanda account.",
+    image: "https://a.storyblok.com/f/176646/840x1080/4e498da1d7/website_homepage_register_en.png"
+  },
+  {
+    number: "02",
+    title: "Verify",
+    description: "Verify your identity with one of our trusted verification partners.",
+    image: "https://a.storyblok.com/f/176646/840x1080/20149b912b/website_homepage_verify_en.png"
+  },
+  {
+    number: "03",
+    title: "Deposit",
+    description: "Deposit your funds securely through popular options.",
+    image: "https://a.storyblok.com/f/176646/840x1080/af2f5ef73e/website_homepage_deposit_en.png"
+  },
+  {
+    number: "04",
+    title: "Trade",
+    description: "Buy, sell and swap digital assets 24/7.",
+    image: "https://a.storyblok.com/f/176646/840x1080/ffa905c022/website_homepage_trade_en.png"
+  }
+];
+
+// Assets data for asset cards
+const assets = [
+  { symbol: "XAU", name: "Gold", price: "€2,045.32", change: "+0.85%", type: "commodity", chart: "up" },
+  { symbol: "NVDA", name: "NVIDIA Corp", price: "€875.45", change: "+3.24%", type: "stock", chart: "up" },
+  { symbol: "GOOGL", name: "Alphabet Inc", price: "€172.89", change: "-0.56%", type: "stock", chart: "down" },
+  { symbol: "AAPL", name: "Apple Inc", price: "€185.67", change: "+1.12%", type: "stock", chart: "up" },
+  { symbol: "MSFT", name: "Microsoft Corp", price: "€415.23", change: "+2.45%", type: "stock", chart: "up" },
+  { symbol: "AMZN", name: "Amazon.com", price: "€178.34", change: "+1.89%", type: "stock", chart: "up" },
+  { symbol: "BTC", name: "Bitcoin", price: "€52,340.00", change: "+4.56%", type: "crypto", chart: "up" },
+  { symbol: "TSM", name: "Taiwan Semi", price: "€142.78", change: "-1.23%", type: "stock", chart: "down" },
+  { symbol: "FB", name: "Meta Platforms", price: "€485.67", change: "+2.78%", type: "stock", chart: "up" },
+  { symbol: "AVGO", name: "Broadcom Inc", price: "€1,245.89", change: "+5.12%", type: "stock", chart: "up" },
+  { symbol: "TSLA", name: "Tesla Inc", price: "€189.45", change: "-2.34%", type: "stock", chart: "down" },
+  { symbol: "BRK", name: "Berkshire B", price: "€415.67", change: "+0.89%", type: "stock", chart: "up" },
+  { symbol: "LLY", name: "Eli Lilly", price: "€782.34", change: "+1.56%", type: "stock", chart: "up" },
+  { symbol: "JPM", name: "JPMorgan", price: "€198.56", change: "+0.78%", type: "stock", chart: "up" },
+  { symbol: "WMT", name: "Walmart Inc", price: "€165.23", change: "-0.34%", type: "stock", chart: "down" },
+  { symbol: "TCTZF", name: "Tata Consumer", price: "€12.45", change: "+0.67%", type: "stock", chart: "up" },
+  { symbol: "V", name: "Visa Inc", price: "€278.90", change: "+1.23%", type: "stock", chart: "up" },
+  { symbol: "SMSN", name: "Samsung Elec", price: "€1,234.56", change: "+2.45%", type: "stock", chart: "up" },
+  { symbol: "XOM", name: "Exxon Mobil", price: "€108.78", change: "-0.89%", type: "stock", chart: "down" },
+  { symbol: "ORCL", name: "Oracle Corp", price: "€127.89", change: "+1.45%", type: "stock", chart: "up" },
+  { symbol: "MA", name: "Mastercard", price: "€445.67", change: "+1.78%", type: "stock", chart: "up" },
+  { symbol: "JNJ", name: "Johnson&John", price: "€156.78", change: "-0.45%", type: "stock", chart: "down" },
+  { symbol: "ASML", name: "ASML Holding", price: "€867.89", change: "+3.67%", type: "stock", chart: "up" },
+  { symbol: "BAC", name: "Bank of Amer", price: "€34.56", change: "+0.89%", type: "stock", chart: "up" },
+  { symbol: "PLTR", name: "Palantir", price: "€24.78", change: "-1.56%", type: "stock", chart: "down" }
+];
+
+// FAQ Questions data
+const faqQuestions = [
+  {
+    question: "How do I verify my account?",
+    answer: "Verify your identity with one of our trusted verification partners in just a few minutes.",
+    icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+  },
+  {
+    question: "What payment methods are accepted?",
+    answer: "We accept bank transfers, credit/debit cards, PayPal, and various local payment methods.",
+    icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+  },
+  {
+    question: "Are my funds secure?",
+    answer: "Funds are secured in offline wallets with full compliance to European standards.",
+    icon: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+  },
+  {
+    question: "How do I withdraw my crypto?",
+    answer: "Withdraw your digital assets anytime with low fees and fast processing times.",
+    icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+  },
+  {
+    question: "What are the trading fees?",
+    answer: "Competitive fees starting from 0.1% per trade with no hidden costs.",
+    icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+  },
+  {
+    question: "Is there a mobile app?",
+    answer: "Yes! Download our app on iOS and Android for trading on the go.",
+    icon: "M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+  },
+  {
+    question: "How do I enable 2FA?",
+    answer: "Enable two-factor authentication in your account settings for enhanced security.",
+    icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+  },
+  {
+    question: "What cryptocurrencies can I trade?",
+    answer: "Trade 650+ cryptocurrencies including Bitcoin, Ethereum, Solana, and many more.",
+    icon: "M13 10V3L4 14h7v7l9-11h-7z"
+  },
+  {
+    question: "Can I invest in stocks and ETFs?",
+    answer: "Yes! Invest in fractions of your favourite companies and ETFs with zero commissions.",
+    icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+  },
+  {
+    question: "What are Bitpanda Pro Crypto Indices?",
+    answer: "Auto-invest in the whole crypto market with a single click using our diversified indices.",
+    icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
+  },
+  {
+    question: "How fast are deposits and withdrawals?",
+    answer: "Bank transfers typically process within 1-2 business days, crypto withdrawals within minutes.",
+    icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+  },
+  {
+    question: "Is Bitpanda Pro regulated?",
+    answer: "Yes, we're Austria-based and European regulated crypto & securities broker platform.",
+    icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+  },
+  {
+    question: "What is Bitpanda Pro Leverage?",
+    answer: "Go Long or Short on top cryptocurrencies with up to 10x leverage for amplified positions.",
+    icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+  },
+  {
+    question: "How do I contact support?",
+    answer: "Reach our support team through the Helpdesk or contact form available 24/7.",
+    icon: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+  }
+];
 
 export default function Home() {
   const router = useRouter();
@@ -57,7 +240,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900 overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 text-gray-900 overflow-hidden">
       {/* Header */}
       <motion.header 
         initial={{ y: -100 }}
@@ -74,8 +257,8 @@ export default function Home() {
           >
             <Link href="/" className="flex items-center group">
               <Image
-                src="/bitpanda-logo.svg"
-                alt="Bitpanda Pro"
+                src="/primevest-logo.svg"
+                alt="PrimeVest Financial Solutions, Inc."
                 width={140}
                 height={35}
                 className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
@@ -145,7 +328,7 @@ export default function Home() {
                 </svg>
               </button>
               <div className="absolute top-full left-0 mt-2 w-52 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-gray-100 py-2">
-                <Link href="/demo" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-t-lg transition-colors duration-200 text-sm">Bitpanda Pro App</Link>
+                <Link href="/demo" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-t-lg transition-colors duration-200 text-sm">PrimeVest Financial Solutions, Inc. App</Link>
                 <Link href="/dashboard/trade" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">Web Trader</Link>
                 <Link href="#" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">MetaTrader 4</Link>
                 <Link href="/platforms/mt4-mobile" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">MT4 Mobile</Link>
@@ -228,7 +411,7 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="relative py-20 px-4 md:px-8 bg-gradient-to-br from-gray-50 to-gray-100 border-b border-gray-200 overflow-hidden section-padding"
+        className="relative py-20 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 border-b border-gray-200 overflow-hidden section-padding"
       >
         {/* Animated background elements */}
         <div className="absolute inset-0">
@@ -249,7 +432,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="text-display font-bold text-gray-900 leading-tight bg-gradient-to-r from-gray-900 via-emerald-600 to-emerald-700 bg-clip-text text-transparent transition-professional"
+                  className="text-display font-bold leading-tight bg-linear-to-r from-gray-900 via-emerald-600 to-emerald-700 bg-clip-text text-transparent transition-professional"
                 >
                   Trade Forex, Stocks, Crypto & More
                 </motion.h1>
@@ -271,7 +454,7 @@ export default function Home() {
               >
                 <Button 
                   onClick={handleStartTrading} 
-                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-4 text-lg rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 btn-premium"
+                  className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-4 text-lg rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 btn-premium"
                 >
                   Start Trading
                 </Button>
@@ -307,16 +490,16 @@ export default function Home() {
             >
               <div className="relative">
                 {/* Glowing effect around the dashboard */}
-                <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/10 to-blue-500/10 rounded-3xl blur-xl opacity-75 animate-pulse"></div>
+                <div className="absolute -inset-4 bg-linear-to-r from-emerald-500/10 to-blue-500/10 rounded-3xl blur-xl opacity-75 animate-pulse"></div>
                 
                 {/* Main dashboard container */}
-                <div className="relative h-96 w-full bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 p-4 sm:p-6 flex flex-col shadow-xl overflow-hidden group card-elevated">
+                <div className="relative h-96 w-full bg-linear-to-br from-white to-gray-50 rounded-2xl border border-gray-200 p-4 sm:p-6 flex flex-col shadow-xl overflow-hidden group card-elevated">
                   {/* Micro-interaction: subtle glow on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none"></div>
                   
                   {/* Simulated chart area */}
                   <div className="flex-1 relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/10 to-transparent rounded-xl"></div>
+                    <div className="absolute inset-0 bg-linear-to-br from-emerald-50/10 to-transparent rounded-xl"></div>
                     
                     {/* Simulated price chart */}
                     <div className="absolute bottom-0 left-0 right-0 h-3/4">
@@ -380,14 +563,14 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-b from-gray-50 to-gray-100 section-padding"
+        className="py-24 px-4 md:px-8 bg-linear-to-b from-gray-50 to-gray-100 section-padding"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <h2 className="text-heading font-bold text-gray-900 mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
+            <h2 className="text-heading font-bold mb-6 bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
               Multiple Assets, One Platform
             </h2>
             <p className="text-body text-gray-600 max-w-3xl mx-auto transition-professional">
@@ -413,12 +596,12 @@ export default function Home() {
               >
                 <div className="relative bg-white border border-gray-200 rounded-2xl p-8 hover:border-emerald-300 transition-all duration-300 cursor-pointer h-full flex flex-col justify-between shadow-lg hover:shadow-2xl overflow-hidden card-premium">
                   {/* Animated background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-white to-gray-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-700"></div>
                   <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/5 rounded-full translate-y-12 -translate-x-12 group-hover:scale-150 transition-transform duration-700"></div>
                   
                   <div className="relative z-10">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 border border-gray-300 flex items-center justify-center mb-6 group-hover:rotate-6 transition-transform duration-300">
+                    <div className="w-16 h-16 rounded-xl bg-linear-to-br from-gray-100 to-gray-200 border border-gray-300 flex items-center justify-center mb-6 group-hover:rotate-6 transition-transform duration-300">
                       <span className="text-3xl">{asset.icon}</span>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors duration-300 transition-professional">{asset.title}</h3>
@@ -438,7 +621,7 @@ export default function Home() {
           >
             <Button 
               onClick={handleExploreAssets} 
-              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
+              className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
             >
               Explore All Assets
             </Button>
@@ -451,14 +634,14 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-br from-gray-50 to-gray-100 section-padding"
+        className="py-24 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 section-padding"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <h2 className="text-heading font-bold text-gray-900 mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
+            <h2 className="text-heading font-bold mb-6 bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
               Built for Traders
             </h2>
             <p className="text-body text-gray-600 transition-professional">Everything you need to trade successfully</p>
@@ -531,7 +714,7 @@ export default function Home() {
               >
                 <div className="relative bg-white border border-gray-200 rounded-2xl p-8 hover:border-emerald-300 transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden card-premium">
                   {/* Animated background elements */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="absolute top-4 right-4 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
                   
                   <div className="relative z-10">
@@ -555,14 +738,14 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-br from-gray-50 to-gray-100 section-padding"
+        className="py-24 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 section-padding"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <h2 className="text-heading font-bold text-gray-900 mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
+            <h2 className="text-heading font-bold mb-6 bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
               Reliable. Trusted. Awarded.
             </h2>
             <p className="text-body text-gray-600 transition-professional">
@@ -624,14 +807,14 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-br from-gray-50 to-gray-100 section-padding"
+        className="py-24 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 section-padding"
       >
         <div className="max-w-5xl mx-auto">
           <motion.div 
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
+            <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
               Trade in 3 Simple Steps
             </h2>
             <p className="text-xl text-gray-600 transition-professional">
@@ -641,7 +824,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative grid-responsive">
             {/* Connecting lines for desktop */}
-            <div className="hidden md:flex absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-200 via-emerald-400 to-emerald-200 -z-10 transform -translate-y-1/2"></div>
+            <div className="hidden md:flex absolute top-1/2 left-0 right-0 h-0.5 bg-linear-to-r from-emerald-200 via-emerald-400 to-emerald-200 -z-10 transform -translate-y-1/2"></div>
             
             {[
               {
@@ -683,11 +866,11 @@ export default function Home() {
               >
                 <div className="relative bg-white border border-gray-200 rounded-2xl p-8 text-center hover:border-emerald-300 transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden card-premium">
                   {/* Animated background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   
                   <div className="relative z-10">
                     <div className="mb-6 flex justify-center">
-                      <div className="relative w-20 h-20 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full flex items-center justify-center border-2 border-emerald-200 group-hover:border-emerald-500 group-hover:from-emerald-200 group-hover:to-emerald-300 transition-all duration-300">
+                      <div className="relative w-20 h-20 bg-linear-to-br from-emerald-100 to-emerald-200 rounded-full flex items-center justify-center border-2 border-emerald-200 group-hover:border-emerald-500 group-hover:from-emerald-200 group-hover:to-emerald-300 transition-all duration-300">
                         <span className="text-3xl font-bold text-emerald-700">{item.step}</span>
                       </div>
                       <div className="absolute top-6 right-0 text-emerald-500 transform -translate-x-8 group-hover:animate-bounce">
@@ -708,7 +891,7 @@ export default function Home() {
           >
             <Button 
               onClick={handleStartTrading} 
-              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
+              className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
             >
               Start Trading
             </Button>
@@ -727,14 +910,14 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-br from-gray-50 to-gray-100 section-padding"
+        className="py-24 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 section-padding"
       >
         <div className="max-w-7xl mx-auto">
           <motion.div 
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
+            <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent transition-professional">
               Download Our App
             </h2>
             <p className="text-xl text-gray-600 transition-professional">
@@ -789,7 +972,7 @@ export default function Home() {
               >
                 <div className="relative bg-white border border-gray-200 rounded-2xl p-8 text-center hover:border-emerald-300 transition-all duration-300 shadow-lg hover:shadow-2xl flex flex-col h-full overflow-hidden card-premium">
                   {/* Animated background elements */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-white to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="absolute top-4 right-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
                   
                   <div className="relative z-10 flex flex-col h-full">
@@ -801,18 +984,18 @@ export default function Home() {
                       </div>
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-emerald-600 transition-colors duration-300 transition-professional">{app.title}</h3>
-                    <p className="text-gray-600 mb-8 flex-grow">{app.desc}</p>
+                    <p className="text-gray-600 mb-8 grow">{app.desc}</p>
                     {app.isInternalLink ? (
                       <Button 
                         onClick={handleStartTrading} 
-                        className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg w-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl btn-premium"
+                        className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg w-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl btn-premium"
                       >
                         {app.buttonText}
                       </Button>
                     ) : (
                       <Button 
                         asChild 
-                        className="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-lg w-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl border border-gray-600 btn-premium"
+                        className="bg-linear-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-lg w-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl border border-gray-600 btn-premium"
                       >
                         <a href={app.url} target="_blank" rel="noopener noreferrer">
                           {app.buttonText}
@@ -832,7 +1015,7 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="py-24 px-4 md:px-8 bg-gradient-to-r from-emerald-500 to-emerald-600 section-padding"
+        className="py-24 px-4 md:px-8 bg-linear-to-r from-emerald-500 to-emerald-600 section-padding"
       >
         <div className="max-w-4xl mx-auto text-center">
           <motion.h2 
@@ -878,7 +1061,7 @@ export default function Home() {
                   <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" />
                   <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <span className="font-bold">Bitpanda Pro</span>
+              <span className="font-bold">PrimeVest Capital</span>
               </Link>
               <p className="text-gray-600 text-sm leading-relaxed">Professional trading platform for everyone. Trade Forex, Crypto, Commodities & more.</p>
             </div>
@@ -927,7 +1110,7 @@ export default function Home() {
                   className="flex-1 bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition"
                   suppressHydrationWarning
                 />
-                <button className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                <button className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
                   →
                 </button>
               </div>
@@ -937,7 +1120,7 @@ export default function Home() {
           {/* Divider */}
           <div className="border-t border-gray-200 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center text-gray-600 text-sm gap-6">
-              <p>&copy; 2026 Bitpanda Pro. All rights reserved.</p>
+              <p>&copy; 2026 PrimeVest Capital. All rights reserved.</p>
               <div className="flex gap-6 transition-professional">
                 <a href="#" className="hover:text-emerald-600 transition font-medium">Twitter</a>
                 <a href="#" className="hover:text-emerald-600 transition font-medium">LinkedIn</a>

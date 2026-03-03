@@ -3,40 +3,6 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import BottomNav from "@/components/BottomNav";
-import { useAuth } from "@/contexts/AuthContext";
-import { createClient } from "@/lib/supabase/client";
-
-interface Profile {
-  name: string;
-  email: string;
-  phone: string;
-  kycStatus: 'pending' | 'verified';
-  memberSince: string;
-  accountType: string;
-  avatar_url?: string;
-}
-
-interface SupabaseProfile {
-  full_name?: string;
-  email?: string;
-  phone?: string;
-  kyc_status?: 'pending' | 'verified';
-  created_at?: string;
-  account_type?: string;
-  avatar_url?: string;
-}
-
-interface UserProfileMetadata {
-  full_name?: string;
-  email?: string;
-  phone?: string;
-  kycStatus?: 'pending' | 'verified';
-  memberSince?: string;
-  accountType?: string;
-}
-
-interface ProfileItemProps {
   label: string;
   value?: string;
   icon?: React.ReactNode;
@@ -89,78 +55,6 @@ export default function ProfilePage() {
     setIsClient(true);
   }, []);
 
-  React.useEffect(() => {
-    if (profile) {
-      setForm({
-        name: profile.name || '',
-        phone: profile.phone || '',
-        accountType: profile.accountType || 'Personal',
-      });
-    }
-  }, [profile]);
-
-  React.useEffect(() => {
-    if (authLoading || !authUser) return;
-
-    (async () => {
-      try {
-        const { data, error } = await supabase.from('profiles').select('*').eq('id', authUser.id).maybeSingle();
-        if (error) {
-          console.warn('Could not fetch profile, falling back to auth user', error);
-          const userMetadata: UserProfileMetadata = authUser.user_metadata || {};
-          setProfile({
-            name: userMetadata.full_name || authUser.email || '',
-            email: authUser.email || '',
-            phone: userMetadata.phone || '',
-            kycStatus: userMetadata.kycStatus || 'pending',
-            memberSince: userMetadata.memberSince || '',
-            accountType: userMetadata.accountType || 'Personal',
-          });
-        } else if (data) {
-          const supabaseData: SupabaseProfile = data;
-          setProfile({
-            name: supabaseData.full_name || authUser.email || '',
-            email: authUser.email || '',
-            phone: supabaseData.phone || '',
-            kycStatus: (supabaseData.kyc_status as 'pending' | 'verified') || 'pending',
-            memberSince: supabaseData.created_at ? new Date(supabaseData.created_at).toLocaleString('default', { month: 'long', year: 'numeric' }) : '',
-            accountType: supabaseData.account_type || 'Personal',
-            avatar_url: supabaseData.avatar_url || undefined,
-          });
-        } else {
-          const userMetadata: UserProfileMetadata = authUser.user_metadata || {};
-          setProfile({
-            name: userMetadata.full_name || authUser.email || '',
-            email: authUser.email || '',
-            phone: userMetadata.phone || '',
-            kycStatus: userMetadata.kycStatus || 'pending',
-            memberSince: userMetadata.memberSince || '',
-            accountType: userMetadata.accountType || 'Personal',
-          });
-        }
-      } catch (err) {
-        console.error('Profile fetch failed', err);
-        setProfile({
-          name: authUser.user_metadata?.full_name || authUser.email,
-          email: authUser.email || '',
-          phone: authUser.user_metadata?.phone || '',
-          kycStatus: authUser.user_metadata?.kycStatus || 'pending',
-          memberSince: authUser.user_metadata?.memberSince || '',
-          accountType: authUser.user_metadata?.accountType || 'Personal',
-        });
-      }
-    })();
-  }, [authLoading, authUser, supabase]);
-
-  if (!isClient || authLoading) {
-    return (
-      <div className="dashboard-container">
-        <div className="dashboard-app">
-          <div className="loading-spinner-container">
-            <div className="loading-spinner"></div>
-          </div>
-        </div>
-      </div>
     );
   }
 
@@ -257,7 +151,6 @@ export default function ProfilePage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        {/* HEADER */}
         <header className="header">
           <div className="header-left">
             <Link href="/dashboard" className="header-back">
@@ -311,6 +204,24 @@ export default function ProfilePage() {
                   <span>{profile?.accountType || 'Personal'}</span>
                 </div>
               </div>
+        <section className="profile-card">
+          <div className="profile-avatar">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt={profile.name} style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            )}
+          </div>
+          <div className="profile-info">
+            <h2 className="profile-name">{profile?.name || authUser.email}</h2>
+            <p className="profile-email">{profile?.email || authUser.email}</p>
+            <div className="profile-meta">
+              <span>Member since {profile?.memberSince || '—'}</span>
+              <span className="dot">•</span>
+              <span>{profile?.accountType || 'Personal'}</span>
             </div>
           </div>
         </section>
@@ -323,6 +234,13 @@ export default function ProfilePage() {
               <div className="verification-card verified">
                 <div className="verification-icon">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#0f9d58" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <section className="kyc-section">
+          <h3 className="section-title">Identity Verification</h3>
+          <div className="kyc-card">
+            {profile?.kycStatus === "verified" ? (
+              <div className="kyc-verified">
+                <div className="kyc-icon verified">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                     <polyline points="22 4 12 14.01 9 11.01" />
                   </svg>
@@ -361,6 +279,13 @@ export default function ProfilePage() {
               <div className="form-container">
                 <div className="form-group">
                   <label className="form-label">Full Name</label>
+        <section className="info-section">
+          <h3 className="section-title">Personal Information</h3>
+          <div className="list-card">
+            {editing ? (
+              <div>
+                <div className="form-group">
+                  <label className="form-label">Full name</label>
                   <input
                     className="form-input"
                     value={form.name}
@@ -392,7 +317,7 @@ export default function ProfilePage() {
               </div>
             ) : (
               <>
-                <ProfileItem
+                <ProfileItem02bdcb7 (Initial commit)
                   label="Full Name"
                   value={profile?.name || authUser.email}
                   icon={
@@ -432,6 +357,11 @@ export default function ProfilePage() {
           <div className="card">
             <ProfileItem
               label="Security Settings"
+        <section className="info-section">
+          <h3 className="section-title">Account Settings</h3>
+          <div className="list-card">
+            <ListItem
+              label="Security"
               icon={
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -440,7 +370,7 @@ export default function ProfilePage() {
               }
               href="/settings#security"
             />
-            <ProfileItem
+            <ProfileItem02bdcb7 (Initial commit)
               label="Preferences"
               icon={
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -450,7 +380,7 @@ export default function ProfilePage() {
               }
               href="/settings"
             />
-            <ProfileItem
+            <ProfileItem02bdcb7 (Initial commit)
               label="Two-Factor Authentication"
               value="Enabled"
               icon={
