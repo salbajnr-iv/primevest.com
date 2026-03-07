@@ -7,24 +7,22 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
+export const dynamic = 'force-dynamic'
 function OtpVerifyForm() {
   const [token, setToken] = useState('')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-  const router = useRouter()
-  const { verifyOtp } = useAuth()
   const [type, setType] = useState('email')
+
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { verifyOtp } = useAuth()
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setType(params.get('type') || 'email')
-  }, [])
-  const { verifyOtp } = useAuth()
-  const [type, setType] = useState('email')
-
-  const type = searchParams.get('type') || 'email'
+    setType(searchParams.get('type') || 'email')
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,7 +35,6 @@ function OtpVerifyForm() {
         setError(error.message)
       } else {
         setSuccess(true)
-        // Redirect based on the type of verification
         setTimeout(() => {
           if (type === 'email') {
             router.push('/auth/signin')
@@ -56,7 +53,6 @@ function OtpVerifyForm() {
   }
 
   const handleResend = async () => {
-    // In a real implementation, this would call a resend OTP API
     alert('Resend functionality would be implemented here. For password reset, please check your email for the reset link.')
   }
 
@@ -71,7 +67,7 @@ function OtpVerifyForm() {
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">Enter verification code</CardTitle>
           <CardDescription className="text-gray-600">
-            {type === 'recovery' 
+            {type === 'recovery'
               ? 'Enter the code from your password reset email'
               : "We've sent a code to your email"}
           </CardDescription>
@@ -137,7 +133,7 @@ function OtpVerifyForm() {
               <div>
                 <p className="font-medium text-green-800">Verification successful!</p>
                 <p className="text-sm text-gray-600 mt-1">
-                  {type === 'recovery' 
+                  {type === 'recovery'
                     ? 'Your identity has been verified. Redirecting you to set a new password...'
                     : 'Your email has been verified. Redirecting...'}
                 </p>
@@ -146,7 +142,7 @@ function OtpVerifyForm() {
           )}
 
           <div className="mt-6 text-center text-sm text-gray-600">
-            <p>Didn&apos;t receive the code?{' '}</p>
+            <p>Didn't receive the code?{' '}</p>
             <button
               type="button"
               className="text-green-800 hover:text-green-900 hover:underline font-medium transition-colors"
@@ -187,4 +183,3 @@ export default function OtpVerifyPage() {
     </Suspense>
   )
 }
-

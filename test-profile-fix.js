@@ -6,9 +6,11 @@
  * 
  * Usage:
  * 1. Ensure Supabase environment variables are set
- * 2. Run: node test-profile-fix.js
+ * 2. Sign in through the app flow (or set a valid Supabase auth session token in this runtime)
+ * 3. Run: node test-profile-fix.js
  */
 
+const assert = require('node:assert/strict');
 const { createClient } = require('@supabase/supabase-js');
 
 // Configuration - Replace with your actual values or use environment variables
@@ -38,7 +40,8 @@ async function testProfileSave() {
     
     if (!user) {
       console.log('⚠️  No user authenticated. Please sign in first.');
-      console.log('   Run: npx supabase login');
+      console.log('   This script requires a valid authenticated user session in Supabase Auth.');
+      console.log('   Sign in through the app first, then re-run this script in the same authenticated context.');
       return;
     }
     
@@ -88,6 +91,8 @@ async function testProfileSave() {
       console.log('\n🔧 Fix: Run the SQL migration script in Supabase SQL Editor');
       console.log('   File: supabase-fix-profile-upsert.sql');
     } else {
+      assert.equal(upsertedProfile.id, user.id, 'Upserted profile should match authenticated user id');
+      assert.equal(upsertedProfile.phone, testPayload.phone, 'Upserted profile phone should match the payload');
       console.log('✅ Profile upsert successful!');
       console.log(`   Updated name: ${upsertedProfile.full_name}`);
       console.log(`   Updated phone: ${upsertedProfile.phone}`);
