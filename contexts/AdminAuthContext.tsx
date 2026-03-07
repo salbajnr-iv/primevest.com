@@ -22,14 +22,17 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabase = supabaseUrl && supabaseAnonKey
+    ? createBrowserClient(supabaseUrl, supabaseAnonKey)
+    : null
 
   // Check if user is admin
   const checkAdminStatus = useCallback(async (userId: string): Promise<boolean> => {
     try {
+      if (!supabase) return false
+
       const { data, error } = await supabase
         .from('profiles')
         .select('is_admin')
@@ -52,6 +55,11 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase])
 
   useEffect(() => {
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
+
     // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session)
@@ -85,9 +93,13 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe()
     }
-  }, [supabase.auth, checkAdminStatus])
+  }, [supabase, checkAdminStatus])
 
   const signIn = async (email: string, password: string) => {
+    if (!supabase) {
+      return { error: { message: 'Supabase is not configured' } as AuthError }
+    }
+
     const result = await supabase.auth.signInWithPassword({ email, password })
     
     // Check admin status after sign in
@@ -101,6 +113,8 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
+      if (!supabase) return
+
       const { error } = await supabase.auth.signOut()
       if (error) {
         console.error('Admin sign out error:', error)

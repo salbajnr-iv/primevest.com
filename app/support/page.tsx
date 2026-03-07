@@ -36,7 +36,7 @@ const faqs: FAQItemProps[] = [
   },
   {
     question: "How can I withdraw my funds?",
-    answer: "Go to your Wallet, select the asset you want to withdraw, and tap on 'Withdraw'. Enter the destination address and amount. withdrawals are processed within 24 hours.",
+    answer: "Go to your Wallet, select the asset you want to withdraw, and tap on 'Withdraw'. Enter the destination address and amount. Withdrawals are processed within 24 hours.",
   },
   {
     question: "Is my data secure?",
