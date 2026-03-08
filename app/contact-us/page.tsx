@@ -76,7 +76,7 @@ export default function ContactUsPage() {
     {
       icon: "📧",
       title: "Email",
-      description: "support@bitpandapro.com",
+      description: "support@primevest.com",
       subtitle: "Response within 24 hours",
     },
     {
@@ -94,7 +94,7 @@ export default function ContactUsPage() {
     {
       icon: "🌐",
       title: "Social Media",
-      description: "@BitpandaPro",
+      description: "@PrimeVest",
       subtitle: "Follow us for updates",
     },
   ];
@@ -136,7 +136,7 @@ export default function ContactUsPage() {
               <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" />
               <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className="font-bold text-xl">Bitpanda Pro</span>
+            <span className="font-bold text-xl">PrimeVest</span>
           </Link>
         </div>
       </div>

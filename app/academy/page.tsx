@@ -46,7 +46,7 @@ export default function AcademyPage() {
         </header>
 
         <section className="hero-section" style={{ background: "linear-gradient(135deg, #0f9d58 0%, #0b8043 100%)" }}>
-          <h1 className="hero-title">Bitpanda Academy</h1>
+          <h1 className="hero-title">PrimeVest Academy</h1>
           <p className="hero-subtitle">Master cryptocurrency and trading with expert-led courses</p>
           <div className="hero-stats">
             <div className="hero-stat">
@@ -97,7 +97,7 @@ export default function AcademyPage() {
         </section>
 
         <section className="info-section">
-          <h3 className="section-title">Why Learn with Bitpanda Academy?</h3>
+          <h3 className="section-title">Why Learn with PrimeVest Academy?</h3>
           <div className="features-grid">
             <div className="feature-card">
               <div className="feature-icon">🎓</div>

@@ -245,14 +245,20 @@ export default function NotificationsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [filter, setFilter] = React.useState<"all" | "unread">("all");
   const [notificationsList, setNotificationsList] = React.useState<Notification[]>([]);
-  const supabase = createClient();
+  const hasSupabaseConfig = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+  const supabase = React.useMemo(() => {
+    if (!hasSupabaseConfig) return null;
+    return createClient();
+  }, [hasSupabaseConfig]);
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
 
   React.useEffect(() => {
-    if (authLoading || !authUser) {
+    if (!supabase || authLoading || !authUser) {
       // not signed in or still loading - show nothing or fallback mock
       setNotificationsList(notifications);
       return;
@@ -309,7 +315,7 @@ export default function NotificationsPage() {
 
   const markAllAsRead = async () => {
     setNotificationsList(prev => prev.map(n => ({ ...n, read: true })));
-    if (!authUser) return;
+    if (!authUser || !supabase) return;
     try {
       const { error } = await supabase
         .from('notifications')
@@ -331,7 +337,7 @@ export default function NotificationsPage() {
       );
       
       // Update in the database if user is authenticated
-      if (authUser) {
+      if (authUser && supabase) {
         try {
           const { error } = await supabase
             .from('notifications')

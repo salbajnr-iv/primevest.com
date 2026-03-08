@@ -6,6 +6,7 @@ import { createBrowserClient } from '@supabase/ssr'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import KycReviewModal from '@/app/admin/components/KycReviewModal'
 
+export const dynamic = 'force-dynamic'
 export default function AdminUserDetailPage() {
   const { loading: authLoading } = useAdminAuth()
   const router = useRouter()

@@ -5,6 +5,7 @@ import { createBrowserClient } from '@supabase/ssr'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import KycReviewModal from '@/app/admin/components/KycReviewModal'
 
+export const dynamic = 'force-dynamic'
 interface KycRequestEntry {
   id: string
   user_id: string

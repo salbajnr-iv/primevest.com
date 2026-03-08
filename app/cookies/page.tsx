@@ -106,7 +106,7 @@ export default function CookiesPage() {
             <Link href="/" className="flex items-center group">
               <Image
                 src="/bitpanda-logo.svg"
-                alt="Bitpanda Pro"
+                alt="PrimeVest"
                 width={140}
                 height={35}
                 className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
@@ -313,8 +313,8 @@ export default function CookiesPage() {
               </p>
               
               <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                <p className="text-gray-700 font-medium">Bitpanda Pro</p>
-                <p className="text-gray-600">Email: privacy@bitpandapro.com</p>
+                <p className="text-gray-700 font-medium">PrimeVest</p>
+                <p className="text-gray-600">Email: privacy@primevest.com</p>
                 <p className="text-gray-600">Phone: +1 (555) 123-4567</p>
               </div>
 

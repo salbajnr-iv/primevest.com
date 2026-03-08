@@ -73,7 +73,7 @@ export default function DemoPage() {
                 <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" />
                 <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <span className="font-bold text-xl">Bitpanda Pro</span>
+              <span className="font-bold text-xl">PrimeVest</span>
             </Link>
             <div className="flex items-center gap-4">
               <div className="text-right hidden sm:block">
@@ -274,7 +274,7 @@ export default function DemoPage() {
         <div className="bg-gradient-to-r from-emerald-600/20 to-blue-600/20 border border-emerald-500/30 rounded-lg p-8 text-center">
           <h3 className="text-2xl font-bold text-white mb-4">Ready to Start Real Trading?</h3>
           <p className="text-gray-300 mb-6">
-            Open a live account and start trading with real capital. Join thousands of successful traders on Bitpanda Pro.
+            Open a live account and start trading with real capital. Join thousands of successful traders on PrimeVest.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-3 rounded-lg text-lg font-semibold">

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 
+export const dynamic = 'force-dynamic'
 interface BalanceHistoryEntry {
   id: string
   user_id: string

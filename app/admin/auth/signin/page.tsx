@@ -7,6 +7,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
+export const dynamic = 'force-dynamic'
 export default function AdminSignInPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
