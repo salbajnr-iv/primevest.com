@@ -269,7 +269,7 @@ html {
   margin-left: 2rem;
 }
 
-/* Bitpanda Pro Custom Styles */
+/* PrimeVest Custom Styles */
 :root {
   /* Brand Colors */
   --color-brand-text-primary: #16764d;
@@ -364,7 +364,7 @@ html {
   
   /* Font Family */
   --font-family-default: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-family-bitpanda-compressed: "Bitpanda Compressed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-family-bitpanda-compressed: "PrimeVest Compressed", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-family-fallback: arial;
   
   /* Font Weight */

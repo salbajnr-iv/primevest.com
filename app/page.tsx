@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import BitpandaNavbar from "@/components/BitpandaNavbar";
 import CryptoTicker from "@/components/CryptoTicker";
 
 // Crypto data
@@ -63,7 +62,7 @@ const steps = [
   {
     number: "01",
     title: "Register",
-    description: "Sign up to create your free Bitpanda account.",
+    description: "Sign up to create your free PrimeVest account.",
     image: "https://a.storyblok.com/f/176646/840x1080/4e498da1d7/website_homepage_register_en.png"
   },
   {
@@ -163,7 +162,7 @@ const faqQuestions = [
     icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
   },
   {
-    question: "What are Bitpanda Pro Crypto Indices?",
+    question: "What are PrimeVest Crypto Indices?",
     answer: "Auto-invest in the whole crypto market with a single click using our diversified indices.",
     icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
   },
@@ -173,12 +172,12 @@ const faqQuestions = [
     icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
   },
   {
-    question: "Is Bitpanda Pro regulated?",
+    question: "Is PrimeVest regulated?",
     answer: "Yes, we're Austria-based and European regulated crypto & securities broker platform.",
     icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
   },
   {
-    question: "What is Bitpanda Pro Leverage?",
+    question: "What is PrimeVest Leverage?",
     answer: "Go Long or Short on top cryptocurrencies with up to 10x leverage for amplified positions.",
     icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
   },
@@ -936,7 +935,7 @@ export default function Home() {
                 ),
                 desc: "Optimized for iPhone and iPad",
                 buttonText: "App Store",
-                url: "https://apps.apple.com/app/bitpanda-pro",
+                url: "https://apps.apple.com/app/primevest",
                 color: "from-blue-500 to-blue-600"
               },
               {
@@ -948,7 +947,7 @@ export default function Home() {
                 ),
                 desc: "Download on Google Play",
                 buttonText: "Google Play",
-                url: "https://play.google.com/store/apps/details?id=com.bitpanda.pro",
+                url: "https://play.google.com/store/apps/details?id=com.primevest.pro",
                 color: "from-green-500 to-green-600"
               },
               {

@@ -1,5 +1,22 @@
 # Codebase Issue Tasks
 
+## 0) Highest-priority branding task (PrimeVest migration)
+**Priority:** P0 - Urgent
+
+**Issue found:** User-facing pages still showed legacy Bitpanda branding in headings, metadata, copy, social labels, and contact text.
+
+**Proposed task:**
+- Replace all user-visible `Bitpanda` / `Bitpanda Pro` strings across app pages/components with `PrimeVest`.
+- Ensure metadata and social tags also use `PrimeVest` to keep browser title/snippet branding consistent.
+- Remove redundant/corrupted UI artifacts that can reintroduce stale branding.
+
+**Acceptance criteria:**
+- No UI page renders `Bitpanda` text; all visible branding is `PrimeVest` only.
+- Landing page metadata/title/description use `PrimeVest`.
+- Redundant/corrupted placeholder files are removed from active UI flow.
+
+---
+
 ## 1) Typo fix task
 **Issue found:** In the support FAQ copy, one sentence starts with lowercase “withdrawals” after a period, which is a text typo/grammar issue for user-facing content.
 - Location: `app/support/page.tsx`

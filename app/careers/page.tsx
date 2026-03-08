@@ -159,7 +159,7 @@ export default function CareersPage() {
             <Link href="/" className="flex items-center group">
               <Image
                 src="/bitpanda-logo.svg"
-                alt="Bitpanda Pro"
+                alt="PrimeVest"
                 width={140}
                 height={35}
                 className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
@@ -454,7 +454,7 @@ export default function CareersPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
-                onClick={() => window.location.href = "mailto:careers@bitpandapro.com"} 
+                onClick={() => window.location.href = "mailto:careers@primevest.com"} 
                 className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
               >
                 Contact Recruiting Team
