@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient } from '@/lib/supabase/client'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 
 export const dynamic = 'force-dynamic'
@@ -39,10 +39,7 @@ export default function AdminBalancesPage() {
   const [loading, setLoading] = useState(true)
   const [actionFilter, setActionFilter] = useState<string>('all')
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const supabase = createClient()
 
   useEffect(() => {
     fetchBalanceHistory()
@@ -50,6 +47,14 @@ export default function AdminBalancesPage() {
 
   const fetchBalanceHistory = async () => {
     setLoading(true)
+
+    if (!supabase) {
+      setBalanceHistory([])
+      setPagination(prev => ({ ...prev, total: 0 }))
+      setLoading(false)
+      return
+    }
+
     try {
       const from = (pagination.page - 1) * pagination.limit
       const to = from + pagination.limit - 1
