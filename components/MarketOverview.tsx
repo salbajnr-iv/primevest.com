@@ -33,53 +33,45 @@ export default function MarketOverview({
   fearGreedIndex,
   fearGreedLabel,
 }: MarketOverviewProps) {
-  // Calculate gradient position based on index
   const getFearGreedColor = (index: number) => {
-    if (index < 25) return "#d64545"; // Extreme Fear - Red
-    if (index < 45) return "#ff9800"; // Fear - Orange
-    if (index < 55) return "#ffeb3b"; // Neutral - Yellow
-    if (index < 75) return "#2cec9a"; // Greed - Light Green
-    return "#0f9d58"; // Extreme Greed - Green
+    if (index < 25) return "#d64545";
+    if (index < 45) return "#ff9800";
+    if (index < 55) return "#ffeb3b";
+    if (index < 75) return "#2cec9a";
+    return "#0f9d58";
   };
 
-  const fearGreedColor = getFearGreedColor(fearGreedIndex);
-
-          </div>
-        </div>
+  return (
+    <section className="market-overview grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="rounded-lg border p-4">
+        <p className="text-xs text-muted-foreground">Market Cap</p>
+        <p className="text-xl font-semibold">{marketCap}</p>
+        <p className="text-sm text-green-600">{marketCapChange}</p>
       </div>
 
-      <div className="market-movers">
-        <div className="mover-card gainer">
-          <div className="mover-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M23 6l-9.5 9.5-5-5L1 18" />
-              <path d="M17 6h6v6" />
-            </svg>
-            <span>Top Gainer</span>
-          </div>
-          <div className="mover-content">
-            <span className="mover-name">{topGainer.name}</span>
-            <span className="mover-symbol">{topGainer.symbol}</span>
-            <span className="mover-change positive">▲ {topGainer.change}</span>
-          </div>
-        </div>
+      <div className="rounded-lg border p-4">
+        <p className="text-xs text-muted-foreground">24h Volume</p>
+        <p className="text-xl font-semibold">{volume24h}</p>
+        <p className="text-sm text-green-600">{volumeChange}</p>
+      </div>
 
-        <div className="mover-card loser">
-          <div className="mover-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M23 18l-9.5-9.5-5 5L1 6" />
-              <path d="M17 18h6v-6" />
-            </svg>
-            <span>Top Loser</span>
-          </div>
-          <div className="mover-content">
-            <span className="mover-name">{topLoser.name}</span>
-            <span className="mover-symbol">{topLoser.symbol}</span>
-            <span className="mover-change negative">▼ {topLoser.change}</span>
-          </div>
-        </div>
+      <div className="rounded-lg border p-4">
+        <p className="text-xs text-muted-foreground">Top Movers</p>
+        <p className="text-sm">
+          <span className="font-medium">Gainer:</span> {topGainer.name} ({topGainer.symbol}) {topGainer.change}
+        </p>
+        <p className="text-sm">
+          <span className="font-medium">Loser:</span> {topLoser.name} ({topLoser.symbol}) {topLoser.change}
+        </p>
+      </div>
+
+      <div className="rounded-lg border p-4">
+        <p className="text-xs text-muted-foreground">Sentiment</p>
+        <p className="text-sm">BTC Dominance: {btcDominance}</p>
+        <p className="text-sm">
+          Fear &amp; Greed: <span style={{ color: getFearGreedColor(fearGreedIndex) }}>{fearGreedIndex}</span> ({fearGreedLabel})
+        </p>
       </div>
     </section>
   );
 }
-
