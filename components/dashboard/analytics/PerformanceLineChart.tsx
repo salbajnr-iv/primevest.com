@@ -6,7 +6,7 @@ import { dashboardTokens } from "./types";
 
 interface Point { label: string; value: number; }
 
-function FocusDot(props: DotProps & { onActivate: (name: string | null) => void; label?: string; value?: number }) {
+function FocusDot(props: DotProps & { onActivate: (point: Point | null) => void; label?: string; value?: number }) {
   const { cx, cy, onActivate, label, value } = props;
   if (typeof cx !== "number" || typeof cy !== "number") return null;
 
@@ -19,7 +19,7 @@ function FocusDot(props: DotProps & { onActivate: (name: string | null) => void;
       stroke="#fff"
       strokeWidth={2}
       tabIndex={0}
-      onFocus={() => onActivate(label ?? null)}
+      onFocus={() => onActivate(label ? { label, value: Number(value ?? 0) } : null)}
       onBlur={() => onActivate(null)}
       aria-label={`${label} performance ${value}`}
       role="img"
@@ -28,7 +28,7 @@ function FocusDot(props: DotProps & { onActivate: (name: string | null) => void;
 }
 
 export default function PerformanceLineChart({ title, data }: { title: string; data: Point[] }) {
-  const [active, setActive] = useState<string | null>(null);
+  const [active, setActive] = useState<Point | null>(null);
 
   return (
     <section className="rounded-2xl p-4" style={{ border: `1px solid ${dashboardTokens.border}`, background: dashboardTokens.panel }}>
@@ -51,7 +51,7 @@ export default function PerformanceLineChart({ title, data }: { title: string; d
           </LineChart>
         </ResponsiveContainer>
       </div>
-      {active ? <p className="mt-2 text-xs" style={{ color: dashboardTokens.textMuted }}>Focused datapoint: {active}</p> : null}
+      {active ? <p className="mt-2 text-xs" style={{ color: dashboardTokens.textMuted }}>{active.label}: {active.value}</p> : null}
     </section>
   );
 }

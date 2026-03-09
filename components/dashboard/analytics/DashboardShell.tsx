@@ -8,15 +8,17 @@ export default function DashboardShell({
   title,
   subtitle,
   children,
+  header = { userName: "User", portfolioValue: "12,540.50 €", portfolioChange: "+2.41%", notificationCount: 3 },
 }: {
   title: string;
   subtitle?: string;
   children: ReactNode;
+  header?: { userName?: string; portfolioValue?: string; portfolioChange?: string; notificationCount?: number };
 }) {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader userName="User" portfolioValue="12,540.50 €" portfolioChange="+2.41%" notificationCount={3} />
+        <DashboardHeader {...header} />
         <main className="space-y-4 pb-20">
           <header className="rounded-2xl border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
             <h1 className="text-xl font-semibold">{title}</h1>

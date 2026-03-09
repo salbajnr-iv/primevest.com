@@ -7,7 +7,7 @@ import { dashboardTokens } from "./types";
 export interface BarDatum { label: string; value: number; }
 
 export default function MetricsBarChart({ title, data }: { title: string; data: BarDatum[] }) {
-  const [active, setActive] = useState<string | null>(null);
+  const [active, setActive] = useState<BarDatum | null>(null);
 
   return (
     <section className="rounded-2xl p-4" style={{ border: `1px solid ${dashboardTokens.border}`, background: dashboardTokens.panel }}>
@@ -23,20 +23,26 @@ export default function MetricsBarChart({ title, data }: { title: string; data: 
               {data.map((entry) => (
                 <Cell
                   key={entry.label}
-                  fill={active === entry.label ? "#16a34a" : "#22c55e"}
+                  fill={active?.label === entry.label ? "#16a34a" : "#22c55e"}
                   tabIndex={0}
                   role="button"
                   aria-label={`${entry.label} metric ${entry.value}`}
-                  onFocus={() => setActive(entry.label)}
-                  onMouseEnter={() => setActive(entry.label)}
+                  onFocus={() => setActive(entry)}
+                  onMouseEnter={() => setActive(entry)}
                   onBlur={() => setActive(null)}
                   onMouseLeave={() => setActive(null)}
+                  title={`${entry.label}: ${entry.value}`}
                 />
               ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
+      {active ? (
+        <p className="mt-2 text-xs" style={{ color: dashboardTokens.textMuted }}>
+          {active.label}: {active.value}
+        </p>
+      ) : null}
     </section>
   );
 }

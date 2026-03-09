@@ -7,7 +7,7 @@ import { dashboardTokens } from "./types";
 interface PieDatum { name: string; value: number; color: string; }
 
 export default function AllocationPieChart({ title, data }: { title: string; data: PieDatum[] }) {
-  const [active, setActive] = useState<string | null>(null);
+  const [active, setActive] = useState<PieDatum | null>(null);
 
   return (
     <section className="rounded-2xl p-4" style={{ border: `1px solid ${dashboardTokens.border}`, background: dashboardTokens.panel }}>
@@ -20,13 +20,16 @@ export default function AllocationPieChart({ title, data }: { title: string; dat
                 <Cell
                   key={entry.name}
                   fill={entry.color}
-                  stroke={active === entry.name ? "#111" : "transparent"}
+                  stroke={active?.name === entry.name ? "#111" : "transparent"}
                   strokeWidth={2}
                   tabIndex={0}
                   role="button"
                   aria-label={`${entry.name} allocation ${entry.value} percent`}
-                  onFocus={() => setActive(entry.name)}
+                  onFocus={() => setActive(entry)}
+                  onMouseEnter={() => setActive(entry)}
                   onBlur={() => setActive(null)}
+                  onMouseLeave={() => setActive(null)}
+                  title={`${entry.name}: ${entry.value}%`}
                 />
               ))}
             </Pie>
@@ -34,6 +37,11 @@ export default function AllocationPieChart({ title, data }: { title: string; dat
           </PieChart>
         </ResponsiveContainer>
       </div>
+      {active ? (
+        <p className="mt-2 text-xs" style={{ color: dashboardTokens.textMuted }}>
+          {active.name}: {active.value}%
+        </p>
+      ) : null}
     </section>
   );
 }
