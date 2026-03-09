@@ -21,6 +21,13 @@ const networkFee: Record<Currency, number> = {
   USDT: 2,
 };
 
+const amountPrecision: Record<Currency, number> = {
+  EUR: 2,
+  USDT: 2,
+  BTC: 6,
+  ETH: 6,
+};
+
 export default function WithdrawPage() {
   const [step, setStep] = React.useState<"form" | "review" | "success">("form");
   const [currency, setCurrency] = React.useState<Currency>("EUR");
@@ -35,6 +42,11 @@ export default function WithdrawPage() {
   const hasFunds = parsedAmount > 0 && parsedAmount <= availableBalances[currency];
   const hasDestination = destination.trim().length >= 8;
   const canContinue = hasFunds && hasDestination;
+
+  const formatAmount = (value: number, curr: Currency) => {
+    const precision = amountPrecision[curr];
+    return `${value.toFixed(precision)} ${curr}`;
+  };
 
   function submitWithdrawal() {
     setIsProcessing(true);
@@ -83,7 +95,7 @@ export default function WithdrawPage() {
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="0.00"
                   />
-                  <div className="balance-hint">Available: {availableBalances[currency]} {currency}</div>
+                  <div className="balance-hint">Available: {formatAmount(availableBalances[currency], currency)}</div>
                 </div>
 
                 <div className="form-group">
@@ -98,9 +110,9 @@ export default function WithdrawPage() {
                 </div>
 
                 <div className="price-estimate">
-                  <div className="price-estimate-row"><span className="price-estimate-label">Amount</span><span className="price-estimate-value">{parsedAmount || 0} {currency}</span></div>
-                  <div className="price-estimate-row"><span className="price-estimate-label">Network/processing fee</span><span className="price-estimate-value">{fee} {currency}</span></div>
-                  <div className="price-estimate-row" style={{ borderTop: "none", paddingTop: 0 }}><span className="price-estimate-label" style={{ fontWeight: 600 }}>Estimated payout</span><span className="price-estimate-value highlight">{payout.toFixed(currency === "EUR" || currency === "USDT" ? 2 : 6)} {currency}</span></div>
+                  <div className="price-estimate-row"><span className="price-estimate-label">Amount</span><span className="price-estimate-value">{formatAmount(parsedAmount || 0, currency)}</span></div>
+                  <div className="price-estimate-row"><span className="price-estimate-label">Network/processing fee</span><span className="price-estimate-value">{formatAmount(fee, currency)}</span></div>
+                  <div className="price-estimate-row" style={{ borderTop: "none", paddingTop: 0 }}><span className="price-estimate-label" style={{ fontWeight: 600 }}>Estimated payout</span><span className="price-estimate-value highlight">{formatAmount(payout, currency)}</span></div>
                 </div>
 
                 <button className="order-button sell" disabled={!canContinue} onClick={() => setStep("review")}>
@@ -114,9 +126,9 @@ export default function WithdrawPage() {
                 <div className="price-estimate">
                   <div className="price-estimate-row"><span className="price-estimate-label">Currency</span><span className="price-estimate-value">{currency}</span></div>
                   <div className="price-estimate-row"><span className="price-estimate-label">Destination</span><span className="price-estimate-value">{destination}</span></div>
-                  <div className="price-estimate-row"><span className="price-estimate-label">Amount</span><span className="price-estimate-value">{parsedAmount} {currency}</span></div>
-                  <div className="price-estimate-row"><span className="price-estimate-label">Fee</span><span className="price-estimate-value">{fee} {currency}</span></div>
-                  <div className="price-estimate-row" style={{ borderTop: "none", paddingTop: 0 }}><span className="price-estimate-label" style={{ fontWeight: 600 }}>Payout</span><span className="price-estimate-value highlight">{payout.toFixed(currency === "EUR" || currency === "USDT" ? 2 : 6)} {currency}</span></div>
+                  <div className="price-estimate-row"><span className="price-estimate-label">Amount</span><span className="price-estimate-value">{formatAmount(parsedAmount, currency)}</span></div>
+                  <div className="price-estimate-row"><span className="price-estimate-label">Fee</span><span className="price-estimate-value">{formatAmount(fee, currency)}</span></div>
+                  <div className="price-estimate-row" style={{ borderTop: "none", paddingTop: 0 }}><span className="price-estimate-label" style={{ fontWeight: 600 }}>Payout</span><span className="price-estimate-value highlight">{formatAmount(payout, currency)}</span></div>
                 </div>
                 <div style={{ display: "flex", gap: 12 }}>
                   <button className="btn" onClick={() => setStep("form")}>Back</button>
@@ -135,7 +147,7 @@ export default function WithdrawPage() {
                 <p className="balance-hint" style={{ marginBottom: 12 }}>Track status in transaction history.</p>
                 <div className="price-estimate">
                   <div className="price-estimate-row"><span className="price-estimate-label">Currency</span><span className="price-estimate-value">{currency}</span></div>
-                  <div className="price-estimate-row"><span className="price-estimate-label">Payout</span><span className="price-estimate-value">{payout.toFixed(currency === "EUR" || currency === "USDT" ? 2 : 6)} {currency}</span></div>
+                  <div className="price-estimate-row"><span className="price-estimate-label">Payout</span><span className="price-estimate-value">{formatAmount(payout, currency)}</span></div>
                 </div>
                 <Link href="/wallets" className="order-button sell" style={{ textAlign: "center" }}>
                   <Wallet size={16} style={{ marginRight: 8 }} /> Back to Wallets
