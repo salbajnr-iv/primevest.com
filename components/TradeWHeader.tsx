@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
+import { TRADEW_HEADER_NAV_ITEMS } from "@/app/dashboard/_config/routes";
 
 interface TradeWHeaderProps {
   activeTab?: string;
@@ -49,36 +50,15 @@ const TradeWHeader: React.FC<TradeWHeaderProps> = ({ activeTab = "overview" }) =
 
         {/* Navigation */}
         <nav className="tradew-nav">
-          <Link 
-            href="/dashboard" 
-            className={`tradew-nav-item ${activeTab === "overview" ? "active" : ""}`}
-          >
-            Overview
-          </Link>
-          <Link 
-            href="/dashboard/markets" 
-            className={`tradew-nav-item ${activeTab === "markets" ? "active" : ""}`}
-          >
-            Markets
-          </Link>
-          <Link 
-            href="/dashboard/trade" 
-            className={`tradew-nav-item ${activeTab === "trade" ? "active" : ""}`}
-          >
-            Trade
-          </Link>
-          <Link 
-            href="/dashboard/portfolio" 
-            className={`tradew-nav-item ${activeTab === "portfolio" ? "active" : ""}`}
-          >
-            Portfolio
-          </Link>
-          <Link 
-            href="/dashboard/wallet" 
-            className={`tradew-nav-item ${activeTab === "wallet" ? "active" : ""}`}
-          >
-            Wallet
-          </Link>
+          {TRADEW_HEADER_NAV_ITEMS.map((item) => (
+            <Link
+              key={item.id}
+              href={item.path}
+              className={`tradew-nav-item ${activeTab === item.id ? "active" : ""}`}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         {/* User Area */}
@@ -109,41 +89,16 @@ const TradeWHeader: React.FC<TradeWHeaderProps> = ({ activeTab = "overview" }) =
       {isMenuOpen && (
         <div className="mobile-nav-menu">
           <nav className="mobile-nav">
-            <Link 
-              href="/dashboard" 
-              className={`tradew-nav-item ${activeTab === "overview" ? "active" : ""}`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Overview
-            </Link>
-            <Link 
-              href="/dashboard/markets" 
-              className={`tradew-nav-item ${activeTab === "markets" ? "active" : ""}`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Markets
-            </Link>
-            <Link 
-              href="/dashboard/trade" 
-              className={`tradew-nav-item ${activeTab === "trade" ? "active" : ""}`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Trade
-            </Link>
-            <Link 
-              href="/dashboard/portfolio" 
-              className={`tradew-nav-item ${activeTab === "portfolio" ? "active" : ""}`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Portfolio
-            </Link>
-            <Link 
-              href="/dashboard/wallet" 
-              className={`tradew-nav-item ${activeTab === "wallet" ? "active" : ""}`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Wallet
-            </Link>
+            {TRADEW_HEADER_NAV_ITEMS.map((item) => (
+              <Link
+                key={item.id}
+                href={item.path}
+                className={`tradew-nav-item ${activeTab === item.id ? "active" : ""}`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </div>
       )}

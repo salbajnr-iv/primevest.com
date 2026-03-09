@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import AuthLogo from '@/components/AuthLogo'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -83,12 +84,7 @@ export default function SignUpPage() {
 
       <Card className="w-full max-w-sm sm:max-w-md shadow-lg border-gray-200 bg-white">
         <CardHeader className="space-y-1 text-center pb-6">
-          <div className="w-16 h-16 mx-auto mb-4">
-            <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
-              <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#10b981"/>
-              <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
+          <AuthLogo />
           <CardTitle className="text-2xl font-bold text-gray-900">Create an account</CardTitle>
           <CardDescription className="text-gray-600">
             Join millions of users on PrimeVest
