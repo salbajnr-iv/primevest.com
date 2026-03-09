@@ -236,6 +236,14 @@ const restoredStepImages = [
   "/vectors/expertise-parking.svg"
 ];
 
+
+const trustMetrics = [
+  { label: "Active Traders", value: "2.5M+" },
+  { label: "Instruments", value: "5,000+" },
+  { label: "Avg. Execution", value: "< 60ms" },
+  { label: "Support", value: "24/7" }
+];
+
 export default function Home() {
   const router = useRouter();
 
@@ -530,6 +538,20 @@ export default function Home() {
                   <span className="text-sm text-emerald-50 font-medium group-hover:text-emerald-200 transition-colors">60-second deposits</span>
                 </div>
               </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="grid grid-cols-2 md:grid-cols-4 gap-3"
+              >
+                {trustMetrics.map((metric) => (
+                  <div key={metric.label} className="rounded-xl border border-white/20 bg-black/35 backdrop-blur-sm px-3 py-2">
+                    <p className="text-xs text-emerald-100/80">{metric.label}</p>
+                    <p className="text-sm font-semibold text-white">{metric.value}</p>
+                  </div>
+                ))}
+              </motion.div>
             </motion.div>
 
             {/* Right Image - Trading Dashboard Preview */}
@@ -673,7 +695,7 @@ export default function Home() {
           <motion.div variants={fadeInUp} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-2 space-y-4">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">PrimeVest Vision</p>
-              <h2 className="text-heading font-bold text-gray-900">Future-proof investments for modern cities and markets</h2>
+              <h2 className="text-heading font-bold text-gray-900">Future-proof investing for modern cities and global markets</h2>
               <p className="text-body text-gray-600 max-w-3xl">
                 Inspired by the Primevest Capital Partners entry page, we added a clearer institutional-style introduction to highlight
                 long-term urban themes alongside your trading and investment platform experience.
@@ -1263,8 +1285,8 @@ export default function Home() {
               <ul className="space-y-3">
                 <li><Link href="/contact-us" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Contact</Link></li>
                 <li><Link href="/support" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Support</Link></li>
-                <li><a href="#" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Blog</a></li>
-                <li><a href="#" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Careers</a></li>
+                <li><Link href="/blog" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Blog</Link></li>
+                <li><Link href="/careers" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Careers</Link></li>
               </ul>
             </div>
 
