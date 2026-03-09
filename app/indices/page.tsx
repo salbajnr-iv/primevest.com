@@ -2,12 +2,13 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import BottomNav from "@/components/BottomNav";
 
 const indicesData = [
-  { id: "bci", name: "Bitpanda Crypto Index", symbol: "BCI", price: 125.45, change24h: 2.15, marketCap: 85000000, description: "Top 10 cryptocurrencies by market cap", holdings: ["BTC", "ETH", "BNB", "SOL", "XRP", "ADA", "DOGE", "DOT", "AVAX", "LINK"] },
-  { id: "bci20", name: "Bitpanda Crypto Index 20", symbol: "BCI20", price: 98.30, change24h: 1.85, marketCap: 45000000, description: "Top 20 cryptocurrencies by market cap", holdings: ["BTC", "ETH", "BNB", "SOL", "XRP", "ADA", "DOGE", "DOT", "AVAX", "LINK", "MATIC", "LTC", "UNI", "ATOM", "XLM", "ALGO", "VET", "FIL", "THETA", "AAVE"] },
-  { id: "bci50", name: "Bitpanda Crypto Index 50", symbol: "BCI50", price: 78.90, change24h: 1.45, marketCap: 32000000, description: "Top 50 cryptocurrencies by market cap", holdings: ["BTC", "ETH", "BNB", "SOL", "XRP", "ADA", "DOGE", "DOT", "AVAX", "LINK", "MATIC", "LTC", "UNI", "ATOM", "XLM", "ALGO", "VET", "FIL", "THETA", "AAVE", "EOS", "XTZ", "FLOW", "CHZ", "MANA", "SAND", "AXS", "GALA", "ENJ", "BAT", "ZEC", "DASH", "ZRX", "COMP", "SNX", "YFI", "MKR", "SUSHI", "CRV", "RUNE", "ONE", "ZIL", "NEAR", "FTM", "ALICE", "SOL", "QNT", "GRT", "HBAR", "NEO", "KAVA", "ROSE"] },
+  { id: "bci", name: "PrimeVest Crypto Index", symbol: "BCI", price: 125.45, change24h: 2.15, marketCap: 85000000, description: "Top 10 cryptocurrencies by market cap", holdings: ["BTC", "ETH", "BNB", "SOL", "XRP", "ADA", "DOGE", "DOT", "AVAX", "LINK"] },
+  { id: "bci20", name: "PrimeVest Crypto Index 20", symbol: "BCI20", price: 98.30, change24h: 1.85, marketCap: 45000000, description: "Top 20 cryptocurrencies by market cap", holdings: ["BTC", "ETH", "BNB", "SOL", "XRP", "ADA", "DOGE", "DOT", "AVAX", "LINK", "MATIC", "LTC", "UNI", "ATOM", "XLM", "ALGO", "VET", "FIL", "THETA", "AAVE"] },
+  { id: "bci50", name: "PrimeVest Crypto Index 50", symbol: "BCI50", price: 78.90, change24h: 1.45, marketCap: 32000000, description: "Top 50 cryptocurrencies by market cap", holdings: ["BTC", "ETH", "BNB", "SOL", "XRP", "ADA", "DOGE", "DOT", "AVAX", "LINK", "MATIC", "LTC", "UNI", "ATOM", "XLM", "ALGO", "VET", "FIL", "THETA", "AAVE", "EOS", "XTZ", "FLOW", "CHZ", "MANA", "SAND", "AXS", "GALA", "ENJ", "BAT", "ZEC", "DASH", "ZRX", "COMP", "SNX", "YFI", "MKR", "SUSHI", "CRV", "RUNE", "ONE", "ZIL", "NEAR", "FTM", "ALICE", "SOL", "QNT", "GRT", "HBAR", "NEO", "KAVA", "ROSE"] },
   { id: "defi", name: "DeFi Index", symbol: "DEFI", price: 45.20, change24h: 3.25, marketCap: 18000000, description: "Leading DeFi tokens", holdings: ["UNI", "AAVE", "MKR", "COMP", "SNX", "SUSHI", "CRV", "YFI", "BAL", "REN"] },
   { id: "metaverse", name: "Metaverse Index", symbol: "META", price: 32.80, change24h: -1.45, marketCap: 12000000, description: "Top metaverse and gaming tokens", holdings: ["MANA", "SAND", "AXS", "GALA", "ENJ", "ALICE", "ILV", "YGG", "MAGIC", "BLUR"] },
 ];
@@ -36,7 +37,7 @@ export default function IndicesPage() {
           </div>
         </header>
 
-        <section className="hero-section">
+        <section className="hero-section" style={{ backgroundImage: "url(/vectors/bg-indices.svg)", backgroundSize: "cover", backgroundPosition: "center", border: "1px solid rgba(255,255,255,0.08)" }}>
           <h1 className="hero-title">Crypto Indices</h1>
           <p className="hero-subtitle">The world&apos;s first real crypto indices</p>
           <div className="hero-stats">
@@ -87,21 +88,21 @@ export default function IndicesPage() {
         <section className="info-section">
           <h3 className="section-title">Why invest in Crypto Indices?</h3>
           <div className="info-card">
-            <div className="info-icon">🎯</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-diversify.svg" alt="instant diversification" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Instant Diversification</h4>
               <p>Get exposure to multiple cryptocurrencies with a single trade.</p>
             </div>
           </div>
           <div className="info-card">
-            <div className="info-icon">📊</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-analytics.svg" alt="automatic rebalancing" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Automatic Rebalancing</h4>
               <p>Indices are automatically rebalanced to maintain optimal allocation.</p>
             </div>
           </div>
           <div className="info-card">
-            <div className="info-icon">🛡️</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-shield.svg" alt="reduced risk" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Reduced Risk</h4>
               <p>Spread your investment across multiple assets to reduce volatility.</p>

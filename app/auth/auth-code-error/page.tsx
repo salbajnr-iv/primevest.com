@@ -49,7 +49,7 @@ export default function AuthCodeErrorPage() {
           <div className="text-center text-sm text-gray-600">
             <p>Need help?{' '}</p>
             <a
-              href="mailto:support@bitpanda.com"
+              href="mailto:support@primevest.com"
               className="text-green-800 hover:text-green-900 hover:underline font-medium transition-colors"
             >
               Contact Support

@@ -69,7 +69,7 @@ export default function PrivacyPage() {
             <p>
               If you have any questions about this Privacy Policy, please contact us at:
               <br />
-              Email: privacy@bitpandapro.com
+              Email: privacy@primevest.com
             </p>
           </section>
 

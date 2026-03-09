@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import BottomNav from "@/components/BottomNav";
 
 const commoditiesData = [
@@ -45,7 +46,7 @@ export default function CommoditiesPage() {
           </div>
         </header>
 
-        <section className="hero-section">
+        <section className="hero-section" style={{ backgroundImage: "url(/vectors/bg-commodities.svg)", backgroundSize: "cover", backgroundPosition: "center", border: "1px solid rgba(255,255,255,0.08)" }}>
           <h1 className="hero-title">Invest in Commodities*</h1>
           <p className="hero-subtitle">Trade commodities 24/7 with competitive spreads</p>
           <div className="hero-stats">
@@ -96,21 +97,21 @@ export default function CommoditiesPage() {
         <section className="info-section">
           <h3 className="section-title">Why trade Commodities?</h3>
           <div className="info-card">
-            <div className="info-icon">🌍</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-diversify.svg" alt="global market access" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Global Market Access</h4>
               <p>Access commodity markets from anywhere, anytime.</p>
             </div>
           </div>
           <div className="info-card">
-            <div className="info-icon">📈</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-analytics.svg" alt="inflation hedge" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Hedge Against Inflation</h4>
               <p>Commodities often serve as a hedge against inflation.</p>
             </div>
           </div>
           <div className="info-card">
-            <div className="info-icon">⚡</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-bolt.svg" alt="leverage trading" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Leverage Trading</h4>
               <p>Trade with leverage to amplify your potential returns.</p>

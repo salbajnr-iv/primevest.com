@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import BitpandaNavbar from "@/components/BitpandaNavbar";
+import PrimeVestNavbar from "@/components/PrimeVestNavbar";
 import CryptoTicker from "@/components/CryptoTicker";
 
 // Crypto data
@@ -63,7 +63,7 @@ const steps = [
   {
     number: "01",
     title: "Register",
-    description: "Sign up to create your free Bitpanda account.",
+    description: "Sign up to create your free PrimeVest account.",
     image: "https://a.storyblok.com/f/176646/840x1080/4e498da1d7/website_homepage_register_en.png"
   },
   {
@@ -163,7 +163,7 @@ const faqQuestions = [
     icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
   },
   {
-    question: "What are Bitpanda Pro Crypto Indices?",
+    question: "What are PrimeVest Crypto Indices?",
     answer: "Auto-invest in the whole crypto market with a single click using our diversified indices.",
     icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
   },
@@ -173,12 +173,12 @@ const faqQuestions = [
     icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
   },
   {
-    question: "Is Bitpanda Pro regulated?",
+    question: "Is PrimeVest regulated?",
     answer: "Yes, we're Austria-based and European regulated crypto & securities broker platform.",
     icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
   },
   {
-    question: "What is Bitpanda Pro Leverage?",
+    question: "What is PrimeVest Leverage?",
     answer: "Go Long or Short on top cryptocurrencies with up to 10x leverage for amplified positions.",
     icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
   },
@@ -187,6 +187,53 @@ const faqQuestions = [
     answer: "Reach our support team through the Helpdesk or contact form available 24/7.",
     icon: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
   }
+];
+
+
+const primevestExpertises = [
+  {
+    title: "Parking & Mobility",
+    description:
+      "Focus on infrastructure and mobility solutions that keep growing cities efficient and connected.",
+    href: "/markets",
+    image: "/vectors/expertise-parking.svg"
+  },
+  {
+    title: "Urban & Student Living",
+    description:
+      "Exposure to resilient housing themes and urban demand across major European growth corridors.",
+    href: "/reports",
+    image: "/vectors/expertise-urban.svg"
+  },
+  {
+    title: "Connectivity & Data",
+    description:
+      "Invest where digital infrastructure and data capacity meet long-term structural demand.",
+    href: "/tools/analysis",
+    image: "/vectors/expertise-connectivity.svg"
+  }
+];
+
+const primevestHighlights = [
+  { value: "9", label: "Funds" },
+  { value: "€ 3.2", label: "bn. AuM" },
+  { value: "12", label: "Countries in Europe" }
+];
+
+const restoredCardImages = [
+  "/vectors/expertise-connectivity.svg",
+  "/vectors/expertise-urban.svg",
+  "/vectors/expertise-parking.svg",
+  "/vectors/bg-indices.svg",
+  "/vectors/bg-metals.svg",
+  "/vectors/bg-stocks.svg"
+];
+
+const restoredStepImages = [
+  "/vectors/hero-market-green.svg",
+  "/vectors/expertise-connectivity.svg",
+  "/vectors/expertise-urban.svg",
+  "/vectors/expertise-parking.svg"
 ];
 
 export default function Home() {
@@ -412,6 +459,7 @@ export default function Home() {
         animate="animate"
         variants={staggerContainer}
         className="relative py-20 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 border-b border-gray-200 overflow-hidden section-padding"
+        style={{ backgroundImage: "url(/website_homepage_header%20(1).webp)", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         {/* Animated background elements */}
         <div className="absolute inset-0">
@@ -420,6 +468,7 @@ export default function Home() {
         </div>
         
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div className="absolute inset-0 bg-black/55"></div>
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left Content */}
@@ -432,7 +481,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="text-display font-bold leading-tight bg-linear-to-r from-gray-900 via-emerald-600 to-emerald-700 bg-clip-text text-transparent transition-professional"
+                  className="text-display font-bold leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)] transition-professional"
                 >
                   Trade Forex, Stocks, Crypto & More
                 </motion.h1>
@@ -440,7 +489,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="text-body text-gray-600 max-w-lg transition-professional"
+                  className="text-body text-emerald-50 max-w-lg transition-professional"
                 >
                   Join millions of traders on the world&apos;s leading trading platform. Access 300+ financial instruments with ultra-low spreads and fast execution.
                 </motion.p>
@@ -472,13 +521,13 @@ export default function Home() {
                 transition={{ delay: 0.7 }}
                 className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6"
               >
-                <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200 shadow-sm group hover:shadow-md transition-all duration-300 transition-professional">
+                <div className="flex items-center gap-3 bg-black/40 backdrop-blur-sm rounded-xl p-4 border border-emerald-300/30 shadow-sm group hover:shadow-md transition-all duration-300 transition-professional">
                   <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse group-hover:animate-ping"></div>
-                  <span className="text-sm text-gray-700 font-medium group-hover:text-emerald-600 transition-colors">Spreads from 0.0 pips</span>
+                  <span className="text-sm text-emerald-50 font-medium group-hover:text-emerald-200 transition-colors">Spreads from 0.0 pips</span>
                 </div>
-                <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200 shadow-sm group hover:shadow-md transition-all duration-300 transition-professional">
+                <div className="flex items-center gap-3 bg-black/40 backdrop-blur-sm rounded-xl p-4 border border-emerald-300/30 shadow-sm group hover:shadow-md transition-all duration-300 transition-professional">
                   <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse group-hover:animate-ping"></div>
-                  <span className="text-sm text-gray-700 font-medium group-hover:text-emerald-600 transition-colors">60-second deposits</span>
+                  <span className="text-sm text-emerald-50 font-medium group-hover:text-emerald-200 transition-colors">60-second deposits</span>
                 </div>
               </motion.div>
             </motion.div>
@@ -558,6 +607,137 @@ export default function Home() {
         </div>
       </motion.section>
 
+
+      {/* Restored Entry Sections */}
+      <motion.section
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+        className="py-20 px-4 md:px-8 bg-white border-b border-gray-200 section-padding"
+      >
+        <div className="max-w-7xl mx-auto">
+          <motion.div variants={fadeInUp} className="text-center mb-12">
+            <h2 className="text-heading font-bold text-gray-900 mb-4">Explore Investment Options</h2>
+            <p className="text-body text-gray-600">Choose from crypto, stocks, ETFs, commodities, indices, and metals.</p>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {investmentOptions.map((item, idx) => (
+              <motion.div key={item.title} variants={fadeInUp} transition={{ delay: idx * 0.06 }}>
+                <Link href={item.link} className="group block rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
+                  <Image src={restoredCardImages[idx % restoredCardImages.length]} alt={item.title} width={960} height={600} className="h-40 w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="p-5">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">{item.title}</h3>
+                    <p className="text-sm text-gray-600">{item.description}</p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      <motion.section
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+        className="py-20 px-4 md:px-8 bg-gray-50 border-b border-gray-200 section-padding"
+      >
+        <div className="max-w-7xl mx-auto">
+          <motion.div variants={fadeInUp} className="text-center mb-12">
+            <h2 className="text-heading font-bold text-gray-900 mb-4">Get Started in 4 Steps</h2>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            {steps.map((step) => (
+              <motion.div key={step.number} variants={fadeInUp} className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm">
+                <Image src={restoredStepImages[(Number(step.number) - 1) % restoredStepImages.length]} alt={step.title} width={840} height={1080} className="h-48 w-full object-cover" />
+                <div className="p-5">
+                  <p className="text-sm font-bold text-emerald-600 mb-1">Step {step.number}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{step.title}</h3>
+                  <p className="text-sm text-gray-600">{step.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+
+      {/* PrimeVest Entrypage-Inspired Sections */}
+      <motion.section
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+        className="py-20 px-4 md:px-8 bg-white border-b border-gray-200 section-padding"
+      >
+        <div className="max-w-7xl mx-auto space-y-16">
+          <motion.div variants={fadeInUp} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div className="lg:col-span-2 space-y-4">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">PrimeVest Vision</p>
+              <h2 className="text-heading font-bold text-gray-900">Future-proof investments for modern cities and markets</h2>
+              <p className="text-body text-gray-600 max-w-3xl">
+                Inspired by the Primevest Capital Partners entry page, we added a clearer institutional-style introduction to highlight
+                long-term urban themes alongside your trading and investment platform experience.
+              </p>
+            </div>
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
+              <p className="text-sm text-emerald-700 font-semibold mb-2">PrimeVest Capital</p>
+              <p className="text-sm text-emerald-900 leading-relaxed">
+                We combine active market access with long-term opportunities in mobility, housing, and digital infrastructure.
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div variants={fadeInUp}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">Investment Expertises</h3>
+              <Link href="/markets" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700">View all →</Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {primevestExpertises.map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                >
+                  <div className="mb-4 overflow-hidden rounded-xl border border-gray-200">
+                    <Image src={item.image} alt={item.title} width={800} height={500} className="h-36 w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  </div>
+                  <h4 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">{item.title}</h4>
+                  <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div variants={fadeInUp} className="bg-gray-900 rounded-3xl p-8 md:p-10">
+            <p className="text-center text-gray-300 text-sm mb-8">PrimeVest at a glance</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+              {primevestHighlights.map((item) => (
+                <div key={item.label} className="text-center">
+                  <p className="text-4xl font-bold text-white mb-2">{item.value}</p>
+                  <p className="text-emerald-300">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div variants={fadeInUp} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="rounded-2xl border border-gray-200 p-6 bg-gray-50">
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600 mb-2">Latest News</p>
+              <h4 className="text-xl font-semibold text-gray-900 mb-2">Sustainability report insights</h4>
+              <p className="text-sm text-gray-600 mb-4">Explore PrimeVest updates focused on resilient portfolios and future-ready investing themes.</p>
+              <Link href="/blog" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700">Read News →</Link>
+            </div>
+            <div className="rounded-2xl border border-gray-200 p-6 bg-gray-50">
+              <p className="text-xs font-semibold uppercase tracking-wide text-cyan-600 mb-2">Featured Project</p>
+              <h4 className="text-xl font-semibold text-gray-900 mb-2">Connectivity & data opportunities</h4>
+              <p className="text-sm text-gray-600 mb-4">Track high-potential sectors where infrastructure demand supports long-term value creation.</p>
+              <Link href="/reports" className="text-sm font-semibold text-cyan-600 hover:text-cyan-700">View Projects →</Link>
+            </div>
+          </motion.div>
+        </div>
+      </motion.section>
+
       {/* Multiple Assets Section */}
       <motion.section 
         initial="initial"
@@ -580,12 +760,12 @@ export default function Home() {
 
           <div className="grid-responsive">
             {[
-              { title: "Forex CFD", icon: "💱", count: "90+", color: "from-blue-500 to-blue-600" },
-              { title: "Cryptocurrencies", icon: "₿", count: "150+", color: "from-amber-500 to-orange-500" },
-              { title: "Commodities", icon: "🛢️", count: "20+", color: "from-yellow-500 to-amber-500" },
-              { title: "Precious Metals", icon: "🏆", count: "10+", color: "from-yellow-500 to-yellow-600" },
-              { title: "Indices", icon: "📈", count: "40+", color: "from-emerald-500 to-emerald-600" },
-              { title: "Stocks", icon: "📊", count: "5000+", color: "from-purple-500 to-purple-600" },
+              { title: "Forex CFD", iconSrc: "/vectors/icons/icon-analytics.svg", count: "90+", color: "from-blue-500 to-blue-600" },
+              { title: "Cryptocurrencies", iconSrc: "/vectors/icons/icon-coins.svg", count: "150+", color: "from-amber-500 to-orange-500" },
+              { title: "Commodities", iconSrc: "/vectors/icons/icon-bolt.svg", count: "20+", color: "from-yellow-500 to-amber-500" },
+              { title: "Precious Metals", iconSrc: "/vectors/icons/icon-shield.svg", count: "10+", color: "from-yellow-500 to-yellow-600" },
+              { title: "Indices", iconSrc: "/vectors/icons/icon-diversify.svg", count: "40+", color: "from-emerald-500 to-emerald-600" },
+              { title: "Stocks", iconSrc: "/vectors/icons/icon-analytics.svg", count: "5000+", color: "from-purple-500 to-purple-600" },
             ].map((asset, i) => (
               <motion.div 
                 key={i} 
@@ -602,7 +782,7 @@ export default function Home() {
                   
                   <div className="relative z-10">
                     <div className="w-16 h-16 rounded-xl bg-linear-to-br from-gray-100 to-gray-200 border border-gray-300 flex items-center justify-center mb-6 group-hover:rotate-6 transition-transform duration-300">
-                      <span className="text-3xl">{asset.icon}</span>
+                      <Image src={asset.iconSrc} alt={asset.title} width={34} height={34} />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors duration-300 transition-professional">{asset.title}</h3>
                   </div>
@@ -936,7 +1116,7 @@ export default function Home() {
                 ),
                 desc: "Optimized for iPhone and iPad",
                 buttonText: "App Store",
-                url: "https://apps.apple.com/app/bitpanda-pro",
+                url: "https://apps.apple.com/app/primevest",
                 color: "from-blue-500 to-blue-600"
               },
               {
@@ -948,7 +1128,7 @@ export default function Home() {
                 ),
                 desc: "Download on Google Play",
                 buttonText: "Google Play",
-                url: "https://play.google.com/store/apps/details?id=com.bitpanda.pro",
+                url: "https://play.google.com/store/apps/details?id=com.primevest.app",
                 color: "from-green-500 to-green-600"
               },
               {
