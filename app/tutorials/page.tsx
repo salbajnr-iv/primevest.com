@@ -49,7 +49,7 @@ export default function TutorialsPage() {
 
         <section className="hero-section">
           <h1 className="hero-title">Video Tutorials</h1>
-          <p className="hero-subtitle">Learn how to use Bitpanda Pro with step-by-step video guides</p>
+          <p className="hero-subtitle">Learn how to use PrimeVest with step-by-step video guides</p>
         </section>
 
         <div className="market-categories">

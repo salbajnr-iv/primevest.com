@@ -30,12 +30,12 @@ const assetsData: MarketData[] = [
 ];
 
 const categories = [
-  { id: "all", label: "All Assets", icon: "📊" },
-  { id: "crypto", label: "Cryptocurrencies", icon: "₿" },
-  { id: "stocks", label: "Stocks", icon: "📈" },
-  { id: "etfs", label: "ETFs", icon: "💼" },
-  { id: "metals", label: "Metals", icon: "🥇" },
-  { id: "watchlist", label: "Watchlist", icon: "⭐" },
+  { id: "all", label: "All Assets", iconSrc: "/vectors/icons/icon-diversify.svg" },
+  { id: "crypto", label: "Cryptocurrencies", iconSrc: "/vectors/icons/icon-coins.svg" },
+  { id: "stocks", label: "Stocks", iconSrc: "/vectors/icons/icon-analytics.svg" },
+  { id: "etfs", label: "ETFs", iconSrc: "/vectors/icons/icon-diversify.svg" },
+  { id: "metals", label: "Metals", iconSrc: "/vectors/icons/icon-shield.svg" },
+  { id: "watchlist", label: "Watchlist", iconSrc: "/vectors/icons/icon-bolt.svg" },
 ];
 
 const portfolioAllocation = [
@@ -167,7 +167,7 @@ export default function AssetsPage() {
         </header>
 
         {/* MARKET OVERVIEW */}
-        <section className="market-stats">
+        <section className="market-stats" style={{ backgroundImage: "url(/vectors/bg-crypto.svg)", backgroundSize: "cover", backgroundPosition: "center" }}>
           <div className="stats-row">
             <div className="stat-card">
               <span className="stat-label">Total Market Cap</span>
@@ -239,7 +239,7 @@ export default function AssetsPage() {
               className={`category-chip ${activeCategory === cat.id ? "active" : ""}`} 
               onClick={() => setActiveCategory(cat.id)}
             >
-              <span className="category-icon">{cat.icon}</span>
+              <span className="category-icon"><Image src={cat.iconSrc} alt={cat.label} width={18} height={18} /></span>
               <span className="category-label">{cat.label}</span>
             </button>
           ))}
@@ -279,10 +279,12 @@ export default function AssetsPage() {
                   <div className="asset-icon" style={{ background: getCoinColor(asset.symbol) }}>
                     {asset.iconSrc && <Image src={asset.iconSrc} alt={asset.name} width={20} height={20} unoptimized style={{ borderRadius: '50%' }} />}
                     {!asset.iconSrc && <span className="asset-category-icon">
-                      {asset.category === "crypto" && "₿"}
-                      {asset.category === "stocks" && "📈"}
-                      {asset.category === "etfs" && "💼"}
-                      {asset.category === "metals" && "🥇"}
+                      <Image
+                        src={asset.category === "crypto" ? "/vectors/icons/icon-coins.svg" : asset.category === "stocks" ? "/vectors/icons/icon-analytics.svg" : asset.category === "etfs" ? "/vectors/icons/icon-diversify.svg" : "/vectors/icons/icon-shield.svg"}
+                        alt={asset.category}
+                        width={16}
+                        height={16}
+                      />
                     </span>}
                   </div>
                   <div className="asset-info">
@@ -322,10 +324,12 @@ export default function AssetsPage() {
                 <div className="asset-icon asset-icon-large">
                   {selectedAsset.iconSrc && <Image src={selectedAsset.iconSrc} alt={selectedAsset.name} width={32} height={32} unoptimized style={{ borderRadius: '50%' }} />}
                   {!selectedAsset.iconSrc && <span className="asset-category-icon-large">
-                    {selectedAsset.category === "crypto" && "₿"}
-                    {selectedAsset.category === "stocks" && "📈"}
-                    {selectedAsset.category === "etfs" && "💼"}
-                    {selectedAsset.category === "metals" && "🥇"}
+                    <Image
+                      src={selectedAsset.category === "crypto" ? "/vectors/icons/icon-coins.svg" : selectedAsset.category === "stocks" ? "/vectors/icons/icon-analytics.svg" : selectedAsset.category === "etfs" ? "/vectors/icons/icon-diversify.svg" : "/vectors/icons/icon-shield.svg"}
+                      alt={selectedAsset.category}
+                      width={22}
+                      height={22}
+                    />
                   </span>}
                 </div>
                 <div>

@@ -1,25 +1,14 @@
-<svg width="2500" height="1898" viewBox="0 0 2500 1898" xmlns="http://www.w3.org/2000/svg">
-  <!-- Black background -->
-  <rect width="2500" height="1898" fill="#000000"/>
-  
-  <!-- Green three bars of increasing height -->
-  <rect x="900" y="1200" width="120" height="400" fill="#10b981" rx="8"/>
-  <rect x="1100" y="1000" width="120" height="600" fill="#10b981" rx="8"/>
-  <rect x="1300" y="800" width="120" height="800" fill="#10b981" rx="8"/>
-  
-  <!-- Upward-curving arrow beneath bars -->
-  <path d="M 850 1450 Q 1160 1650, 1470 1450" stroke="#10b981" stroke-width="40" fill="none" stroke-linecap="round"/>
-  <polygon points="1470,1450 1430,1380 1500,1410" fill="#10b981"/>
-  
-  <!-- Two concentric incomplete circles -->
-  <circle cx="1160" cy="1100" r="450" stroke="#10b981" stroke-width="30" fill="none" 
-          stroke-dasharray="600 1200" stroke-dashoffset="-300" transform="rotate(-15 1160 1100)"/>
-  <circle cx="1160" cy="1100" r="550" stroke="#10b981" stroke-width="20" fill="none" 
-          stroke-dasharray="800 1600" stroke-dashoffset="-400" transform="rotate(15 1160 1100)"/>
-  
-  <!-- Company name -->
-  <text x="1250" y="1650" font-family="Arial, sans-serif" font-size="80" font-weight="bold" 
-        text-anchor="middle" fill="#10b981">PrimeVest</text>
-  <text x="1250" y="1730" font-family="Arial, sans-serif" font-size="50" font-weight="600" 
-        text-anchor="middle" fill="#10b981">Financial Solutions, Inc.</text>
+<svg width="720" height="180" viewBox="0 0 720 180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PrimeVest logo">
+  <defs>
+    <linearGradient id="pvGradient" x1="10%" y1="5%" x2="90%" y2="95%">
+      <stop offset="0%" stop-color="#10cbd0"/>
+      <stop offset="55%" stop-color="#18b9b6"/>
+      <stop offset="100%" stop-color="#9dd93b"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(10,10)">
+    <path d="M20 8h114c57 0 102 45 102 102v60H125v-30h81V110c0-40-32-72-72-72H20z" fill="url(#pvGradient)"/>
+    <path d="M20 58h112c25 0 45 20 45 45s-20 45-45 45H50v22H20z" fill="url(#pvGradient)"/>
+  </g>
+  <text x="280" y="118" font-size="86" font-family="Inter, Arial, sans-serif" font-weight="700" fill="#1f2430">PrimeVest</text>
 </svg>

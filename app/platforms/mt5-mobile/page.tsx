@@ -92,8 +92,8 @@ export default function MT5MobilePage() {
           >
             <Link href="/" className="flex items-center group">
               <Image
-                src="/bitpanda-logo.svg"
-                alt="Bitpanda Pro"
+                src="/primevest-logo.svg"
+                alt="PrimeVest"
                 width={140}
                 height={35}
                 className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"

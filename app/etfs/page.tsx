@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import BottomNav from "@/components/BottomNav";
 
 const etfsData = [
@@ -44,7 +45,7 @@ export default function EtfsPage() {
           </div>
         </header>
 
-        <section className="hero-section">
+        <section className="hero-section" style={{ backgroundImage: "url(/vectors/bg-etfs.svg)", backgroundSize: "cover", backgroundPosition: "center", border: "1px solid rgba(255,255,255,0.08)" }}>
           <h1 className="hero-title">Invest in ETFs*</h1>
           <p className="hero-subtitle">Diversify your portfolio with ETFs 24/7</p>
           <div className="hero-stats">
@@ -94,21 +95,21 @@ export default function EtfsPage() {
         <section className="info-section">
           <h3 className="section-title">Why invest in ETFs?</h3>
           <div className="info-card">
-            <div className="info-icon">🎯</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-diversify.svg" alt="instant diversification" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Instant Diversification</h4>
               <p>Get exposure to hundreds of assets with a single trade.</p>
             </div>
           </div>
           <div className="info-card">
-            <div className="info-icon">💰</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-coins.svg" alt="low costs" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Low Costs</h4>
               <p>Benefit from low expense ratios and zero commission trading.</p>
             </div>
           </div>
           <div className="info-card">
-            <div className="info-icon">🕐</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-bolt.svg" alt="flexible trading hours" width={28} height={28} /></div>
             <div className="info-content">
               <h4>24/7 Trading</h4>
               <p>Trade ETFs round the clock, even outside market hours.</p>

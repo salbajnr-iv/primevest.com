@@ -91,7 +91,7 @@ export default function SignUpPage() {
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">Create an account</CardTitle>
           <CardDescription className="text-gray-600">
-            Join millions of users on Bitpanda Pro
+            Join millions of users on PrimeVest
           </CardDescription>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">

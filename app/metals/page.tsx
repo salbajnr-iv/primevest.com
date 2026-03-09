@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import BottomNav from "@/components/BottomNav";
 
 const metalsData = [
@@ -35,7 +36,7 @@ export default function MetalsPage() {
           </div>
         </header>
 
-        <section className="hero-section">
+        <section className="hero-section" style={{ backgroundImage: "url(/vectors/bg-metals.svg)", backgroundSize: "cover", backgroundPosition: "center", border: "1px solid rgba(255,255,255,0.08)" }}>
           <h1 className="hero-title">Invest in Precious Metals</h1>
           <p className="hero-subtitle">Invest in gold, silver, palladium and platinum</p>
           <div className="hero-stats">
@@ -79,21 +80,21 @@ export default function MetalsPage() {
         <section className="info-section">
           <h3 className="section-title">Why invest in Precious Metals?</h3>
           <div className="info-card">
-            <div className="info-icon">🏆</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-coins.svg" alt="inflation hedge" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Hedge Against Inflation</h4>
               <p>Precious metals have historically maintained their value over time.</p>
             </div>
           </div>
           <div className="info-card">
-            <div className="info-icon">🛡️</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-shield.svg" alt="safe haven" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Safe Haven Asset</h4>
               <p>Investors turn to metals during economic uncertainty.</p>
             </div>
           </div>
           <div className="info-card">
-            <div className="info-icon">💰</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-diversify.svg" alt="portfolio diversification" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Portfolio Diversification</h4>
               <p>Add stability to your investment portfolio.</p>

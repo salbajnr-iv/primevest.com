@@ -73,7 +73,7 @@ export default function SignInPage() {
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">Welcome back</CardTitle>
           <CardDescription className="text-gray-600">
-            Sign in to your Bitpanda Pro account
+            Sign in to your PrimeVest account
           </CardDescription>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import BottomNav from "@/components/BottomNav";
 
 const stocksData = [
@@ -44,7 +45,7 @@ export default function StocksPage() {
           </div>
         </header>
 
-        <section className="hero-section">
+        <section className="hero-section" style={{ backgroundImage: "url(/vectors/bg-stocks.svg)", backgroundSize: "cover", backgroundPosition: "center", border: "1px solid rgba(255,255,255,0.08)" }}>
           <h1 className="hero-title">Invest in Stocks*</h1>
           <p className="hero-subtitle">Trade real stocks with zero commissions</p>
           <div className="hero-stats">
@@ -94,21 +95,21 @@ export default function StocksPage() {
         <section className="info-section">
           <h3 className="section-title">Why trade Stocks with us?</h3>
           <div className="info-card">
-            <div className="info-icon">💵</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-coins.svg" alt="zero commission" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Zero Commissions</h4>
               <p>Trade stocks without paying any commission fees.</p>
             </div>
           </div>
           <div className="info-card">
-            <div className="info-icon">📈</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-analytics.svg" alt="professional trading" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Professional Trading</h4>
               <p>Advanced tools and real-time market data.</p>
             </div>
           </div>
           <div className="info-card">
-            <div className="info-icon">🔒</div>
+            <div className="info-icon"><Image src="/vectors/icons/icon-shield.svg" alt="secure platform" width={28} height={28} /></div>
             <div className="info-content">
               <h4>Secure Platform</h4>
               <p>Your investments are protected with industry-leading security.</p>
