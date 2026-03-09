@@ -247,20 +247,12 @@ const trustMetrics = [
 export default function Home() {
   const router = useRouter();
 
-  const handleStartTrading = () => {
-    router.push("/auth/signin");
-  };
-
   const handleTryDemo = () => {
     router.push("/demo");
   };
 
   const handleExploreAssets = () => {
     router.push("/markets");
-  };
-
-  const handleOpenAccount = () => {
-    router.push("/auth/signup");
   };
 
   const handleContactUs = () => {
@@ -446,16 +438,16 @@ export default function Home() {
             className="flex items-center gap-3"
           >
             <Button 
-              onClick={handleStartTrading} 
+              asChild
               className="hidden sm:block bg-white hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-lg border border-gray-300 font-medium text-sm transition-colors"
             >
-              Sign In
+              <Link href="/auth/signin">Sign In</Link>
             </Button>
             <Button 
-              onClick={handleOpenAccount} 
+              asChild
               className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
             >
-              Open Account
+              <Link href="/auth/signup">Open Account</Link>
             </Button>
           </motion.div>
         </div>
@@ -510,10 +502,10 @@ export default function Home() {
                 className="flex flex-col sm:flex-row gap-4 pt-4 transition-professional"
               >
                 <Button 
-                  onClick={handleStartTrading} 
+                  asChild
                   className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-4 text-lg rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 btn-premium"
                 >
-                  Start Trading
+                  <Link href="/auth/signin">Start Trading</Link>
                 </Button>
                 <Button 
                   onClick={handleTryDemo} 
@@ -1092,10 +1084,10 @@ export default function Home() {
             className="flex flex-col sm:flex-row justify-center gap-4 mt-16"
           >
             <Button 
-              onClick={handleStartTrading} 
+              asChild
               className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
             >
-              Start Trading
+              <Link href="/auth/signin">Start Trading</Link>
             </Button>
             <Button 
               onClick={handleTryDemo} 
@@ -1189,10 +1181,10 @@ export default function Home() {
                     <p className="text-gray-600 mb-8 grow">{app.desc}</p>
                     {app.isInternalLink ? (
                       <Button 
-                        onClick={handleStartTrading} 
+                        asChild
                         className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg w-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl btn-premium"
                       >
-                        {app.buttonText}
+                        <Link href="/auth/signin">{app.buttonText}</Link>
                       </Button>
                     ) : (
                       <Button 
@@ -1237,10 +1229,10 @@ export default function Home() {
             className="flex flex-col sm:flex-row justify-center gap-4"
           >
             <Button 
-              onClick={handleOpenAccount} 
+              asChild
               className="bg-white text-emerald-600 hover:bg-gray-100 px-12 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
             >
-              Open Account
+              <Link href="/auth/signup">Open Account</Link>
             </Button>
             <Button 
               onClick={handleContactUs} 
