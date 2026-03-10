@@ -17,6 +17,20 @@ export default function SignInPage() {
   const router = useRouter()
   const { signIn, signInWithOAuth } = useAuth()
 
+  const getSafeRedirectPath = () => {
+    if (typeof window === 'undefined') {
+      return '/dashboard'
+    }
+
+    const redirectPath = new URLSearchParams(window.location.search).get('redirect')
+
+    if (!redirectPath || !redirectPath.startsWith('/') || redirectPath.startsWith('//')) {
+      return '/dashboard'
+    }
+
+    return redirectPath
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -29,7 +43,7 @@ export default function SignInPage() {
       } else if (!data?.session) {
         setError('Authentication is pending. Please complete verification and try again.')
       } else {
-        router.push('/dashboard')
+        router.push(getSafeRedirectPath())
         router.refresh()
       }
     } catch {

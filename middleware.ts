@@ -3,6 +3,32 @@ import { NextResponse, type NextRequest } from 'next/server'
 import type { User } from '@supabase/supabase-js'
 
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+
+  const adminRoutes = ['/admin/dashboard', '/admin/users', '/admin/transactions', '/admin/balances', '/admin/audit', '/admin/settings']
+  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route))
+
+  const adminAuthRoutes = ['/admin/auth/signin', '/admin/signin']
+  const isAdminAuthRoute = adminAuthRoutes.some((route) => pathname.startsWith(route))
+
+  const protectedRoutes = ['/dashboard', '/settings', '/profile', '/account']
+  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route))
+
+  const authRoutes = ['/auth/signin', '/auth/signup', '/auth/reset-password', '/auth/new-password', '/auth/otp-verify', '/auth/callback']
+  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route))
+
+  const redirectToAdminSignIn = () => {
+    const redirectUrl = new URL('/admin/auth/signin', request.url)
+    redirectUrl.searchParams.set('redirect', pathname)
+    return NextResponse.redirect(redirectUrl)
+  }
+
+  const redirectToUserSignIn = () => {
+    const redirectUrl = new URL('/auth/signin', request.url)
+    redirectUrl.searchParams.set('redirect', pathname)
+    return NextResponse.redirect(redirectUrl)
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -12,8 +38,10 @@ export async function updateSession(request: NextRequest) {
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
   const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  // If env vars are missing, skip Supabase auth to avoid request failures/404s
+  // Keep public pages accessible, but fail closed for protected routes.
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    if (isAdminRoute) return redirectToAdminSignIn()
+    if (isProtectedRoute) return redirectToUserSignIn()
     return response
   }
 
@@ -47,39 +75,13 @@ export async function updateSession(request: NextRequest) {
     const { data } = await supabase.auth.getUser()
     user = data.user
   } catch {
-    // If Supabase fails (network/env), bypass gating to avoid 404s
+    if (isAdminRoute) return redirectToAdminSignIn()
+    if (isProtectedRoute) return redirectToUserSignIn()
     return response
   }
 
-  // Admin-only routes
-  const adminRoutes = ['/admin/dashboard', '/admin/users', '/admin/transactions', '/admin/balances', '/admin/audit', '/admin/settings']
-  const isAdminRoute = adminRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
-  )
-
-  // Admin auth routes
-  const adminAuthRoutes = ['/admin/auth/signin', '/admin/signin']
-  const isAdminAuthRoute = adminAuthRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
-  )
-
-  // Protected routes that require authentication (non-admin)
-  const protectedRoutes = ['/dashboard', '/settings', '/profile', '/account']
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
-  )
-
-  // Auth routes that should redirect if already logged in (non-admin)
-  const authRoutes = ['/auth/signin', '/auth/signup', '/auth/reset-password', '/auth/new-password', '/auth/otp-verify', '/auth/callback']
-  const isAuthRoute = authRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
-  )
-
-  // Handle admin routes
   if (isAdminRoute && !user) {
-    const redirectUrl = new URL('/admin/auth/signin', request.url)
-    redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
-    return NextResponse.redirect(redirectUrl)
+    return redirectToAdminSignIn()
   }
 
   if (isAdminRoute && user) {
@@ -106,14 +108,10 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Redirect unauthenticated users from protected routes (non-admin)
   if (isProtectedRoute && !user) {
-    const redirectUrl = new URL('/auth/signin', request.url)
-    redirectUrl.searchParams.set('redirect', request.nextUrl.pathname)
-    return NextResponse.redirect(redirectUrl)
+    return redirectToUserSignIn()
   }
 
-  // Redirect authenticated users away from auth routes (non-admin)
   if (isAuthRoute && user) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
@@ -127,15 +125,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     * - api routes
-     */
     '/((?!_next/static|_next/image|favicon.ico|public|api).*)',
   ],
 }
-
