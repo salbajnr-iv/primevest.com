@@ -14,7 +14,7 @@ export default function AdminSignInPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const { signIn, isAdmin, loading: contextLoading } = useAdminAuth()
+  const { signIn, signOut, refreshAdminStatus, isAdmin, loading: contextLoading } = useAdminAuth()
 
   // Redirect if already logged in as admin (useEffect for proper side effect handling)
   useEffect(() => {
@@ -46,12 +46,22 @@ export default function AdminSignInPage() {
     setLoading(true)
 
     try {
-      const { error: signInError, data } = await signIn(email, password)
-      
+      const normalizedEmail = email.trim().toLowerCase()
+      const { error: signInError, data } = await signIn(normalizedEmail, password)
+
       if (signInError) {
         setError(signInError.message)
-      } else if (data?.user) {
-        // Check if user is admin after sign in
+      } else if (!data?.session || !data?.user || data.user.email?.toLowerCase() !== normalizedEmail) {
+        setError('Authentication failed. Please enter a valid admin username and password.')
+      } else {
+        const hasAdminAccess = await refreshAdminStatus()
+
+        if (!hasAdminAccess) {
+          await signOut()
+          setError('Access denied. This account does not have admin privileges.')
+          return
+        }
+
         router.push('/admin/dashboard')
         router.refresh()
       }

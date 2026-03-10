@@ -37,11 +37,13 @@ export default function SignInPage() {
     setLoading(true)
 
     try {
-      const { error, data } = await signIn(email, password)
+      const normalizedEmail = email.trim().toLowerCase()
+      const { error, data } = await signIn(normalizedEmail, password)
+
       if (error) {
         setError(error.message)
-      } else if (!data?.session) {
-        setError('Authentication is pending. Please complete verification and try again.')
+      } else if (!data?.session || !data?.user || data.user.email?.toLowerCase() !== normalizedEmail) {
+        setError('Authentication failed. Please enter the correct username and password.')
       } else {
         router.push(getSafeRedirectPath())
         router.refresh()

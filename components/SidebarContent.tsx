@@ -72,7 +72,7 @@ export const SidebarContent = React.memo(function SidebarContent({ onClose, isMo
   return (
     <aside 
       ref={sidebarRef}
-      className="w-64 bg-white border-r border-slate-200 h-[calc(100vh-64px)] overflow-y-auto hidden md:block"
+      className={`bg-white border-r border-slate-200 overflow-y-auto ${isMobile ? "fixed left-0 top-0 z-50 h-screen w-72 max-w-[85vw] shadow-2xl" : "relative h-[calc(100vh-64px)] w-64 hidden md:block"}`}
       role="navigation"
       aria-label="Main navigation"
     >
@@ -129,7 +129,7 @@ export const SidebarContent = React.memo(function SidebarContent({ onClose, isMo
       </div>
 
       {/* Logout Button */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-slate-200 bg-white">
+      <div className="sticky bottom-0 left-0 right-0 mt-4 p-6 border-t border-slate-200 bg-white">
         <button
           className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
           onClick={handleLogout}
