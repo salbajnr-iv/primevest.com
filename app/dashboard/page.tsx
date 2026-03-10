@@ -1,10 +1,14 @@
 "use client";
 
+import * as React from "react";
+import Link from "next/link";
 import KpiGauge from "@/components/dashboard/analytics/KpiGauge";
 import MetricsBarChart from "@/components/dashboard/analytics/MetricsBarChart";
 import PerformanceLineChart from "@/components/dashboard/analytics/PerformanceLineChart";
 import DataTable from "@/components/dashboard/analytics/DataTable";
 import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
+import Sidebar from "@/components/Sidebar";
+import BottomNav from "@/components/BottomNav";
 
 const kpis = [
   { label: "Portfolio Health", value: 86, valueLabel: "86/100", deltaLabel: "+3.5% vs last week" },
@@ -35,27 +39,62 @@ const topPairs = [
 ];
 
 export default function DashboardPage() {
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+
   return (
-    <DashboardShell title="Analytics Overview" subtitle="Unified KPI, chart, and trading snapshot">
-      <section className="grid gap-3 md:grid-cols-3">
-        {kpis.map((kpi) => <KpiGauge key={kpi.label} {...kpi} />)}
-      </section>
+    <div className="dashboard-container">
+      <div className="dashboard-app">
+        {/* Mobile Header with Menu Button */}
+        <header className="header">
+          <div className="header-left">
+            <span className="header-eyebrow">PORTFOLIO</span>
+            <div className="header-title">
+              Dashboard
+              <span className="status-dot"></span>
+            </div>
+          </div>
+          <div className="header-actions">
+            <button className="menu-btn" onClick={() => setIsSidebarOpen(true)} aria-label="Open menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+          </div>
+        </header>
 
-      <section className="grid gap-3 lg:grid-cols-2">
-        <MetricsBarChart title="Daily Filled Orders" data={volumeData} />
-        <PerformanceLineChart title="Portfolio Performance" data={perfData} />
-      </section>
+        {/* Sidebar Component */}
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      <DataTable
-        title="Top Markets"
-        columns={[
-          { key: "pair", label: "Pair" },
-          { key: "volume", label: "Volume" },
-          { key: "spread", label: "Spread" },
-          { key: "pnl", label: "PnL" },
-        ]}
-        rows={topPairs}
+        <DashboardShell title="Analytics Overview" subtitle="Unified KPI, chart, and trading snapshot">
+          <section className="grid gap-3 md:grid-cols-3">
+            {kpis.map((kpi) => <KpiGauge key={kpi.label} {...kpi} />)}
+          </section>
+
+          <section className="grid gap-3 lg:grid-cols-2">
+            <MetricsBarChart title="Daily Filled Orders" data={volumeData} />
+            <PerformanceLineChart title="Portfolio Performance" data={perfData} />
+          </section>
+
+          <DataTable
+            title="Top Markets"
+            columns={[
+              { key: "pair", label: "Pair" },
+              { key: "volume", label: "Volume" },
+              { key: "spread", label: "Spread" },
+              { key: "pnl", label: "PnL" },
+            ]}
+            rows={topPairs}
+          />
+        </DashboardShell>
+      </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav 
+        onMenuClick={() => setIsSidebarOpen(true)} 
+        isMenuActive={isSidebarOpen} 
       />
-    </DashboardShell>
+    </div>
   );
 }
