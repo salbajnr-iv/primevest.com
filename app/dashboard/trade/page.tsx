@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import BottomNav from "@/components/BottomNav";
+import { DASHBOARD_HOME_ROUTE, DASHBOARD_SIDEBAR_SECTIONS } from "@/app/dashboard/_config/routes";
 
 export const dynamic = 'force-dynamic';
 import { 
@@ -141,22 +142,20 @@ function TradePageContent() {
           </div>
           
           <nav className="tradewill-nav">
-            <div className="tradewill-nav-section">
-              <div className="tradewill-nav-section-title">Account</div>
-              <Link href="/dashboard/overview" className="tradewill-nav-item">Overview</Link>
-              <Link href="/dashboard/asset-center" className="tradewill-nav-item">Assets</Link>
-              <Link href="/dashboard/transfer" className="tradewill-nav-item">Internal Transfer</Link>
-              <Link href="/dashboard/orders" className="tradewill-nav-item">Order</Link>
-              <Link href="/dashboard/verification" className="tradewill-nav-item">Verification</Link>
-              <Link href="/dashboard/settings" className="tradewill-nav-item">Settings</Link>
-            </div>
-            
-            <div className="tradewill-nav-section">
-              <div className="tradewill-nav-section-title">Platform</div>
-              <Link href="/dashboard/platform" className="tradewill-nav-item">Platform</Link>
-              <Link href="/dashboard/tasks" className="tradewill-nav-item">Task Center</Link>
-              <Link href="/dashboard/support" className="tradewill-nav-item">Customer Service</Link>
-            </div>
+            {DASHBOARD_SIDEBAR_SECTIONS.map((section) => (
+              <div key={section.title} className="tradewill-nav-section">
+                <div className="tradewill-nav-section-title">{section.title}</div>
+                {section.items.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.path}
+                    className={`tradewill-nav-item ${item.path === "/dashboard/trade" ? "active" : ""}`.trim()}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            ))}
           </nav>
         </aside>
 
@@ -166,7 +165,7 @@ function TradePageContent() {
           <header className="tradewill-header">
             <div className="tradewill-header-left">
               <div className="tradewill-breadcrumb">
-                <Link href="/dashboard" className="tradewill-nav-item">Dashboard</Link>
+                <Link href={DASHBOARD_HOME_ROUTE.path} className="tradewill-nav-item">{DASHBOARD_HOME_ROUTE.label}</Link>
                 <span className="tradewill-breadcrumb-separator">/</span>
                 <span>Trade</span>
               </div>

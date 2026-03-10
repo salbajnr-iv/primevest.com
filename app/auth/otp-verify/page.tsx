@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import AuthLogo from '@/components/AuthLogo'
 
 export const dynamic = 'force-dynamic'
 function OtpVerifyForm() {
@@ -60,11 +61,7 @@ function OtpVerifyForm() {
     <div className="min-h-screen bg-white flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <Card className="w-full max-w-sm sm:max-w-md shadow-lg border-gray-200">
         <CardHeader className="space-y-1 text-center pb-6">
-          <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-green-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
+          <AuthLogo />
           <CardTitle className="text-2xl font-bold text-gray-900">Enter verification code</CardTitle>
           <CardDescription className="text-gray-600">
             {type === 'recovery'
@@ -169,11 +166,7 @@ export default function OtpVerifyPage() {
       <div className="min-h-screen bg-white flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <Card className="w-full max-w-sm sm:max-w-md shadow-lg border-gray-200">
           <CardHeader className="space-y-1 text-center pb-6">
-            <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-green-800 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
+            <AuthLogo className="w-16 h-16 mx-auto mb-4 animate-pulse" />
             <CardTitle className="text-2xl font-bold text-gray-900">Loading...</CardTitle>
           </CardHeader>
         </Card>
