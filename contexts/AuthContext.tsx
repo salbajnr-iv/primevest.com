@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(session?.user ?? null)
           setLoading(false)
         })
-      } catch (error) {
+      } catch {
         console.warn('Failed to get initial session, continuing in guest mode')
         setSession(null)
         setUser(null)
@@ -77,11 +77,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError, data: undefined }
-    
+
+    const normalizedEmail = email.trim().toLowerCase()
+
     try {
-      return await SupabaseErrorHandler.withRetry(async () => {
-        return await supabase.auth.signInWithPassword({ email, password })
+      const result = await SupabaseErrorHandler.withRetry(async () => {
+        return await supabase.auth.signInWithPassword({ email: normalizedEmail, password })
       })
+
+      if (result.error || !result.data.session || !result.data.user) {
+        return result
+      }
+
+      const { data: verifiedUserData, error: verifiedUserError } = await supabase.auth.getUser(result.data.session.access_token)
+
+      if (
+        verifiedUserError ||
+        !verifiedUserData.user ||
+        verifiedUserData.user.email?.toLowerCase() !== normalizedEmail
+      ) {
+        await supabase.auth.signOut()
+        return {
+          error: {
+            name: 'AuthVerificationFailed',
+            message: 'Authentication verification failed. Please check your credentials and try again.',
+            status: 401,
+          } as AuthError,
+          data: undefined,
+        }
+      }
+
+      return result
     } catch (error) {
       return await SupabaseErrorHandler.handleSupabaseError(error, () => ({
         error: { name: 'NetworkError', message: 'Authentication service unavailable', status: 0 } as AuthError,
