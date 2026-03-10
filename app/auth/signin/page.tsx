@@ -23,9 +23,11 @@ export default function SignInPage() {
     setLoading(true)
 
     try {
-      const { error } = await signIn(email, password)
+      const { error, data } = await signIn(email, password)
       if (error) {
         setError(error.message)
+      } else if (!data?.session) {
+        setError('Authentication is pending. Please complete verification and try again.')
       } else {
         router.push('/dashboard')
         router.refresh()
@@ -203,4 +205,3 @@ export default function SignInPage() {
     </div>
   )
 }
-
