@@ -34,62 +34,7 @@ const topPairs = [
   { pair: "SOL/EUR", volume: "€510K", spread: "0.22%", pnl: "+€1,982" },
 ];
 
-export const dynamic = "force-dynamic";
-
 export default function DashboardPage() {
-  const [summary, setSummary] = useState<PortfolioSummary | null>(null);
-  const [activity, setActivity] = useState<ActivityItem[]>([]);
-  const [seriesByPeriod, setSeriesByPeriod] = useState<Record<string, ChartSeriesPoint[]>>({});
-  const [changeByPeriod, setChangeByPeriod] = useState<Record<string, { portfolio: number; benchmark: number }>>({});
-  const [statsByPeriod, setStatsByPeriod] = useState<Record<string, PerformanceStats>>({});
-
-  const loadDashboard = useCallback(async () => {
-    const [summaryRes, activityRes, ...performanceResponses] = await Promise.all([
-      fetch("/api/dashboard/summary", { cache: "no-store" }),
-      fetch("/api/dashboard/activity", { cache: "no-store" }),
-      ...periods.map((period) => fetch(`/api/dashboard/performance?period=${period}`, { cache: "no-store" })),
-    ]);
-
-    const summaryJson = await summaryRes.json();
-    const activityJson = await activityRes.json();
-    const perfJson = await Promise.all(performanceResponses.map((response) => response.json()));
-
-    setSummary(summaryJson.summary);
-    setActivity(activityJson.activity ?? []);
-
-    const nextSeries: Record<string, ChartSeriesPoint[]> = {};
-    const nextChanges: Record<string, { portfolio: number; benchmark: number }> = {};
-    const nextStats: Record<string, PerformanceStats> = {};
-
-    perfJson.forEach(({ performance }) => {
-      nextSeries[performance.period] = performance.points;
-      nextChanges[performance.period] = {
-        portfolio: performance.portfolioChangePct,
-        benchmark: performance.benchmarkChangePct,
-      };
-      nextStats[performance.period] = performance.stats;
-    });
-
-    setSeriesByPeriod(nextSeries);
-    setChangeByPeriod(nextChanges);
-    setStatsByPeriod(nextStats);
-  }, []);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      void loadDashboard();
-    }, 0);
-
-    const interval = setInterval(() => {
-      void loadDashboard();
-    }, 30000);
-
-    return () => {
-      clearTimeout(timeout);
-      clearInterval(interval);
-    };
-  }, [loadDashboard]);
-
   return (
     <DashboardShell title="Analytics Overview" subtitle="Unified KPI, chart, and trading snapshot">
       <section className="grid gap-3 md:grid-cols-3">
