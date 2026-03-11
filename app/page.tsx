@@ -293,9 +293,9 @@ export default function Home() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
-        className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-sm"
+        className="absolute top-0 left-0 right-0 z-50 bg-transparent"
       >
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-5 flex items-center justify-between">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -308,7 +308,7 @@ export default function Home() {
                 alt="PrimeVest Financial Solutions, Inc."
                 width={140}
                 height={35}
-                className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
+                className="h-8 w-auto transition-transform duration-300 group-hover:scale-105 brightness-0 invert"
               />
             </Link>
           </motion.div>
@@ -320,10 +320,10 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="relative group"
             >
-              <button className="text-gray-700 hover:text-emerald-600 transition duration-300 font-medium flex items-center gap-1">
+              <button className="text-white/90 hover:text-emerald-300 transition duration-300 font-medium flex items-center gap-1">
                 <span className="relative">
                   Trading
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-600 transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-300 transition-all duration-300 group-hover:w-full"></span>
                 </span>
                 <svg className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -345,10 +345,10 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="relative group"
             >
-              <button className="text-gray-700 hover:text-emerald-600 transition duration-300 font-medium flex items-center gap-1">
+              <button className="text-white/90 hover:text-emerald-300 transition duration-300 font-medium flex items-center gap-1">
                 <span className="relative">
                   Market
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-600 transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-300 transition-all duration-300 group-hover:w-full"></span>
                 </span>
                 <svg className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -365,10 +365,10 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.5 }}
               className="relative group"
             >
-              <button className="text-gray-700 hover:text-emerald-600 transition duration-300 font-medium flex items-center gap-1">
+              <button className="text-white/90 hover:text-emerald-300 transition duration-300 font-medium flex items-center gap-1">
                 <span className="relative">
                   Platforms
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-600 transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-300 transition-all duration-300 group-hover:w-full"></span>
                 </span>
                 <svg className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -390,10 +390,10 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.6 }}
               className="relative group"
             >
-              <button className="text-gray-700 hover:text-emerald-600 transition duration-300 font-medium flex items-center gap-1">
+              <button className="text-white/90 hover:text-emerald-300 transition duration-300 font-medium flex items-center gap-1">
                 <span className="relative">
                   Account
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-600 transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-300 transition-all duration-300 group-hover:w-full"></span>
                 </span>
                 <svg className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -411,10 +411,10 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.7 }}
               className="relative group"
             >
-              <button className="text-gray-700 hover:text-emerald-600 transition duration-300 font-medium flex items-center gap-1">
+              <button className="text-white/90 hover:text-emerald-300 transition duration-300 font-medium flex items-center gap-1">
                 <span className="relative">
                   Tools
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-600 transition-all duration-300 group-hover:w-full"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-300 transition-all duration-300 group-hover:w-full"></span>
                 </span>
                 <svg className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -439,13 +439,13 @@ export default function Home() {
           >
             <Button 
               asChild
-              className="hidden sm:block bg-white hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-lg border border-gray-300 font-medium text-sm transition-colors"
+              className="hidden sm:block bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg border border-white/30 font-medium text-sm transition-colors backdrop-blur-sm"
             >
               <Link href="/auth/signin">Sign In</Link>
             </Button>
             <Button 
               asChild
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+              className="bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors shadow-lg shadow-emerald-900/20"
             >
               <Link href="/auth/signup">Open Account</Link>
             </Button>
@@ -458,8 +458,8 @@ export default function Home() {
         initial="initial"
         animate="animate"
         variants={staggerContainer}
-        className="relative py-20 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 border-b border-gray-200 overflow-hidden section-padding"
-        style={{ backgroundImage: "url(/website_homepage_header%20(1).webp)", backgroundSize: "cover", backgroundPosition: "center" }}
+        className="relative pt-36 pb-20 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 border-b border-gray-200 overflow-hidden section-padding"
+        style={{ backgroundImage: "url(/hero-trading-bg.svg)", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         {/* Animated background elements */}
         <div className="absolute inset-0">
@@ -468,6 +468,15 @@ export default function Home() {
         </div>
         
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"], opacity: [0.2, 0.35, 0.2] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+          style={{
+            backgroundImage: "radial-gradient(circle at 20% 20%, rgba(16,185,129,0.25), transparent 45%), radial-gradient(circle at 80% 80%, rgba(34,197,94,0.2), transparent 40%)",
+            backgroundSize: "180% 180%"
+          }}
+        />
         <div className="absolute inset-0 bg-black/55"></div>
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -489,7 +498,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="text-body text-emerald-50 max-w-lg transition-professional"
+                  className="text-body text-white max-w-lg transition-professional"
                 >
                   Join millions of traders on the world&apos;s leading trading platform. Access 300+ financial instruments with ultra-low spreads and fast execution.
                 </motion.p>
@@ -546,75 +555,35 @@ export default function Home() {
               </motion.div>
             </motion.div>
 
-            {/* Right Image - Trading Dashboard Preview */}
+            {/* Right Image - Portfolio Dashboard Preview */}
             <motion.div 
               variants={slideInFromRight}
               className="hidden lg:flex justify-center w-full max-w-2xl"
             >
-              <div className="relative">
-                {/* Glowing effect around the dashboard */}
-                <div className="absolute -inset-4 bg-linear-to-r from-emerald-500/10 to-blue-500/10 rounded-3xl blur-xl opacity-75 animate-pulse"></div>
-                
-                {/* Main dashboard container */}
-                <div className="relative h-96 w-full bg-linear-to-br from-white to-gray-50 rounded-2xl border border-gray-200 p-4 sm:p-6 flex flex-col shadow-xl overflow-hidden group card-elevated">
-                  {/* Micro-interaction: subtle glow on hover */}
-                  <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none"></div>
-                  
-                  {/* Simulated chart area */}
-                  <div className="flex-1 relative">
-                    <div className="absolute inset-0 bg-linear-to-br from-emerald-50/10 to-transparent rounded-xl"></div>
-                    
-                    {/* Simulated price chart */}
-                    <div className="absolute bottom-0 left-0 right-0 h-3/4">
-                      <svg viewBox="0 0 400 200" className="w-full h-full">
-                        <defs>
-                          <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
-                            <stop offset="100%" stopColor="#10b981" stopOpacity="0.1" />
-                          </linearGradient>
-                        </defs>
-                        <path 
-                          d="M 0 150 Q 50 120 100 130 T 200 110 T 300 90 T 400 100" 
-                          stroke="#10b981" 
-                          strokeWidth="3" 
-                          fill="none"
-                        />
-                        <path 
-                          d="M 0 150 Q 50 120 100 130 T 200 110 T 300 90 T 400 100 L 400 200 L 0 200 Z" 
-                          fill="url(#chartGradient)"
-                        />
-                      </svg>
-                    </div>
-                    
-                    {/* Trading info overlay */}
-                    <div className="absolute top-4 left-4 right-4 flex justify-between">
-                      <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 group-hover:bg-white/90 transition-colors duration-300 border border-gray-200">
-                        <div className="text-xs text-gray-500">EUR/USD</div>
-                        <div className="text-sm font-semibold text-gray-900">1.0845</div>
-                      </div>
-                      <div className="bg-emerald-50/80 backdrop-blur-sm rounded-lg px-3 py-2 border border-emerald-200 group-hover:bg-emerald-100/90 transition-colors duration-300">
-                        <div className="text-xs text-emerald-600">24h Change</div>
-                        <div className="text-sm font-semibold text-emerald-700">+0.32%</div>
-                      </div>
-                    </div>
+              <div className="relative w-full">
+                <div className="absolute -inset-5 rounded-3xl bg-linear-to-r from-emerald-400/20 via-cyan-400/10 to-emerald-500/20 blur-2xl animate-pulse"></div>
+                <motion.div
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                  className="relative overflow-hidden rounded-3xl border border-white/20 bg-black/35 backdrop-blur-sm shadow-2xl"
+                >
+                  <Image
+                    src="/portfolio-dashboard.svg"
+                    alt="Detailed portfolio dashboard with allocation, pnl, and positions"
+                    width={1200}
+                    height={860}
+                    className="h-96 w-full object-cover"
+                    priority
+                  />
+                  <div className="absolute left-5 top-5 rounded-xl border border-emerald-300/35 bg-black/60 px-4 py-2 text-white backdrop-blur">
+                    <p className="text-[11px] uppercase tracking-wider text-emerald-200">Portfolio Value</p>
+                    <p className="text-lg font-semibold">$248,430.52</p>
                   </div>
-                  
-                  {/* Stats bar */}
-                  <div className="flex justify-between pt-4 border-t border-gray-200">
-                    <div className="text-center group-hover:scale-105 transition-transform duration-300">
-                      <div className="text-xs text-gray-500">Traders</div>
-                      <div className="text-sm font-bold text-gray-900">2.5M+</div>
-                    </div>
-                    <div className="text-center group-hover:scale-105 transition-transform duration-300">
-                      <div className="text-xs text-gray-500">Volume</div>
-                      <div className="text-sm font-bold text-gray-900">$4.2B</div>
-                    </div>
-                    <div className="text-center group-hover:scale-105 transition-transform duration-300">
-                      <div className="text-xs text-gray-500">Assets</div>
-                      <div className="text-sm font-bold text-gray-900">300+</div>
-                    </div>
+                  <div className="absolute right-5 bottom-5 rounded-xl border border-emerald-300/35 bg-black/60 px-4 py-2 text-white backdrop-blur">
+                    <p className="text-[11px] uppercase tracking-wider text-emerald-200">Open Positions</p>
+                    <p className="text-lg font-semibold">18 Active</p>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </motion.div>
           </div>
