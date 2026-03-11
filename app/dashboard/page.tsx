@@ -2,10 +2,11 @@
 
 import * as React from "react";
 import {
-  AlertCircle,
-  ArrowRight,
-  Calendar,
-  MessageCircle,
+  Bell,
+  CalendarRange,
+  ChevronRight,
+  CircleAlert,
+  Newspaper,
   TrendingUp,
   Users,
 } from "lucide-react";
@@ -88,7 +89,7 @@ export default function DashboardPage() {
             <p className="text-sm text-slate-600 mt-1">Welcome back, Alex! Here&apos;s your real-time investment snapshot.</p>
           </div>
           <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700">
-            <Calendar size={16} className="text-emerald-600" />
+            <CalendarRange size={16} className="text-emerald-600" />
             <span className="sr-only">Select date range</span>
             <select value={range} onChange={(e) => setRange(e.target.value)} className="bg-transparent outline-none">
               <option>Today</option>
