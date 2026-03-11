@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
 import { DASHBOARD_HOME_ROUTE, DASHBOARD_SIDEBAR_SECTIONS } from "@/app/dashboard/_config/routes";
@@ -58,28 +58,14 @@ const mockPlatforms: Platform[] = [
 ];
 
 function AssetCenterContent() {
-  const [isClient, setIsClient] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [accounts, setAccounts] = useState<Account[]>(mockAccounts);
-  const [platforms, setPlatforms] = useState<Platform[]>(mockPlatforms);
+  const [accounts] = useState<Account[]>(mockAccounts);
+  const [platforms] = useState<Platform[]>(mockPlatforms);
   const [activeAccountType, setActiveAccountType] = useState<'live' | 'investment'>('live');
-  const [totalAssets, setTotalAssets] = useState(0);
-
-  useEffect(() => {
-    setIsClient(true);
-    // Calculate total assets
-    const total = accounts.reduce((sum, account) => sum + account.balance, 0);
-    setTotalAssets(total);
-  }, [accounts]);
-
-  if (!isClient) {
-    return (
-      <div className="tradewill-loading">
-        <div className="tradewill-spinner"></div>
-        <span>Loading...</span>
-      </div>
-    );
-  }
+  const totalAssets = useMemo(
+    () => accounts.reduce((sum, account) => sum + account.balance, 0),
+    [accounts],
+  );
 
   const filteredAccounts = accounts.filter(account => 
     activeAccountType === 'live' ? 
