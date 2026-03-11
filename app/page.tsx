@@ -459,7 +459,7 @@ export default function Home() {
         animate="animate"
         variants={staggerContainer}
         className="relative py-20 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 border-b border-gray-200 overflow-hidden section-padding"
-        style={{ backgroundImage: "url(/website_homepage_header%20(1).webp)", backgroundSize: "cover", backgroundPosition: "center" }}
+        style={{ backgroundImage: "url(/hero-trading-bg.svg)", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         {/* Animated background elements */}
         <div className="absolute inset-0">
