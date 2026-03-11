@@ -35,11 +35,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/primevest-icon.svg", type: "image/svg+xml" },
       { url: "/favicon.ico" }
     ],
     shortcut: "/favicon.ico",
-    apple: "/icon.svg"
+    apple: "/primevest-icon.svg"
   },
   twitter: {
     card: "summary",
