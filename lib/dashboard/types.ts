@@ -10,6 +10,37 @@ export interface PortfolioSummary {
   notificationCount: number;
 }
 
+export interface KpiMetric {
+  label: string;
+  value: number;
+  valueLabel: string;
+  deltaLabel: string;
+}
+
+export interface VolumeDataPoint {
+  label: string;
+  value: number;
+}
+
+export interface TopPairMetric {
+  pair: string;
+  volume: string;
+  spread: string;
+  pnl: string;
+}
+
+export interface NewsHeadline {
+  id: string;
+  text: string;
+}
+
+export interface ActivityFeedItem {
+  id: string;
+  action: string;
+  detail: string;
+  time: string;
+}
+
 export interface ActivityItem {
   id: string;
   type: string;
@@ -50,4 +81,16 @@ export interface PerformanceSeriesResponse {
   benchmarkChangePct: number;
   points: ChartSeriesPoint[];
   stats: PerformanceStats;
+}
+
+export type PerformanceRange = "7D" | "1M" | "3M";
+
+export interface DashboardData {
+  portfolioSummary: PortfolioSummary;
+  kpis: KpiMetric[];
+  volumeData: VolumeDataPoint[];
+  topPairs: TopPairMetric[];
+  activityFeed: ActivityFeedItem[];
+  marketNews: NewsHeadline[];
+  performanceSeries: Record<PerformanceRange, { label: string; value: number }[]>;
 }
