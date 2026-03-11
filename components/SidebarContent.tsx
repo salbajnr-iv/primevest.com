@@ -2,18 +2,26 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "./ThemeToggle";
-import { 
-  LayoutDashboard, 
-  Wallet, 
-  ArrowLeftRight, 
-  ClipboardList, 
-  ShieldCheck, 
-  Settings, 
-  Monitor, 
-  CheckSquare, 
-  Headphones
+import {
+  AlertCircle,
+  ArrowLeftRight,
+  BarChart3,
+  CheckSquare,
+  ChevronDown,
+  ClipboardList,
+  Headphones,
+  LayoutDashboard,
+  MessageCircle,
+  Plus,
+  Search,
+  Settings,
+  ShieldCheck,
+  TrendingUp,
+  Users,
+  Wallet,
 } from "lucide-react";
 
 interface SidebarContentProps {
@@ -21,125 +29,168 @@ interface SidebarContentProps {
   isMobile?: boolean;
 }
 
-const menuItems = [
-  { icon: LayoutDashboard, label: 'Overview', href: '/dashboard', active: true },
-  { icon: Wallet, label: 'Assets', href: '/wallets' },
-  { icon: ArrowLeftRight, label: 'Internal Transfer', href: '/wallets/transfer' },
-  { icon: ClipboardList, label: 'Order', href: '/dashboard/trade' },
-  { icon: ShieldCheck, label: 'Verification', href: '/verification' },
-  { icon: Settings, label: 'Settings', href: '/settings' },
-  { icon: Monitor, label: 'Platform', href: '/platform' },
-  { icon: CheckSquare, label: 'Task Center', href: '/tasks' },
-  { icon: Headphones, label: 'Customer Service', href: '/support' },
+type MenuSection = {
+  title: string;
+  items: { icon: React.ComponentType<{ size?: number; className?: string }>; label: string; href: string }[];
+};
+
+const menuSections: MenuSection[] = [
+  {
+    title: "Dashboard Overview",
+    items: [{ icon: LayoutDashboard, label: "Dashboard Home", href: "/dashboard" }],
+  },
+  {
+    title: "Portfolio Management",
+    items: [
+      { icon: Wallet, label: "My Portfolio", href: "/dashboard/portfolio" },
+      { icon: Plus, label: "Add Funds", href: "/dashboard/deposit" },
+      { icon: ArrowLeftRight, label: "Withdraw Funds", href: "/wallets/withdraw" },
+    ],
+  },
+  {
+    title: "Market Insights",
+    items: [
+      { icon: TrendingUp, label: "Market Overview", href: "/markets" },
+      { icon: BarChart3, label: "Top Gainers and Losers", href: "/tools/analysis" },
+      { icon: MessageCircle, label: "Market News", href: "/tools/market-news" },
+    ],
+  },
+  {
+    title: "Trading Tools",
+    items: [
+      { icon: LayoutDashboard, label: "Trade Now", href: "/dashboard/trade" },
+      { icon: ClipboardList, label: "Order History", href: "/dashboard/orders" },
+      { icon: CheckSquare, label: "Trading Strategies", href: "/tutorials" },
+    ],
+  },
+  {
+    title: "Account Settings",
+    items: [
+      { icon: Settings, label: "Profile Settings", href: "/settings" },
+      { icon: AlertCircle, label: "Notifications", href: "/notifications" },
+      { icon: ShieldCheck, label: "Security Settings", href: "/profile/verify" },
+    ],
+  },
+  {
+    title: "Help and Support",
+    items: [
+      { icon: MessageCircle, label: "FAQ", href: "/support/faqs" },
+      { icon: Headphones, label: "Contact Support", href: "/support" },
+      { icon: Users, label: "Community Forum", href: "/blog" },
+    ],
+  },
 ];
 
 export const SidebarContent = React.memo(function SidebarContent({ onClose, isMobile = false }: SidebarContentProps) {
   const { user, signOut } = useAuth();
-  const [activeItem, setActiveItem] = React.useState('Overview');
-  const sidebarRef = React.useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const [search, setSearch] = React.useState("");
+  const [openSections, setOpenSections] = React.useState<Record<string, boolean>>(
+    () => Object.fromEntries(menuSections.map((section) => [section.title, true])),
+  );
 
-  // Get user's display name with memoization
   const userName = React.useMemo(() => {
-    if (user?.user_metadata?.full_name) {
-      return user.user_metadata.full_name;
-    }
-    if (user?.email) {
-      return user.email.split("@")[0];
-    }
+    if (user?.user_metadata?.full_name) return user.user_metadata.full_name;
+    if (user?.email) return user.email.split("@")[0];
     return "User";
   }, [user]);
 
-  // Handle logout with error handling
+  const filteredSections = React.useMemo(() => {
+    if (!search.trim()) return menuSections;
+    const needle = search.toLowerCase();
+    return menuSections
+      .map((section) => ({
+        ...section,
+        items: section.items.filter((item) => item.label.toLowerCase().includes(needle)),
+      }))
+      .filter((section) => section.items.length > 0);
+  }, [search]);
+
+  const toggleSection = (title: string) => {
+    setOpenSections((prev) => ({ ...prev, [title]: !prev[title] }));
+  };
+
   const handleLogout = React.useCallback(async () => {
     try {
       onClose();
       await signOut();
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Logout failed:', error);
-      window.location.href = '/';
+      window.location.href = "/";
+    } catch {
+      window.location.href = "/";
     }
   }, [onClose, signOut]);
 
-  // Handle menu item click
-  const handleMenuItemClick = React.useCallback((label: string) => {
-    setActiveItem(label);
-    if (isMobile) {
-      onClose();
-    }
-  }, [isMobile, onClose]);
-
   return (
-    <aside 
-      ref={sidebarRef}
-      className={`bg-white border-r border-slate-200 overflow-y-auto ${isMobile ? "fixed left-0 top-0 z-50 h-screen w-72 max-w-[85vw] shadow-2xl" : "relative h-[calc(100vh-64px)] w-64 hidden md:block"}`}
+    <aside
+      className={`bg-white border-r border-slate-200 overflow-y-auto ${isMobile ? "fixed left-0 top-0 z-50 h-screen w-80 max-w-[88vw] shadow-2xl" : "relative h-[calc(100vh-64px)] w-80 hidden md:block"}`}
       role="navigation"
       aria-label="Main navigation"
     >
-      {/* Sidebar Header */}
-      <div className="p-6 border-b border-slate-200">
-        <div className="flex items-center gap-3">
+      <div className="p-5 border-b border-slate-200">
+        <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-            <span className="text-emerald-600 font-semibold text-lg">
-              {userName.charAt(0).toUpperCase()}
-            </span>
+            <span className="text-emerald-700 font-semibold text-lg">{userName.charAt(0).toUpperCase()}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <span className="block text-sm font-semibold text-slate-900 truncate">
-              {userName}
-            </span>
-            <span className="block text-xs text-slate-500 truncate">
-              {user?.email || "user@example.com"}
-            </span>
+            <span className="block text-sm font-semibold text-slate-900 truncate">{userName}</span>
+            <span className="block text-xs text-slate-500 truncate">{user?.email || "user@example.com"}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <ThemeToggle />
-            <button 
-              className={`p-2 rounded-lg hover:bg-slate-100 transition-colors ${isMobile ? "" : "hidden"}`} 
-              onClick={onClose} 
-              aria-label="Close menu"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
+          <ThemeToggle />
+        </div>
+
+        <div className="relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search features..."
+            className="w-full rounded-xl border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-emerald-500"
+          />
         </div>
       </div>
 
-      {/* Menu Items */}
-      <div className="py-6">
-        {menuItems.map((item) => (
-          <Link
-            key={item.label}
-            href={item.href}
-            className={`w-full flex items-center gap-3 px-6 py-3.5 text-sm font-medium transition-all border-r-2 ${
-              activeItem === item.label 
-                ? 'text-emerald-600 bg-emerald-50 border-emerald-600' 
-                : 'text-slate-500 hover:bg-slate-50 border-transparent hover:text-slate-900'
-            }`}
-            onClick={() => handleMenuItemClick(item.label)}
-            role="menuitem"
-          >
-            <item.icon size={18} />
-            {item.label}
-          </Link>
-        ))}
+      <div className="py-4">
+        {filteredSections.map((section) => {
+          const isOpen = openSections[section.title];
+          return (
+            <div key={section.title} className="mb-2">
+              <button
+                onClick={() => toggleSection(section.title)}
+                className="w-full px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center justify-between"
+              >
+                {section.title}
+                <ChevronDown size={14} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
+              </button>
+              {isOpen ? (
+                <div>
+                  {section.items.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        onClick={isMobile ? onClose : undefined}
+                        className={`mx-2 my-1 flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition-colors ${isActive ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+                      >
+                        <item.icon size={16} />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
       </div>
 
-      {/* Logout Button */}
-      <div className="sticky bottom-0 left-0 right-0 mt-4 p-6 border-t border-slate-200 bg-white">
+      <div className="sticky bottom-0 left-0 right-0 p-4 border-t border-slate-200 bg-white space-y-2">
         <button
-          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
           onClick={handleLogout}
           aria-label="Log out"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
+          <ShieldCheck size={15} />
           Log Out
         </button>
       </div>
