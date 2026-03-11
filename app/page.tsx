@@ -221,19 +221,19 @@ const primevestHighlights = [
 ];
 
 const restoredCardImages = [
-  "/vectors/expertise-connectivity.svg",
-  "/vectors/expertise-urban.svg",
-  "/vectors/expertise-parking.svg",
-  "/vectors/bg-indices.svg",
-  "/vectors/bg-metals.svg",
-  "/vectors/bg-stocks.svg"
+  "/api/investment-card-images/crypto",
+  "/api/investment-card-images/stocks",
+  "/api/investment-card-images/etfs",
+  "/api/investment-card-images/commodities",
+  "/api/investment-card-images/indices",
+  "/api/investment-card-images/metals"
 ];
 
 const restoredStepImages = [
-  "/vectors/hero-market-green.svg",
-  "/vectors/expertise-connectivity.svg",
-  "/vectors/expertise-urban.svg",
-  "/vectors/expertise-parking.svg"
+  "/api/step-card-images/register",
+  "/api/step-card-images/verify",
+  "/api/step-card-images/deposit",
+  "/api/step-card-images/trade"
 ];
 
 
