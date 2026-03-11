@@ -287,13 +287,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 text-gray-900 overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 text-gray-900 overflow-x-hidden pt-24">
       {/* Header */}
       <motion.header 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
-        className="absolute top-0 left-0 right-0 z-50 bg-transparent"
+        className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm"
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-5 flex items-center justify-between">
           <motion.div
@@ -308,7 +308,7 @@ export default function Home() {
                 alt="PrimeVest Financial Solutions, Inc."
                 width={140}
                 height={35}
-                className="h-8 w-auto transition-transform duration-300 group-hover:scale-105 brightness-0 invert"
+                className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
               />
             </Link>
           </motion.div>
@@ -320,7 +320,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="relative group"
             >
-              <button className="text-white/90 hover:text-emerald-300 transition duration-300 font-medium flex items-center gap-1">
+              <button className="text-gray-900 hover:text-emerald-600 transition duration-300 font-bold flex items-center gap-1">
                 <span className="relative">
                   Trading
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-300 transition-all duration-300 group-hover:w-full"></span>
@@ -345,7 +345,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="relative group"
             >
-              <button className="text-white/90 hover:text-emerald-300 transition duration-300 font-medium flex items-center gap-1">
+              <button className="text-gray-900 hover:text-emerald-600 transition duration-300 font-bold flex items-center gap-1">
                 <span className="relative">
                   Market
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-300 transition-all duration-300 group-hover:w-full"></span>
@@ -365,7 +365,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.5 }}
               className="relative group"
             >
-              <button className="text-white/90 hover:text-emerald-300 transition duration-300 font-medium flex items-center gap-1">
+              <button className="text-gray-900 hover:text-emerald-600 transition duration-300 font-bold flex items-center gap-1">
                 <span className="relative">
                   Platforms
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-300 transition-all duration-300 group-hover:w-full"></span>
@@ -390,7 +390,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.6 }}
               className="relative group"
             >
-              <button className="text-white/90 hover:text-emerald-300 transition duration-300 font-medium flex items-center gap-1">
+              <button className="text-gray-900 hover:text-emerald-600 transition duration-300 font-bold flex items-center gap-1">
                 <span className="relative">
                   Account
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-300 transition-all duration-300 group-hover:w-full"></span>
@@ -411,7 +411,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.7 }}
               className="relative group"
             >
-              <button className="text-white/90 hover:text-emerald-300 transition duration-300 font-medium flex items-center gap-1">
+              <button className="text-gray-900 hover:text-emerald-600 transition duration-300 font-bold flex items-center gap-1">
                 <span className="relative">
                   Tools
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-300 transition-all duration-300 group-hover:w-full"></span>
@@ -439,13 +439,13 @@ export default function Home() {
           >
             <Button 
               asChild
-              className="hidden sm:block bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg border border-white/30 font-medium text-sm transition-colors backdrop-blur-sm"
+              className="hidden sm:block bg-white hover:bg-emerald-50 text-gray-900 px-4 py-2 rounded-lg border border-gray-300 font-bold text-sm transition-colors"
             >
               <Link href="/auth/signin">Sign In</Link>
             </Button>
             <Button 
               asChild
-              className="bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors shadow-lg shadow-emerald-900/20"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg shadow-emerald-900/20"
             >
               <Link href="/auth/signup">Open Account</Link>
             </Button>
