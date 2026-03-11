@@ -23,7 +23,9 @@ function FocusDot(props: DotProps & { onActivate: (point: Point | null) => void;
       onBlur={() => onActivate(null)}
       aria-label={`${label} performance ${value}`}
       role="img"
-    />
+    >
+      <title>{label ? `${label}: ${value}` : "Performance datapoint"}</title>
+    </circle>
   );
 }
 

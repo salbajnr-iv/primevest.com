@@ -1,6 +1,7 @@
 'use client'
 
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
+import Link from 'next/link'
 import { useState } from 'react'
 
 interface AdminHeaderProps {
@@ -130,7 +131,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                   <p className="text-gray-400 text-xs mt-1">Administrator</p>
                 </div>
                 <div className="p-2">
-                  <a
+                  <Link
                     href="/admin/settings"
                     className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition-colors text-sm"
                   >
@@ -139,8 +140,8 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     Settings
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="/"
                     className="flex items-center gap-2 px-3 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition-colors text-sm"
                   >
@@ -148,7 +149,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                     Back to App
-                  </a>
+                  </Link>
                 </div>
               </div>
             )}
@@ -158,4 +159,3 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
     </header>
   )
 }
-

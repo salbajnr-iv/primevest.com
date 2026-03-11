@@ -29,8 +29,6 @@ export default function MetricsBarChart({ title, data }: { title: string; data: 
                   aria-label={`${entry.label} metric ${entry.value}`}
                   onFocus={() => setActive(entry)}
                   onMouseEnter={() => setActive(entry)}
-                  onBlur={() => setActive(null)}
-                  onMouseLeave={() => setActive(null)}
                   title={`${entry.label}: ${entry.value}`}
                 />
               ))}
