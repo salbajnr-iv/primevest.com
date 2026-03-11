@@ -2,10 +2,11 @@
 
 import * as React from "react";
 import {
-  AlertCircle,
-  ArrowRight,
-  Calendar,
-  MessageCircle,
+  Bell,
+  CalendarRange,
+  ChevronRight,
+  CircleAlert,
+  Newspaper,
   TrendingUp,
   Users,
 } from "lucide-react";
@@ -14,7 +15,6 @@ import MetricsBarChart from "@/components/dashboard/analytics/MetricsBarChart";
 import PerformanceLineChart from "@/components/dashboard/analytics/PerformanceLineChart";
 import DataTable from "@/components/dashboard/analytics/DataTable";
 import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
-import { useAuth } from "@/contexts/AuthContext";
 
 const kpis = [
   { label: "Portfolio Health", value: 86, valueLabel: "86/100", deltaLabel: "+3.5% vs last week" },
@@ -73,25 +73,23 @@ const marketNews = [
 ];
 
 export default function DashboardPage() {
-  const { user } = useAuth();
   const [range, setRange] = React.useState("Last 30 days");
   const [activePerfRange, setActivePerfRange] = React.useState<keyof typeof performanceSeries>("1M");
-  const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
 
   return (
     <DashboardShell
       title="Analytics Overview"
       subtitle="Unified KPI, live market pulse, and portfolio intelligence"
-      header={{ userName, portfolioValue: "68,415.92 €", portfolioChange: "+4.27%", notificationCount: 5 }}
+      header={{ userName: "Alex", portfolioValue: "68,415.92 €", portfolioChange: "+4.27%", notificationCount: 5 }}
     >
       <section className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Analytics Overview</h2>
-            <p className="text-sm text-slate-600 mt-1">Welcome back, {userName}! Here&apos;s your real-time investment snapshot.</p>
+            <p className="text-sm text-slate-600 mt-1">Welcome back, Alex! Here&apos;s your real-time investment snapshot.</p>
           </div>
           <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700">
-            <Calendar size={16} className="text-emerald-600" />
+            <CalendarRange size={16} className="text-emerald-600" />
             <span className="sr-only">Select date range</span>
             <select value={range} onChange={(e) => setRange(e.target.value)} className="bg-transparent outline-none">
               <option>Today</option>

@@ -6,21 +6,24 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "./ThemeToggle";
 import {
-  AlertCircle,
   ArrowLeftRight,
-  BarChart3,
-  CheckSquare,
+  Bell,
+  BookOpen,
   ChevronDown,
-  ClipboardList,
-  Headphones,
+  CircleHelp,
+  Compass,
+  Contact,
+  Home,
   LayoutDashboard,
-  MessageCircle,
-  Plus,
+  LineChart,
+  ListOrdered,
+  Lock,
+  Newspaper,
+  PlusCircle,
   Search,
-  Settings,
   ShieldCheck,
   TrendingUp,
-  Users,
+  UserCog,
   Wallet,
 } from "lucide-react";
 
@@ -37,46 +40,46 @@ type MenuSection = {
 const menuSections: MenuSection[] = [
   {
     title: "Dashboard Overview",
-    items: [{ icon: LayoutDashboard, label: "Dashboard Home", href: "/dashboard" }],
+    items: [{ icon: Home, label: "Dashboard Home", href: "/dashboard" }],
   },
   {
     title: "Portfolio Management",
     items: [
       { icon: Wallet, label: "My Portfolio", href: "/dashboard/portfolio" },
-      { icon: Plus, label: "Add Funds", href: "/dashboard/deposit" },
-      { icon: ArrowLeftRight, label: "Withdraw Funds", href: "/wallets/withdraw" },
+      { icon: PlusCircle, label: "Add Funds", href: "/dashboard/deposit" },
+      { icon: ArrowLeftRight, label: "Withdraw Funds", href: "/dashboard/withdraw" },
     ],
   },
   {
     title: "Market Insights",
     items: [
-      { icon: TrendingUp, label: "Market Overview", href: "/markets" },
-      { icon: BarChart3, label: "Top Gainers and Losers", href: "/tools/analysis" },
-      { icon: MessageCircle, label: "Market News", href: "/tools/market-news" },
+      { icon: TrendingUp, label: "Market Overview", href: "/dashboard/market" },
+      { icon: LineChart, label: "Top Gainers and Losers", href: "/dashboard/gainers-losers" },
+      { icon: Newspaper, label: "Market News", href: "/dashboard/news" },
     ],
   },
   {
     title: "Trading Tools",
     items: [
       { icon: LayoutDashboard, label: "Trade Now", href: "/dashboard/trade" },
-      { icon: ClipboardList, label: "Order History", href: "/dashboard/orders" },
-      { icon: CheckSquare, label: "Trading Strategies", href: "/tutorials" },
+      { icon: ListOrdered, label: "Order History", href: "/dashboard/orders" },
+      { icon: Compass, label: "Trading Strategies", href: "/dashboard/strategies" },
     ],
   },
   {
     title: "Account Settings",
     items: [
       { icon: Settings, label: "Profile Settings", href: "/settings" },
-      { icon: AlertCircle, label: "Notifications", href: "/notifications" },
-      { icon: ShieldCheck, label: "Security Settings", href: "/profile/verify" },
+      { icon: AlertCircle, label: "Notifications", href: "/settings/notifications" },
+      { icon: ShieldCheck, label: "Security Settings", href: "/settings/security" },
     ],
   },
   {
     title: "Help and Support",
     items: [
-      { icon: MessageCircle, label: "FAQ", href: "/support/faqs" },
+      { icon: MessageCircle, label: "FAQ", href: "/faq" },
       { icon: Headphones, label: "Contact Support", href: "/support" },
-      { icon: Users, label: "Community Forum", href: "/blog" },
+      { icon: Users, label: "Community Forum", href: "/community" },
     ],
   },
 ];
