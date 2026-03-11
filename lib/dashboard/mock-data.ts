@@ -1,8 +1,14 @@
 import {
+  ActivityFeedItem,
   ActivityItem,
+  DashboardData,
+  KpiMetric,
+  NewsHeadline,
   OrderHistoryItem,
   PerformanceSeriesResponse,
   PortfolioSummary,
+  TopPairMetric,
+  VolumeDataPoint,
 } from "@/lib/dashboard/types";
 
 export const portfolioSummary: PortfolioSummary = {
@@ -12,6 +18,72 @@ export const portfolioSummary: PortfolioSummary = {
   availableBalance: 8240.5,
   availableBalanceChangePct: 1.2,
   notificationCount: 3,
+};
+
+export const dashboardKpis: KpiMetric[] = [
+  { label: "Portfolio Health", value: 86, valueLabel: "86/100", deltaLabel: "+3.5% vs last week" },
+  { label: "Order Fill Rate", value: 92, valueLabel: "92%", deltaLabel: "+1.2% this month" },
+  { label: "Risk Coverage", value: 74, valueLabel: "74%", deltaLabel: "Needs rebalance" },
+];
+
+export const dashboardVolumeData: VolumeDataPoint[] = [
+  { label: "Mon", value: 12 },
+  { label: "Tue", value: 18 },
+  { label: "Wed", value: 9 },
+  { label: "Thu", value: 21 },
+  { label: "Fri", value: 25 },
+];
+
+export const dashboardTopPairs: TopPairMetric[] = [
+  { pair: "BTC/EUR", volume: "€1.2M", spread: "0.09%", pnl: "+€8,210" },
+  { pair: "ETH/EUR", volume: "€860K", spread: "0.12%", pnl: "+€4,144" },
+  { pair: "SOL/EUR", volume: "€510K", spread: "0.22%", pnl: "+€1,982" },
+];
+
+export const dashboardActivityFeed: ActivityFeedItem[] = [
+  { id: "activity-1", action: "Limit order executed", detail: "Bought 0.12 BTC at €58,240", time: "2 min ago" },
+  { id: "activity-2", action: "Risk alert resolved", detail: "Hedging ratio back above 70%", time: "18 min ago" },
+  { id: "activity-3", action: "Portfolio rebalance", detail: "Moved 8% from BTC to ETH", time: "1 hr ago" },
+];
+
+export const dashboardMarketNews: NewsHeadline[] = [
+  { id: "news-1", text: "ECB signals slower pace of rate cuts, risk assets steady." },
+  { id: "news-2", text: "Bitcoin ETF inflows rise for the fourth consecutive day." },
+  { id: "news-3", text: "Gold and crypto correlation drops to monthly lows." },
+];
+
+export const dashboardPerformanceSeries: DashboardData["performanceSeries"] = {
+  "7D": [
+    { label: "D1", value: 108 },
+    { label: "D2", value: 112 },
+    { label: "D3", value: 111 },
+    { label: "D4", value: 115 },
+    { label: "D5", value: 117 },
+  ],
+  "1M": [
+    { label: "W1", value: 100 },
+    { label: "W2", value: 105 },
+    { label: "W3", value: 103 },
+    { label: "W4", value: 111 },
+    { label: "W5", value: 116 },
+  ],
+  "3M": [
+    { label: "M1", value: 95 },
+    { label: "M2", value: 101 },
+    { label: "M3", value: 116 },
+    { label: "M4", value: 123 },
+    { label: "M5", value: 130 },
+  ],
+};
+
+export const fallbackDashboardData: DashboardData = {
+  portfolioSummary,
+  kpis: dashboardKpis,
+  volumeData: dashboardVolumeData,
+  topPairs: dashboardTopPairs,
+  activityFeed: dashboardActivityFeed,
+  marketNews: dashboardMarketNews,
+  performanceSeries: dashboardPerformanceSeries,
 };
 
 export const recentActivity: ActivityItem[] = [
