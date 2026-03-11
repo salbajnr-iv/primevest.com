@@ -498,7 +498,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="text-body text-white max-w-lg transition-professional"
+                  className="text-display text-sm font-semibold text-white max-w-lg transition-professional"
                 >
                   Join millions of traders on the world&apos;s leading trading platform. Access 300+ financial instruments with ultra-low spreads and fast execution.
                 </motion.p>

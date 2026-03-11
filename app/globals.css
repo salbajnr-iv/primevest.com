@@ -289,6 +289,10 @@ html {
   --color-brand-on-fill-brand: #fff;
   --color-brand-on-fill-brand-secondary: #fff;
   
+  /* Viewport Custom Properties - Updated by useWindowSize hook */
+  --viewport-width: 100vw;
+  --viewport-height: 100vh;
+  
   /* Neutrals */
   --color-neutrals-text-primary: #282828;
   --color-neutrals-text-primary-inverted: #fff;

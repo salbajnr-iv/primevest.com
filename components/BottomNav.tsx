@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Wallet, ArrowLeftRight, Settings } from "lucide-react";
+import { useWindowSize } from "@/hooks/useWindowSize";
 
 const items = [
   { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
@@ -18,9 +19,19 @@ interface BottomNavProps {
 
 export default function BottomNav({ onMenuClick, isMenuActive = false }: BottomNavProps) {
   const pathname = usePathname();
+  
+  // Auto-detect screen size for deterministic visibility
+  const { isMobile, isTablet, isReady } = useWindowSize();
+  
+  // Only show bottom nav on mobile and tablet screens (width < 1024px)
+  const showBottomNav = isReady && (isMobile || isTablet);
+
+  if (!showBottomNav) {
+    return null;
+  }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur">
       {onMenuClick ? (
         <button
           type="button"

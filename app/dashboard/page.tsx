@@ -2,14 +2,18 @@
 
 import * as React from "react";
 import {
+  AlertCircle,
+  ArrowRight,
   Bell,
   CalendarRange,
   ChevronRight,
   CircleAlert,
+  MessageCircle,
   Newspaper,
   TrendingUp,
   Users,
 } from "lucide-react";
+import { useWindowSize, BREAKPOINTS } from "@/hooks/useWindowSize";
 import KpiGauge from "@/components/dashboard/analytics/KpiGauge";
 import MetricsBarChart from "@/components/dashboard/analytics/MetricsBarChart";
 import PerformanceLineChart from "@/components/dashboard/analytics/PerformanceLineChart";
@@ -75,6 +79,22 @@ const marketNews = [
 export default function DashboardPage() {
   const [range, setRange] = React.useState("Last 30 days");
   const [activePerfRange, setActivePerfRange] = React.useState<keyof typeof performanceSeries>("1M");
+  
+  // Auto-detect screen size for responsive layout
+  const { isMobile, isTablet, isDesktop, isReady, breakpoint, width, height } = useWindowSize();
+
+  // Calculate responsive values based on screen size
+  const getGridCols = () => {
+    if (isMobile) return "grid-cols-1";
+    if (isTablet) return "grid-cols-2";
+    return "md:grid-cols-3";
+  };
+
+  const getPadding = () => {
+    if (isMobile) return "p-3";
+    if (isTablet) return "p-4";
+    return "p-4 md:p-5";
+  };
 
   return (
     <DashboardShell
@@ -195,7 +215,12 @@ export default function DashboardPage() {
 
       <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 flex items-center gap-2">
         <AlertCircle size={16} />
-        Mobile-responsive layout is enabled: sidebar collapses and all sections stack for smaller screens.
+        <span>Mobile-responsive layout is enabled: sidebar collapses and all sections stack for smaller screens.</span>
+        {isReady && (
+          <span className="ml-auto text-xs bg-amber-100 px-2 py-1 rounded">
+            {breakpoint.toUpperCase()} ({width}x{height})
+          </span>
+        )}
       </section>
     </DashboardShell>
   );
