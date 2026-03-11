@@ -69,17 +69,17 @@ const menuSections: MenuSection[] = [
   {
     title: "Account Settings",
     items: [
-      { icon: UserCog, label: "Profile Settings", href: "/settings" },
-      { icon: Bell, label: "Notifications", href: "/settings/notifications" },
-      { icon: Lock, label: "Security Settings", href: "/settings/security" },
+      { icon: Settings, label: "Profile Settings", href: "/settings" },
+      { icon: AlertCircle, label: "Notifications", href: "/settings/notifications" },
+      { icon: ShieldCheck, label: "Security Settings", href: "/settings/security" },
     ],
   },
   {
     title: "Help and Support",
     items: [
-      { icon: CircleHelp, label: "FAQ", href: "/faq" },
-      { icon: Contact, label: "Contact Support", href: "/support" },
-      { icon: BookOpen, label: "Community Forum", href: "/community" },
+      { icon: MessageCircle, label: "FAQ", href: "/faq" },
+      { icon: Headphones, label: "Contact Support", href: "/support" },
+      { icon: Users, label: "Community Forum", href: "/community" },
     ],
   },
 ];

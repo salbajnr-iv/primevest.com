@@ -144,7 +144,7 @@ export default function DashboardPage() {
             <span className="text-xs text-slate-500">Based on your watchlist</span>
           </div>
           <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-700 mb-3 flex items-center gap-2 overflow-x-auto whitespace-nowrap">
-            <Newspaper size={14} className="text-emerald-600" />
+            <MessageCircle size={14} className="text-emerald-600" />
             <span>{marketNews.join(" • ")}</span>
           </div>
           <DataTable
@@ -166,7 +166,7 @@ export default function DashboardPage() {
               <li key={activity.action} className="rounded-xl border border-slate-100 p-3 hover:bg-slate-50">
                 <p className="text-sm font-medium text-slate-900">{activity.action}</p>
                 <p className="text-xs text-slate-600">{activity.detail}</p>
-                <button className="mt-2 text-xs text-emerald-700 inline-flex items-center gap-1">Details <ChevronRight size={12} /></button>
+                <button className="mt-2 text-xs text-emerald-700 inline-flex items-center gap-1">Details <ArrowRight size={12} /></button>
                 <p className="text-[11px] text-slate-400 mt-1">{activity.time}</p>
               </li>
             ))}
@@ -176,7 +176,7 @@ export default function DashboardPage() {
 
       <section className="grid gap-3 md:grid-cols-2">
         <article className="rounded-2xl border border-slate-200 bg-white p-4">
-          <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2"><Bell size={16} className="text-emerald-600" /> Alerts & Notifications</h3>
+          <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2"><AlertCircle size={16} className="text-emerald-600" /> Alerts & Notifications</h3>
           <div className="space-y-2 text-sm text-slate-700">
             <p className="rounded-lg bg-slate-50 p-2">Price alert: BTC crossed €58,000.</p>
             <p className="rounded-lg bg-slate-50 p-2">Risk threshold warning for SOL allocation.</p>
@@ -194,7 +194,7 @@ export default function DashboardPage() {
       </section>
 
       <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 flex items-center gap-2">
-        <CircleAlert size={16} />
+        <AlertCircle size={16} />
         Mobile-responsive layout is enabled: sidebar collapses and all sections stack for smaller screens.
       </section>
     </DashboardShell>
