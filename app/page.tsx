@@ -230,10 +230,10 @@ const restoredCardImages = [
 ];
 
 const restoredStepImages = [
-  "/vectors/hero-market-green.svg",
-  "/vectors/expertise-connectivity.svg",
-  "/vectors/expertise-urban.svg",
-  "/vectors/expertise-parking.svg"
+  "/api/step-card-images/register",
+  "/api/step-card-images/verify",
+  "/api/step-card-images/deposit",
+  "/api/step-card-images/trade"
 ];
 
 
