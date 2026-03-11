@@ -1,0 +1,88 @@
+<svg width="1200" height="860" viewBox="0 0 1200 860" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#04070D"/>
+      <stop offset="1" stop-color="#0E1B2D"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#111E33" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#0A1424" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#71FF9D"/>
+      <stop offset="1" stop-color="#1CB86E"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="860" rx="28" fill="url(#bg)"/>
+  <rect x="24" y="24" width="1152" height="812" rx="24" stroke="#2A3F61" stroke-opacity="0.8"/>
+
+  <rect x="58" y="64" width="280" height="734" rx="20" fill="url(#panel)"/>
+  <text x="88" y="108" fill="#9CB2D4" font-size="20" font-family="Arial">Portfolio</text>
+  <text x="88" y="156" fill="#F3FAFF" font-size="38" font-family="Arial" font-weight="700">$248,430.52</text>
+  <text x="88" y="188" fill="#63E6A5" font-size="18" font-family="Arial">+12.84% this month</text>
+
+  <rect x="84" y="228" width="228" height="90" rx="14" fill="#11243A"/>
+  <text x="104" y="262" fill="#9CB2D4" font-size="16" font-family="Arial">Cash Balance</text>
+  <text x="104" y="294" fill="#F3FAFF" font-size="26" font-family="Arial" font-weight="700">$32,510</text>
+
+  <rect x="84" y="338" width="228" height="90" rx="14" fill="#11243A"/>
+  <text x="104" y="372" fill="#9CB2D4" font-size="16" font-family="Arial">Risk Score</text>
+  <text x="104" y="404" fill="#F3FAFF" font-size="26" font-family="Arial" font-weight="700">Balanced</text>
+
+  <text x="88" y="474" fill="#9CB2D4" font-size="16" font-family="Arial">Allocation</text>
+  <rect x="88" y="490" width="210" height="16" rx="8" fill="#17314A"/>
+  <rect x="88" y="490" width="106" height="16" rx="8" fill="#1FD07A"/>
+  <rect x="88" y="518" width="210" height="16" rx="8" fill="#17314A"/>
+  <rect x="88" y="518" width="74" height="16" rx="8" fill="#40B4FF"/>
+  <rect x="88" y="546" width="210" height="16" rx="8" fill="#17314A"/>
+  <rect x="88" y="546" width="30" height="16" rx="8" fill="#F9B75D"/>
+
+  <text x="310" y="503" fill="#A5BDDE" font-size="14" font-family="Arial" text-anchor="end">Crypto 51%</text>
+  <text x="310" y="531" fill="#A5BDDE" font-size="14" font-family="Arial" text-anchor="end">Stocks 35%</text>
+  <text x="310" y="559" fill="#A5BDDE" font-size="14" font-family="Arial" text-anchor="end">Forex 14%</text>
+
+  <rect x="368" y="64" width="778" height="350" rx="20" fill="url(#panel)"/>
+  <text x="398" y="108" fill="#DDEBFF" font-size="24" font-family="Arial" font-weight="700">Performance</text>
+  <text x="398" y="138" fill="#8EA8CD" font-size="16" font-family="Arial">30D Portfolio Trend</text>
+
+  <g opacity="0.35" stroke="#4E668B">
+    <path d="M398 176H1110"/><path d="M398 224H1110"/><path d="M398 272H1110"/><path d="M398 320H1110"/><path d="M398 368H1110"/>
+  </g>
+
+  <path d="M398 326C438 300 470 286 510 291C550 295 590 350 632 332C674 313 720 225 761 222C802 220 840 265 884 249C929 232 970 185 1018 177C1064 169 1089 151 1110 124" stroke="#78FFAD" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M398 326C438 300 470 286 510 291C550 295 590 350 632 332C674 313 720 225 761 222C802 220 840 265 884 249C929 232 970 185 1018 177C1064 169 1089 151 1110 124L1110 382H398V326Z" fill="url(#green)" fill-opacity="0.17"/>
+
+  <circle cx="884" cy="249" r="6" fill="#78FFAD"/>
+  <rect x="905" y="219" width="138" height="54" rx="10" fill="#0F2840"/>
+  <text x="923" y="243" fill="#A7C6E7" font-size="12" font-family="Arial">Best Day Return</text>
+  <text x="923" y="260" fill="#F3FAFF" font-size="16" font-family="Arial" font-weight="700">+$4,905.66</text>
+
+  <rect x="368" y="436" width="378" height="362" rx="20" fill="url(#panel)"/>
+  <text x="398" y="478" fill="#DDEBFF" font-size="24" font-family="Arial" font-weight="700">Open Positions</text>
+
+  <g font-family="Arial" font-size="15">
+    <text x="398" y="522" fill="#91A9CB">Symbol</text><text x="526" y="522" fill="#91A9CB">Qty</text><text x="614" y="522" fill="#91A9CB">P/L</text>
+
+    <text x="398" y="560" fill="#F3FAFF">BTCUSD</text><text x="526" y="560" fill="#D6E6FF">0.85</text><text x="614" y="560" fill="#66E39C">+$2,184</text>
+    <text x="398" y="596" fill="#F3FAFF">EURUSD</text><text x="526" y="596" fill="#D6E6FF">3.20</text><text x="614" y="596" fill="#66E39C">+$892</text>
+    <text x="398" y="632" fill="#F3FAFF">AAPL</text><text x="526" y="632" fill="#D6E6FF">46</text><text x="614" y="632" fill="#66E39C">+$1,431</text>
+    <text x="398" y="668" fill="#F3FAFF">XAUUSD</text><text x="526" y="668" fill="#D6E6FF">2.1</text><text x="614" y="668" fill="#FF8D8D">-$327</text>
+    <text x="398" y="704" fill="#F3FAFF">ETHUSD</text><text x="526" y="704" fill="#D6E6FF">7.8</text><text x="614" y="704" fill="#66E39C">+$963</text>
+  </g>
+
+  <rect x="768" y="436" width="378" height="362" rx="20" fill="url(#panel)"/>
+  <text x="798" y="478" fill="#DDEBFF" font-size="24" font-family="Arial" font-weight="700">Asset Mix</text>
+
+  <circle cx="936" cy="618" r="118" fill="#11243A"/>
+  <path d="M936 500A118 118 0 0 1 1048 667L936 618Z" fill="#2FD581"/>
+  <path d="M1048 667A118 118 0 0 1 831 689L936 618Z" fill="#4CB7FF"/>
+  <path d="M831 689A118 118 0 0 1 936 500L936 618Z" fill="#F7B864"/>
+  <circle cx="936" cy="618" r="54" fill="#0D1A2D"/>
+
+  <g font-family="Arial" font-size="16" fill="#D5E7FF">
+    <rect x="798" y="708" width="12" height="12" rx="3" fill="#2FD581"/><text x="818" y="719">Crypto</text>
+    <rect x="890" y="708" width="12" height="12" rx="3" fill="#4CB7FF"/><text x="910" y="719">Stocks</text>
+    <rect x="980" y="708" width="12" height="12" rx="3" fill="#F7B864"/><text x="1000" y="719">Forex</text>
+  </g>
+</svg>

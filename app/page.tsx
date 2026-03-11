@@ -459,7 +459,7 @@ export default function Home() {
         animate="animate"
         variants={staggerContainer}
         className="relative py-20 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 border-b border-gray-200 overflow-hidden section-padding"
-        style={{ backgroundImage: "url(/website_homepage_header%20(1).webp)", backgroundSize: "cover", backgroundPosition: "center" }}
+        style={{ backgroundImage: "url(/hero-trading-bg.svg)", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         {/* Animated background elements */}
         <div className="absolute inset-0">
@@ -468,6 +468,15 @@ export default function Home() {
         </div>
         
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"], opacity: [0.2, 0.35, 0.2] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+          style={{
+            backgroundImage: "radial-gradient(circle at 20% 20%, rgba(16,185,129,0.25), transparent 45%), radial-gradient(circle at 80% 80%, rgba(34,197,94,0.2), transparent 40%)",
+            backgroundSize: "180% 180%"
+          }}
+        />
         <div className="absolute inset-0 bg-black/55"></div>
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -489,7 +498,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="text-body text-emerald-50 max-w-lg transition-professional"
+                  className="text-body text-white max-w-lg transition-professional"
                 >
                   Join millions of traders on the world&apos;s leading trading platform. Access 300+ financial instruments with ultra-low spreads and fast execution.
                 </motion.p>
@@ -546,75 +555,35 @@ export default function Home() {
               </motion.div>
             </motion.div>
 
-            {/* Right Image - Trading Dashboard Preview */}
+            {/* Right Image - Portfolio Dashboard Preview */}
             <motion.div 
               variants={slideInFromRight}
               className="hidden lg:flex justify-center w-full max-w-2xl"
             >
-              <div className="relative">
-                {/* Glowing effect around the dashboard */}
-                <div className="absolute -inset-4 bg-linear-to-r from-emerald-500/10 to-blue-500/10 rounded-3xl blur-xl opacity-75 animate-pulse"></div>
-                
-                {/* Main dashboard container */}
-                <div className="relative h-96 w-full bg-linear-to-br from-white to-gray-50 rounded-2xl border border-gray-200 p-4 sm:p-6 flex flex-col shadow-xl overflow-hidden group card-elevated">
-                  {/* Micro-interaction: subtle glow on hover */}
-                  <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none"></div>
-                  
-                  {/* Simulated chart area */}
-                  <div className="flex-1 relative">
-                    <div className="absolute inset-0 bg-linear-to-br from-emerald-50/10 to-transparent rounded-xl"></div>
-                    
-                    {/* Simulated price chart */}
-                    <div className="absolute bottom-0 left-0 right-0 h-3/4">
-                      <svg viewBox="0 0 400 200" className="w-full h-full">
-                        <defs>
-                          <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
-                            <stop offset="100%" stopColor="#10b981" stopOpacity="0.1" />
-                          </linearGradient>
-                        </defs>
-                        <path 
-                          d="M 0 150 Q 50 120 100 130 T 200 110 T 300 90 T 400 100" 
-                          stroke="#10b981" 
-                          strokeWidth="3" 
-                          fill="none"
-                        />
-                        <path 
-                          d="M 0 150 Q 50 120 100 130 T 200 110 T 300 90 T 400 100 L 400 200 L 0 200 Z" 
-                          fill="url(#chartGradient)"
-                        />
-                      </svg>
-                    </div>
-                    
-                    {/* Trading info overlay */}
-                    <div className="absolute top-4 left-4 right-4 flex justify-between">
-                      <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 group-hover:bg-white/90 transition-colors duration-300 border border-gray-200">
-                        <div className="text-xs text-gray-500">EUR/USD</div>
-                        <div className="text-sm font-semibold text-gray-900">1.0845</div>
-                      </div>
-                      <div className="bg-emerald-50/80 backdrop-blur-sm rounded-lg px-3 py-2 border border-emerald-200 group-hover:bg-emerald-100/90 transition-colors duration-300">
-                        <div className="text-xs text-emerald-600">24h Change</div>
-                        <div className="text-sm font-semibold text-emerald-700">+0.32%</div>
-                      </div>
-                    </div>
+              <div className="relative w-full">
+                <div className="absolute -inset-5 rounded-3xl bg-linear-to-r from-emerald-400/20 via-cyan-400/10 to-emerald-500/20 blur-2xl animate-pulse"></div>
+                <motion.div
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                  className="relative overflow-hidden rounded-3xl border border-white/20 bg-black/35 backdrop-blur-sm shadow-2xl"
+                >
+                  <Image
+                    src="/portfolio-dashboard.svg"
+                    alt="Detailed portfolio dashboard with allocation, pnl, and positions"
+                    width={1200}
+                    height={860}
+                    className="h-96 w-full object-cover"
+                    priority
+                  />
+                  <div className="absolute left-5 top-5 rounded-xl border border-emerald-300/35 bg-black/60 px-4 py-2 text-white backdrop-blur">
+                    <p className="text-[11px] uppercase tracking-wider text-emerald-200">Portfolio Value</p>
+                    <p className="text-lg font-semibold">$248,430.52</p>
                   </div>
-                  
-                  {/* Stats bar */}
-                  <div className="flex justify-between pt-4 border-t border-gray-200">
-                    <div className="text-center group-hover:scale-105 transition-transform duration-300">
-                      <div className="text-xs text-gray-500">Traders</div>
-                      <div className="text-sm font-bold text-gray-900">2.5M+</div>
-                    </div>
-                    <div className="text-center group-hover:scale-105 transition-transform duration-300">
-                      <div className="text-xs text-gray-500">Volume</div>
-                      <div className="text-sm font-bold text-gray-900">$4.2B</div>
-                    </div>
-                    <div className="text-center group-hover:scale-105 transition-transform duration-300">
-                      <div className="text-xs text-gray-500">Assets</div>
-                      <div className="text-sm font-bold text-gray-900">300+</div>
-                    </div>
+                  <div className="absolute right-5 bottom-5 rounded-xl border border-emerald-300/35 bg-black/60 px-4 py-2 text-white backdrop-blur">
+                    <p className="text-[11px] uppercase tracking-wider text-emerald-200">Open Positions</p>
+                    <p className="text-lg font-semibold">18 Active</p>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </motion.div>
           </div>
