@@ -6,21 +6,24 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import AuthLogo from '@/components/AuthLogo'
 
+export const dynamic = 'force-dynamic'
 function OtpVerifyForm() {
   const [token, setToken] = useState('')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-  const router = useRouter()
-  const { verifyOtp } = useAuth()
   const [type, setType] = useState('email')
 
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { verifyOtp } = useAuth()
+
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setType(params.get('type') || 'email')
-  }, [])
+    setType(searchParams.get('type') || 'email')
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,7 +36,6 @@ function OtpVerifyForm() {
         setError(error.message)
       } else {
         setSuccess(true)
-        // Redirect based on the type of verification
         setTimeout(() => {
           if (type === 'email') {
             router.push('/auth/signin')
@@ -52,7 +54,6 @@ function OtpVerifyForm() {
   }
 
   const handleResend = async () => {
-    // In a real implementation, this would call a resend OTP API
     alert('Resend functionality would be implemented here. For password reset, please check your email for the reset link.')
   }
 
@@ -60,14 +61,10 @@ function OtpVerifyForm() {
     <div className="min-h-screen bg-white flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <Card className="w-full max-w-sm sm:max-w-md shadow-lg border-gray-200">
         <CardHeader className="space-y-1 text-center pb-6">
-          <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-green-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
+          <AuthLogo />
           <CardTitle className="text-2xl font-bold text-gray-900">Enter verification code</CardTitle>
           <CardDescription className="text-gray-600">
-            {type === 'recovery' 
+            {type === 'recovery'
               ? 'Enter the code from your password reset email'
               : "We've sent a code to your email"}
           </CardDescription>
@@ -133,7 +130,7 @@ function OtpVerifyForm() {
               <div>
                 <p className="font-medium text-green-800">Verification successful!</p>
                 <p className="text-sm text-gray-600 mt-1">
-                  {type === 'recovery' 
+                  {type === 'recovery'
                     ? 'Your identity has been verified. Redirecting you to set a new password...'
                     : 'Your email has been verified. Redirecting...'}
                 </p>
@@ -142,7 +139,7 @@ function OtpVerifyForm() {
           )}
 
           <div className="mt-6 text-center text-sm text-gray-600">
-            <p>Didn&apos;t receive the code?{' '}</p>
+            <p>Didn't receive the code?{' '}</p>
             <button
               type="button"
               className="text-green-800 hover:text-green-900 hover:underline font-medium transition-colors"
@@ -169,11 +166,7 @@ export default function OtpVerifyPage() {
       <div className="min-h-screen bg-white flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <Card className="w-full max-w-sm sm:max-w-md shadow-lg border-gray-200">
           <CardHeader className="space-y-1 text-center pb-6">
-            <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-green-800 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
+            <AuthLogo className="w-16 h-16 mx-auto mb-4 animate-pulse" />
             <CardTitle className="text-2xl font-bold text-gray-900">Loading...</CardTitle>
           </CardHeader>
         </Card>
@@ -183,4 +176,3 @@ export default function OtpVerifyPage() {
     </Suspense>
   )
 }
-

@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import BottomNav from "@/components/BottomNav";
+import { DASHBOARD_HOME_ROUTE, DASHBOARD_SIDEBAR_SECTIONS } from "@/app/dashboard/_config/routes";
 
 export const dynamic = 'force-dynamic';
 import { 
@@ -127,186 +128,245 @@ function TradePageContent() {
   };
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        <header className="header">
-          <div className="header-left">
-            <Link href="/dashboard" className="header-back">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
+    <div className="tradewill-dashboard">
+      <div className="tradewill-layout">
+        {/* Sidebar Navigation */}
+        <aside className="tradewill-sidebar">
+          <div className="tradewill-sidebar-header">
+            <Link href="/dashboard" className="tradewill-logo">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
               </svg>
+              PrimeVest
             </Link>
-            <span className="header-eyebrow">TRADE</span>
-            <div className="header-title">Trade<span className="live-dot" style={{ marginLeft: 8 }}></span></div>
           </div>
-          <button className="sync-btn" onClick={() => setIsSidebarOpen(true)} aria-label="Open menu" title="Open menu">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
-        </header>
-
-        <section className="trading-pairs">
-          <div className="pairs-scroll">
-            {tradingPairs.map((pair) => (
-              <button key={pair.id} className={`pair-chip ${activePair.id === pair.id ? "active" : ""}`} onClick={() => setActivePair(pair)}>
-                <span className="pair-name">{pair.base}/EUR</span>
-                <span className={`pair-change ${pair.change24h >= 0 ? "positive" : "negative"}`}>
-                  {pair.change24h >= 0 ? "+" : ""}{pair.change24h.toFixed(2)}%
-                </span>
-              </button>
+          
+          <nav className="tradewill-nav">
+            {DASHBOARD_SIDEBAR_SECTIONS.map((section) => (
+              <div key={section.title} className="tradewill-nav-section">
+                <div className="tradewill-nav-section-title">{section.title}</div>
+                {section.items.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.path}
+                    className={`tradewill-nav-item ${item.path === "/dashboard/trade" ? "active" : ""}`.trim()}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
             ))}
-          </div>
-        </section>
+          </nav>
+        </aside>
 
-        <section className="price-display">
-          <div className="current-price">
-            <div className="price-header">
-              <span className="price-label">Current Price</span>
+        {/* Main Content */}
+        <main className="tradewill-main">
+          {/* Header */}
+          <header className="tradewill-header">
+            <div className="tradewill-header-left">
+              <div className="tradewill-breadcrumb">
+                <Link href={DASHBOARD_HOME_ROUTE.path} className="tradewill-nav-item">{DASHBOARD_HOME_ROUTE.label}</Link>
+                <span className="tradewill-breadcrumb-separator">/</span>
+                <span>Trade</span>
+              </div>
             </div>
-            <div className="price-value">€{formatPrice(currentPrice, activePair.base)}<small>EUR</small></div>
-            <div className="price-details">
-              <span className={`price-change ${activePair.change24h >= 0 ? "positive" : "negative"}`}>
-                {activePair.change24h >= 0 ? "+" : ""}{activePair.change24h.toFixed(2)}% (24h)
-              </span>
-            </div>
-          </div>
-        </section>
-
-        <section className="order-form">
-          <div className="order-tabs">
-            <button className={`order-tab ${formData.side === "buy" ? "active" : ""}`} onClick={() => updateField("side", "buy")}>Buy {activePair.base}</button>
-            <button className={`order-tab ${formData.side === "sell" ? "active" : ""}`} onClick={() => updateField("side", "sell")}>Sell {activePair.base}</button>
-          </div>
-          <div className="order-type-tabs">
-            <button className={`order-type-tab ${formData.orderType === "limit" ? "active" : ""}`} onClick={() => updateField("orderType", "limit")}>Limit</button>
-            <button className={`order-type-tab ${formData.orderType === "market" ? "active" : ""}`} onClick={() => updateField("orderType", "market")}>Market</button>
-          </div>
-          <div className="order-inputs">
-            {formData.orderType === "limit" && (
-              <div className="order-input-group">
-                <label>Price (EUR)</label>
-                <div className="input-with-actions">
-                  <button className="input-action" onClick={() => updateField("price", (parseFloat(formData.price) - activePair.price * 0.001).toFixed(activePair.priceDecimals))}>−</button>
-                  <input type="text" value={formData.price} onChange={(e) => updateField("price", e.target.value)} className="order-input" placeholder="0.00" />
-                  <button className="input-action" onClick={() => updateField("price", (parseFloat(formData.price) + activePair.price * 0.001).toFixed(activePair.priceDecimals))}>+</button>
+            
+            <div className="tradewill-header-right">
+              <div className="tradewill-user-info">
+                <div className="tradewill-user-avatar">U</div>
+                <div>
+                  <div className="tradewill-user-name">User</div>
+                  <div className="tradewill-verification-status">Verification: Not Verified</div>
                 </div>
               </div>
-            )}
-            <div className="order-input-group">
-              <label>Amount ({activePair.base})</label>
-              <div className="input-with-actions">
-                <button className="input-action" onClick={setMaxAmount}>Max</button>
-                <input type="text" placeholder="0.00" value={formData.amount} onChange={(e) => updateField("amount", e.target.value)} className="order-input" />
-                <button className="input-action">{activePair.base}</button>
-              </div>
             </div>
-            <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-              {[25, 50, 75, 100].map(pct => (
-                <button key={pct} onClick={() => setPercentage(pct / 100)} style={{ flex: 1, padding: "6px 8px", borderRadius: 6, background: "var(--bg-soft)", border: "1px solid var(--border)", fontSize: 11, fontWeight: 600, color: "var(--muted)", cursor: "pointer" }}>
-                  {pct}%
-                </button>
-              ))}
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--muted)", marginTop: 8 }}>
-              <span>Available</span>
-              <span style={{ fontWeight: 600 }}>€{availableBalance.toLocaleString("de-DE", { minimumFractionDigits: 2 })}</span>
-            </div>
-            {formData.total && (
-              <>
-                <div className="order-total"><span>Total</span><span className="total-value">€{parseFloat(formData.total).toLocaleString("de-DE", { minimumFractionDigits: 2 })}</span></div>
-                {fee && <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--muted)", padding: "8px 10px", background: "var(--bg-soft)", borderRadius: 8 }}><span>Fee ({fee.feePercent.toFixed(2)}%)</span><span>€{fee.fee.toFixed(2)}</span></div>}
-              </>
-            )}
-            {!validation.isValid && validation.errors.length > 0 && (
-              <div style={{ padding: 10, background: "rgba(214, 69, 69, 0.1)", borderRadius: 8, fontSize: 11, color: "#d64545" }}>
-                {validation.errors.map((err, i) => <div key={i}>• {err}</div>)}
-              </div>
-            )}
-            {orderError && <div style={{ padding: 10, background: "rgba(214, 69, 69, 0.1)", borderRadius: 8, fontSize: 11, color: "#d64545" }}>{orderError}</div>}
-            {orderSuccess && <div style={{ padding: 10, background: "rgba(34, 197, 94, 0.1)", borderRadius: 8, fontSize: 11, color: "#22c55e", whiteSpace: "pre-line" }}>{orderSuccess}</div>}
-            <button className={`order-button ${formData.side}`} onClick={handleOrderSubmit} disabled={!validation.isValid || isSubmittingOrder} style={{ opacity: (validation.isValid && !isSubmittingOrder) ? 1 : 0.5 }}>
-              {isSubmittingOrder ? 'Placing Order...' : `${formData.side === "buy" ? "Buy" : "Sell"} ${activePair.base}`}
-            </button>
-          </div>
-        </section>
+          </header>
 
-        <div className="trading-view-tabs" style={{ display: "flex", gap: "4px", marginTop: "12px", background: "var(--bg-soft)", padding: "4px", borderRadius: "8px" }}>
-          <button className={`category-chip ${!showOrderHistory && !showDepthChart ? "active" : ""}`} onClick={() => { setShowOrderHistory(false); setShowDepthChart(false); }} style={{ flex: 1 }}>Order Book</button>
-          <button className={`category-chip ${showOrderHistory ? "active" : ""}`} onClick={() => { setShowOrderHistory(true); setShowDepthChart(false); }} style={{ flex: 1 }}>Recent Trades</button>
-          <button className={`category-chip ${showDepthChart ? "active" : ""}`} onClick={() => { setShowOrderHistory(false); setShowDepthChart(true); }} style={{ flex: 1 }}>Depth Chart</button>
-        </div>
+          {/* Page Content */}
+          <div className="tradewill-content">
+            {/* Trading Interface */}
+            <section className="tradewill-asset-overview">
+              <div className="tradewill-section-header">
+                <div>
+                  <h1 className="tradewill-page-title">Trade<span className="live-dot" style={{ marginLeft: 8 }}></span></h1>
+                  <div className="tradewill-total-asset-label">Professional Trading Interface</div>
+                </div>
+              </div>
 
-        {!showOrderHistory && !showDepthChart && (
-          <section className="order-book">
-            <div className="order-book-container">
-              <div className="order-book-section asks">
-                <div className="order-book-header"><span>Price (EUR)</span><span>Amount</span><span>Total</span></div>
-                <div className="order-book-list">
-                  {orderBook.asks.slice().reverse().slice(0, 8).map((ask, index) => (
-                    <div key={`ask-${index}`} className="order-book-row" onClick={() => updateField("price", ask.price.toFixed(activePair.priceDecimals))} style={{ cursor: "pointer" }}>
-                      <span className="row-price negative">{ask.price.toFixed(activePair.priceDecimals)}</span>
-                      <span className="row-amount">{ask.amount.toFixed(activePair.amountDecimals)}</span>
-                      <span className="row-total">{ask.total.toLocaleString("de-DE")}</span>
-                    </div>
+              {/* Trading Pairs */}
+              <section className="trading-pairs">
+                <div className="pairs-scroll">
+                  {tradingPairs.map((pair) => (
+                    <button key={pair.id} className={`pair-chip ${activePair.id === pair.id ? "active" : ""}`} onClick={() => setActivePair(pair)}>
+                      <span className="pair-name">{pair.base}/EUR</span>
+                      <span className={`pair-change ${pair.change24h >= 0 ? "positive" : "negative"}`}>
+                        {pair.change24h >= 0 ? "+" : ""}{pair.change24h.toFixed(2)}%
+                      </span>
+                    </button>
                   ))}
                 </div>
-              </div>
-              <div className="order-book-spread">
-                <span className="spread-price">€{currentPrice.toFixed(activePair.priceDecimals)}</span>
-                <span className="spread-label">Current Price</span>
-              </div>
-              <div className="order-book-section bids">
-                <div className="order-book-list">
-                  {orderBook.bids.slice(0, 8).map((bid, index) => (
-                    <div key={`bid-${index}`} className="order-book-row" onClick={() => updateField("price", bid.price.toFixed(activePair.priceDecimals))} style={{ cursor: "pointer" }}>
-                      <span className="row-price positive">{bid.price.toFixed(activePair.priceDecimals)}</span>
-                      <span className="row-amount">{bid.amount.toFixed(activePair.amountDecimals)}</span>
-                      <span className="row-total">{bid.total.toLocaleString("de-DE")}</span>
+              </section>
+
+              {/* Price Display */}
+              <section className="price-display">
+                <div className="current-price">
+                  <div className="price-header">
+                    <span className="price-label">Current Price</span>
+                  </div>
+                  <div className="price-value">€{formatPrice(currentPrice, activePair.base)}<small>EUR</small></div>
+                  <div className="price-details">
+                    <span className={`price-change ${activePair.change24h >= 0 ? "positive" : "negative"}`}>
+                      {activePair.change24h >= 0 ? "+" : ""}{activePair.change24h.toFixed(2)}% (24h)
+                    </span>
+                  </div>
+                </div>
+              </section>
+
+              {/* Order Form */}
+              <section className="order-form">
+                <div className="order-tabs">
+                  <button className={`order-tab ${formData.side === "buy" ? "active" : ""}`} onClick={() => updateField("side", "buy")}>Buy {activePair.base}</button>
+                  <button className={`order-tab ${formData.side === "sell" ? "active" : ""}`} onClick={() => updateField("side", "sell")}>Sell {activePair.base}</button>
+                </div>
+                <div className="order-type-tabs">
+                  <button className={`order-type-tab ${formData.orderType === "limit" ? "active" : ""}`} onClick={() => updateField("orderType", "limit")}>Limit</button>
+                  <button className={`order-type-tab ${formData.orderType === "market" ? "active" : ""}`} onClick={() => updateField("orderType", "market")}>Market</button>
+                </div>
+                <div className="order-inputs">
+                  {formData.orderType === "limit" && (
+                    <div className="order-input-group">
+                      <label>Price (EUR)</label>
+                      <div className="input-with-actions">
+                        <button className="input-action" onClick={() => updateField("price", (parseFloat(formData.price) - activePair.price * 0.001).toFixed(activePair.priceDecimals))}>−</button>
+                        <input type="text" value={formData.price} onChange={(e) => updateField("price", e.target.value)} className="order-input" placeholder="0.00" />
+                        <button className="input-action" onClick={() => updateField("price", (parseFloat(formData.price) + activePair.price * 0.001).toFixed(activePair.priceDecimals))}>+</button>
+                      </div>
                     </div>
-                  ))}
+                  )}
+                  <div className="order-input-group">
+                    <label>Amount ({activePair.base})</label>
+                    <div className="input-with-actions">
+                      <button className="input-action" onClick={setMaxAmount}>Max</button>
+                      <input type="text" placeholder="0.00" value={formData.amount} onChange={(e) => updateField("amount", e.target.value)} className="order-input" />
+                      <button className="input-action">{activePair.base}</button>
+                    </div>
+                  </div>
+                  <div className="percentage-buttons">
+                    {[25, 50, 75, 100].map(pct => (
+                      <button key={pct} onClick={() => setPercentage(pct / 100)} className="percentage-btn">
+                        {pct}%
+                      </button>
+                    ))}
+                  </div>
+                  <div className="balance-info">
+                    <span>Available</span>
+                    <span>€{availableBalance.toLocaleString("de-DE", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  {formData.total && (
+                    <>
+                      <div className="order-total"><span>Total</span><span className="total-value">€{parseFloat(formData.total).toLocaleString("de-DE", { minimumFractionDigits: 2 })}</span></div>
+                      <div className="fee-info">
+                        <span>Fee ({fee.feePercent.toFixed(2)}%)</span>
+                        <span>€{fee.fee.toFixed(2)}</span>
+                      </div>
+                    </>
+                  )}
+                  {!validation.isValid && validation.errors.length > 0 && (
+                    <div className="error-message">
+                      {validation.errors.map((err, i) => <div key={i}>• {err}</div>)}
+                    </div>
+                  )}
+                  {orderError && <div className="error-message">{orderError}</div>}
+                  {orderSuccess && <div className="success-message" style={{ whiteSpace: "pre-line" }}>{orderSuccess}</div>}
+                  <button className={`order-button ${formData.side}`} onClick={handleOrderSubmit} disabled={!validation.isValid || isSubmittingOrder} style={{ opacity: (validation.isValid && !isSubmittingOrder) ? 1 : 0.5 }}>
+                    {isSubmittingOrder ? 'Placing Order...' : `${formData.side === "buy" ? "Buy" : "Sell"} ${activePair.base}`}
+                  </button>
                 </div>
+              </section>
+
+              {/* Trading View Tabs */}
+              <div className="trading-view-tabs">
+                <button className={`category-chip ${!showOrderHistory && !showDepthChart ? "active" : ""}`} onClick={() => { setShowOrderHistory(false); setShowDepthChart(false); }}>Order Book</button>
+                <button className={`category-chip ${showOrderHistory ? "active" : ""}`} onClick={() => { setShowOrderHistory(true); setShowDepthChart(false); }}>Recent Trades</button>
+                <button className={`category-chip ${showDepthChart ? "active" : ""}`} onClick={() => { setShowOrderHistory(false); setShowDepthChart(true); }}>Depth Chart</button>
               </div>
-            </div>
-          </section>
-        )}
 
-        {showOrderHistory && (
-          <section className="recent-trades">
-            <div className="trades-list">
-              {recentTrades.slice(0, 15).map((trade, index) => (
-                <div key={index} className="trade-row">
-                  <span className="trade-time">{trade.time}</span>
-                  <span className={`trade-price ${trade.side === "buy" ? "positive" : "negative"}`}>€{trade.price.toFixed(activePair.priceDecimals)}</span>
-                  <span className="trade-amount">{trade.amount.toFixed(activePair.amountDecimals)}</span>
-                  <span className={`trade-side ${trade.side}`}>{trade.side === "buy" ? "B" : "S"}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+              {!showOrderHistory && !showDepthChart && (
+                <section className="order-book">
+                  <div className="order-book-container">
+                    <div className="order-book-section asks">
+                      <div className="order-book-header"><span>Price (EUR)</span><span>Amount</span><span>Total</span></div>
+                      <div className="order-book-list">
+                        {orderBook.asks.slice().reverse().slice(0, 8).map((ask, index) => (
+                          <div key={`ask-${index}`} className="order-book-row" onClick={() => updateField("price", ask.price.toFixed(activePair.priceDecimals))} style={{ cursor: "pointer" }}>
+                            <span className="row-price negative">{ask.price.toFixed(activePair.priceDecimals)}</span>
+                            <span className="row-amount">{ask.amount.toFixed(activePair.amountDecimals)}</span>
+                            <span className="row-total">{ask.total.toLocaleString("de-DE")}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="order-book-spread">
+                      <span className="spread-price">€{currentPrice.toFixed(activePair.priceDecimals)}</span>
+                      <span className="spread-label">Current Price</span>
+                    </div>
+                    <div className="order-book-section bids">
+                      <div className="order-book-list">
+                        {orderBook.bids.slice(0, 8).map((bid, index) => (
+                          <div key={`bid-${index}`} className="order-book-row" onClick={() => updateField("price", bid.price.toFixed(activePair.priceDecimals))} style={{ cursor: "pointer" }}>
+                            <span className="row-price positive">{bid.price.toFixed(activePair.priceDecimals)}</span>
+                            <span className="row-amount">{bid.amount.toFixed(activePair.amountDecimals)}</span>
+                            <span className="row-total">{bid.total.toLocaleString("de-DE")}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              )}
 
-        {orderHistory.length > 0 && (
-          <section style={{ marginTop: 12 }}>
-            <h3 className="section-title" style={{ marginBottom: 8 }}>Recent Orders ({orderHistory.length})</h3>
-            <div className="transactions-card">
-              {orderHistory.map((order, index) => (
-                <div key={index} className={`transaction-row ${index < orderHistory.length - 1 ? "has-border" : ""}`}>
-                  <div className={`transaction-type-icon ${order.side}`}>
-                    {order.side === "buy" ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" /></svg> : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14" /></svg>}
+              {showOrderHistory && (
+                <section className="recent-trades">
+                  <div className="trades-list">
+                    {recentTrades.slice(0, 15).map((trade, index) => (
+                      <div key={index} className="trade-row">
+                        <span className="trade-time">{trade.time}</span>
+                        <span className={`trade-price ${trade.side === "buy" ? "positive" : "negative"}`}>€{trade.price.toFixed(activePair.priceDecimals)}</span>
+                        <span className="trade-amount">{trade.amount.toFixed(activePair.amountDecimals)}</span>
+                        <span className={`trade-side ${trade.side}`}>{trade.side === "buy" ? "B" : "S"}</span>
+                      </div>
+                    ))}
                   </div>
-                  <div className="transaction-info">
-                    <div className="transaction-asset"><span className="asset-name">{order.side.toUpperCase()}</span><span className="asset-symbol">{activePair.base}</span></div>
-                    <div className="transaction-meta"><span className="tx-type-label">{order.orderType} order</span></div>
+                </section>
+              )}
+
+              {orderHistory.length > 0 && (
+                <section style={{ marginTop: 12 }}>
+                  <h3 className="section-title" style={{ marginBottom: 8 }}>Recent Orders ({orderHistory.length})</h3>
+                  <div className="transactions-card">
+                    {orderHistory.map((order, index) => (
+                      <div key={index} className={`transaction-row ${index < orderHistory.length - 1 ? "has-border" : ""}`}>
+                        <div className={`transaction-type-icon ${order.side}`}>
+                          {order.side === "buy" ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" /></svg> : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14" /></svg>}
+                        </div>
+                        <div className="transaction-info">
+                          <div className="transaction-asset"><span className="asset-name">{order.side.toUpperCase()}</span><span className="asset-symbol">{activePair.base}</span></div>
+                          <div className="transaction-meta"><span className="tx-type-label">{order.orderType} order</span></div>
+                        </div>
+                        <div className="transaction-amounts"><div className="tx-amount">{order.amount} {activePair.base}</div><div className="tx-value">€{order.total}</div></div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="transaction-amounts"><div className="tx-amount">{order.amount} {activePair.base}</div><div className="tx-value">€{order.total}</div></div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+                </section>
+              )}
+            </section>
+          </div>
+
+          {/* Footer */}
+          <footer className="tradewill-footer">
+            <p>© 2016 - 2026 PrimeVest Financial Solutions. All Rights Reserved</p>
+          </footer>
+        </main>
       </div>
 
       <BottomNav onMenuClick={() => setIsSidebarOpen(true)} isMenuActive={isSidebarOpen} />
@@ -316,7 +376,12 @@ function TradePageContent() {
 
 export default function TradePage() {
   return (
-    <Suspense fallback={<div className="dashboard-loading"><div className="loading-spinner"></div></div>}>
+    <Suspense fallback={
+      <div className="tradewill-loading">
+        <div className="tradewill-spinner"></div>
+        <span>Loading Trade Interface...</span>
+      </div>
+    }>
       <TradePageContent />
     </Suspense>
   );

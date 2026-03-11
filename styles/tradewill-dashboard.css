@@ -1,0 +1,838 @@
+   PrimeVest Dashboard – TradeWill-Inspired Clean Professional Design
+
+/* ─── Design Tokens ────────────────────────────────────────────── */
+:root {
+  --tw-green:          #10b981;
+  --tw-green-hover:    #059669;
+  --tw-green-bg:       rgba(16, 185, 129, 0.08);
+  --tw-surface:        #ffffff;
+  --tw-bg:             #f5f6f8;
+  --tw-border:         #e9eaec;
+  --tw-text:           #111827;
+  --tw-text-secondary: #6b7280;
+  --tw-text-muted:     #9ca3af;
+  --tw-success:        #10b981;
+  --tw-danger:         #ef4444;
+  --tw-warning:        #f59e0b;
+  --tw-blue:           #3b82f6;
+  --tw-shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.05);
+  --tw-shadow:         0 1px 4px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --tw-radius-xs:      4px;
+  --tw-radius-sm:      6px;
+  --tw-radius:         10px;
+  --tw-radius-lg:      14px;
+  --tw-sidebar-w:      240px;
+  --tw-header-h:       60px;
+  --tw-font:           -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ─── Layout ────────────────────────────────────────────────────── */
+.tw-dashboard {
+  min-height: 100vh;
+  background: var(--tw-bg);
+  font-family: var(--tw-font);
+  font-size: 14px;
+  color: var(--tw-text);
+  line-height: 1.5;
+}
+
+/* Scoped heading reset – undo global Bitpanda heading overrides */
+.tw-dashboard h1,
+.tw-dashboard h2,
+.tw-dashboard h3,
+.tw-dashboard h4,
+.tw-dashboard h5,
+.tw-dashboard h6 {
+  font-family: var(--tw-font);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.tw-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── Sidebar ───────────────────────────────────────────────────── */
+.tw-sidebar {
+  width: var(--tw-sidebar-w);
+  background: var(--tw-surface);
+  border-right: 1px solid var(--tw-border);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.tw-sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+.tw-sidebar-header {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--tw-border);
+}
+
+.tw-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tw-text);
+  text-decoration: none;
+  letter-spacing: -0.2px;
+}
+
+.tw-logo-icon {
+  color: var(--tw-green);
+  flex-shrink: 0;
+}
+
+.tw-nav {
+  flex: 1;
+  padding: 6px 0 16px;
+}
+
+.tw-nav-group {
+  margin-bottom: 2px;
+}
+
+.tw-nav-group-label {
+  display: block;
+  padding: 14px 16px 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--tw-text-muted);
+}
+
+.tw-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 16px;
+  color: var(--tw-text-secondary);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: background 0.12s ease, color 0.12s ease;
+  border-left: 2px solid transparent;
+  margin: 1px 0;
+}
+
+.tw-nav-item:hover {
+  background: var(--tw-bg);
+  color: var(--tw-text);
+}
+
+.tw-nav-item--active {
+  background: var(--tw-bg);
+  color: var(--tw-text);
+  font-weight: 600;
+  border-left-color: var(--tw-green);
+}
+
+.tw-nav-icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+}
+
+.tw-nav-item--active .tw-nav-icon,
+.tw-nav-item:hover .tw-nav-icon {
+  opacity: 1;
+}
+
+/* ─── Main Area ─────────────────────────────────────────────────── */
+.tw-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--tw-bg);
+}
+
+/* ─── Header ────────────────────────────────────────────────────── */
+.tw-header {
+  background: var(--tw-surface);
+  border-bottom: 1px solid var(--tw-border);
+  padding: 0 28px;
+  height: var(--tw-header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  box-shadow: var(--tw-shadow-sm);
+}
+
+.tw-breadcrumb {
+  font-size: 12.5px;
+  color: var(--tw-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tw-breadcrumb-sep {
+  color: var(--tw-text-muted);
+}
+
+.tw-header-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: var(--tw-radius-sm);
+  border: 1px solid var(--tw-border);
+  background: var(--tw-surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.tw-header-user:hover {
+  border-color: #d1d5db;
+}
+
+.tw-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--tw-green);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.tw-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tw-text);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.tw-user-status {
+  font-size: 11px;
+  color: var(--tw-warning);
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* ─── Content ───────────────────────────────────────────────────── */
+.tw-content {
+  flex: 1;
+  padding: 28px 28px 48px;
+  max-width: 1100px;
+  width: 100%;
+}
+
+/* ─── Page Title ────────────────────────────────────────────────── */
+.tw-page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--tw-text);
+  margin: 0 0 20px;
+  letter-spacing: -0.3px;
+  font-family: var(--tw-font);
+  text-transform: none;
+}
+
+/* ─── Asset Summary Card ────────────────────────────────────────── */
+.tw-asset-summary {
+  background: var(--tw-surface);
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 24px;
+  box-shadow: var(--tw-shadow-sm);
+}
+
+.tw-asset-total {
+  flex: 1.2;
+  min-width: 0;
+  padding-right: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.tw-asset-total-label {
+  font-size: 12.5px;
+  color: var(--tw-text-secondary);
+  margin: 0 0 5px;
+}
+
+.tw-asset-total-value {
+  font-size: 27px;
+  font-weight: 700;
+  color: var(--tw-text);
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.tw-asset-accounts {
+  display: flex;
+  align-items: stretch;
+  border-left: 1px solid var(--tw-border);
+}
+
+.tw-asset-account-col {
+  padding: 4px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--tw-border);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.tw-asset-account-col:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+.tw-asset-account-col:hover {
+  background: var(--tw-bg);
+}
+
+.tw-asset-account-name {
+  font-size: 11.5px;
+  color: var(--tw-text-secondary);
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.tw-asset-account-value {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--tw-text);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Tabs ──────────────────────────────────────────────────────── */
+.tw-tabs {
+  margin-bottom: 28px;
+}
+
+.tw-tabs-list {
+  display: flex;
+  border-bottom: 1px solid var(--tw-border);
+  margin-bottom: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tw-tabs-list::-webkit-scrollbar {
+  display: none;
+}
+
+.tw-tab {
+  padding: 11px 18px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--tw-text-secondary);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  outline: none;
+}
+
+.tw-tab:hover {
+  color: var(--tw-text);
+}
+
+.tw-tab--active {
+  color: var(--tw-text);
+  font-weight: 600;
+  border-bottom-color: var(--tw-green);
+}
+
+/* ─── Tab Panel (Account Detail) ────────────────────────────────── */
+.tw-tab-panel {
+  background: var(--tw-surface);
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--tw-shadow-sm);
+}
+
+.tw-account-detail-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--tw-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.tw-account-detail-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tw-text);
+  margin: 0 0 3px;
+}
+
+.tw-account-detail-sublabel {
+  font-size: 12px;
+  color: var(--tw-text-secondary);
+  margin: 0;
+}
+
+.tw-account-detail-balance {
+  text-align: right;
+}
+
+.tw-account-detail-balance-value {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--tw-text);
+  margin: 0 0 3px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
+}
+
+.tw-account-detail-balance-change {
+  font-size: 12px;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* ─── Account Info Grid ─────────────────────────────────────────── */
+.tw-account-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--tw-border);
+}
+
+.tw-account-info-item {
+  padding: 16px 22px;
+  background: var(--tw-surface);
+}
+
+.tw-account-info-label {
+  font-size: 11px;
+  color: var(--tw-text-secondary);
+  margin: 0 0 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.tw-account-info-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tw-text);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.tw-account-detail-actions {
+  padding: 14px 22px;
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid var(--tw-border);
+  background: var(--tw-bg);
+  flex-wrap: wrap;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────── */
+.tw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--tw-radius-xs);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  text-decoration: none;
+  border: 1px solid var(--tw-border);
+  background: var(--tw-surface);
+  color: var(--tw-text);
+  outline: none;
+}
+
+.tw-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.tw-btn--primary {
+  background: var(--tw-green);
+  color: #fff;
+  border-color: var(--tw-green);
+}
+
+.tw-btn--primary:hover {
+  background: var(--tw-green-hover);
+  border-color: var(--tw-green-hover);
+}
+
+/* ─── Section ───────────────────────────────────────────────────── */
+.tw-section {
+  margin-bottom: 28px;
+}
+
+.tw-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.tw-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tw-text);
+  margin: 0;
+  font-family: var(--tw-font);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.tw-view-all {
+  font-size: 12.5px;
+  color: var(--tw-green);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.tw-view-all:hover {
+  color: var(--tw-green-hover);
+  text-decoration: underline;
+}
+
+/* ─── Market Grid ───────────────────────────────────────────────── */
+.tw-market-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.tw-market-card {
+  background: var(--tw-surface);
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius);
+  padding: 16px;
+  box-shadow: var(--tw-shadow-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tw-market-card:hover {
+  border-color: #d1d5db;
+  box-shadow: var(--tw-shadow);
+}
+
+.tw-market-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.tw-market-card-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--tw-text);
+  margin: 0 0 2px;
+}
+
+.tw-market-card-symbol {
+  font-size: 11px;
+  color: var(--tw-text-secondary);
+  margin: 0;
+}
+
+.tw-market-card-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--tw-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.tw-market-card-price {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--tw-text);
+  margin: 0 0 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tw-market-card-change {
+  font-size: 12px;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* ─── Activity List ─────────────────────────────────────────────── */
+.tw-activity-card {
+  background: var(--tw-surface);
+  border: 1px solid var(--tw-border);
+  border-radius: var(--tw-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--tw-shadow-sm);
+}
+
+.tw-activity-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--tw-border);
+  transition: background 0.1s ease;
+}
+
+.tw-activity-item:last-child {
+  border-bottom: none;
+}
+
+.tw-activity-item:hover {
+  background: var(--tw-bg);
+}
+
+.tw-activity-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.tw-activity-icon--buy {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--tw-success);
+}
+
+.tw-activity-icon--sell {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--tw-danger);
+}
+
+.tw-activity-icon--deposit {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--tw-blue);
+}
+
+.tw-activity-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.tw-activity-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--tw-text);
+  margin: 0 0 2px;
+}
+
+.tw-activity-time {
+  font-size: 12px;
+  color: var(--tw-text-secondary);
+  margin: 0;
+}
+
+.tw-activity-amount {
+  text-align: right;
+}
+
+.tw-activity-value {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--tw-text);
+  margin: 0 0 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tw-activity-units {
+  font-size: 11.5px;
+  color: var(--tw-text-secondary);
+  margin: 0;
+}
+
+/* ─── Badges / Change Indicators ────────────────────────────────── */
+.tw-change-up   { color: var(--tw-success); }
+.tw-change-down { color: var(--tw-danger); }
+
+.tw-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tw-badge--up {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--tw-success);
+}
+
+.tw-badge--down {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--tw-danger);
+}
+
+/* ─── Empty State ────────────────────────────────────────────────── */
+.tw-empty {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--tw-text-secondary);
+}
+
+.tw-empty-icon {
+  font-size: 30px;
+  opacity: 0.35;
+  margin-bottom: 12px;
+}
+
+.tw-empty-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--tw-text);
+  margin: 0 0 4px;
+}
+
+.tw-empty-sub {
+  font-size: 13px;
+  color: var(--tw-text-secondary);
+  margin: 0;
+}
+
+/* ─── Loading State ─────────────────────────────────────────────── */
+.tw-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--tw-surface);
+  gap: 12px;
+  font-size: 14px;
+  color: var(--tw-text-secondary);
+}
+
+.tw-spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--tw-border);
+  border-top-color: var(--tw-green);
+  border-radius: 50%;
+  animation: tw-spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes tw-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────── */
+.tw-footer {
+  border-top: 1px solid var(--tw-border);
+  padding: 14px 28px;
+  font-size: 12px;
+  color: var(--tw-text-muted);
+  background: var(--tw-surface);
+  text-align: center;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────── */
+.tw-main::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tw-main::-webkit-scrollbar-track {
+  background: var(--tw-bg);
+}
+
+.tw-main::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+/* ─── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  :root { --tw-sidebar-w: 210px; }
+  .tw-content { padding: 20px 20px 48px; }
+}
+
+@media (max-width: 768px) {
+  .tw-sidebar { display: none; }
+  .tw-header { padding: 0 16px; }
+  .tw-content { padding: 16px 16px 100px; }
+
+  .tw-asset-summary {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .tw-asset-total {
+    padding-right: 0;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--tw-border);
+    width: 100%;
+  }
+
+  .tw-asset-accounts {
+    border-left: none;
+    flex-wrap: wrap;
+    padding-top: 16px;
+    gap: 12px;
+  }
+
+  .tw-asset-account-col {
+    border-right: none;
+    padding: 0;
+    min-width: calc(50% - 6px);
+  }
+
+  .tw-market-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tw-account-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .tw-asset-total-value { font-size: 22px; }
+  .tw-market-grid { grid-template-columns: 1fr; }
+  .tw-account-info-grid { grid-template-columns: 1fr; }
+  .tw-account-detail-header { flex-direction: column; }
+  .tw-account-detail-balance { text-align: left; }
+}

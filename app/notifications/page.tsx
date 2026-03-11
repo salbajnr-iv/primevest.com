@@ -253,11 +253,17 @@ export default function NotificationsPage() {
 
   React.useEffect(() => {
     if (authLoading || !authUser) {
+      // not signed in or still loading - show nothing or fallback mock
       setNotificationsList(notifications);
       return;
     }
 
     (async () => {
+      if (!supabase) {
+        setNotificationsList(notifications);
+        return;
+      }
+
       try {
         const { data, error } = await supabase
           .from('notifications')
@@ -308,7 +314,7 @@ export default function NotificationsPage() {
 
   const markAllAsRead = async () => {
     setNotificationsList(prev => prev.map(n => ({ ...n, read: true })));
-    if (!authUser) return;
+    if (!authUser || !supabase) return;
     try {
       const { error } = await supabase
         .from('notifications')
@@ -330,7 +336,7 @@ export default function NotificationsPage() {
       );
       
       // Update in the database if user is authenticated
-      if (authUser) {
+      if (authUser && supabase) {
         try {
           const { error } = await supabase
             .from('notifications')

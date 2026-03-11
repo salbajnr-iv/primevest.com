@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient } from '@/lib/supabase/client'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import KycReviewModal from '@/app/admin/components/KycReviewModal'
 
+export const dynamic = 'force-dynamic'
 interface KycRequestEntry {
   id: string
   user_id: string
@@ -31,10 +32,7 @@ export default function AdminKycPage() {
   const [search, setSearch] = useState<string>('')
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null)
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const supabase = createClient()
 
   useEffect(() => {
     fetchRequests()
@@ -42,6 +40,14 @@ export default function AdminKycPage() {
 
   const fetchRequests = async () => {
     setLoading(true)
+
+    if (!supabase) {
+      setRequests([])
+      setPagination(prev => ({ ...prev, total: 0 }))
+      setLoading(false)
+      return
+    }
+
     try {
       const from = (pagination.page - 1) * pagination.limit
       const to = from + pagination.limit - 1

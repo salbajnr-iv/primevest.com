@@ -1,0 +1,12 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PrimeVest icon">
+  <defs>
+    <linearGradient id="pvGradientIcon" x1="10%" y1="5%" x2="90%" y2="95%">
+      <stop offset="0%" stop-color="#10cbd0"/>
+      <stop offset="55%" stop-color="#18b9b6"/>
+      <stop offset="100%" stop-color="#9dd93b"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="24" fill="#000"/>
+  <path d="M40 40h110c40 0 72 32 72 72v104h-68v-40h28v-64c0-18-14-32-32-32H40z" fill="url(#pvGradientIcon)"/>
+  <path d="M40 96h102c22 0 40 18 40 40s-18 40-40 40H80v40H40z" fill="url(#pvGradientIcon)"/>
+</svg>

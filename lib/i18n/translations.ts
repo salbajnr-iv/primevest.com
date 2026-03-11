@@ -113,6 +113,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'portfolio.manage': 'Manage',
     'portfolio.recentActivity': 'Recent Activity',
     'portfolio.viewAll': 'View All',
+
     'portfolio.allocate': 'Allocate',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Rewards',
@@ -281,6 +282,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'portfolio.manage': 'Gestionar',
     'portfolio.recentActivity': 'Actividad reciente',
     'portfolio.viewAll': 'Ver todo',
+
     'portfolio.allocate': 'Asignar',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Recompensas',
@@ -449,6 +451,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'portfolio.manage': 'Verwalten',
     'portfolio.recentActivity': 'Letzte Aktivitäten',
     'portfolio.viewAll': 'Alles anzeigen',
+
     'portfolio.allocate': 'Zuweisen',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Belohnungen',
@@ -617,6 +620,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'portfolio.manage': 'Gérer',
     'portfolio.recentActivity': 'Activité récente',
     'portfolio.viewAll': 'Voir tout',
+
     'portfolio.allocate': 'Allouer',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Récompenses',
@@ -785,6 +789,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'portfolio.manage': 'Gestisci',
     'portfolio.recentActivity': 'Attività recente',
     'portfolio.viewAll': 'Vedi tutto',
+
     'portfolio.allocate': 'Allocare',
     'portfolio.staking': 'Staking',
     'portfolio.rewards': 'Ricompense',

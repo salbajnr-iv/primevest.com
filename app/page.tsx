@@ -5,13 +5,247 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import PrimeVestNavbar from "@/components/PrimeVestNavbar";
+import CryptoTicker from "@/components/CryptoTicker";
+
+// Crypto data
+const topCryptos = [
+  { symbol: "BTC", name: "Bitcoin", price: "€45,234.56", change: "+2.34%", volume: "€28.5B", logo: "/btc-logo.png" },
+  { symbol: "ETH", name: "Ethereum", price: "€2,876.43", change: "-1.23%", volume: "€12.8B", logo: "/eth-logo.png" },
+  { symbol: "BNB", name: "BNB", price: "€298.76", change: "+3.45%", volume: "€2.1B", logo: "/bnb-logo.png" },
+  { symbol: "ADA", name: "Cardano", price: "€0.4521", change: "+1.87%", volume: "€890M", logo: "/ada-logo.png" },
+  { symbol: "SOL", name: "Solana", price: "€98.32", change: "+4.12%", volume: "€1.2B", logo: "/sol-logo.png" },
+  { symbol: "XRP", name: "XRP", price: "€0.6234", change: "-0.45%", volume: "€1.8B", logo: "/xrp-logo.png" }
+];
+
+// Investment options
+const investmentOptions = [
+  {
+    title: "Cryptocurrencies",
+    description: "Buy, sell, and swap the cryptocurrencies you want anytime, anywhere.",
+    image: "https://a.storyblok.com/f/176646/960x600/6795a4c32d/website_homepage_cryptocurrencies.png",
+    link: "/crypto"
+  },
+  {
+    title: "Stocks*",
+    description: "Invest in fractions of your favourite companies without buying a full share.",
+    image: "https://a.storyblok.com/f/176646/960x600/cc80628f6b/website_homepage_stocks.png",
+    link: "/stocks"
+  },
+  {
+    title: "ETFs*",
+    description: "Invest in fractions of your favourite ETFs* without buying a full share.",
+    image: "https://a.storyblok.com/f/176646/960x600/bc62fd7985/website_homepage_etfs.png",
+    link: "/etfs"
+  },
+  {
+    title: "Commodities*",
+    description: "Fortify your portfolio with commodities* and shield it against inflation.",
+    image: "https://a.storyblok.com/f/176646/960x600/ff72d39829/website_homepage_commodities.png",
+    link: "/commodities"
+  },
+  {
+    title: "Crypto Indices",
+    description: "Auto-invest in the whole crypto market with a single click.",
+    image: "https://a.storyblok.com/f/176646/960x600/b971c0ccf7/website_homepage_crypto-indices.png",
+    link: "/indices"
+  },
+  {
+    title: "Precious Metals",
+    description: "Diversify your portfolio by investing in physically-backed precious metals.",
+    image: "https://a.storyblok.com/f/176646/960x600/5c79402c90/website_homepage_metals.png",
+    link: "/metals"
+  }
+];
+
+// Steps data
+const steps = [
+  {
+    number: "01",
+    title: "Register",
+    description: "Sign up to create your free PrimeVest account.",
+    image: "https://a.storyblok.com/f/176646/840x1080/4e498da1d7/website_homepage_register_en.png"
+  },
+  {
+    number: "02",
+    title: "Verify",
+    description: "Verify your identity with one of our trusted verification partners.",
+    image: "https://a.storyblok.com/f/176646/840x1080/20149b912b/website_homepage_verify_en.png"
+  },
+  {
+    number: "03",
+    title: "Deposit",
+    description: "Deposit your funds securely through popular options.",
+    image: "https://a.storyblok.com/f/176646/840x1080/af2f5ef73e/website_homepage_deposit_en.png"
+  },
+  {
+    number: "04",
+    title: "Trade",
+    description: "Buy, sell and swap digital assets 24/7.",
+    image: "https://a.storyblok.com/f/176646/840x1080/ffa905c022/website_homepage_trade_en.png"
+  }
+];
+
+// Assets data for asset cards
+const assets = [
+  { symbol: "XAU", name: "Gold", price: "€2,045.32", change: "+0.85%", type: "commodity", chart: "up" },
+  { symbol: "NVDA", name: "NVIDIA Corp", price: "€875.45", change: "+3.24%", type: "stock", chart: "up" },
+  { symbol: "GOOGL", name: "Alphabet Inc", price: "€172.89", change: "-0.56%", type: "stock", chart: "down" },
+  { symbol: "AAPL", name: "Apple Inc", price: "€185.67", change: "+1.12%", type: "stock", chart: "up" },
+  { symbol: "MSFT", name: "Microsoft Corp", price: "€415.23", change: "+2.45%", type: "stock", chart: "up" },
+  { symbol: "AMZN", name: "Amazon.com", price: "€178.34", change: "+1.89%", type: "stock", chart: "up" },
+  { symbol: "BTC", name: "Bitcoin", price: "€52,340.00", change: "+4.56%", type: "crypto", chart: "up" },
+  { symbol: "TSM", name: "Taiwan Semi", price: "€142.78", change: "-1.23%", type: "stock", chart: "down" },
+  { symbol: "FB", name: "Meta Platforms", price: "€485.67", change: "+2.78%", type: "stock", chart: "up" },
+  { symbol: "AVGO", name: "Broadcom Inc", price: "€1,245.89", change: "+5.12%", type: "stock", chart: "up" },
+  { symbol: "TSLA", name: "Tesla Inc", price: "€189.45", change: "-2.34%", type: "stock", chart: "down" },
+  { symbol: "BRK", name: "Berkshire B", price: "€415.67", change: "+0.89%", type: "stock", chart: "up" },
+  { symbol: "LLY", name: "Eli Lilly", price: "€782.34", change: "+1.56%", type: "stock", chart: "up" },
+  { symbol: "JPM", name: "JPMorgan", price: "€198.56", change: "+0.78%", type: "stock", chart: "up" },
+  { symbol: "WMT", name: "Walmart Inc", price: "€165.23", change: "-0.34%", type: "stock", chart: "down" },
+  { symbol: "TCTZF", name: "Tata Consumer", price: "€12.45", change: "+0.67%", type: "stock", chart: "up" },
+  { symbol: "V", name: "Visa Inc", price: "€278.90", change: "+1.23%", type: "stock", chart: "up" },
+  { symbol: "SMSN", name: "Samsung Elec", price: "€1,234.56", change: "+2.45%", type: "stock", chart: "up" },
+  { symbol: "XOM", name: "Exxon Mobil", price: "€108.78", change: "-0.89%", type: "stock", chart: "down" },
+  { symbol: "ORCL", name: "Oracle Corp", price: "€127.89", change: "+1.45%", type: "stock", chart: "up" },
+  { symbol: "MA", name: "Mastercard", price: "€445.67", change: "+1.78%", type: "stock", chart: "up" },
+  { symbol: "JNJ", name: "Johnson&John", price: "€156.78", change: "-0.45%", type: "stock", chart: "down" },
+  { symbol: "ASML", name: "ASML Holding", price: "€867.89", change: "+3.67%", type: "stock", chart: "up" },
+  { symbol: "BAC", name: "Bank of Amer", price: "€34.56", change: "+0.89%", type: "stock", chart: "up" },
+  { symbol: "PLTR", name: "Palantir", price: "€24.78", change: "-1.56%", type: "stock", chart: "down" }
+];
+
+// FAQ Questions data
+const faqQuestions = [
+  {
+    question: "How do I verify my account?",
+    answer: "Verify your identity with one of our trusted verification partners in just a few minutes.",
+    icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+  },
+  {
+    question: "What payment methods are accepted?",
+    answer: "We accept bank transfers, credit/debit cards, PayPal, and various local payment methods.",
+    icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+  },
+  {
+    question: "Are my funds secure?",
+    answer: "Funds are secured in offline wallets with full compliance to European standards.",
+    icon: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+  },
+  {
+    question: "How do I withdraw my crypto?",
+    answer: "Withdraw your digital assets anytime with low fees and fast processing times.",
+    icon: "M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+  },
+  {
+    question: "What are the trading fees?",
+    answer: "Competitive fees starting from 0.1% per trade with no hidden costs.",
+    icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+  },
+  {
+    question: "Is there a mobile app?",
+    answer: "Yes! Download our app on iOS and Android for trading on the go.",
+    icon: "M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+  },
+  {
+    question: "How do I enable 2FA?",
+    answer: "Enable two-factor authentication in your account settings for enhanced security.",
+    icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+  },
+  {
+    question: "What cryptocurrencies can I trade?",
+    answer: "Trade 650+ cryptocurrencies including Bitcoin, Ethereum, Solana, and many more.",
+    icon: "M13 10V3L4 14h7v7l9-11h-7z"
+  },
+  {
+    question: "Can I invest in stocks and ETFs?",
+    answer: "Yes! Invest in fractions of your favourite companies and ETFs with zero commissions.",
+    icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+  },
+  {
+    question: "What are PrimeVest Crypto Indices?",
+    answer: "Auto-invest in the whole crypto market with a single click using our diversified indices.",
+    icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
+  },
+  {
+    question: "How fast are deposits and withdrawals?",
+    answer: "Bank transfers typically process within 1-2 business days, crypto withdrawals within minutes.",
+    icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+  },
+  {
+    question: "Is PrimeVest regulated?",
+    answer: "Yes, we're Austria-based and European regulated crypto & securities broker platform.",
+    icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+  },
+  {
+    question: "What is PrimeVest Leverage?",
+    answer: "Go Long or Short on top cryptocurrencies with up to 10x leverage for amplified positions.",
+    icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+  },
+  {
+    question: "How do I contact support?",
+    answer: "Reach our support team through the Helpdesk or contact form available 24/7.",
+    icon: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+  }
+];
+
+
+const primevestExpertises = [
+  {
+    title: "Parking & Mobility",
+    description:
+      "Focus on infrastructure and mobility solutions that keep growing cities efficient and connected.",
+    href: "/markets",
+    image: "/vectors/expertise-parking.svg"
+  },
+  {
+    title: "Urban & Student Living",
+    description:
+      "Exposure to resilient housing themes and urban demand across major European growth corridors.",
+    href: "/reports",
+    image: "/vectors/expertise-urban.svg"
+  },
+  {
+    title: "Connectivity & Data",
+    description:
+      "Invest where digital infrastructure and data capacity meet long-term structural demand.",
+    href: "/tools/analysis",
+    image: "/vectors/expertise-connectivity.svg"
+  }
+];
+
+const primevestHighlights = [
+  { value: "9", label: "Funds" },
+  { value: "€ 3.2", label: "bn. AuM" },
+  { value: "12", label: "Countries in Europe" }
+];
+
+const restoredCardImages = [
+  "/vectors/expertise-connectivity.svg",
+  "/vectors/expertise-urban.svg",
+  "/vectors/expertise-parking.svg",
+  "/vectors/bg-indices.svg",
+  "/vectors/bg-metals.svg",
+  "/vectors/bg-stocks.svg"
+];
+
+const restoredStepImages = [
+  "/vectors/hero-market-green.svg",
+  "/vectors/expertise-connectivity.svg",
+  "/vectors/expertise-urban.svg",
+  "/vectors/expertise-parking.svg"
+];
+
+
+const trustMetrics = [
+  { label: "Active Traders", value: "2.5M+" },
+  { label: "Instruments", value: "5,000+" },
+  { label: "Avg. Execution", value: "< 60ms" },
+  { label: "Support", value: "24/7" }
+];
 
 export default function Home() {
   const router = useRouter();
-
-  const handleStartTrading = () => {
-    router.push("/auth/signin");
-  };
 
   const handleTryDemo = () => {
     router.push("/demo");
@@ -19,10 +253,6 @@ export default function Home() {
 
   const handleExploreAssets = () => {
     router.push("/markets");
-  };
-
-  const handleOpenAccount = () => {
-    router.push("/auth/signup");
   };
 
   const handleContactUs = () => {
@@ -74,8 +304,8 @@ export default function Home() {
           >
             <Link href="/" className="flex items-center group">
               <Image
-                src="/bitpanda-logo.svg"
-                alt="PrimeVest Capital"
+                src="/primevest-logo.svg"
+                alt="PrimeVest Financial Solutions, Inc."
                 width={140}
                 height={35}
                 className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
@@ -145,7 +375,7 @@ export default function Home() {
                 </svg>
               </button>
               <div className="absolute top-full left-0 mt-2 w-52 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-gray-100 py-2">
-                <Link href="/demo" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-t-lg transition-colors duration-200 text-sm">PrimeVest Capital App</Link>
+                <Link href="/demo" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-t-lg transition-colors duration-200 text-sm">PrimeVest Financial Solutions, Inc. App</Link>
                 <Link href="/dashboard/trade" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">Web Trader</Link>
                 <Link href="#" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">MetaTrader 4</Link>
                 <Link href="/platforms/mt4-mobile" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">MT4 Mobile</Link>
@@ -208,16 +438,16 @@ export default function Home() {
             className="flex items-center gap-3"
           >
             <Button 
-              onClick={handleStartTrading} 
+              asChild
               className="hidden sm:block bg-white hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-lg border border-gray-300 font-medium text-sm transition-colors"
             >
-              Sign In
+              <Link href="/auth/signin">Sign In</Link>
             </Button>
             <Button 
-              onClick={handleOpenAccount} 
+              asChild
               className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors"
             >
-              Open Account
+              <Link href="/auth/signup">Open Account</Link>
             </Button>
           </motion.div>
         </div>
@@ -229,6 +459,7 @@ export default function Home() {
         animate="animate"
         variants={staggerContainer}
         className="relative py-20 px-4 md:px-8 bg-linear-to-br from-gray-50 to-gray-100 border-b border-gray-200 overflow-hidden section-padding"
+        style={{ backgroundImage: "url(/website_homepage_header%20(1).webp)", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         {/* Animated background elements */}
         <div className="absolute inset-0">
@@ -237,6 +468,7 @@ export default function Home() {
         </div>
         
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div className="absolute inset-0 bg-black/55"></div>
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left Content */}
@@ -249,7 +481,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="text-display font-bold leading-tight bg-linear-to-r from-gray-900 via-emerald-600 to-emerald-700 bg-clip-text text-transparent transition-professional"
+                  className="text-display font-bold leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)] transition-professional"
                 >
                   Trade Forex, Stocks, Crypto & More
                 </motion.h1>
@@ -257,7 +489,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="text-body text-gray-600 max-w-lg transition-professional"
+                  className="text-body text-emerald-50 max-w-lg transition-professional"
                 >
                   Join millions of traders on the world&apos;s leading trading platform. Access 300+ financial instruments with ultra-low spreads and fast execution.
                 </motion.p>
@@ -270,10 +502,10 @@ export default function Home() {
                 className="flex flex-col sm:flex-row gap-4 pt-4 transition-professional"
               >
                 <Button 
-                  onClick={handleStartTrading} 
+                  asChild
                   className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-4 text-lg rounded-lg transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 btn-premium"
                 >
-                  Start Trading
+                  <Link href="/auth/signin">Start Trading</Link>
                 </Button>
                 <Button 
                   onClick={handleTryDemo} 
@@ -289,14 +521,28 @@ export default function Home() {
                 transition={{ delay: 0.7 }}
                 className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6"
               >
-                <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200 shadow-sm group hover:shadow-md transition-all duration-300 transition-professional">
+                <div className="flex items-center gap-3 bg-black/40 backdrop-blur-sm rounded-xl p-4 border border-emerald-300/30 shadow-sm group hover:shadow-md transition-all duration-300 transition-professional">
                   <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse group-hover:animate-ping"></div>
-                  <span className="text-sm text-gray-700 font-medium group-hover:text-emerald-600 transition-colors">Spreads from 0.0 pips</span>
+                  <span className="text-sm text-emerald-50 font-medium group-hover:text-emerald-200 transition-colors">Spreads from 0.0 pips</span>
                 </div>
-                <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200 shadow-sm group hover:shadow-md transition-all duration-300 transition-professional">
+                <div className="flex items-center gap-3 bg-black/40 backdrop-blur-sm rounded-xl p-4 border border-emerald-300/30 shadow-sm group hover:shadow-md transition-all duration-300 transition-professional">
                   <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse group-hover:animate-ping"></div>
-                  <span className="text-sm text-gray-700 font-medium group-hover:text-emerald-600 transition-colors">60-second deposits</span>
+                  <span className="text-sm text-emerald-50 font-medium group-hover:text-emerald-200 transition-colors">60-second deposits</span>
                 </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="grid grid-cols-2 md:grid-cols-4 gap-3"
+              >
+                {trustMetrics.map((metric) => (
+                  <div key={metric.label} className="rounded-xl border border-white/20 bg-black/35 backdrop-blur-sm px-3 py-2">
+                    <p className="text-xs text-emerald-100/80">{metric.label}</p>
+                    <p className="text-sm font-semibold text-white">{metric.value}</p>
+                  </div>
+                ))}
               </motion.div>
             </motion.div>
 
@@ -375,6 +621,137 @@ export default function Home() {
         </div>
       </motion.section>
 
+
+      {/* Restored Entry Sections */}
+      <motion.section
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+        className="py-20 px-4 md:px-8 bg-white border-b border-gray-200 section-padding"
+      >
+        <div className="max-w-7xl mx-auto">
+          <motion.div variants={fadeInUp} className="text-center mb-12">
+            <h2 className="text-heading font-bold text-gray-900 mb-4">Explore Investment Options</h2>
+            <p className="text-body text-gray-600">Choose from crypto, stocks, ETFs, commodities, indices, and metals.</p>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {investmentOptions.map((item, idx) => (
+              <motion.div key={item.title} variants={fadeInUp} transition={{ delay: idx * 0.06 }}>
+                <Link href={item.link} className="group block rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
+                  <Image src={restoredCardImages[idx % restoredCardImages.length]} alt={item.title} width={960} height={600} className="h-40 w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="p-5">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">{item.title}</h3>
+                    <p className="text-sm text-gray-600">{item.description}</p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      <motion.section
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+        className="py-20 px-4 md:px-8 bg-gray-50 border-b border-gray-200 section-padding"
+      >
+        <div className="max-w-7xl mx-auto">
+          <motion.div variants={fadeInUp} className="text-center mb-12">
+            <h2 className="text-heading font-bold text-gray-900 mb-4">Get Started in 4 Steps</h2>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            {steps.map((step) => (
+              <motion.div key={step.number} variants={fadeInUp} className="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm">
+                <Image src={restoredStepImages[(Number(step.number) - 1) % restoredStepImages.length]} alt={step.title} width={840} height={1080} className="h-48 w-full object-cover" />
+                <div className="p-5">
+                  <p className="text-sm font-bold text-emerald-600 mb-1">Step {step.number}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{step.title}</h3>
+                  <p className="text-sm text-gray-600">{step.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+
+      {/* PrimeVest Entrypage-Inspired Sections */}
+      <motion.section
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+        className="py-20 px-4 md:px-8 bg-white border-b border-gray-200 section-padding"
+      >
+        <div className="max-w-7xl mx-auto space-y-16">
+          <motion.div variants={fadeInUp} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div className="lg:col-span-2 space-y-4">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">PrimeVest Vision</p>
+              <h2 className="text-heading font-bold text-gray-900">Future-proof investing for modern cities and global markets</h2>
+              <p className="text-body text-gray-600 max-w-3xl">
+                Inspired by the Primevest Capital Partners entry page, we added a clearer institutional-style introduction to highlight
+                long-term urban themes alongside your trading and investment platform experience.
+              </p>
+            </div>
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
+              <p className="text-sm text-emerald-700 font-semibold mb-2">PrimeVest Capital</p>
+              <p className="text-sm text-emerald-900 leading-relaxed">
+                We combine active market access with long-term opportunities in mobility, housing, and digital infrastructure.
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div variants={fadeInUp}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">Investment Expertises</h3>
+              <Link href="/markets" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700">View all →</Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {primevestExpertises.map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                >
+                  <div className="mb-4 overflow-hidden rounded-xl border border-gray-200">
+                    <Image src={item.image} alt={item.title} width={800} height={500} className="h-36 w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  </div>
+                  <h4 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">{item.title}</h4>
+                  <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div variants={fadeInUp} className="bg-gray-900 rounded-3xl p-8 md:p-10">
+            <p className="text-center text-gray-300 text-sm mb-8">PrimeVest at a glance</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+              {primevestHighlights.map((item) => (
+                <div key={item.label} className="text-center">
+                  <p className="text-4xl font-bold text-white mb-2">{item.value}</p>
+                  <p className="text-emerald-300">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div variants={fadeInUp} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="rounded-2xl border border-gray-200 p-6 bg-gray-50">
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600 mb-2">Latest News</p>
+              <h4 className="text-xl font-semibold text-gray-900 mb-2">Sustainability report insights</h4>
+              <p className="text-sm text-gray-600 mb-4">Explore PrimeVest updates focused on resilient portfolios and future-ready investing themes.</p>
+              <Link href="/blog" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700">Read News →</Link>
+            </div>
+            <div className="rounded-2xl border border-gray-200 p-6 bg-gray-50">
+              <p className="text-xs font-semibold uppercase tracking-wide text-cyan-600 mb-2">Featured Project</p>
+              <h4 className="text-xl font-semibold text-gray-900 mb-2">Connectivity & data opportunities</h4>
+              <p className="text-sm text-gray-600 mb-4">Track high-potential sectors where infrastructure demand supports long-term value creation.</p>
+              <Link href="/reports" className="text-sm font-semibold text-cyan-600 hover:text-cyan-700">View Projects →</Link>
+            </div>
+          </motion.div>
+        </div>
+      </motion.section>
+
       {/* Multiple Assets Section */}
       <motion.section 
         initial="initial"
@@ -397,12 +774,12 @@ export default function Home() {
 
           <div className="grid-responsive">
             {[
-              { title: "Forex CFD", icon: "💱", count: "90+", color: "from-blue-500 to-blue-600" },
-              { title: "Cryptocurrencies", icon: "₿", count: "150+", color: "from-amber-500 to-orange-500" },
-              { title: "Commodities", icon: "🛢️", count: "20+", color: "from-yellow-500 to-amber-500" },
-              { title: "Precious Metals", icon: "🏆", count: "10+", color: "from-yellow-500 to-yellow-600" },
-              { title: "Indices", icon: "📈", count: "40+", color: "from-emerald-500 to-emerald-600" },
-              { title: "Stocks", icon: "📊", count: "5000+", color: "from-purple-500 to-purple-600" },
+              { title: "Forex CFD", iconSrc: "/vectors/icons/icon-analytics.svg", count: "90+", color: "from-blue-500 to-blue-600" },
+              { title: "Cryptocurrencies", iconSrc: "/vectors/icons/icon-coins.svg", count: "150+", color: "from-amber-500 to-orange-500" },
+              { title: "Commodities", iconSrc: "/vectors/icons/icon-bolt.svg", count: "20+", color: "from-yellow-500 to-amber-500" },
+              { title: "Precious Metals", iconSrc: "/vectors/icons/icon-shield.svg", count: "10+", color: "from-yellow-500 to-yellow-600" },
+              { title: "Indices", iconSrc: "/vectors/icons/icon-diversify.svg", count: "40+", color: "from-emerald-500 to-emerald-600" },
+              { title: "Stocks", iconSrc: "/vectors/icons/icon-analytics.svg", count: "5000+", color: "from-purple-500 to-purple-600" },
             ].map((asset, i) => (
               <motion.div 
                 key={i} 
@@ -419,7 +796,7 @@ export default function Home() {
                   
                   <div className="relative z-10">
                     <div className="w-16 h-16 rounded-xl bg-linear-to-br from-gray-100 to-gray-200 border border-gray-300 flex items-center justify-center mb-6 group-hover:rotate-6 transition-transform duration-300">
-                      <span className="text-3xl">{asset.icon}</span>
+                      <Image src={asset.iconSrc} alt={asset.title} width={34} height={34} />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors duration-300 transition-professional">{asset.title}</h3>
                   </div>
@@ -707,10 +1084,10 @@ export default function Home() {
             className="flex flex-col sm:flex-row justify-center gap-4 mt-16"
           >
             <Button 
-              onClick={handleStartTrading} 
+              asChild
               className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
             >
-              Start Trading
+              <Link href="/auth/signin">Start Trading</Link>
             </Button>
             <Button 
               onClick={handleTryDemo} 
@@ -753,7 +1130,7 @@ export default function Home() {
                 ),
                 desc: "Optimized for iPhone and iPad",
                 buttonText: "App Store",
-                url: "https://apps.apple.com/app/bitpanda-pro",
+                url: "https://apps.apple.com/app/primevest",
                 color: "from-blue-500 to-blue-600"
               },
               {
@@ -765,7 +1142,7 @@ export default function Home() {
                 ),
                 desc: "Download on Google Play",
                 buttonText: "Google Play",
-                url: "https://play.google.com/store/apps/details?id=com.bitpanda.pro",
+                url: "https://play.google.com/store/apps/details?id=com.primevest.app",
                 color: "from-green-500 to-green-600"
               },
               {
@@ -804,10 +1181,10 @@ export default function Home() {
                     <p className="text-gray-600 mb-8 grow">{app.desc}</p>
                     {app.isInternalLink ? (
                       <Button 
-                        onClick={handleStartTrading} 
+                        asChild
                         className="bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg w-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl btn-premium"
                       >
-                        {app.buttonText}
+                        <Link href="/auth/signin">{app.buttonText}</Link>
                       </Button>
                     ) : (
                       <Button 
@@ -852,10 +1229,10 @@ export default function Home() {
             className="flex flex-col sm:flex-row justify-center gap-4"
           >
             <Button 
-              onClick={handleOpenAccount} 
+              asChild
               className="bg-white text-emerald-600 hover:bg-gray-100 px-12 py-4 rounded-xl text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 btn-premium"
             >
-              Open Account
+              <Link href="/auth/signup">Open Account</Link>
             </Button>
             <Button 
               onClick={handleContactUs} 
@@ -900,8 +1277,8 @@ export default function Home() {
               <ul className="space-y-3">
                 <li><Link href="/contact-us" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Contact</Link></li>
                 <li><Link href="/support" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Support</Link></li>
-                <li><a href="#" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Blog</a></li>
-                <li><a href="#" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Careers</a></li>
+                <li><Link href="/blog" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Blog</Link></li>
+                <li><Link href="/careers" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Careers</Link></li>
               </ul>
             </div>
 
@@ -937,7 +1314,7 @@ export default function Home() {
           {/* Divider */}
           <div className="border-t border-gray-200 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center text-gray-600 text-sm gap-6">
-  <p>&copy; 2026 PrimeVest Capital. All rights reserved.</p>
+              <p>&copy; 2026 PrimeVest Capital. All rights reserved.</p>
               <div className="flex gap-6 transition-professional">
                 <a href="#" className="hover:text-emerald-600 transition font-medium">Twitter</a>
                 <a href="#" className="hover:text-emerald-600 transition font-medium">LinkedIn</a>

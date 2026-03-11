@@ -1,0 +1,869 @@
+/* Professional Dashboard Styles - Modern Trading Platform */
+
+/* CSS Custom Properties for Professional Theme */
+:root {
+  --dashboard-bg: #0a0b0d;
+  --dashboard-surface: #141519;
+  --dashboard-surface-elevated: #1a1b23;
+  --dashboard-border: #2a2d3a;
+  --dashboard-text-primary: #ffffff;
+  --dashboard-text-secondary: #8b92a8;
+  --dashboard-text-tertiary: #5a5e68;
+  --dashboard-accent-green: #00d395;
+  --dashboard-accent-red: #ff3b69;
+  --dashboard-accent-blue: #3b82f6;
+  --dashboard-warning: #f59e0b;
+  --dashboard-gradient-green: linear-gradient(135deg, #00d395 0%, #00b884 100%);
+  --dashboard-gradient-red: linear-gradient(135deg, #ff3b69 0%, #e63946 100%);
+  --dashboard-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --dashboard-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --dashboard-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --dashboard-radius-sm: 6px;
+  --dashboard-radius-md: 12px;
+  --dashboard-radius-lg: 16px;
+  --dashboard-spacing-xs: 4px;
+  --dashboard-spacing-sm: 8px;
+  --dashboard-spacing-md: 16px;
+  --dashboard-spacing-lg: 24px;
+  --dashboard-spacing-xl: 32px;
+}
+
+/* Professional Dashboard Container */
+.dashboard-container {
+  min-height: 100vh;
+  background: var(--dashboard-bg);
+  color: var(--dashboard-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+.dashboard-app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--dashboard-spacing-md);
+  gap: var(--dashboard-spacing-lg);
+}
+
+/* Professional Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--dashboard-spacing-md) 0;
+  border-bottom: 1px solid var(--dashboard-border);
+  margin-bottom: var(--dashboard-spacing-lg);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--dashboard-spacing-md);
+}
+
+.header-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--dashboard-radius-sm);
+  background: var(--dashboard-surface);
+  color: var(--dashboard-text-secondary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid var(--dashboard-border);
+}
+
+.header-back:hover {
+  background: var(--dashboard-surface-elevated);
+  color: var(--dashboard-text-primary);
+  transform: translateX(-2px);
+}
+
+.header-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--dashboard-text-tertiary);
+  font-weight: 600;
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dashboard-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--dashboard-spacing-sm);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--dashboard-accent-green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Professional Action Buttons */
+.sync-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--dashboard-radius-sm);
+  background: var(--dashboard-surface);
+  color: var(--dashboard-text-secondary);
+  border: 1px solid var(--dashboard-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sync-btn:hover {
+  background: var(--dashboard-surface-elevated);
+  color: var(--dashboard-text-primary);
+  transform: scale(1.05);
+}
+
+/* Trading Pairs Section */
+.trading-pairs {
+  background: var(--dashboard-surface);
+  border-radius: var(--dashboard-radius-md);
+  padding: var(--dashboard-spacing-md);
+  border: 1px solid var(--dashboard-border);
+}
+
+.pairs-scroll {
+  display: flex;
+  gap: var(--dashboard-spacing-sm);
+  overflow-x: auto;
+  padding-bottom: var(--dashboard-spacing-xs);
+}
+
+.pairs-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.pairs-scroll::-webkit-scrollbar-track {
+  background: var(--dashboard-surface);
+}
+
+.pairs-scroll::-webkit-scrollbar-thumb {
+  background: var(--dashboard-border);
+  border-radius: 2px;
+}
+
+.pair-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--dashboard-spacing-sm) var(--dashboard-spacing-md);
+  border-radius: var(--dashboard-radius-sm);
+  background: var(--dashboard-surface-elevated);
+  border: 1px solid var(--dashboard-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.pair-chip:hover {
+  background: var(--dashboard-surface);
+  transform: translateY(-2px);
+}
+
+.pair-chip.active {
+  background: var(--dashboard-gradient-green);
+  border-color: var(--dashboard-accent-green);
+  color: white;
+}
+
+.pair-name {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.pair-change {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.pair-change.positive {
+  color: var(--dashboard-accent-green);
+}
+
+.pair-change.negative {
+  color: var(--dashboard-accent-red);
+}
+
+.pair-chip.active .pair-change {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Price Display */
+.price-display {
+  background: var(--dashboard-surface);
+  border-radius: var(--dashboard-radius-md);
+  padding: var(--dashboard-spacing-lg);
+  border: 1px solid var(--dashboard-border);
+  text-align: center;
+}
+
+.current-price {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--dashboard-spacing-sm);
+}
+
+.price-header {
+  text-align: center;
+}
+
+.price-label {
+  font-size: 12px;
+  color: var(--dashboard-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.price-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--dashboard-text-primary);
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.price-value small {
+  font-size: 14px;
+  color: var(--dashboard-text-secondary);
+  font-weight: 500;
+}
+
+.price-details {
+  display: flex;
+  justify-content: center;
+}
+
+.price-change {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--dashboard-radius-sm);
+}
+
+.price-change.positive {
+  color: var(--dashboard-accent-green);
+  background: rgba(0, 211, 149, 0.1);
+}
+
+.price-change.negative {
+  color: var(--dashboard-accent-red);
+  background: rgba(255, 59, 105, 0.1);
+}
+
+/* Professional Order Form */
+.order-form {
+  background: var(--dashboard-surface);
+  border-radius: var(--dashboard-radius-md);
+  padding: var(--dashboard-spacing-lg);
+  border: 1px solid var(--dashboard-border);
+}
+
+.order-tabs {
+  display: flex;
+  gap: var(--dashboard-spacing-xs);
+  margin-bottom: var(--dashboard-spacing-md);
+  background: var(--dashboard-surface-elevated);
+  padding: 4px;
+  border-radius: var(--dashboard-radius-sm);
+}
+
+.order-tab {
+  flex: 1;
+  padding: var(--dashboard-spacing-sm) var(--dashboard-spacing-md);
+  border-radius: var(--dashboard-radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--dashboard-text-secondary);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.order-tab.active {
+  background: var(--dashboard-text-primary);
+  color: var(--dashboard-bg);
+}
+
+.order-tab.buy.active {
+  background: var(--dashboard-accent-green);
+  color: white;
+}
+
+.order-tab.sell.active {
+  background: var(--dashboard-accent-red);
+  color: white;
+}
+
+.order-type-tabs {
+  display: flex;
+  gap: var(--dashboard-spacing-xs);
+  margin-bottom: var(--dashboard-spacing-md);
+  background: var(--dashboard-surface-elevated);
+  padding: 4px;
+  border-radius: var(--dashboard-radius-sm);
+}
+
+.order-type-tab {
+  flex: 1;
+  padding: var(--dashboard-spacing-xs) var(--dashboard-spacing-sm);
+  border-radius: var(--dashboard-radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--dashboard-text-secondary);
+  font-weight: 500;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.order-type-tab.active {
+  background: var(--dashboard-surface);
+  color: var(--dashboard-text-primary);
+}
+
+/* Order Inputs */
+.order-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dashboard-spacing-md);
+}
+
+.order-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dashboard-spacing-sm);
+}
+
+.order-input-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dashboard-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.input-with-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--dashboard-spacing-xs);
+  background: var(--dashboard-surface-elevated);
+  border: 1px solid var(--dashboard-border);
+  border-radius: var(--dashboard-radius-sm);
+  padding: 2px;
+}
+
+.input-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  color: var(--dashboard-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--dashboard-radius-sm);
+  transition: all 0.2s ease;
+}
+
+.input-action:hover {
+  background: var(--dashboard-surface);
+  color: var(--dashboard-text-primary);
+}
+
+.order-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--dashboard-text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  padding: 8px 12px;
+  outline: none;
+}
+
+.order-input::placeholder {
+  color: var(--dashboard-text-tertiary);
+}
+
+/* Percentage Buttons */
+.percentage-buttons {
+  display: flex;
+  gap: var(--dashboard-spacing-xs);
+}
+
+.percentage-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--dashboard-radius-sm);
+  background: var(--dashboard-surface-elevated);
+  border: 1px solid var(--dashboard-border);
+  color: var(--dashboard-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.percentage-btn:hover {
+  background: var(--dashboard-surface);
+  color: var(--dashboard-text-primary);
+}
+
+/* Order Total and Fee */
+.order-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--dashboard-spacing-sm) 0;
+  border-top: 1px solid var(--dashboard-border);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.total-value {
+  color: var(--dashboard-text-primary);
+}
+
+/* Order Button */
+.order-button {
+  padding: var(--dashboard-spacing-md);
+  border-radius: var(--dashboard-radius-sm);
+  border: none;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.order-button.buy {
+  background: var(--dashboard-gradient-green);
+  color: white;
+}
+
+.order-button.sell {
+  background: var(--dashboard-gradient-red);
+  color: white;
+}
+
+.order-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--dashboard-shadow-md);
+}
+
+.order-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Trading View Tabs */
+.trading-view-tabs {
+  display: flex;
+  gap: var(--dashboard-spacing-xs);
+  background: var(--dashboard-surface);
+  padding: 4px;
+  border-radius: var(--dashboard-radius-sm);
+  border: 1px solid var(--dashboard-border);
+}
+
+.category-chip {
+  flex: 1;
+  padding: var(--dashboard-spacing-sm) var(--dashboard-spacing-md);
+  border-radius: var(--dashboard-radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--dashboard-text-secondary);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-chip.active {
+  background: var(--dashboard-surface-elevated);
+  color: var(--dashboard-text-primary);
+}
+
+/* Order Book */
+.order-book {
+  background: var(--dashboard-surface);
+  border-radius: var(--dashboard-radius-md);
+  padding: var(--dashboard-spacing-lg);
+  border: 1px solid var(--dashboard-border);
+}
+
+.order-book-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dashboard-spacing-md);
+}
+
+.order-book-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dashboard-spacing-xs);
+}
+
+.order-book-header {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--dashboard-spacing-sm);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dashboard-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.order-book-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.order-book-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--dashboard-spacing-xs) var(--dashboard-spacing-sm);
+  border-radius: var(--dashboard-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+}
+
+.order-book-row:hover {
+  background: var(--dashboard-surface-elevated);
+}
+
+.row-price {
+  font-weight: 600;
+  flex: 1;
+}
+
+.row-price.positive {
+  color: var(--dashboard-accent-green);
+}
+
+.row-price.negative {
+  color: var(--dashboard-accent-red);
+}
+
+.row-amount {
+  flex: 1;
+  text-align: center;
+  color: var(--dashboard-text-secondary);
+}
+
+.row-total {
+  flex: 1;
+  text-align: right;
+  color: var(--dashboard-text-secondary);
+  font-weight: 500;
+}
+
+.order-book-spread {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--dashboard-spacing-md);
+  background: var(--dashboard-surface-elevated);
+  border-radius: var(--dashboard-radius-sm);
+  border: 1px solid var(--dashboard-border);
+  gap: var(--dashboard-spacing-xs);
+}
+
+.spread-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dashboard-text-primary);
+}
+
+.spread-label {
+  font-size: 10px;
+  color: var(--dashboard-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Recent Trades */
+.recent-trades {
+  background: var(--dashboard-surface);
+  border-radius: var(--dashboard-radius-md);
+  padding: var(--dashboard-spacing-lg);
+  border: 1px solid var(--dashboard-border);
+}
+
+.trades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.trade-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--dashboard-spacing-xs) var(--dashboard-spacing-sm);
+  border-radius: var(--dashboard-radius-sm);
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.trade-row:hover {
+  background: var(--dashboard-surface-elevated);
+}
+
+.trade-time {
+  color: var(--dashboard-text-tertiary);
+  flex: 1;
+}
+
+.trade-price {
+  font-weight: 600;
+  flex: 1;
+  text-align: center;
+}
+
+.trade-price.positive {
+  color: var(--dashboard-accent-green);
+}
+
+.trade-price.negative {
+  color: var(--dashboard-accent-red);
+}
+
+.trade-amount {
+  color: var(--dashboard-text-secondary);
+  flex: 1;
+  text-align: right;
+}
+
+.trade-side {
+  width: 20px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.trade-side.buy {
+  color: var(--dashboard-accent-green);
+}
+
+.trade-side.sell {
+  color: var(--dashboard-accent-red);
+}
+
+/* Transactions Card */
+.transactions-card {
+  background: var(--dashboard-surface);
+  border-radius: var(--dashboard-radius-md);
+  padding: var(--dashboard-spacing-md);
+  border: 1px solid var(--dashboard-border);
+}
+
+.transaction-row {
+  display: flex;
+  align-items: center;
+  gap: var(--dashboard-spacing-md);
+  padding: var(--dashboard-spacing-md);
+  border-radius: var(--dashboard-radius-sm);
+  transition: all 0.2s ease;
+}
+
+.transaction-row.has-border {
+  border-bottom: 1px solid var(--dashboard-border);
+}
+
+.transaction-row:hover {
+  background: var(--dashboard-surface-elevated);
+}
+
+.transaction-type-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 14px;
+}
+
+.transaction-type-icon.buy {
+  background: rgba(0, 211, 149, 0.1);
+  color: var(--dashboard-accent-green);
+}
+
+.transaction-type-icon.sell {
+  background: rgba(255, 59, 105, 0.1);
+  color: var(--dashboard-accent-red);
+}
+
+.transaction-info {
+  flex: 1;
+}
+
+.transaction-asset {
+  display: flex;
+  align-items: center;
+  gap: var(--dashboard-spacing-xs);
+  margin-bottom: 2px;
+}
+
+.asset-name {
+  font-weight: 600;
+  color: var(--dashboard-text-primary);
+}
+
+.asset-symbol {
+  font-size: 12px;
+  color: var(--dashboard-text-secondary);
+}
+
+.transaction-meta {
+  font-size: 11px;
+  color: var(--dashboard-text-tertiary);
+}
+
+.transaction-amounts {
+  text-align: right;
+}
+
+.tx-amount {
+  font-weight: 600;
+  color: var(--dashboard-text-primary);
+  margin-bottom: 2px;
+}
+
+.tx-value {
+  font-size: 12px;
+  color: var(--dashboard-text-secondary);
+}
+
+/* Error and Success States */
+.error-message {
+  padding: var(--dashboard-spacing-md);
+  background: rgba(255, 59, 105, 0.1);
+  border: 1px solid rgba(255, 59, 105, 0.2);
+  border-radius: var(--dashboard-radius-sm);
+  color: var(--dashboard-accent-red);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.success-message {
+  padding: var(--dashboard-spacing-md);
+  background: rgba(0, 211, 149, 0.1);
+  border: 1px solid rgba(0, 211, 149, 0.2);
+  border-radius: var(--dashboard-radius-sm);
+  color: var(--dashboard-accent-green);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Loading State */
+.dashboard-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--dashboard-bg);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--dashboard-border);
+  border-top: 3px solid var(--dashboard-accent-green);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-app {
+    padding: var(--dashboard-spacing-sm);
+    gap: var(--dashboard-spacing-md);
+  }
+
+  .header-title {
+    font-size: 20px;
+  }
+
+  .price-value {
+    font-size: 24px;
+  }
+
+  .order-form {
+    padding: var(--dashboard-spacing-md);
+  }
+
+  .order-book {
+    padding: var(--dashboard-spacing-md);
+  }
+
+  .recent-trades {
+    padding: var(--dashboard-spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-app {
+    padding: var(--dashboard-spacing-xs);
+  }
+
+  .header {
+    padding: var(--dashboard-spacing-sm) 0;
+  }
+
+  .pair-chip {
+    min-width: 70px;
+    padding: var(--dashboard-spacing-xs) var(--dashboard-spacing-sm);
+  }
+
+  .price-value {
+    font-size: 20px;
+  }
+
+  .order-tabs {
+    gap: 2px;
+  }
+
+  .order-tab {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}

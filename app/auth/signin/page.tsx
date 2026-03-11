@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import AuthLogo from '@/components/AuthLogo'
 
 export default function SignInPage() {
   const [email, setEmail] = useState('')
@@ -16,17 +17,35 @@ export default function SignInPage() {
   const router = useRouter()
   const { signIn, signInWithOAuth } = useAuth()
 
+  const getSafeRedirectPath = () => {
+    if (typeof window === 'undefined') {
+      return '/dashboard'
+    }
+
+    const redirectPath = new URLSearchParams(window.location.search).get('redirect')
+
+    if (!redirectPath || !redirectPath.startsWith('/') || redirectPath.startsWith('//')) {
+      return '/dashboard'
+    }
+
+    return redirectPath
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
     try {
-      const { error } = await signIn(email, password)
+      const normalizedEmail = email.trim().toLowerCase()
+      const { error, data } = await signIn(normalizedEmail, password)
+
       if (error) {
         setError(error.message)
+      } else if (!data?.session || !data?.user || data.user.email?.toLowerCase() !== normalizedEmail) {
+        setError('Authentication failed. Please enter the correct username and password.')
       } else {
-        router.push('/dashboard')
+        router.push(getSafeRedirectPath())
         router.refresh()
       }
     } catch {
@@ -65,15 +84,10 @@ export default function SignInPage() {
 
       <Card className="w-full max-w-sm sm:max-w-md shadow-lg border-gray-200 bg-white">
         <CardHeader className="space-y-1 text-center pb-6">
-          <div className="w-16 h-16 mx-auto mb-4">
-            <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
-              <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#10b981"/>
-              <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
+          <AuthLogo />
           <CardTitle className="text-2xl font-bold text-gray-900">Welcome back</CardTitle>
           <CardDescription className="text-gray-600">
-            Sign in to your Bitpanda Pro account
+            Sign in to your PrimeVest account
           </CardDescription>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">
@@ -96,6 +110,7 @@ export default function SignInPage() {
                 className="w-full p-3 border border-gray-300 bg-white text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="you@example.com"
                 required
+                suppressHydrationWarning
               />
             </div>
 
@@ -119,6 +134,7 @@ export default function SignInPage() {
                 className="w-full p-3 border border-gray-300 bg-white text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="••••••••"
                 required
+                suppressHydrationWarning
               />
             </div>
 
@@ -205,4 +221,3 @@ export default function SignInPage() {
     </div>
   )
 }
-

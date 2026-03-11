@@ -1,0 +1,184 @@
+/* Additional Dashboard Enhancements */
+
+/* Balance Info */
+.balance-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--dashboard-text-secondary);
+  margin-top: var(--dashboard-spacing-sm);
+}
+
+.balance-info span:last-child {
+  font-weight: 600;
+  color: var(--dashboard-text-primary);
+}
+
+/* Fee Info */
+.fee-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--dashboard-text-secondary);
+  padding: var(--dashboard-spacing-sm);
+  background: var(--dashboard-surface-elevated);
+  border-radius: var(--dashboard-radius-sm);
+  border: 1px solid var(--dashboard-border);
+}
+
+.fee-info span:last-child {
+  font-weight: 600;
+  color: var(--dashboard-text-primary);
+}
+
+/* Section Title Enhancement */
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dashboard-text-primary);
+  margin-bottom: var(--dashboard-spacing-md);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Professional Loading State */
+.dashboard-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--dashboard-bg);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--dashboard-border);
+  border-top: 3px solid var(--dashboard-accent-green);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 768px) {
+  .dashboard-app {
+    padding: var(--dashboard-spacing-sm);
+    gap: var(--dashboard-spacing-md);
+  }
+
+  .header {
+    padding: var(--dashboard-spacing-sm) 0;
+    margin-bottom: var(--dashboard-spacing-md);
+  }
+
+  .header-title {
+    font-size: 20px;
+  }
+
+  .price-value {
+    font-size: 24px;
+  }
+
+  .order-form {
+    padding: var(--dashboard-spacing-md);
+  }
+
+  .order-book {
+    padding: var(--dashboard-spacing-md);
+  }
+
+  .recent-trades {
+    padding: var(--dashboard-spacing-md);
+  }
+
+  .trading-pairs {
+    padding: var(--dashboard-spacing-sm);
+  }
+
+  .price-display {
+    padding: var(--dashboard-spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-app {
+    padding: var(--dashboard-spacing-xs);
+    gap: var(--dashboard-spacing-sm);
+  }
+
+  .header {
+    padding: var(--dashboard-spacing-xs) 0;
+  }
+
+  .header-title {
+    font-size: 18px;
+  }
+
+  .pair-chip {
+    min-width: 70px;
+    padding: var(--dashboard-spacing-xs) var(--dashboard-spacing-sm);
+  }
+
+  .price-value {
+    font-size: 20px;
+  }
+
+  .order-tabs {
+    gap: 2px;
+  }
+
+  .order-tab {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .order-form {
+    padding: var(--dashboard-spacing-sm);
+  }
+
+  .order-book {
+    padding: var(--dashboard-spacing-sm);
+  }
+
+  .recent-trades {
+    padding: var(--dashboard-spacing-sm);
+  }
+}
+
+/* Smooth Transitions */
+* {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Focus States */
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--dashboard-accent-blue);
+  outline-offset: 2px;
+}
+
+/* Enhanced Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dashboard-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--dashboard-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--dashboard-text-tertiary);
+}

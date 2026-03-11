@@ -5,38 +5,47 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import AuthProvider from "@/components/AuthProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
+
 export const metadata: Metadata = {
-  title: "PrimeVest Capital - Professional Trading Platform",
-  description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest Capital. European regulated crypto & securities broker platform.",
-  keywords: "PrimeVest Capital, cryptocurrency, crypto, trading, invest, stocks, ETFs, precious metals, bitcoin, ethereum, professional trading",
-  authors: [{ name: "PrimeVest Capital" }],
-  creator: "PrimeVest Capital",
-  publisher: "PrimeVest Capital",
+  title: "PrimeVest - Professional Trading Platform",
+  description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest. European regulated crypto & securities broker platform.",
+  keywords: "PrimeVest, cryptocurrency, crypto, trading, invest, stocks, ETFs, precious metals, bitcoin, ethereum, professional trading",
+  authors: [{ name: "PrimeVest" }],
+  creator: "PrimeVest",
+  publisher: "PrimeVest",
   robots: "index, follow",
   referrer: "origin",
   alternates: {
-    canonical: "https://www.primevestcapital.com"
+    canonical: "https://www.primevest.com"
   },
   openGraph: {
     type: "website",
-    title: "PrimeVest Capital - Professional Trading Platform",
-    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest Capital. European regulated crypto & securities broker platform.",
-    url: "https://www.primevestcapital.com",
-    siteName: "PrimeVest Capital",
+    title: "PrimeVest - Professional Trading Platform",
+    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest. European regulated crypto & securities broker platform.",
+    url: "https://www.primevest.com",
+    siteName: "PrimeVest",
     images: [
       {
-        url: "https://cdn.bitpanda.com/media/og-images-open-graph/bitpanda-og.png",
+        url: "https://www.primevest.com/primevest-og.svg",
         width: 1200,
         height: 630,
-        alt: "PrimeVest Capital - Professional Trading Platform"
+        alt: "PrimeVest - Professional Trading Platform"
       }
     ]
   },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" }
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/icon.svg"
+  },
   twitter: {
     card: "summary",
-    site: "@PrimeVestCapital",
-    title: "PrimeVest Capital - Professional Trading Platform",
-    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest Capital. European regulated crypto & securities broker platform."
+    site: "@PrimeVest_global",
+    title: "PrimeVest - Professional Trading Platform",
+    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest. European regulated crypto & securities broker platform."
   }
 };
 

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient } from '@/lib/supabase/client'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import KycReviewModal from '@/app/admin/components/KycReviewModal'
 import DeleteUserConfirmModal from '@/app/admin/components/DeleteUserConfirmModal'
@@ -24,10 +24,7 @@ export default function AdminUserDetailPage() {
   const [actionLoading, setActionLoading] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const supabase = createClient()
 
   useEffect(() => {
     if (!userId) return
@@ -37,6 +34,14 @@ export default function AdminUserDetailPage() {
 
   async function fetchData() {
     setLoading(true)
+
+    if (!supabase) {
+      setUser(null)
+      setKycRequests([])
+      setLoading(false)
+      return
+    }
+
     try {
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
       setUser(profile || null)
@@ -54,6 +59,11 @@ export default function AdminUserDetailPage() {
     setActionLoading(true)
     setActionError(null)
     
+    if (!supabase) {
+      setActionError('Supabase is not configured')
+      return
+    }
+
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
@@ -90,6 +100,11 @@ export default function AdminUserDetailPage() {
     setActionLoading(true)
     setActionError(null)
     
+    if (!supabase) {
+      setActionError('Supabase is not configured')
+      return
+    }
+
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
@@ -168,6 +183,7 @@ export default function AdminUserDetailPage() {
                 <button onClick={() => router.push(`/admin/users?action=adjust&id=${user.id}`)} className="px-3 py-2 bg-green-700 text-white rounded">Adjust Balance</button>
                 <button onClick={async () => {
                   try {
+                    if (!supabase) return
                     const { error } = await supabase.from('profiles').update({ is_active: !user.is_active }).eq('id', user.id)
                     if (error) throw error
                     setUser((u: any) => ({ ...u, is_active: !u.is_active }))

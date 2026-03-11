@@ -8,11 +8,11 @@ const eslintConfig = defineConfig([
   {
     ignores: [
       ".next/**",
-      "out/**", 
+      "out/**",
       "build/**",
       "next-env.d.ts",
-    ]
-  }
+    ],
+  },
 ]);
 
 export default eslintConfig;

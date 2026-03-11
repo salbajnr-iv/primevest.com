@@ -4,6 +4,17 @@ import * as React from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "./ThemeToggle";
+import { 
+  LayoutDashboard, 
+  Wallet, 
+  ArrowLeftRight, 
+  ClipboardList, 
+  ShieldCheck, 
+  Settings, 
+  Monitor, 
+  CheckSquare, 
+  Headphones
+} from "lucide-react";
 
 interface SidebarContentProps {
   onClose: () => void;
@@ -11,85 +22,20 @@ interface SidebarContentProps {
 }
 
 const menuItems = [
-  {
-    label: "Profile",
-    href: "/profile",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
-      </svg>
-    ),
-  },
-  {
-    label: "Notifications",
-    href: "/notifications",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-      </svg>
-    ),
-  },
-  {
-    label: "Settings",
-    href: "/settings",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-      </svg>
-    ),
-  },
-  {
-    label: "Support",
-    href: "/support",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-        <line x1="12" y1="17" x2="12.01" y2="17" />
-      </svg>
-    ),
-  },
-  {
-    label: "Transaction History",
-    href: "/transactions",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-        <polyline points="17 6 23 6 23 12" />
-      </svg>
-    ),
-  },
-  {
-    label: "Reports",
-    href: "/reports",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="20" x2="18" y2="10" />
-        <line x1="12" y1="20" x2="12" y2="4" />
-        <line x1="6" y1="20" x2="6" y2="14" />
-      </svg>
-    ),
-  },
-  {
-    label: "Statement",
-    href: "/statement",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-        <line x1="16" y1="13" x2="8" y2="13" />
-        <line x1="16" y1="17" x2="8" y2="17" />
-        <polyline points="10 9 9 9 8 9" />
-      </svg>
-    ),
-  },
+  { icon: LayoutDashboard, label: 'Overview', href: '/dashboard', active: true },
+  { icon: Wallet, label: 'Assets', href: '/wallets' },
+  { icon: ArrowLeftRight, label: 'Internal Transfer', href: '/wallets/transfer' },
+  { icon: ClipboardList, label: 'Order', href: '/dashboard/trade' },
+  { icon: ShieldCheck, label: 'Verification', href: '/verification' },
+  { icon: Settings, label: 'Settings', href: '/settings' },
+  { icon: Monitor, label: 'Platform', href: '/platform' },
+  { icon: CheckSquare, label: 'Task Center', href: '/tasks' },
+  { icon: Headphones, label: 'Customer Service', href: '/support' },
 ];
 
 export const SidebarContent = React.memo(function SidebarContent({ onClose, isMobile = false }: SidebarContentProps) {
   const { user, signOut } = useAuth();
+  const [activeItem, setActiveItem] = React.useState('Overview');
   const sidebarRef = React.useRef<HTMLDivElement>(null);
 
   // Get user's display name with memoization
@@ -116,7 +62,8 @@ export const SidebarContent = React.memo(function SidebarContent({ onClose, isMo
   }, [onClose, signOut]);
 
   // Handle menu item click
-  const handleMenuItemClick = React.useCallback(() => {
+  const handleMenuItemClick = React.useCallback((label: string) => {
+    setActiveItem(label);
     if (isMobile) {
       onClose();
     }
@@ -125,71 +72,75 @@ export const SidebarContent = React.memo(function SidebarContent({ onClose, isMo
   return (
     <aside 
       ref={sidebarRef}
-      className={isMobile ? "sidebar" : "sidebar-desktop"}
+      className={`bg-white border-r border-slate-200 overflow-y-auto ${isMobile ? "fixed left-0 top-0 z-50 h-screen w-72 max-w-[85vw] shadow-2xl" : "relative h-[calc(100vh-64px)] w-64 hidden md:block"}`}
       role="navigation"
       aria-label="Main navigation"
     >
       {/* Sidebar Header */}
-      <div className="sidebar-header">
-        <div className="sidebar-user">
-          <div className="sidebar-avatar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
+      <div className="p-6 border-b border-slate-200">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+            <span className="text-emerald-600 font-semibold text-lg">
+              {userName.charAt(0).toUpperCase()}
+            </span>
           </div>
-          <div className="sidebar-user-info">
-            <span className="sidebar-user-name">{userName}</span>
-            <span className="sidebar-user-email">{user?.email || "user@example.com"}</span>
+          <div className="flex-1 min-w-0">
+            <span className="block text-sm font-semibold text-slate-900 truncate">
+              {userName}
+            </span>
+            <span className="block text-xs text-slate-500 truncate">
+              {user?.email || "user@example.com"}
+            </span>
           </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <ThemeToggle />
-          <button 
-            className={`sidebar-close ${isMobile ? "" : "sidebar-close-desktop"}`} 
-            onClick={onClose} 
-            aria-label="Close menu"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <ThemeToggle />
+            <button 
+              className={`p-2 rounded-lg hover:bg-slate-100 transition-colors ${isMobile ? "" : "hidden"}`} 
+              onClick={onClose} 
+              aria-label="Close menu"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Menu Items */}
-      <nav className="sidebar-nav">
-        <ul className="sidebar-menu">
-          {menuItems.map((item, index) => (
-            <li key={index}>
-              <Link 
-                href={item.href} 
-                className="sidebar-menu-item" 
-                onClick={handleMenuItemClick}
-                role="menuitem"
-              >
-                <span className="sidebar-menu-icon">{item.icon}</span>
-                <span className="sidebar-menu-label">{item.label}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <div className="py-6">
+        {menuItems.map((item) => (
+          <Link
+            key={item.label}
+            href={item.href}
+            className={`w-full flex items-center gap-3 px-6 py-3.5 text-sm font-medium transition-all border-r-2 ${
+              activeItem === item.label 
+                ? 'text-emerald-600 bg-emerald-50 border-emerald-600' 
+                : 'text-slate-500 hover:bg-slate-50 border-transparent hover:text-slate-900'
+            }`}
+            onClick={() => handleMenuItemClick(item.label)}
+            role="menuitem"
+          >
+            <item.icon size={18} />
+            {item.label}
+          </Link>
+        ))}
+      </div>
 
       {/* Logout Button */}
-      <div className="sidebar-footer">
+      <div className="sticky bottom-0 left-0 right-0 mt-4 p-6 border-t border-slate-200 bg-white">
         <button
-          className="sidebar-logout"
+          className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
           onClick={handleLogout}
           aria-label="Log out"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
-          <span>Log Out</span>
+          Log Out
         </button>
       </div>
     </aside>
