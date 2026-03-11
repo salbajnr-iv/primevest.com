@@ -196,21 +196,21 @@ const primevestExpertises = [
     description:
       "Focus on infrastructure and mobility solutions that keep growing cities efficient and connected.",
     href: "/markets",
-    image: "/vectors/expertise-parking.svg"
+    image: "/api/primevest-expertise-images/parking-mobility"
   },
   {
     title: "Urban & Student Living",
     description:
       "Exposure to resilient housing themes and urban demand across major European growth corridors.",
     href: "/reports",
-    image: "/vectors/expertise-urban.svg"
+    image: "/api/primevest-expertise-images/urban-student-living"
   },
   {
     title: "Connectivity & Data",
     description:
       "Invest where digital infrastructure and data capacity meet long-term structural demand.",
     href: "/tools/analysis",
-    image: "/vectors/expertise-connectivity.svg"
+    image: "/api/primevest-expertise-images/connectivity-data"
   }
 ];
 
