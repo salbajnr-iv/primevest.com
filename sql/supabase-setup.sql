@@ -1,6 +1,7 @@
 -- =============================================================================
 -- STEP 1: Create profiles table (links to auth.users)
 -- =============================================================================
+
 -- Create enum for KYC status
 DO $$
 BEGIN
@@ -8,7 +9,16 @@ BEGIN
     CREATE TYPE kyc_status AS ENUM ('none','pending','submitted','under_review','verified','rejected');
   END IF;
 END$$;
-02bdcb7 (Initial commit)
+
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name TEXT,
+  avatar_url TEXT,
+  email TEXT UNIQUE,
+  account_balance DECIMAL(20, 8) DEFAULT 0,
+  is_admin BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  kyc_status kyc_status DEFAULT 'none',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -22,31 +32,25 @@ ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 -- STEP 3: Create policies for profiles table
 -- =============================================================================
 
--- Policy: Allow users to view their OWN profile only
 CREATE POLICY "Users can view own profile" ON profiles
   FOR SELECT USING (auth.uid() = id);
 
--- Policy: Allow users to insert their OWN profile
 CREATE POLICY "Users can insert own profile" ON profiles
   FOR INSERT WITH CHECK (auth.uid() = id);
 
--- Policy: Allow users to update their OWN profile
 CREATE POLICY "Users can update own profile" ON profiles
   FOR UPDATE USING (auth.uid() = id);
 
--- Policy: Allow admins to view all profiles
 CREATE POLICY "Admins can view all profiles" ON profiles
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
   );
 
--- Policy: Allow admins to update any profile
 CREATE POLICY "Admins can update any profile" ON profiles
   FOR UPDATE USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
   );
 
--- Policy: Allow users to delete their OWN profile
 CREATE POLICY "Users can delete own profile" ON profiles
   FOR DELETE USING (auth.uid() = id);
 
@@ -63,28 +67,23 @@ CREATE TABLE IF NOT EXISTS admin_users (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable RLS for admin_users
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
 
--- Policy: Allow admins to view all admin_users
 CREATE POLICY "Admins can view admin_users" ON admin_users
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
   );
 
--- Policy: Allow admins to insert admin_users
 CREATE POLICY "Admins can insert admin_users" ON admin_users
   FOR INSERT WITH CHECK (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
   );
 
--- Policy: Allow admins to update admin_users
 CREATE POLICY "Admins can update admin_users" ON admin_users
   FOR UPDATE USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
   );
 
--- Policy: Admin users can view their own record
 CREATE POLICY "Admin can view own record" ON admin_users
   FOR SELECT USING (auth.uid() = id);
 
@@ -104,20 +103,16 @@ CREATE TABLE IF NOT EXISTS balance_history (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable RLS for balance_history
 ALTER TABLE balance_history ENABLE ROW LEVEL SECURITY;
 
--- Policy: Users can view their own balance history
 CREATE POLICY "Users can view own balance history" ON balance_history
   FOR SELECT USING (auth.uid() = user_id);
 
--- Policy: Admins can view all balance history
 CREATE POLICY "Admins can view all balance history" ON balance_history
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
   );
 
--- Policy: Admins can insert balance history
 CREATE POLICY "Admins can insert balance history" ON balance_history
   FOR INSERT WITH CHECK (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
@@ -139,16 +134,13 @@ CREATE TABLE IF NOT EXISTS admin_actions (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable RLS for admin_actions
 ALTER TABLE admin_actions ENABLE ROW LEVEL SECURITY;
 
--- Policy: Admins can view all admin actions
 CREATE POLICY "Admins can view admin_actions" ON admin_actions
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
   );
 
--- Policy: Admins can insert admin actions
 CREATE POLICY "Admins can insert admin_actions" ON admin_actions
   FOR INSERT WITH CHECK (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
@@ -163,27 +155,21 @@ DECLARE
   v_is_admin BOOLEAN;
   v_email TEXT;
 BEGIN
-  -- Get email from metadata or from NEW.email
   v_email := COALESCE(NEW.raw_user_meta_data->>'email', NEW.email);
-  
-  -- Check if email matches admin pattern (admin@* or specific admin emails)
-  -- You can customize this pattern as needed
-  v_is_admin := v_email ILIKE 'admin@%' 
+
+  v_is_admin := v_email ILIKE 'admin@%'
                 OR v_email = 'support@bitpandapro.com'
                 OR v_email = 'admin@bitpandapro.com';
-  
-  -- Insert into profiles with is_admin flag based on email pattern
-  INSERT INTO public.profiles (id, full_name, avatar_url, email, is_admin)02bdcb7 (Initial commit)815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
+
+  INSERT INTO public.profiles (id, full_name, avatar_url, email, is_admin)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
     NEW.raw_user_meta_data->>'avatar_url',
-<<<<<<< HEAD
     v_email,
     v_is_admin
   );
-  
-  -- If admin, also create admin_users record
+
   IF v_is_admin THEN
     INSERT INTO admin_users (id, email, full_name)
     VALUES (
@@ -191,31 +177,12 @@ BEGIN
       v_email,
       COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email)
     )
-    ON CONFLICT (id) DO UPDATE SET 
+    ON CONFLICT (id) DO UPDATE SET
       email = EXCLUDED.email,
       full_name = EXCLUDED.full_name,
       updated_at = NOW();
   END IF;
-  
-  RETURN NEW;
-END;815276c (`Updated various files across the application to enhance UI/UX, add new features, and improve functionality.`)
-  );
-  
-  -- If admin, also create admin_users record
-  IF v_is_admin THEN
-    INSERT INTO admin_users (id, email, full_name)
-    VALUES (
-      NEW.id,
-      v_email,
-      COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email)
-    )
-    ON CONFLICT (id) DO UPDATE SET 
-      email = EXCLUDED.email,
-      full_name = EXCLUDED.full_name,
-      updated_at = NOW();
-  END IF;
-  
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
->>>>>>> 02bdcb7 (Initial commit)02bdcb7 (Initial commit)
