@@ -37,12 +37,15 @@
 - [x] 7.2 Update middleware for admin route handling
 
 ## Phase 8: Deployment Instructions
-- [ ] 8.1 Run the updated supabase-setup.sql in Supabase SQL Editor
-- [ ] 8.2 Create an admin user and set admin role
-- [ ] 8.3 Deploy to Vercel
-- [ ] 8.4 Configure admin.bitpandaproapp.com subdomain
+- [ ] 8.1 Run `sql/supabase-setup.sql`, `sql/supabase-migration-2024.sql`, and `sql/supabase-fix-profile-upsert.sql` in order
+- [ ] 8.2 Run post-migration validation queries (tables/functions/policies)
+- [ ] 8.3 Create at least one real admin user via `public.set_admin_role(...)`
+- [ ] 8.4 Verify deployment env vars (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`)
+- [ ] 8.5 Confirm admin route host strategy (`/admin` and optional `admin.bitpandaproapp.com`)
 
-## Total: 25 Tasks | Completed: 24 | Remaining: 1
+## Status: Track completion directly in the checklist above.
+
+> Detailed reproducible rollout + rollback instructions are documented in `docs/SUPABASE_ADMIN_MIGRATION_RUNBOOK.md`.
 
 ---
 
@@ -51,8 +54,8 @@
 ## Step 1: Update Database
 
 1. Go to your Supabase Dashboard → SQL Editor
-2. Copy the contents of `supabase-setup.sql`
-3. Run the SQL script
+2. Follow `docs/SUPABASE_ADMIN_MIGRATION_RUNBOOK.md` and run all three SQL scripts in order
+3. Run the validation query block from the runbook
 4. **Create your first admin user:**
    - First, create a user account via your app's signup page
    - Then in Supabase SQL Editor, run:
@@ -68,6 +71,7 @@
 3. Add environment variables:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY` (server-only)
 4. Deploy
 
 ## Step 3: Configure Subdomain
