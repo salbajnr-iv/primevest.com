@@ -135,6 +135,12 @@ export interface DataTableColumnInput<T extends object> {
 }
 
 export interface DataTableInput<T extends object> {
+export interface DataTableColumnInput<T extends Record<string, unknown>> {
+  key: keyof T;
+  label: string;
+}
+
+export interface DataTableInput<T extends Record<string, unknown>> {
   title: string;
   columns: DataTableColumnInput<T>[];
   rows: T[];
