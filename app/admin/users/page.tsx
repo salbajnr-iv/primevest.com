@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export const dynamic = 'force-dynamic'
@@ -57,6 +58,7 @@ export default function AdminUsersPage() {
               <th className="px-4 py-3 text-left">Name</th>
               <th className="px-4 py-3 text-left">Status</th>
               <th className="px-4 py-3 text-left">Created</th>
+              <th className="px-4 py-3 text-left">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-gray-900 text-gray-100">
@@ -66,6 +68,14 @@ export default function AdminUsersPage() {
                 <td className="px-4 py-3">{user.full_name || '—'}</td>
                 <td className="px-4 py-3">{user.is_active ? 'Active' : 'Inactive'}</td>
                 <td className="px-4 py-3">{new Date(user.created_at).toLocaleDateString()}</td>
+                <td className="px-4 py-3">
+                  <Link
+                    href={`/admin/users/${user.id}`}
+                    className="inline-flex items-center rounded bg-blue-700 px-3 py-1.5 text-white hover:bg-blue-600"
+                  >
+                    View
+                  </Link>
+                </td>
               </tr>
             ))}
           </tbody>
