@@ -1,17 +1,12 @@
 "use client";
 
+import type { KpiGaugeInput } from "@/lib/dashboard/types";
 import { dashboardTokens } from "./types";
 
-interface KpiGaugeProps {
-  label: string;
-  value: number;
-  target?: number;
-  valueLabel: string;
-  deltaLabel?: string;
-}
-
-export default function KpiGauge({ label, value, target = 100, valueLabel, deltaLabel }: KpiGaugeProps) {
-  const percent = Math.max(0, Math.min(100, (value / target) * 100));
+export default function KpiGauge({ label, value, target = 100, valueLabel, deltaLabel }: KpiGaugeInput) {
+  const safeTarget = Number.isFinite(target) && target > 0 ? target : 100;
+  const safeValue = Number.isFinite(value) ? value : 0;
+  const percent = Math.max(0, Math.min(100, (safeValue / safeTarget) * 100));
 
   return (
     <article

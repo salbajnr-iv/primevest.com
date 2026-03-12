@@ -60,6 +60,9 @@ This document defines the current analytics dashboard data contract implemented 
 
 **Behavior rules**
 
+- `data` is normalized before rendering (`label` required, non-finite `value` coerced to `0`).
+- Empty array renders `emptyStateLabel` (default: `"No metrics available yet."`).
+- Active metric caption appears only when a bar is hovered/focused.
 - `data` is passed directly to `recharts` `BarChart`.
 - Empty array renders chart container/axes with no bars.
 - Active metric caption appears only when a bar is hovered/focused.
@@ -83,6 +86,8 @@ This document defines the current analytics dashboard data contract implemented 
 
 **Behavior rules**
 
+- `data` is normalized before rendering (`label` required, non-finite `value` coerced to `0`).
+- Empty array renders `emptyStateLabel` (default: `"No performance data available yet."`).
 - `data` is passed directly to `recharts` `LineChart`.
 - Empty array renders chart shell with no plotted line points.
 - Focus detail text (`{active.label}: {active.value}`) is shown only after dot focus.
@@ -108,6 +113,7 @@ This document defines the current analytics dashboard data contract implemented 
 
 **Behavior rules**
 
+- Empty `rows` renders a single-body-row empty state with `emptyStateLabel` (default: `"No rows to display."`).
 - Empty `rows` renders only table headers and no body rows.
 - Default cell rendering uses `String(value)`:
   - `null` -> `"null"`

@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export type OrderType = "buy" | "sell" | "swap";
 export type OrderStatus = "completed" | "pending" | "cancelled";
 
@@ -126,6 +128,13 @@ export interface PerformanceLineChartInput {
   emptyStateLabel?: string;
 }
 
+export interface DataTableColumnInput<T extends object> {
+  key: keyof T;
+  label: string;
+  render?: (value: T[keyof T], row: T) => ReactNode;
+}
+
+export interface DataTableInput<T extends object> {
 export interface DataTableColumnInput<T extends Record<string, unknown>> {
   key: keyof T;
   label: string;
