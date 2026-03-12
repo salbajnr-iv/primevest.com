@@ -6,9 +6,11 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "./ThemeToggle";
 import {
+  AlertCircle,
   ArrowLeftRight,
   Bell,
   BookOpen,
+  Headphones,
   ChevronDown,
   CircleHelp,
   Compass,
@@ -18,11 +20,14 @@ import {
   LineChart,
   ListOrdered,
   Lock,
+  MessageCircle,
   Newspaper,
   PlusCircle,
   Search,
+  Settings,
   ShieldCheck,
   TrendingUp,
+  Users,
   UserCog,
   Wallet,
 } from "lucide-react";
