@@ -1,25 +1,17 @@
 "use client";
 
 import { useId, useState } from "react";
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 
+import type { DataTableInput } from "@/lib/dashboard/types";
 import { dashboardTokens } from "./types";
 
-export interface DataColumn<T> {
-  key: keyof T;
-  label: string;
-  render?: (value: T[keyof T], row: T) => ReactNode;
-}
-
-export default function DataTable<T extends Record<string, unknown>>({
+export default function DataTable<T extends object>({
   title,
   columns,
   rows,
-}: {
-  title: string;
-  columns: DataColumn<T>[];
-  rows: T[];
-}) {
+  emptyStateLabel = "No rows to display.",
+}: DataTableInput<T>) {
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
   const tooltipId = useId();
 
@@ -38,33 +30,41 @@ export default function DataTable<T extends Record<string, unknown>>({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, idx) => (
-              <tr key={idx} style={{ borderTop: `1px solid ${dashboardTokens.border}` }}>
-                {columns.map((column) => {
-                  const value = row[column.key];
-                  const content = column.render ? column.render(value, row) : String(value);
-                  const tooltipText = `${column.label}: ${String(value)}`;
-                  const tooltipKey = `${idx}-${String(column.key)}`;
-
-                  return (
-                    <td key={String(column.key)} className="p-2">
-                      <span
-                        tabIndex={0}
-                        title={tooltipText}
-                        aria-label={tooltipText}
-                        aria-describedby={activeTooltip === tooltipKey ? tooltipId : undefined}
-                        onFocus={() => setActiveTooltip(tooltipKey)}
-                        onBlur={() => setActiveTooltip(null)}
-                        className="rounded px-1 py-0.5 outline-none focus:ring-2"
-                        style={{ ['--tw-ring-color' as string]: dashboardTokens.brand } as CSSProperties}
-                      >
-                        {content}
-                      </span>
-                    </td>
-                  );
-                })}
+            {rows.length === 0 ? (
+              <tr style={{ borderTop: `1px solid ${dashboardTokens.border}` }}>
+                <td className="p-4 text-sm" style={{ color: dashboardTokens.textMuted }} colSpan={Math.max(columns.length, 1)}>
+                  {emptyStateLabel}
+                </td>
               </tr>
-            ))}
+            ) : (
+              rows.map((row, idx) => (
+                <tr key={idx} style={{ borderTop: `1px solid ${dashboardTokens.border}` }}>
+                  {columns.map((column) => {
+                    const value = (row as Record<string, unknown>)[column.key as string];
+                    const renderedValue = column.render ? column.render(value, row) : String(value);
+                    const tooltipText = `${column.label}: ${String(value)}`;
+                    const tooltipKey = `${idx}-${String(column.key)}`;
+
+                    return (
+                      <td key={String(column.key)} className="p-2">
+                        <span
+                          tabIndex={0}
+                          title={tooltipText}
+                          aria-label={tooltipText}
+                          aria-describedby={activeTooltip === tooltipKey ? tooltipId : undefined}
+                          onFocus={() => setActiveTooltip(tooltipKey)}
+                          onBlur={() => setActiveTooltip(null)}
+                          className="rounded px-1 py-0.5 outline-none focus:ring-2"
+                          style={{ ["--tw-ring-color" as string]: dashboardTokens.brand } as CSSProperties}
+                        >
+                          {renderedValue}
+                        </span>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
