@@ -8,7 +8,7 @@ import MetricsBarChart from "@/components/dashboard/analytics/MetricsBarChart";
 import PerformanceLineChart from "@/components/dashboard/analytics/PerformanceLineChart";
 import DataTable from "@/components/dashboard/analytics/DataTable";
 import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
-import { DashboardData } from "@/lib/dashboard/types";
+import type { DashboardData, DashboardWidgetContract, KpiGaugeInput } from "@/lib/dashboard/types";
 import { createClient as createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 export default function DashboardClient({ initialData }: { initialData: DashboardData }) {
@@ -16,6 +16,37 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
   const [activePerfRange, setActivePerfRange] = React.useState<keyof DashboardData["performanceSeries"]>("1M");
   const [liveActivityFeed, setLiveActivityFeed] = React.useState(initialData.activityFeed);
   const { isReady, breakpoint, width, height } = useWindowSize();
+
+
+  const widgetContract: DashboardWidgetContract = React.useMemo(() => ({
+    kpiGauges: initialData.kpis as KpiGaugeInput[],
+    metricsBarChart: {
+      title: "Daily Filled Orders",
+      data: initialData.volumeData,
+      emptyStateLabel: "No filled orders in this period.",
+    },
+    performanceLineChartByRange: {
+      "7D": { title: "Portfolio Performance (7D)", data: initialData.performanceSeries["7D"], emptyStateLabel: "No performance points for 7D." },
+      "1M": { title: "Portfolio Performance (1M)", data: initialData.performanceSeries["1M"], emptyStateLabel: "No performance points for 1M." },
+      "3M": { title: "Portfolio Performance (3M)", data: initialData.performanceSeries["3M"], emptyStateLabel: "No performance points for 3M." },
+    },
+    topMarketsTable: {
+      title: "Top Markets",
+      columns: [
+        { key: "pair", label: "Pair" },
+        { key: "volume", label: "Volume" },
+        { key: "spread", label: "Spread" },
+        { key: "pnl", label: "PnL" },
+      ],
+      rows: initialData.topPairs,
+      emptyStateLabel: "No market rows available.",
+    },
+    loadingState: {
+      isLoading: false,
+      isRefreshing: false,
+      lastUpdatedAt: new Date().toISOString(),
+    },
+  }), [initialData]);
 
   React.useEffect(() => {
     const supabase = createBrowserSupabaseClient();
@@ -77,7 +108,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       </section>
 
       <section className="grid gap-3 md:grid-cols-3">
-        {initialData.kpis.map((kpi) => (
+        {widgetContract.kpiGauges.map((kpi) => (
           <button key={kpi.label} className="text-left rounded-2xl focus-visible:outline-2 focus-visible:outline-emerald-500" title={`View details for ${kpi.label}`}>
             <KpiGauge {...kpi} />
           </button>
@@ -90,7 +121,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
             <h3 className="font-semibold text-slate-900 flex items-center gap-2"><TrendingUp size={16} className="text-emerald-600" /> Market Trends</h3>
             <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs text-emerald-700">Live feed</span>
           </div>
-          <MetricsBarChart title="Daily Filled Orders" data={initialData.volumeData} />
+          <MetricsBarChart {...widgetContract.metricsBarChart} />
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
@@ -108,7 +139,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
               ))}
             </div>
           </div>
-          <PerformanceLineChart title={`Portfolio Performance (${activePerfRange})`} data={initialData.performanceSeries[activePerfRange]} />
+          <PerformanceLineChart {...widgetContract.performanceLineChartByRange[activePerfRange]} />
         </div>
       </section>
 
@@ -120,18 +151,9 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
           </div>
           <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-700 mb-3 flex items-center gap-2 overflow-x-auto whitespace-nowrap">
             <MessageCircle size={14} className="text-emerald-600" />
-            <span>{initialData.marketNews.map((item) => item.text).join(" • ")}</span>
+            <span>{initialData.marketNews.length ? initialData.marketNews.map((item) => item.text).join(" • ") : "No market news available."}</span>
           </div>
-          <DataTable
-            title="Top Markets"
-            columns={[
-              { key: "pair", label: "Pair" },
-              { key: "volume", label: "Volume" },
-              { key: "spread", label: "Spread" },
-              { key: "pnl", label: "PnL" },
-            ]}
-            rows={initialData.topPairs}
-          />
+<DataTable {...widgetContract.topMarketsTable} />
         </article>
 
         <article className="rounded-2xl border border-slate-200 bg-white p-4">

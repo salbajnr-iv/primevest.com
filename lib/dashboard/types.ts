@@ -1,5 +1,10 @@
+import type { ReactNode } from "react";
+
 export type OrderType = "buy" | "sell" | "swap";
 export type OrderStatus = "completed" | "pending" | "cancelled";
+
+export type PerformanceRange = "7D" | "1M" | "3M";
+export type DashboardRefreshCadence = "realtime" | "interval" | "on-load";
 
 export interface PortfolioSummary {
   userName: string;
@@ -14,7 +19,7 @@ export interface KpiMetric {
   label: string;
   value: number;
   valueLabel: string;
-  deltaLabel: string;
+  deltaLabel?: string;
 }
 
 export interface VolumeDataPoint {
@@ -83,7 +88,66 @@ export interface PerformanceSeriesResponse {
   stats: PerformanceStats;
 }
 
-export type PerformanceRange = "7D" | "1M" | "3M";
+export interface DashboardLoadingState {
+  isLoading: boolean;
+  isRefreshing?: boolean;
+  lastUpdatedAt?: string;
+  error?: string;
+}
+
+export interface DashboardSectionContract {
+  section: string;
+  source: string;
+  requiredFields: string[];
+  refreshCadence: DashboardRefreshCadence;
+  ownership: string;
+}
+
+export interface KpiGaugeInput {
+  label: string;
+  value: number;
+  target?: number;
+  valueLabel: string;
+  deltaLabel?: string;
+}
+
+export interface AnalyticsChartPoint {
+  label: string;
+  value: number;
+}
+
+export interface MetricsBarChartInput {
+  title: string;
+  data: AnalyticsChartPoint[];
+  emptyStateLabel?: string;
+}
+
+export interface PerformanceLineChartInput {
+  title: string;
+  data: AnalyticsChartPoint[];
+  emptyStateLabel?: string;
+}
+
+export interface DataTableColumnInput<T extends object> {
+  key: keyof T;
+  label: string;
+  render?: (value: T[keyof T], row: T) => ReactNode;
+}
+
+export interface DataTableInput<T extends object> {
+  title: string;
+  columns: DataTableColumnInput<T>[];
+  rows: T[];
+  emptyStateLabel?: string;
+}
+
+export interface DashboardWidgetContract {
+  kpiGauges: KpiGaugeInput[];
+  metricsBarChart: MetricsBarChartInput;
+  performanceLineChartByRange: Record<PerformanceRange, PerformanceLineChartInput>;
+  topMarketsTable: DataTableInput<TopPairMetric>;
+  loadingState?: DashboardLoadingState;
+}
 
 export interface DashboardData {
   portfolioSummary: PortfolioSummary;
@@ -92,5 +156,5 @@ export interface DashboardData {
   topPairs: TopPairMetric[];
   activityFeed: ActivityFeedItem[];
   marketNews: NewsHeadline[];
-  performanceSeries: Record<PerformanceRange, { label: string; value: number }[]>;
+  performanceSeries: Record<PerformanceRange, AnalyticsChartPoint[]>;
 }
