@@ -6,6 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState, ErrorState, PageLoading } from "@/components/ui/LoadingStates";
+import { PageMain, PageShell, StickyPageHeader, SurfaceCard } from "@/components/ui/page-layout";
 
 interface SettingsAction {
   label: string;
@@ -110,25 +111,20 @@ export default function SettingsPage() {
   const visibleGroups = QUICK_FIX_GROUPS.filter((group) => (filter === "all" ? true : group.category === filter));
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app pb-24">
-        <header className="sticky top-0 z-10 border-b bg-white/95 px-4 py-3 backdrop-blur md:px-6">
-          <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-gray-500">Account</p>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-semibold text-gray-900">Settings</h1>
-                <Badge variant="secondary">Phase 1</Badge>
-              </div>
-            </div>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/profile">Open profile</Link>
-            </Button>
-          </div>
-        </header>
+    <PageShell>
+      <StickyPageHeader
+        eyebrow="Account"
+        title="Settings"
+        badge={<Badge variant="secondary">Phase 1</Badge>}
+        action={
+          <Button asChild variant="outline" size="sm">
+            <Link href="/profile">Open profile</Link>
+          </Button>
+        }
+      />
 
-        <main className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-4 md:px-6">
-          <section className="rounded-xl border bg-white p-3">
+      <PageMain>
+          <SurfaceCard className="p-3">
             <div className="flex flex-wrap gap-2">
               {(["all", "account", "preferences", "notifications", "privacy"] as CategoryFilter[]).map((tab) => (
                 <Button key={tab} size="sm" variant={filter === tab ? "default" : "outline"} onClick={() => setFilter(tab)} className="capitalize">
@@ -136,7 +132,7 @@ export default function SettingsPage() {
                 </Button>
               ))}
             </div>
-          </section>
+          </SurfaceCard>
 
           <section className="grid gap-4 lg:grid-cols-2">
             {visibleGroups.map((group) => (
@@ -145,26 +141,25 @@ export default function SettingsPage() {
           </section>
 
           {hasPhaseTwoError && (
-            <section className="rounded-xl border bg-white p-4">
+            <SurfaceCard className="p-4">
               <ErrorState
                 title="Phase 2 forms are not connected yet"
                 message="Advanced settings editors are temporarily unavailable in this release. Use the links above to manage your settings from existing pages."
                 onRetry={() => setHasPhaseTwoError(false)}
                 retryText="Dismiss"
               />
-            </section>
+            </SurfaceCard>
           )}
 
-          <section className="rounded-xl border bg-white p-4">
+          <SurfaceCard className="p-4">
             <EmptyState
               title="No pending data requests"
               message="When exports, deletion requests, or consent updates are submitted, they will appear here for tracking."
               action={{ label: "Review privacy details", onClick: () => window.location.assign("/privacy") }}
             />
-          </section>
-        </main>
-      </div>
+          </SurfaceCard>
+      </PageMain>
       <BottomNav />
-    </div>
+    </PageShell>
   );
 }

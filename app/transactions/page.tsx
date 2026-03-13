@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageMain, PageShell, StickyPageHeader, SurfaceCard } from "@/components/ui/page-layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 
@@ -177,30 +177,16 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app pb-24">
-        <header className="sticky top-0 z-10 border-b bg-white/95 px-4 py-3 backdrop-blur md:px-6">
-          <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <Link href="/dashboard" className="inline-flex h-9 w-9 items-center justify-center rounded-md border text-gray-600">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
-              </Link>
-              <div>
-                <p className="text-xs uppercase tracking-wide text-gray-500">Activity</p>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-xl font-semibold text-gray-900">Transactions</h1>
-                  {pendingCount > 0 && <Badge variant="secondary">{pendingCount} pending</Badge>}
-                </div>
-              </div>
-            </div>
-            <Button variant="outline">Export CSV</Button>
-          </div>
-        </header>
+    <PageShell>
+      <StickyPageHeader
+        eyebrow="Activity"
+        title="Transactions"
+        badge={pendingCount > 0 ? <Badge variant="secondary">{pendingCount} pending</Badge> : undefined}
+        action={<Button variant="outline">Export CSV</Button>}
+      />
 
-        <main className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-4 md:px-6">
-          <section className="rounded-xl border bg-white p-3">
+      <PageMain>
+          <SurfaceCard className="p-3">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-wrap gap-2">
                 {(["all", "buy", "sell", "deposit", "withdrawal", "transfer"] as TransactionFilter[]).map((tab) => (
@@ -228,7 +214,7 @@ export default function TransactionsPage() {
                 <option value="year">Last year</option>
               </select>
             </div>
-          </section>
+          </SurfaceCard>
 
           <section className="space-y-3">
             {filteredTransactions.length > 0 ? (
@@ -237,10 +223,9 @@ export default function TransactionsPage() {
               <div className="rounded-xl border bg-white p-10 text-center text-sm text-gray-600">No transactions found</div>
             )}
           </section>
-        </main>
-      </div>
+      </PageMain>
 
       <BottomNav onMenuClick={() => setIsSidebarOpen(true)} isMenuActive={isSidebarOpen} />
-    </div>
+    </PageShell>
   );
 }

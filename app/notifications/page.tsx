@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageMain, PageShell, StickyPageHeader, SurfaceCard } from "@/components/ui/page-layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 
@@ -394,30 +394,16 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app pb-24">
-        <header className="sticky top-0 z-10 border-b bg-white/95 px-4 py-3 backdrop-blur md:px-6">
-          <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <Link href="/dashboard" className="inline-flex h-9 w-9 items-center justify-center rounded-md border text-gray-600">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
-              </Link>
-              <div>
-                <p className="text-xs uppercase tracking-wide text-gray-500">Alerts</p>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-xl font-semibold text-gray-900">Notifications</h1>
-                  {unreadCount > 0 && <Badge>{unreadCount} unread</Badge>}
-                </div>
-              </div>
-            </div>
-            <Button onClick={markAllAsRead} disabled={unreadCount === 0}>Mark all read</Button>
-          </div>
-        </header>
+    <PageShell>
+      <StickyPageHeader
+        eyebrow="Alerts"
+        title="Notifications"
+        badge={unreadCount > 0 ? <Badge>{unreadCount} unread</Badge> : undefined}
+        action={<Button onClick={markAllAsRead} disabled={unreadCount === 0}>Mark all read</Button>}
+      />
 
-        <main className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-4 md:px-6">
-          <section className="rounded-xl border bg-white p-3">
+      <PageMain>
+          <SurfaceCard className="p-3">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-wrap gap-2">
                 {(["all", "unread", "system", "trading"] as NotificationFilter[]).map((tab) => (
@@ -453,7 +439,7 @@ export default function NotificationsPage() {
               </div>
             </div>
             {toolbarError && <p className="mt-2 text-sm text-red-600">{toolbarError}</p>}
-          </section>
+          </SurfaceCard>
 
           <section className="space-y-3">
             {filteredNotifications.length > 0 ? (
@@ -469,8 +455,7 @@ export default function NotificationsPage() {
               <div className="rounded-xl border bg-white p-10 text-center text-sm text-gray-600">No notifications to show</div>
             )}
           </section>
-        </main>
-      </div>
+      </PageMain>
 
       <ConfirmationModal
         open={clearAllModalOpen}
@@ -485,6 +470,6 @@ export default function NotificationsPage() {
       />
 
       <BottomNav onMenuClick={() => setIsSidebarOpen(true)} isMenuActive={isSidebarOpen} />
-    </div>
+    </PageShell>
   );
 }
