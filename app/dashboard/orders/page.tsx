@@ -1,21 +1,52 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 import DashboardFilters from "@/components/dashboard/analytics/DashboardFilters";
 import ExportMenu from "@/components/dashboard/analytics/ExportMenu";
 import DataTable from "@/components/dashboard/analytics/DataTable";
+import { EmptyState, ErrorState, LoadingSpinner } from "@/components/ui/LoadingStates";
+import { useAuth } from "@/contexts/AuthContext";
 
-const orders = [
-  { id: "ORD-1001", side: "Buy", symbol: "BTC", amount: "0.42", total: "€12,580", status: "Completed" },
-  { id: "ORD-1002", side: "Sell", symbol: "ETH", amount: "3.10", total: "€8,640", status: "Pending" },
-  { id: "ORD-1003", side: "Swap", symbol: "SOL/ADA", amount: "50", total: "€6,210", status: "Completed" },
-  { id: "ORD-1004", side: "Buy", symbol: "XRP", amount: "1200", total: "€1,010", status: "Cancelled" },
-];
+interface OrderRow {
+  id: string;
+  side: string;
+  symbol: string;
+  amount: string;
+  total: string;
+  status: string;
+}
 
 export default function OrdersPage() {
+  const { session } = useAuth();
   const [side, setSide] = useState("all");
   const [status, setStatus] = useState("all");
+  const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadOrders = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/orders/history", {
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || "Failed to fetch order history");
+      }
+      setOrders(Array.isArray(payload.orders) ? payload.orders : []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to load order history");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session?.access_token]);
+
+  useEffect(() => {
+    void loadOrders();
+  }, [loadOrders]);
 
   const filtered = useMemo(
     () =>
@@ -24,7 +55,7 @@ export default function OrdersPage() {
         const statusOk = status === "all" || order.status.toLowerCase() === status;
         return sideOk && statusOk;
       }),
-    [side, status],
+    [orders, side, status],
   );
 
   return (
@@ -61,18 +92,26 @@ export default function OrdersPage() {
         </section>
       </section>
 
-      <DataTable
-        title="Order History"
-        columns={[
-          { key: "id", label: "Order ID" },
-          { key: "side", label: "Type" },
-          { key: "symbol", label: "Market" },
-          { key: "amount", label: "Amount" },
-          { key: "total", label: "Total" },
-          { key: "status", label: "Status" },
-        ]}
-        rows={filtered}
-      />
+      {isLoading ? (
+        <LoadingSpinner text="Loading order history..." className="py-10" />
+      ) : error ? (
+        <ErrorState title="Unable to load orders" message={error} onRetry={() => void loadOrders()} />
+      ) : filtered.length === 0 ? (
+        <EmptyState title="No orders found" message="Try changing filters or place a new order." />
+      ) : (
+        <DataTable
+          title="Order History"
+          columns={[
+            { key: "id", label: "Order ID" },
+            { key: "side", label: "Type" },
+            { key: "symbol", label: "Market" },
+            { key: "amount", label: "Amount" },
+            { key: "total", label: "Total" },
+            { key: "status", label: "Status" },
+          ]}
+          rows={filtered}
+        />
+      )}
     </DashboardShell>
   );
 }
