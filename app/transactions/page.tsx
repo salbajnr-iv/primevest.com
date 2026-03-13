@@ -3,6 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 
@@ -14,180 +16,71 @@ interface Transaction {
   value: string;
   date: string;
   status: "completed" | "pending" | "failed";
-  icon?: string;
 }
 
+type TransactionFilter = "all" | "buy" | "sell" | "deposit" | "withdrawal" | "transfer";
+type DateRange = "all" | "week" | "month" | "year";
+
 const transactions: Transaction[] = [
-  {
-    id: "1",
-    type: "buy",
-    asset: "Bitcoin",
-    amount: "0.005 BTC",
-    value: "€256.50",
-    date: "Today, 14:32",
-    status: "completed",
-  },
-  {
-    id: "2",
-    type: "sell",
-    asset: "Ethereum",
-    amount: "0.15 ETH",
-    value: "€412.80",
-    date: "Today, 10:15",
-    status: "completed",
-  },
-  {
-    id: "3",
-    type: "deposit",
-    asset: "EUR",
-    amount: "€1,000.00",
-    value: "",
-    date: "Yesterday",
-    status: "completed",
-  },
-  {
-    id: "4",
-    type: "withdrawal",
-    asset: "EUR",
-    amount: "€500.00",
-    value: "",
-    date: "Jan 15, 2024",
-    status: "completed",
-  },
-  {
-    id: "5",
-    type: "transfer",
-    asset: "USDT",
-    amount: "100 USDT",
-    value: "€92.40",
-    date: "Jan 14, 2024",
-    status: "completed",
-  },
-  {
-    id: "6",
-    type: "buy",
-    asset: "Solana",
-    amount: "5 SOL",
-    value: "€680.00",
-    date: "Jan 13, 2024",
-    status: "completed",
-  },
-  {
-    id: "7",
-    type: "buy",
-    asset: "Bitcoin",
-    amount: "0.002 BTC",
-    value: "€102.60",
-    date: "Jan 12, 2024",
-    status: "pending",
-  },
+  { id: "1", type: "buy", asset: "Bitcoin", amount: "0.005 BTC", value: "€256.50", date: "Today, 14:32", status: "completed" },
+  { id: "2", type: "sell", asset: "Ethereum", amount: "0.15 ETH", value: "€412.80", date: "Today, 10:15", status: "completed" },
+  { id: "3", type: "deposit", asset: "EUR", amount: "€1,000.00", value: "", date: "Yesterday", status: "completed" },
+  { id: "4", type: "withdrawal", asset: "EUR", amount: "€500.00", value: "", date: "Jan 15, 2024", status: "completed" },
+  { id: "5", type: "transfer", asset: "USDT", amount: "100 USDT", value: "€92.40", date: "Jan 14, 2024", status: "completed" },
+  { id: "6", type: "buy", asset: "Solana", amount: "5 SOL", value: "€680.00", date: "Jan 13, 2024", status: "completed" },
+  { id: "7", type: "buy", asset: "Bitcoin", amount: "0.002 BTC", value: "€102.60", date: "Jan 12, 2024", status: "pending" },
 ];
 
 function TransactionItem({ transaction }: { transaction: Transaction }) {
-  // Define type-specific styling
-  const getTypeStyle = () => {
-    switch(transaction.type) {
-      case 'buy':
-        return { 
-          icon: (
-            <svg viewBox="0 0 24 24" fill="none" stroke="#0f9d58" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="1" x2="12" y2="23" />
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-          ),
-          bgColor: 'rgba(15, 157, 88, 0.1)',
-          textColor: '#0f9d58'
-        };
-      case 'sell':
-        return { 
-          icon: (
-            <svg viewBox="0 0 24 24" fill="none" stroke="#d64545" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-              <polyline points="17 18 23 18 23 12" />
-            </svg>
-          ),
-          bgColor: 'rgba(214, 69, 69, 0.1)',
-          textColor: '#d64545'
-        };
-      case 'deposit':
-        return { 
-          icon: (
-            <svg viewBox="0 0 24 24" fill="none" stroke="#0f9d58" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="19" x2="12" y2="23" />
-              <path d="M8 19l8-5 8 5" />
-            </svg>
-          ),
-          bgColor: 'rgba(15, 157, 88, 0.1)',
-          textColor: '#0f9d58'
-        };
-      case 'withdrawal':
-        return { 
-          icon: (
-            <svg viewBox="0 0 24 24" fill="none" stroke="#ff9800" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="9" />
-              <path d="M8 5l8 5-8 5" />
-            </svg>
-          ),
-          bgColor: 'rgba(255, 152, 0, 0.1)',
-          textColor: '#ff9800'
-        };
-      case 'transfer':
-        return { 
-          icon: (
-            <svg viewBox="0 0 24 24" fill="none" stroke="#007aff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="17 1 21 5 17 9" />
-              <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-              <polyline points="7 23 3 19 7 15" />
-              <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-            </svg>
-          ),
-          bgColor: 'rgba(0, 122, 255, 0.1)',
-          textColor: '#007aff'
-        };
-      default:
-        return { 
-          icon: (
-            <svg viewBox="0 0 24 24" fill="none" stroke="#007aff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="17 1 21 5 17 9" />
-              <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-              <polyline points="7 23 3 19 7 15" />
-              <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-            </svg>
-          ),
-          bgColor: 'rgba(0, 122, 255, 0.1)',
-          textColor: '#007aff'
-        };
-    }
-  };
+  const styleByType = {
+    buy: { tone: "bg-green-100 text-green-700", icon: "↗" },
+    sell: { tone: "bg-red-100 text-red-700", icon: "↘" },
+    deposit: { tone: "bg-emerald-100 text-emerald-700", icon: "↓" },
+    withdrawal: { tone: "bg-amber-100 text-amber-700", icon: "↑" },
+    transfer: { tone: "bg-blue-100 text-blue-700", icon: "⇄" },
+  } as const;
 
-  const { icon, bgColor } = getTypeStyle();
+  const statusVariant = {
+    completed: "default",
+    pending: "secondary",
+    failed: "destructive",
+  } as const;
+
+  const typeStyle = styleByType[transaction.type];
+  const signedAmount = transaction.type === "buy" || transaction.type === "deposit" ? `+${transaction.amount}` : `-${transaction.amount}`;
 
   return (
-    <div className="transaction-item">
-      <div className="transaction-left">
-        <div 
-          className={`transaction-icon ${bgColor ? 'bg-custom' : ''}`}
-          data-bg-color={bgColor}
-        >
-          {icon}
+    <article className="rounded-xl border bg-white p-4">
+      <div className="flex items-start gap-3">
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-semibold ${typeStyle.tone}`}>
+          <span aria-hidden>{typeStyle.icon}</span>
         </div>
-        <div className="transaction-info">
-          <span className="transaction-asset">{transaction.asset}</span>
-          <span className="transaction-date">{transaction.date}</span>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900">{transaction.asset}</h4>
+              <p className="text-sm capitalize text-gray-600">{transaction.type}</p>
+            </div>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                <circle cx="12" cy="12" r="1" />
+                <circle cx="19" cy="12" r="1" />
+                <circle cx="5" cy="12" r="1" />
+              </svg>
+            </Button>
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+            <span>{transaction.date}</span>
+            <Badge variant={statusVariant[transaction.status]} className="capitalize">{transaction.status}</Badge>
+            {transaction.value && <span>{transaction.value}</span>}
+          </div>
+
+          <p className="mt-2 text-sm font-semibold text-gray-900">{signedAmount}</p>
         </div>
       </div>
-      <div className="transaction-right">
-        <span className={`transaction-amount ${transaction.type === "sell" || transaction.type === "withdrawal" ? "amount-negative" : "amount-positive"}`}>
-          {transaction.type === "buy" || transaction.type === "deposit" ? "+" : "-"}{transaction.amount}
-        </span>
-        {transaction.value && (
-          <span className="transaction-value">{transaction.value}</span>
-        )}
-        <span className={`transaction-status ${transaction.status}`}>
-          {transaction.status === "completed" ? "Done" : transaction.status === "pending" ? "Pending" : "Failed"}
-        </span>
-      </div>
-    </div>
+    </article>
   );
 }
 
@@ -195,14 +88,13 @@ export default function TransactionsPage() {
   const { user: authUser, loading: authLoading } = useAuth();
   const [isClient, setIsClient] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [filter, setFilter] = React.useState<string>("all");
-  const [dateRange, setDateRange] = React.useState<string>("all");
+  const [filter, setFilter] = React.useState<TransactionFilter>("all");
+  const [dateRange, setDateRange] = React.useState<DateRange>("all");
   const [transactionsState, setTransactionsState] = React.useState<Transaction[]>(transactions);
+  const [currentTimestamp] = React.useState(() => Date.now());
   const supabase = createClient();
 
-  React.useEffect(() => {
-    setIsClient(true);
-  }, []);
+  React.useEffect(() => setIsClient(true), []);
 
   React.useEffect(() => {
     if (authLoading || !authUser) {
@@ -213,50 +105,64 @@ export default function TransactionsPage() {
     (async () => {
       try {
         const { data, error } = await supabase
-          .from('transactions')
-          .select('*')
-          .eq('user_id', authUser.id)
-          .order('created_at', { ascending: false });
+          .from("transactions")
+          .select("*")
+          .eq("user_id", authUser.id)
+          .order("created_at", { ascending: false });
 
-        if (error) {
-          console.warn('Transactions table not available, using mock data', error);
+        if (error || !data || data.length === 0) {
           setTransactionsState(transactions);
-        } else if (data && data.length > 0) {
-          interface SupabaseTransaction {
-            id: number;
-            type: 'buy' | 'sell' | 'deposit' | 'withdrawal' | 'transfer';
-            asset: string;
-            amount: string;
-            value: string;
-            date?: string;
-            created_at?: string;
-            status: 'completed' | 'pending' | 'failed';
-          }
-          
-          const mapped = data.map((row: SupabaseTransaction) => ({
-            id: String(row.id),
-            type: row.type || 'transfer',
-            asset: row.asset || 'USD',
-            amount: row.amount || '',
-            value: row.value || '',
-            date: row.date || (row.created_at ? new Date(row.created_at).toLocaleString() : ''),
-            status: row.status || 'completed',
-          }));
-          setTransactionsState(mapped);
-        } else {
-          setTransactionsState(transactions);
+          return;
         }
-      } catch (err) {
-        console.error('Failed to fetch transactions', err);
+
+        interface SupabaseTransaction {
+          id: number;
+          type: Transaction["type"];
+          asset: string;
+          amount: string;
+          value: string;
+          date?: string;
+          created_at?: string;
+          status: Transaction["status"];
+        }
+
+        const mapped = data.map((row: SupabaseTransaction) => ({
+          id: String(row.id),
+          type: row.type || "transfer",
+          asset: row.asset || "USD",
+          amount: row.amount || "",
+          value: row.value || "",
+          date: row.date || (row.created_at ? new Date(row.created_at).toLocaleString() : ""),
+          status: row.status || "completed",
+        }));
+        setTransactionsState(mapped);
+      } catch {
         setTransactionsState(transactions);
       }
     })();
   }, [authLoading, authUser, supabase]);
 
-  const filteredTransactions = transactionsState.filter((t) => {
-    if (filter !== "all" && t.type !== filter) return false;
+  const dateFilteredTransactions = React.useMemo(() => {
+    if (dateRange === "all") return transactionsState;
+    const thresholds: Record<Exclude<DateRange, "all">, number> = {
+      week: 7 * 24 * 60 * 60 * 1000,
+      month: 30 * 24 * 60 * 60 * 1000,
+      year: 365 * 24 * 60 * 60 * 1000,
+    };
+
+    return transactionsState.filter((transaction) => {
+      const parsed = new Date(transaction.date).getTime();
+      if (Number.isNaN(parsed)) return true;
+      return currentTimestamp - parsed <= thresholds[dateRange];
+    });
+  }, [currentTimestamp, dateRange, transactionsState]);
+
+  const filteredTransactions = dateFilteredTransactions.filter((transaction) => {
+    if (filter !== "all" && transaction.type !== filter) return false;
     return true;
   });
+
+  const pendingCount = transactionsState.filter((t) => t.status === "pending").length;
 
   if (!isClient || authLoading) {
     return (
@@ -272,124 +178,69 @@ export default function TransactionsPage() {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-app">
-        {/* HEADER */}
-        <header className="header">
-          <div className="header-left">
-            <Link href="/dashboard" className="header-back">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </Link>
-            <span className="header-eyebrow">ACTIVITY</span>
-            <div className="header-title">Transactions</div>
-          </div>
-          <div className="header-actions">
-            <button className="menu-btn" onClick={() => setIsSidebarOpen(true)} aria-label="Open menu">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-            </button>
+      <div className="dashboard-app pb-24">
+        <header className="sticky top-0 z-10 border-b bg-white/95 px-4 py-3 backdrop-blur md:px-6">
+          <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Link href="/dashboard" className="inline-flex h-9 w-9 items-center justify-center rounded-md border text-gray-600">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </Link>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-gray-500">Activity</p>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl font-semibold text-gray-900">Transactions</h1>
+                  {pendingCount > 0 && <Badge variant="secondary">{pendingCount} pending</Badge>}
+                </div>
+              </div>
+            </div>
+            <Button variant="outline">Export CSV</Button>
           </div>
         </header>
 
-        {/* SUMMARY */}
-        <section className="section">
-          <div className="summary-card">
-            <div className="summary-item">
-              <span className="summary-label">Total Transactions</span>
-              <span className="summary-value">{transactionsState.length}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Completed</span>
-              <span className="summary-value">{transactionsState.filter(t => t.status === 'completed').length}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Pending</span>
-              <span className="summary-value">{transactionsState.filter(t => t.status === 'pending').length}</span>
-            </div>
-          </div>
-        </section>
-
-        {/* FILTERS */}
-        <section className="section">
-          <div className="card">
-            <div className="filters-container">
-              <div className="filter-tabs">
-                {["all", "buy", "sell", "deposit", "withdrawal"].map((f) => (
-                  <button
-                    key={f}
-                    className={`filter-tab ${filter === f ? "active" : ""}`}
-                    onClick={() => setFilter(f)}
+        <main className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-4 md:px-6">
+          <section className="rounded-xl border bg-white p-3">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-wrap gap-2">
+                {(["all", "buy", "sell", "deposit", "withdrawal", "transfer"] as TransactionFilter[]).map((tab) => (
+                  <Button
+                    key={tab}
+                    variant={filter === tab ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setFilter(tab)}
+                    className="capitalize"
                   >
-                    {f.charAt(0).toUpperCase() + f.slice(1)}
-                  </button>
+                    {tab}
+                  </Button>
                 ))}
               </div>
-              <div className="date-filter">
-                <select 
-                  value={dateRange} 
-                  aria-label="Date range filter"
-                  onChange={(e) => setDateRange(e.target.value)}
-                  className="form-select"
-                >
-                  <option value="all">All Time</option>
-                  <option value="week">Last Week</option>
-                  <option value="month">Last Month</option>
-                  <option value="year">Last Year</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* TRANSACTIONS LIST */}
-        <section className="section">
-          <h3 className="section-title">Transaction History</h3>
-          <div className="card">
+              <select
+                value={dateRange}
+                aria-label="Date range filter"
+                onChange={(e) => setDateRange(e.target.value as DateRange)}
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="all">All time</option>
+                <option value="week">Last week</option>
+                <option value="month">Last month</option>
+                <option value="year">Last year</option>
+              </select>
+            </div>
+          </section>
+
+          <section className="space-y-3">
             {filteredTransactions.length > 0 ? (
-              <div className="transactions-container">
-                {filteredTransactions.map((transaction) => (
-                  <TransactionItem key={transaction.id} transaction={transaction} />
-                ))}
-              </div>
+              filteredTransactions.map((transaction) => <TransactionItem key={transaction.id} transaction={transaction} />)
             ) : (
-              <div className="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                  <polyline points="17 6 23 6 23 12" />
-                </svg>
-                <p>No transactions found</p>
-              </div>
+              <div className="rounded-xl border bg-white p-10 text-center text-sm text-gray-600">No transactions found</div>
             )}
-          </div>
-        </section>
-
-        {/* EXPORT */}
-        <section className="section">
-          <div className="card">
-            <div className="export-actions">
-              <button className="btn btn-primary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Export Transactions
-              </button>
-            </div>
-          </div>
-        </section>
+          </section>
+        </main>
       </div>
 
-      <BottomNav 
-        onMenuClick={() => setIsSidebarOpen(true)} 
-        isMenuActive={isSidebarOpen} 
-      />
+      <BottomNav onMenuClick={() => setIsSidebarOpen(true)} isMenuActive={isSidebarOpen} />
     </div>
   );
 }
-
-
