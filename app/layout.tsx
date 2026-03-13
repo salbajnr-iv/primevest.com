@@ -35,10 +35,9 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/primevest-icon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico" }
+      { url: "/primevest-icon.svg", type: "image/svg+xml" }
     ],
-    shortcut: "/favicon.ico",
+    shortcut: "/primevest-icon.svg",
     apple: "/primevest-icon.svg"
   },
   twitter: {
