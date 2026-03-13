@@ -4,24 +4,140 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import DashboardHeader from "@/components/DashboardHeader";
 
+type QuoteErrorCode = "quote_expired" | "insufficient_liquidity" | "amount_bounds" | "invalid_quote" | "invalid_pair" | "slippage_out_of_range";
+
+type ReviewState = {
+  from: string;
+  to: string;
+  amount: number;
+  slippageTolerance: number;
+  quoteId: string;
+  rate: number;
+  fee: number;
+  slippageEstimate: number;
+  minReceived: number;
+  expectedReceive: number;
+  expiresAt: number;
+};
+
+function errorText(code?: QuoteErrorCode) {
+  switch (code) {
+    case "quote_expired":
+      return "This quote has expired. Go back and request a fresh quote.";
+    case "insufficient_liquidity":
+      return "Insufficient liquidity at execution time. Try a lower amount.";
+    case "amount_bounds":
+      return "Amount no longer satisfies the allowed range.";
+    case "slippage_out_of_range":
+      return "Slippage tolerance is invalid. Return and set a value between 0.10% and 5.00%.";
+    case "invalid_quote":
+    case "invalid_pair":
+    default:
+      return "Quote validation failed. Please restart the swap flow.";
+  }
+}
+
 export default function SwapReviewPage() {
   const router = useRouter();
-  const [from, setFrom] = React.useState("-");
-  const [to, setTo] = React.useState("-");
-  const [amount, setAmount] = React.useState("0");
+  const [review, setReview] = React.useState<ReviewState | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [timeLeft, setTimeLeft] = React.useState(0);
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setFrom(params.get("from") || "-");
-    setTo(params.get("to") || "-");
-    setAmount(params.get("amount") || "0");
+    const nextReview: ReviewState = {
+      from: params.get("from") || "",
+      to: params.get("to") || "",
+      amount: Number(params.get("amount") || "0"),
+      slippageTolerance: Number(params.get("slippageTolerance") || "0"),
+      quoteId: params.get("quoteId") || "",
+      rate: Number(params.get("rate") || "0"),
+      fee: Number(params.get("fee") || "0"),
+      slippageEstimate: Number(params.get("slippageEstimate") || "0"),
+      minReceived: Number(params.get("minReceived") || "0"),
+      expectedReceive: Number(params.get("expectedReceive") || "0"),
+      expiresAt: Number(params.get("expiresAt") || "0"),
+    };
+
+    const invalid =
+      !nextReview.from ||
+      !nextReview.to ||
+      nextReview.from === nextReview.to ||
+      !Number.isFinite(nextReview.amount) ||
+      nextReview.amount <= 0 ||
+      !Number.isFinite(nextReview.slippageTolerance) ||
+      nextReview.slippageTolerance < 0.1 ||
+      nextReview.slippageTolerance > 5 ||
+      !nextReview.quoteId ||
+      !Number.isFinite(nextReview.expiresAt) ||
+      !Number.isFinite(nextReview.rate) ||
+      !Number.isFinite(nextReview.fee) ||
+      !Number.isFinite(nextReview.minReceived) ||
+      !Number.isFinite(nextReview.expectedReceive);
+
+    if (invalid) {
+      setError("Missing or invalid quote metadata. Please restart swap.");
+      return;
+    }
+
+    if (nextReview.expiresAt <= Date.now()) {
+      setError(errorText("quote_expired"));
+      setReview(nextReview);
+      return;
+    }
+
+    setReview(nextReview);
   }, []);
 
-  function confirm() {
-    setTimeout(() => {
-      router.push(`/dashboard/swap/success?from=${from}&to=${to}&amount=${amount}&id=SWP-${Date.now()}`);
-    }, 700);
+  React.useEffect(() => {
+    if (!review) return;
+
+    const timer = setInterval(() => {
+      const seconds = Math.max(0, Math.floor((review.expiresAt - Date.now()) / 1000));
+      setTimeLeft(seconds);
+      if (seconds === 0) {
+        setError(errorText("quote_expired"));
+      }
+    }, 500);
+
+    return () => clearInterval(timer);
+  }, [review]);
+
+  async function confirm() {
+    if (!review || isSubmitting) return;
+    if (review.expiresAt <= Date.now()) {
+      setError(errorText("quote_expired"));
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/swap/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(review),
+      });
+      const data = await response.json();
+
+      if (!response.ok || !data?.ok) {
+        setError(errorText(data?.code));
+        return;
+      }
+
+      router.push(
+        `/dashboard/swap/success?from=${review.from}&to=${review.to}&amount=${review.amount}&received=${data.settledAmount}&id=${data.executionId}`,
+      );
+    } catch {
+      setError("Failed to submit swap. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
+
+  const isExpired = review ? review.expiresAt <= Date.now() : true;
 
   return (
     <div className="dashboard-container">
@@ -29,15 +145,32 @@ export default function SwapReviewPage() {
         <DashboardHeader userName={"User"} />
 
         <main className="page-card">
-          <h2>Tauschen bestätigen</h2>
-          <p><strong>Von:</strong> {from}</p>
-          <p><strong>Nach:</strong> {to}</p>
-          <p><strong>Betrag:</strong> {amount} {from}</p>
-          <p><strong>Geschätzte Gebühr:</strong> 0,0001 {from}</p>
+          <h2>Confirm swap</h2>
+          <p style={{ color: "var(--muted)", marginTop: 6 }}>Please review quote and execution limits before submitting.</p>
+
+          {review && (
+            <div style={{ marginTop: 14, display: "grid", gap: 8 }}>
+              <p><strong>From:</strong> {review.amount} {review.from}</p>
+              <p><strong>To (estimated):</strong> {review.expectedReceive} {review.to}</p>
+              <p><strong>Rate:</strong> 1 {review.from} = {review.rate} {review.to}</p>
+              <p><strong>Fee:</strong> {review.fee} {review.to}</p>
+              <p><strong>Slippage estimate:</strong> {review.slippageEstimate}%</p>
+              <p><strong>Your slippage tolerance:</strong> {review.slippageTolerance}%</p>
+              <p><strong>Minimum received:</strong> {review.minReceived} {review.to}</p>
+              <p><strong>Quote ID:</strong> {review.quoteId}</p>
+              <p><strong>Quote expires in:</strong> {timeLeft}s</p>
+            </div>
+          )}
+
+          {error && <div style={{ color: "#d64545", marginTop: 12 }}>{error}</div>}
 
           <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-            <button className="btn" onClick={() => router.back()}>Zurück</button>
-            <button className="btn btn-primary" onClick={confirm}>Tauschen</button>
+            <button className="btn" onClick={() => router.back()}>
+              Back
+            </button>
+            <button className="btn btn-primary" onClick={confirm} disabled={!review || isSubmitting || isExpired}>
+              {isSubmitting ? "Submitting..." : "Submit Swap"}
+            </button>
           </div>
         </main>
       </div>
