@@ -2,27 +2,226 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import BottomNav from "@/components/BottomNav";
+import { createClient } from "@/lib/supabase/client";
 import { EmptyState, ErrorState, LoadingSpinner } from "@/components/ui/LoadingStates";
+import type { SupportTicketState } from "@/lib/support/tickets";
 
-const tickets = [
-  { id: "PV-1042", subject: "Withdrawal pending", status: "In progress", updated: "2h ago" },
-  { id: "PV-1016", subject: "KYC verification", status: "Resolved", updated: "1d ago" },
-];
+interface SupportTicket {
+  id: number;
+  reference_id: string;
+  category: string;
+  subject: string;
+  message: string;
+  status: SupportTicketState;
+  created_at: string;
+  updated_at: string;
+  open_at: string | null;
+  pending_at: string | null;
+  resolved_at: string | null;
+  closed_at: string | null;
+}
+
+interface SupportReply {
+  id: number;
+  ticket_id: number;
+  user_id: string;
+  message: string;
+  is_staff: boolean;
+  created_at: string;
+}
+
+const STATUS_OPTIONS: Array<"all" | SupportTicketState> = ["all", "open", "pending", "resolved", "closed"];
+const PAGE_SIZE = 8;
+
+function formatDate(iso: string | null) {
+  if (!iso) return "-";
+  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(iso));
+}
 
 export default function SupportTicketsPage() {
-  const router = useRouter();
+  const [authToken, setAuthToken] = React.useState<string>("");
+  const [tickets, setTickets] = React.useState<SupportTicket[]>([]);
+  const [selectedTicket, setSelectedTicket] = React.useState<SupportTicket | null>(null);
+  const [replies, setReplies] = React.useState<SupportReply[]>([]);
   const [status, setStatus] = React.useState<"loading" | "ready" | "error">("loading");
+  const [detailStatus, setDetailStatus] = React.useState<"idle" | "loading" | "error">("idle");
+  const [activeFilter, setActiveFilter] = React.useState<(typeof STATUS_OPTIONS)[number]>("all");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [page, setPage] = React.useState(1);
+  const [total, setTotal] = React.useState(0);
+  const [replyMessage, setReplyMessage] = React.useState("");
+  const [pendingStatus, setPendingStatus] = React.useState<SupportTicketState | "">("");
+  const [mutating, setMutating] = React.useState(false);
+  const [newTicketSubject, setNewTicketSubject] = React.useState("");
+  const [newTicketCategory, setNewTicketCategory] = React.useState("general");
+  const [newTicketMessage, setNewTicketMessage] = React.useState("");
 
-  const loadTickets = React.useCallback(() => {
+  const loadTickets = React.useCallback(async () => {
+    if (!authToken) return;
+
     setStatus("loading");
-    window.setTimeout(() => setStatus("ready"), 550);
+    const params = new URLSearchParams({
+      page: String(page),
+      pageSize: String(PAGE_SIZE),
+      status: activeFilter,
+      search: searchQuery,
+    });
+
+    try {
+      const response = await fetch(`/api/support/tickets?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      if (!response.ok) {
+        throw new Error("Unable to load tickets");
+      }
+
+      const data = await response.json();
+      setTickets(data.tickets ?? []);
+      setTotal(data.total ?? 0);
+      setStatus("ready");
+    } catch {
+      setStatus("error");
+    }
+  }, [activeFilter, authToken, page, searchQuery]);
+
+  const loadTicketDetail = React.useCallback(
+    async (ticketId: number) => {
+      if (!authToken) return;
+      setDetailStatus("loading");
+
+      try {
+        const response = await fetch(`/api/support/tickets/${ticketId}`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+
+        if (!response.ok) {
+          throw new Error("Unable to load ticket detail");
+        }
+
+        const data = await response.json();
+        setSelectedTicket(data.ticket);
+        setReplies(data.replies ?? []);
+        setPendingStatus(data.ticket?.status ?? "");
+        setDetailStatus("idle");
+      } catch {
+        setDetailStatus("error");
+      }
+    },
+    [authToken]
+  );
+
+  React.useEffect(() => {
+    const initializeAuth = async () => {
+      const supabase = createClient();
+      if (!supabase) {
+        setAuthToken("");
+        return;
+      }
+
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token ?? "";
+      setAuthToken(token);
+    };
+
+    initializeAuth();
   }, []);
 
   React.useEffect(() => {
-    loadTickets();
-  }, [loadTickets]);
+    if (authToken) {
+      loadTickets();
+    }
+  }, [authToken, loadTickets]);
+
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const submitReply = async () => {
+    if (!selectedTicket || !authToken || mutating) return;
+
+    const trimmed = replyMessage.trim();
+    const statusChange = pendingStatus && pendingStatus !== selectedTicket.status ? pendingStatus : undefined;
+
+    if (!trimmed && !statusChange) return;
+
+    const optimisticReply: SupportReply | null = trimmed
+      ? {
+          id: Date.now(),
+          ticket_id: selectedTicket.id,
+          user_id: "me",
+          message: trimmed,
+          is_staff: false,
+          created_at: new Date().toISOString(),
+        }
+      : null;
+
+    if (optimisticReply) {
+      setReplies((current) => [...current, optimisticReply]);
+    }
+
+    if (statusChange) {
+      setSelectedTicket((current) => (current ? { ...current, status: statusChange, updated_at: new Date().toISOString() } : current));
+      setTickets((current) => current.map((ticket) => (ticket.id === selectedTicket.id ? { ...ticket, status: statusChange } : ticket)));
+    }
+
+    setReplyMessage("");
+    setMutating(true);
+
+    try {
+      const response = await fetch(`/api/support/tickets/${selectedTicket.id}/reply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ message: trimmed || undefined, status: statusChange }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Unable to submit reply");
+      }
+
+      const data = await response.json();
+      setSelectedTicket(data.ticket);
+      setReplies(data.replies ?? []);
+      await loadTickets();
+    } catch {
+      await loadTicketDetail(selectedTicket.id);
+    } finally {
+      setMutating(false);
+    }
+  };
+
+  const createTicket = async () => {
+    if (!authToken || !newTicketMessage.trim()) return;
+
+    setMutating(true);
+    try {
+      const response = await fetch("/api/support/tickets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          category: newTicketCategory,
+          subject: newTicketSubject,
+          message: newTicketMessage,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Unable to create ticket");
+      }
+
+      setNewTicketSubject("");
+      setNewTicketMessage("");
+      setPage(1);
+      await loadTickets();
+    } finally {
+      setMutating(false);
+    }
+  };
 
   return (
     <div className="dashboard-container">
@@ -38,29 +237,123 @@ export default function SupportTicketsPage() {
         </header>
 
         <section className="section">
-          <h3 className="section-title">Your support tickets</h3>
-          <div className="card">
-            {status === "loading" && <LoadingSpinner text="Loading your tickets..." />}
-            {status === "error" && <ErrorState title="Unable to load tickets" message="Please retry and we will fetch your latest support updates." onRetry={loadTickets} />}
-            {status === "ready" && tickets.length === 0 && <EmptyState title="No open tickets" message="Create a new support request if you need help." action={{ label: "Contact support", onClick: () => router.push("/support/contact") }} />}
-            {status === "ready" && tickets.length > 0 && (
-              <div className="space-y-3">
-                {tickets.map((ticket) => (
-                  <div key={ticket.id} className="quick-action-card"><div className="quick-action-content"><span>{ticket.id} • {ticket.subject}</span><small>{ticket.status} · Updated {ticket.updated}</small></div></div>
-                ))}
-              </div>
-            )}
+          <h3 className="section-title">Create ticket</h3>
+          <div className="card space-y-2">
+            <input className="search-input" placeholder="Subject" value={newTicketSubject} onChange={(event) => setNewTicketSubject(event.target.value)} />
+            <select className="search-input" value={newTicketCategory} onChange={(event) => setNewTicketCategory(event.target.value)}>
+              <option value="general">General</option>
+              <option value="account">Account</option>
+              <option value="kyc">KYC</option>
+              <option value="withdrawal">Withdrawal</option>
+              <option value="trading">Trading</option>
+            </select>
+            <textarea className="search-input" rows={4} placeholder="How can we help you?" value={newTicketMessage} onChange={(event) => setNewTicketMessage(event.target.value)} />
+            <button className="menu-btn" disabled={mutating || !newTicketMessage.trim()} onClick={createTicket}>{mutating ? "Submitting..." : "Create ticket"}</button>
           </div>
         </section>
 
         <section className="section">
-          <div className="card">
-            <div className="quick-actions-grid">
-              <Link href="/support/contact" className="quick-action-card"><div className="quick-action-content"><span>Open New Ticket</span><small>Submit details to our support team</small></div></Link>
-              <Link href="/support/status" className="quick-action-card"><div className="quick-action-content"><span>Check Platform Status</span><small>See current incidents and maintenance</small></div></Link>
+          <div className="card space-y-3">
+            <input
+              value={searchQuery}
+              onChange={(event) => {
+                setPage(1);
+                setSearchQuery(event.target.value);
+              }}
+              placeholder="Search by ticket number, subject, or message"
+              className="search-input"
+            />
+            <div className="flex flex-wrap gap-2">
+              {STATUS_OPTIONS.map((option) => (
+                <button
+                  key={option}
+                  onClick={() => {
+                    setPage(1);
+                    setActiveFilter(option);
+                  }}
+                  className="menu-btn"
+                  style={{ opacity: option === activeFilter ? 1 : 0.6 }}
+                >
+                  {option}
+                </button>
+              ))}
             </div>
           </div>
         </section>
+
+        <section className="section">
+          <h3 className="section-title">Your support tickets</h3>
+          <div className="card">
+            {status === "loading" && <LoadingSpinner text="Loading your tickets..." />}
+            {status === "error" && <ErrorState title="Unable to load tickets" message="Please retry and we will fetch your latest support updates." onRetry={loadTickets} />}
+            {status === "ready" && tickets.length === 0 && <EmptyState title="No tickets found" message="Try adjusting search filters or create a new support request." />}
+            {status === "ready" && tickets.length > 0 && (
+              <div className="space-y-3">
+                {tickets.map((ticket) => (
+                  <button key={ticket.id} className="quick-action-card w-full text-left" onClick={() => loadTicketDetail(ticket.id)}>
+                    <div className="quick-action-content">
+                      <span>{ticket.reference_id} • {ticket.subject}</span>
+                      <small>{ticket.status.toUpperCase()} · Updated {formatDate(ticket.updated_at)}</small>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="mt-4 flex items-center justify-between">
+              <button className="menu-btn" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1}>Previous</button>
+              <small>Page {page} of {pageCount}</small>
+              <button className="menu-btn" onClick={() => setPage((current) => Math.min(pageCount, current + 1))} disabled={page === pageCount}>Next</button>
+            </div>
+          </div>
+        </section>
+
+        {selectedTicket && (
+          <section className="section">
+            <h3 className="section-title">Ticket detail</h3>
+            <div className="card space-y-3">
+              {detailStatus === "loading" && <LoadingSpinner text="Loading details..." />}
+              {detailStatus === "error" && <ErrorState title="Unable to load ticket detail" message="Please retry to view ticket updates." onRetry={() => loadTicketDetail(selectedTicket.id)} />}
+              {detailStatus === "idle" && (
+                <>
+                  <div className="quick-action-content">
+                    <span>{selectedTicket.reference_id} • {selectedTicket.subject}</span>
+                    <small>{selectedTicket.category} · {selectedTicket.status.toUpperCase()}</small>
+                  </div>
+                  <p>{selectedTicket.message}</p>
+                  <small>Opened: {formatDate(selectedTicket.open_at || selectedTicket.created_at)} · Pending: {formatDate(selectedTicket.pending_at)} · Resolved: {formatDate(selectedTicket.resolved_at)} · Closed: {formatDate(selectedTicket.closed_at)}</small>
+
+                  <div className="space-y-2">
+                    {replies.map((reply) => (
+                      <div key={reply.id} className="quick-action-card">
+                        <div className="quick-action-content">
+                          <span>{reply.is_staff ? "Support" : "You"}</span>
+                          <small>{formatDate(reply.created_at)}</small>
+                          <p>{reply.message}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-2">
+                    <select className="search-input" value={pendingStatus} onChange={(event) => setPendingStatus(event.target.value as SupportTicketState)}>
+                      {STATUS_OPTIONS.filter((value) => value !== "all").map((value) => (
+                        <option key={value} value={value}>{value}</option>
+                      ))}
+                    </select>
+                    <textarea
+                      className="search-input"
+                      rows={4}
+                      value={replyMessage}
+                      onChange={(event) => setReplyMessage(event.target.value)}
+                      placeholder="Write a reply or update status"
+                    />
+                    <button className="menu-btn" onClick={submitReply} disabled={mutating}>{mutating ? "Saving..." : "Post reply"}</button>
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
+        )}
       </div>
       <BottomNav />
     </div>
