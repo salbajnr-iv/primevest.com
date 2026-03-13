@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
+import { track } from "@vercel/analytics";
+import SupportLayout from "@/app/support/SupportLayout";
 import { ErrorState, LoadingSpinner } from "@/components/ui/LoadingStates";
 
 type ServiceState = "operational" | "degraded" | "outage";
@@ -189,6 +190,10 @@ export default function SupportStatusPage() {
     }
   }, []);
 
+
+  React.useEffect(() => {
+    track("support_funnel_viewed_status", { step: "status", path: "/support/status" });
+  }, []);
   React.useEffect(() => {
     void loadStatus();
   }, [loadStatus]);
@@ -196,15 +201,7 @@ export default function SupportStatusPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <header className="header">
-          <div className="header-left">
-            <Link href="/support" className="header-back" aria-label="Back to support">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-            </Link>
-            <span className="header-eyebrow">SUPPORT</span>
-            <div className="header-title">System Status</div>
-          </div>
-        </header>
+        <SupportLayout title="Platform status" description="Check incidents, component health, and maintenance windows.">
 
         <section className="section">
           <h3 className="section-title">Platform summary</h3>
@@ -281,6 +278,7 @@ export default function SupportStatusPage() {
             )}
           </div>
         </section>
+        </SupportLayout>
       </div>
       <BottomNav />
     </div>

@@ -204,6 +204,19 @@ function KycStatusContent() {
             )}
           </div>
 
+
+
+          {(status === 'none' || status === 'rejected' || status === 'resubmit_required') && (
+            <div className="mb-6">
+              <Link
+                href="/support/contact"
+                className="inline-flex px-4 py-2 rounded-lg border border-emerald-500 text-emerald-300 hover:bg-emerald-900/30"
+              >
+                Get help with KYC
+              </Link>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 mb-8">
             {canStartKyc && (

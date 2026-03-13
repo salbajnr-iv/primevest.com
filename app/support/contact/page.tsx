@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { track } from "@vercel/analytics";
 import BottomNav from "@/components/BottomNav";
 import { EmptyState, ErrorState, LoadingSpinner } from "@/components/ui/LoadingStates";
+import SupportLayout from "@/app/support/SupportLayout";
 
 const channels = [
   { title: "Email", detail: "support@primevest.com", href: "mailto:support@primevest.com" },
@@ -13,10 +13,13 @@ const channels = [
 ];
 
 export default function SupportContactPage() {
-  const router = useRouter();
   const [status, setStatus] = React.useState<"loading" | "ready" | "error">("loading");
   const [message, setMessage] = React.useState("");
   const [submitted, setSubmitted] = React.useState(false);
+
+  React.useEffect(() => {
+    track("support_funnel_opened", { step: "contact", path: "/support/contact" });
+  }, []);
 
   const loadChannels = React.useCallback(() => {
     setStatus("loading");
@@ -33,6 +36,7 @@ export default function SupportContactPage() {
       setStatus("error");
       return;
     }
+    track("support_funnel_submitted", { step: "contact", path: "/support/contact" });
     setSubmitted(true);
     setMessage("");
   };
@@ -40,22 +44,14 @@ export default function SupportContactPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <header className="header">
-          <div className="header-left">
-            <Link href="/support" className="header-back" aria-label="Back to support">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-            </Link>
-            <span className="header-eyebrow">SUPPORT</span>
-            <div className="header-title">Contact</div>
-          </div>
-        </header>
+        <SupportLayout title="Create ticket" description="Submit a new request and we will route it to the right team.">
 
         <section className="section">
-          <h3 className="section-title">Contact Channels</h3>
+          <h3 className="section-title">Support channels</h3>
           <div className="card">
             {status === "loading" && <LoadingSpinner text="Loading contact options..." />}
             {status === "error" && <ErrorState title="Contact channels unavailable" message="We could not load contact options right now." onRetry={loadChannels} />}
-            {status === "ready" && channels.length === 0 && <EmptyState title="No channels available" message="Please use the general contact page while we restore support channels." action={{ label: "Open contact-us", onClick: () => router.push("/contact-us") }} />}
+            {status === "ready" && channels.length === 0 && <EmptyState title="No channels available" message="Please create a ticket and our team will follow up by email." />}
             {status === "ready" && channels.length > 0 && (
               <div className="quick-actions-grid">
                 {channels.map((item) => (
@@ -67,21 +63,21 @@ export default function SupportContactPage() {
         </section>
 
         <section className="section">
-          <h3 className="section-title">Send a quick message</h3>
+          <h3 className="section-title">Ticket message</h3>
           <div className="card">
             {submitted ? (
-              <EmptyState title="Message sent" message="Thanks, our support team will respond in your inbox within 24 hours." action={{ label: "Send another", onClick: () => setSubmitted(false) }} />
+              <EmptyState title="Ticket submitted" message="Thanks. Our support team will respond in your inbox within 24 hours." action={{ label: "Create another ticket", onClick: () => setSubmitted(false) }} />
             ) : (
               <form onSubmit={handleSubmit} className="space-y-3">
                 <textarea className="search-input" rows={4} placeholder="Describe your issue..." value={message} onChange={(e) => setMessage(e.target.value)} />
                 <div className="flex gap-3">
-                  <button className="btn btn-primary" type="submit">Submit message</button>
-                  <Link href="/contact-us" className="btn btn-secondary">Open full contact form</Link>
+                  <button className="btn btn-primary" type="submit">Submit ticket</button>
                 </div>
               </form>
             )}
           </div>
         </section>
+        </SupportLayout>
       </div>
       <BottomNav />
     </div>

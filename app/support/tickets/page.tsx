@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
+import { track } from "@vercel/analytics";
+import SupportLayout from "@/app/support/SupportLayout";
 import { createClient } from "@/lib/supabase/client";
 import { EmptyState, ErrorState, LoadingSpinner } from "@/components/ui/LoadingStates";
 import type { SupportTicketState } from "@/lib/support/tickets";
@@ -101,6 +102,7 @@ export default function SupportTicketsPage() {
         }
 
         const data = await response.json();
+        track("support_funnel_viewed_ticket", { step: "ticket_detail", ticketId });
         setSelectedTicket(data.ticket);
         setReplies(data.replies ?? []);
         setPendingStatus(data.ticket?.status ?? "");
@@ -112,6 +114,10 @@ export default function SupportTicketsPage() {
     [authToken]
   );
 
+
+  React.useEffect(() => {
+    track("support_funnel_opened", { step: "tickets", path: "/support/tickets" });
+  }, []);
   React.useEffect(() => {
     const initializeAuth = async () => {
       const supabase = createClient();
@@ -214,6 +220,7 @@ export default function SupportTicketsPage() {
         throw new Error("Unable to create ticket");
       }
 
+      track("support_funnel_submitted", { step: "ticket_created", path: "/support/tickets" });
       setNewTicketSubject("");
       setNewTicketMessage("");
       setPage(1);
@@ -226,18 +233,10 @@ export default function SupportTicketsPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <header className="header">
-          <div className="header-left">
-            <Link href="/support" className="header-back" aria-label="Back to support">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
-            </Link>
-            <span className="header-eyebrow">SUPPORT</span>
-            <div className="header-title">Tickets</div>
-          </div>
-        </header>
+        <SupportLayout title="Track tickets" description="Monitor support progress, review replies, and update open requests.">
 
         <section className="section">
-          <h3 className="section-title">Create ticket</h3>
+          <h3 className="section-title">New ticket</h3>
           <div className="card space-y-2">
             <input className="search-input" placeholder="Subject" value={newTicketSubject} onChange={(event) => setNewTicketSubject(event.target.value)} />
             <select className="search-input" value={newTicketCategory} onChange={(event) => setNewTicketCategory(event.target.value)}>
@@ -248,7 +247,7 @@ export default function SupportTicketsPage() {
               <option value="trading">Trading</option>
             </select>
             <textarea className="search-input" rows={4} placeholder="How can we help you?" value={newTicketMessage} onChange={(event) => setNewTicketMessage(event.target.value)} />
-            <button className="menu-btn" disabled={mutating || !newTicketMessage.trim()} onClick={createTicket}>{mutating ? "Submitting..." : "Create ticket"}</button>
+            <button className="menu-btn" disabled={mutating || !newTicketMessage.trim()} onClick={createTicket}>{mutating ? "Submitting..." : "New ticket"}</button>
           </div>
         </section>
 
@@ -282,7 +281,7 @@ export default function SupportTicketsPage() {
         </section>
 
         <section className="section">
-          <h3 className="section-title">Your support tickets</h3>
+          <h3 className="section-title">Ticket history</h3>
           <div className="card">
             {status === "loading" && <LoadingSpinner text="Loading your tickets..." />}
             {status === "error" && <ErrorState title="Unable to load tickets" message="Please retry and we will fetch your latest support updates." onRetry={loadTickets} />}
@@ -309,7 +308,7 @@ export default function SupportTicketsPage() {
 
         {selectedTicket && (
           <section className="section">
-            <h3 className="section-title">Ticket detail</h3>
+            <h3 className="section-title">Ticket updates</h3>
             <div className="card space-y-3">
               {detailStatus === "loading" && <LoadingSpinner text="Loading details..." />}
               {detailStatus === "error" && <ErrorState title="Unable to load ticket detail" message="Please retry to view ticket updates." onRetry={() => loadTicketDetail(selectedTicket.id)} />}
@@ -354,6 +353,7 @@ export default function SupportTicketsPage() {
             </div>
           </section>
         )}
+        </SupportLayout>
       </div>
       <BottomNav />
     </div>

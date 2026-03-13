@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import SupportLayout from "@/app/support/SupportLayout";
 import { useRouter } from "next/navigation";
 import { track } from "@vercel/analytics";
 import BottomNav from "@/components/BottomNav";
@@ -78,6 +79,10 @@ export default function SupportCommunityPage() {
     }
   }, []);
 
+
+  React.useEffect(() => {
+    track("support_funnel_opened", { step: "community", path: "/support/community" });
+  }, []);
   React.useEffect(() => {
     loadCommunityResources();
   }, [loadCommunityResources]);
@@ -100,17 +105,7 @@ export default function SupportCommunityPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <header className="header">
-          <div className="header-left">
-            <Link href="/support" className="header-back" aria-label="Back to support">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </Link>
-            <span className="header-eyebrow">SUPPORT</span>
-            <div className="header-title">Community</div>
-          </div>
-        </header>
+        <SupportLayout title="Community help" description="Explore peer resources and continue to ticket support when needed.">
 
         <section className="section">
           <div className="card space-y-2">
@@ -145,9 +140,9 @@ export default function SupportCommunityPage() {
                 router.push("/support/tickets");
               }}
             >
-              Open ticket
+              Create ticket
             </button>
-            <small className="text-slate-500">Use Open ticket for urgent, security, or account-specific requests.</small>
+            <small className="text-slate-500">Use Create ticket for urgent, security, or account-specific requests.</small>
           </div>
         </section>
 
@@ -198,6 +193,7 @@ export default function SupportCommunityPage() {
             </section>
           </>
         )}
+        </SupportLayout>
       </div>
       <BottomNav />
     </div>
