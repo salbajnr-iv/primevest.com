@@ -1,5 +1,7 @@
 # Admin Console Implementation TODO
 
+> **Source of truth:** This file is legacy for task tracking. Track all open items in `docs/TASK_PLAN.md`.
+
 ## Phase 1: Database Setup ✅ COMPLETED
 - [x] 1.1 Update supabase-setup.sql with admin tables (admin_users, admin_actions, balance_history)
 - [x] 1.2 Create RLS policies for admin access
@@ -20,7 +22,7 @@
 
 ## Phase 4: User Management ✅ COMPLETED
 - [x] 4.1 Create users list page at /app/admin/users/page.tsx
-- [ ] 4.2 Create user detail page at /app/admin/users/[id]/page.tsx
+- [x] 4.2 Create user detail page at /app/admin/users/[id]/page.tsx
 - [x] 4.3 Create balance adjustment modal/component (in users page)
 - [x] 4.4 Create user status toggle component (in users page)
 
