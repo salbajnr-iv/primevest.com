@@ -1,0 +1,138 @@
+.pageHeader {
+  margin-bottom: 1rem;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin-top: 0.25rem;
+}
+
+.compactSubtitle {
+  margin-top: 0.25rem;
+}
+
+.dropdownSearchWrap {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.dropdownSearchInput {
+  border: none;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.assetSelectorContent {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.assetColorBTC { background: #f7931a; }
+.assetColorETH { background: #627eea; }
+.assetColorSOL { background: #9945ff; }
+.assetColorDefault { background: #0f9d58; }
+
+.assetMetaRight {
+  text-align: right;
+}
+
+.assetPrice {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.orderInput {
+  text-align: left;
+  font-size: 1rem;
+}
+
+.summaryBlock {
+  margin-top: 1rem;
+}
+
+.summaryTotalRow {
+  border-top: none;
+  padding-top: 0;
+}
+
+.summaryTotalLabel {
+  font-weight: 600;
+}
+
+.summaryTotalValue {
+  font-size: 1rem;
+}
+
+.errorText {
+  color: #d64545;
+  margin-top: 0.375rem;
+}
+
+.errorTextTight {
+  color: #d64545;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.actionFooter {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.actionSecondary {
+  flex: 1;
+  padding: 0.875rem;
+  border: 1px solid var(--border);
+}
+
+.actionPrimary {
+  flex: 2;
+  padding: 0.875rem;
+}
+
+.actionPair {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.reviewList {
+  margin-top: 0.875rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.reviewText {
+  color: var(--muted);
+  margin-top: 0.375rem;
+}
+
+.successDetails {
+  display: grid;
+  gap: 0.375rem;
+  margin-top: 0.75rem;
+}
+
+.quickAmountsTight {
+  margin-top: 0.5rem;
+}
+
+.chevronIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--muted);
+}
+
+.plusIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}

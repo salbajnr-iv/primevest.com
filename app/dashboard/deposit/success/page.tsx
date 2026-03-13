@@ -2,7 +2,9 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
+import DashboardHeader from "@/components/DashboardHeader";
+import { TransactionActionFooter, TransactionPageHeader } from "@/components/ui/transactional-page";
+import styles from "@/components/ui/transactional-pages.module.css";
 
 export default function DepositSuccessPage() {
   const router = useRouter();
@@ -18,17 +20,25 @@ export default function DepositSuccessPage() {
   }, []);
 
   return (
-    <DashboardShell mainClassName="pb-20" contentClassName="page-card">
-          <h2>Einzahlung eingegangen</h2>
-          <p>Die Einzahlung wurde verarbeitet (simuliert).</p>
-          <p><strong>Referenz:</strong> {id}</p>
-          <p><strong>Betrag:</strong> {amount} €</p>
-          <p><strong>Methode:</strong> {method}</p>
+    <div className="dashboard-container">
+      <div className="dashboard-app">
+        <DashboardHeader userName="User" />
 
-          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-            <button className="btn" onClick={() => router.push('/dashboard')}>Zurück zum Dashboard</button>
-            <button className="btn btn-primary" onClick={() => router.push('/dashboard/portfolio')}>Portfolio anzeigen</button>
+        <main className="page-card">
+          <TransactionPageHeader title="Einzahlung eingegangen" subtitle="Die Einzahlung wurde verarbeitet (simuliert)." />
+          <div className={styles.successDetails}>
+            <p><strong>Referenz:</strong> {id}</p>
+            <p><strong>Betrag:</strong> {amount} €</p>
+            <p><strong>Methode:</strong> {method}</p>
           </div>
-    </DashboardShell>
+
+          <TransactionActionFooter
+            compact
+            secondary={<button className="btn" onClick={() => router.push("/dashboard")}>Zurück zum Dashboard</button>}
+            primary={<button className="btn btn-primary" onClick={() => router.push("/dashboard/portfolio")}>Portfolio anzeigen</button>}
+          />
+        </main>
+      </div>
+    </div>
   );
 }

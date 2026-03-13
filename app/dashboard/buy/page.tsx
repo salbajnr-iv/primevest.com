@@ -3,6 +3,14 @@
 import React from "react";
 import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 import { useRouter } from "next/navigation";
+import {
+  getAssetColorClass,
+  QuickAmountChips,
+  SummaryRow,
+  TransactionActionFooter,
+  TransactionPageHeader,
+} from "@/components/ui/transactional-page";
+import styles from "@/components/ui/transactional-pages.module.css";
 
 interface Asset {
   symbol: string;
@@ -25,7 +33,7 @@ export default function DashboardBuyPage() {
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const filteredAssets = assets.filter(
-    (a) => a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+    (a) => a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.symbol.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const parsedEur = amountEur ? parseFloat(amountEur) : 0;
@@ -53,52 +61,38 @@ export default function DashboardBuyPage() {
   const quickAmounts = [100, 250, 500, 1000];
 
   return (
-    <DashboardShell mainClassName="pb-20" contentClassName="page-card">
-          <div className="page-header" style={{ marginBottom: 16 }}>
-            <h2 style={{ margin: 0 }}>Kaufen</h2>
-            <div className="subtitle">Kaufen Sie Assets mit EUR zum aktuellen Marktpreis</div>
-          </div>
+    <div className="dashboard-container">
+      <div className="dashboard-app">
+        <DashboardHeader userName="User" />
+
+        <main className="page-card">
+          <TransactionPageHeader title="Kaufen" subtitle="Kaufen Sie Assets mit EUR zum aktuellen Marktpreis" />
 
           <div className="form-row">
             <label>Asset auswählen</label>
             <div className="asset-selector">
               <div className="asset-selector-input" onClick={() => setShowDropdown(!showDropdown)}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div
-                    className="asset-option-icon"
-                    style={{
-                      background:
-                        asset.symbol === "BTC"
-                          ? "#f7931a"
-                          : asset.symbol === "ETH"
-                            ? "#627eea"
-                            : asset.symbol === "SOL"
-                              ? "#9945ff"
-                              : "#0f9d58",
-                    }}
-                  >
-                    {asset.symbol}
-                  </div>
+                <div className={styles.assetSelectorContent}>
+                  <div className={`asset-option-icon ${getAssetColorClass(asset.symbol)}`}>{asset.symbol}</div>
                   <div>
                     <div className="asset-option-name">{asset.name}</div>
                     <div className="asset-option-symbol">{asset.symbol}</div>
                   </div>
                 </div>
-                <svg style={{ width: 20, height: 20, color: "var(--muted)" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg className={styles.chevronIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M6 9l6 6 6-6" />
                 </svg>
               </div>
 
               {showDropdown && (
                 <div className="asset-selector-dropdown">
-                  <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
+                  <div className={styles.dropdownSearchWrap}>
                     <input
                       type="text"
                       placeholder="Suchen..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="asset-selector-input"
-                      style={{ border: "none", padding: "8px 0", fontSize: 14 }}
+                      className={`${styles.dropdownSearchInput} asset-selector-input`}
                       autoFocus
                     />
                   </div>
@@ -112,28 +106,12 @@ export default function DashboardBuyPage() {
                         setSearchQuery("");
                       }}
                     >
-                      <div
-                        className="asset-option-icon"
-                        style={{
-                          background:
-                            a.symbol === "BTC"
-                              ? "#f7931a"
-                              : a.symbol === "ETH"
-                                ? "#627eea"
-                                : a.symbol === "SOL"
-                                  ? "#9945ff"
-                                  : "#0f9d58",
-                        }}
-                      >
-                        {a.symbol}
-                      </div>
+                      <div className={`asset-option-icon ${getAssetColorClass(a.symbol)}`}>{a.symbol}</div>
                       <div className="asset-option-info">
                         <div className="asset-option-name">{a.name}</div>
                         <div className="asset-option-symbol">{a.symbol}</div>
                       </div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>
-                        {a.price.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}
-                      </div>
+                      <div className={styles.assetPrice}>{a.price.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}</div>
                     </div>
                   ))}
                 </div>
@@ -143,16 +121,9 @@ export default function DashboardBuyPage() {
 
           <div className="form-row">
             <label>Betrag (EUR)</label>
-            <input
-              type="number"
-              value={amountEur}
-              onChange={(e) => setAmountEur(e.target.value)}
-              placeholder="100.00"
-              className="order-input"
-              style={{ textAlign: "left", fontSize: 16 }}
-            />
+            <input type="number" value={amountEur} onChange={(e) => setAmountEur(e.target.value)} placeholder="100.00" className={`order-input ${styles.orderInput}`} />
 
-            <div className="quick-amounts">
+            <QuickAmountChips>
               {quickAmounts.map((quickAmount) => (
                 <button
                   key={quickAmount}
@@ -163,36 +134,30 @@ export default function DashboardBuyPage() {
                   {quickAmount}€
                 </button>
               ))}
-            </div>
+            </QuickAmountChips>
           </div>
 
           <div className="price-estimate">
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Preis ({asset.symbol})</span>
-              <span className="price-estimate-value">{asset.price.toFixed(2)} €</span>
-            </div>
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Geschätzter Erhalt</span>
-              <span className="price-estimate-value">{estimatedReceive.toFixed(8)} {asset.symbol}</span>
-            </div>
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Gebühr (1%)</span>
-              <span className="price-estimate-value">{fee.toFixed(2)} €</span>
-            </div>
-            <div className="price-estimate-row" style={{ borderTop: "none", paddingTop: 0 }}>
-              <span className="price-estimate-label" style={{ fontWeight: 600 }}>Gesamt</span>
-              <span className="price-estimate-value highlight" style={{ fontSize: 16 }}>{total.toFixed(2)} €</span>
-            </div>
+            <SummaryRow label={`Preis (${asset.symbol})`} value={`${asset.price.toFixed(2)} €`} />
+            <SummaryRow label="Geschätzter Erhalt" value={`${estimatedReceive.toFixed(8)} ${asset.symbol}`} />
+            <SummaryRow label="Gebühr (1%)" value={`${fee.toFixed(2)} €`} />
+            <SummaryRow label="Gesamt" value={`${total.toFixed(2)} €`} isTotal />
           </div>
 
-          <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
-            <button className="btn" onClick={() => router.push("/dashboard")} style={{ flex: 1, padding: 14, border: "1px solid var(--border)" }}>
-              Abbrechen
-            </button>
-            <button className="btn-primary" onClick={next} disabled={!isValid} style={{ flex: 2, padding: 14 }}>
-              Weiter zur Bestätigung
-            </button>
-          </div>
-    </DashboardShell>
+          <TransactionActionFooter
+            secondary={
+              <button className={`btn ${styles.actionSecondary}`} onClick={() => router.push("/dashboard")}>
+                Abbrechen
+              </button>
+            }
+            primary={
+              <button className={`btn-primary ${styles.actionPrimary}`} onClick={next} disabled={!isValid}>
+                Weiter zur Bestätigung
+              </button>
+            }
+          />
+        </main>
+      </div>
+    </div>
   );
 }
