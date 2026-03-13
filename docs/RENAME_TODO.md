@@ -1,34 +1,36 @@
 # Rename Bitpanda Pro to PrimeVest Capital - TODO
 
+> **Source of truth:** This file is legacy. Track all open items in `docs/TASK_PLAN.md`.
+
 ## Phase 1 - Core Layout & Homepage (High Priority)
-- [ ] `app/layout.tsx` - Update metadata (title, description, canonical URL, OpenGraph)
-- [ ] `app/page.tsx` - Update logo alt text, footer text, app store links text
+- [x] `app/layout.tsx` - Update metadata (title, description, canonical URL, OpenGraph)
+- [x] `app/page.tsx` - Update logo alt text, footer text, app store links text
 
 ## Phase 2 - Legal Pages
-- [ ] `app/terms/page.tsx` - Replace all "Bitpanda Pro" mentions
-- [ ] `app/privacy/page.tsx` - Replace all "Bitpanda Pro" mentions
-- [ ] `app/support/faqs/page.tsx` - Replace all references
-- [ ] `app/disclaimer/page.tsx` - Replace references
+- [x] `app/terms/page.tsx` - Replace all "Bitpanda Pro" mentions
+- [x] `app/privacy/page.tsx` - Replace all "Bitpanda Pro" mentions
+- [x] `app/support/faqs/page.tsx` - Replace all references
+- [x] `app/disclaimer/page.tsx` - Replace references
 
 ## Phase 3 - Platform & Tool Pages
-- [ ] `app/platforms/page.tsx`
-- [ ] `app/platforms/mt4/page.tsx`
-- [ ] `app/platforms/mt4-mobile/page.tsx`
-- [ ] `app/platforms/mt5/page.tsx`
-- [ ] `app/platforms/mt5-mobile/page.tsx`
-- [ ] `app/tools/page.tsx`
-- [ ] `app/tools/trading-view/page.tsx`
-- [ ] `app/tools/market-news/page.tsx`
-- [ ] `app/tools/economic-calendar/page.tsx`
-- [ ] `app/tools/analysis/page.tsx`
-- [ ] `app/tutorials/page.tsx`
+- [x] `app/platforms/page.tsx`
+- [x] `app/platforms/mt4/page.tsx`
+- [x] `app/platforms/mt4-mobile/page.tsx`
+- [x] `app/platforms/mt5/page.tsx`
+- [x] `app/platforms/mt5-mobile/page.tsx`
+- [x] `app/tools/page.tsx`
+- [x] `app/tools/trading-view/page.tsx`
+- [x] `app/tools/market-news/page.tsx`
+- [x] `app/tools/economic-calendar/page.tsx`
+- [x] `app/tools/analysis/page.tsx`
+- [x] `app/tutorials/page.tsx`
 
 ## Phase 4 - Other Pages
-- [ ] `app/oauth/consent/page.tsx`
-- [ ] `app/pro/page.tsx`
-- [ ] `app/indices/page.tsx`
+- [x] `app/oauth/consent/page.tsx`
+- [x] `app/pro/page.tsx`
+- [x] `app/indices/page.tsx`
 
 ## Phase 5 - Components
-- [ ] `components/BitpandaNavbar.tsx` - Logo alt text
+- [ ] `components/BitpandaNavbar.tsx` - Retire/rename legacy component naming
 
 ## COMPLETED:
