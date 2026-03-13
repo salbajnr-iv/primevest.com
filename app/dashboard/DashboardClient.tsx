@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { AlertCircle, ArrowRight, CalendarRange, MessageCircle, TrendingUp, Users } from "lucide-react";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import KpiGauge from "@/components/dashboard/analytics/KpiGauge";
@@ -177,7 +178,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
           <div className="space-y-2 text-sm text-slate-700">
             <p className="rounded-lg bg-slate-50 p-2">Price alert: BTC crossed €58,000.</p>
             <p className="rounded-lg bg-slate-50 p-2">Risk threshold warning for SOL allocation.</p>
-            <button className="mt-1 rounded-lg bg-emerald-600 px-3 py-2 text-white text-xs">Open Notification Center</button>
+            <div className="flex gap-2"><button className="mt-1 rounded-lg bg-emerald-600 px-3 py-2 text-white text-xs">Open Notification Center</button><Link href="/support/contact" className="mt-1 rounded-lg border border-slate-300 px-3 py-2 text-xs">Get help</Link></div>
           </div>
         </article>
         <article className="rounded-2xl border border-slate-200 bg-white p-4">

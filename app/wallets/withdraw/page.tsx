@@ -136,7 +136,7 @@ export default function WithdrawPage() {
         <section className="quick-transfer">
           <h3 className="section-title">{step === "form" ? "Withdrawal Details" : step === "review" ? "Review Withdrawal" : "Withdrawal Submitted"}</h3>
           <div className="transfer-form">
-            {error && <ErrorState title="Withdrawal error" message={error} onRetry={() => setError(null)} retryText="Dismiss" />}
+            {error && (<div className="space-y-2"><ErrorState title="Withdrawal error" message={error} onRetry={() => setError(null)} retryText="Dismiss" /><Link href="/support/contact" className="btn btn-secondary">Get help</Link></div>)}
 
             {step === "form" && (
               <>

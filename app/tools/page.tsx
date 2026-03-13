@@ -103,7 +103,7 @@ export default function ToolsPage() {
       description: "Find answers to common questions about trading, accounts, and platforms",
       features: ["Comprehensive guides", "Quick answers", "Category filters", "Search functionality"],
       icon: "",
-      path: "/support/faqs",
+      path: "/support",
       color: "from-orange-500 to-orange-600",
       category: "Support",
       popularity: 4.6,

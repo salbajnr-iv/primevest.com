@@ -141,7 +141,7 @@ export default function Home() {
   };
 
   const handleContactUs = () => {
-    router.push("/contact-us");
+    router.push("/support/contact");
   };
 
   // Animation variants
@@ -310,7 +310,7 @@ export default function Home() {
                 <Link href="/tools" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">Market News</Link>
                 <Link href="/tools" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">Analysis</Link>
                 <Link href="/support" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">Help Center</Link>
-                <Link href="/support/faqs" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">FAQs</Link>
+                <Link href="/support" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">FAQs</Link>
                 <Link href="/tools/trading-view" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-b-lg transition-colors duration-200 text-sm">Trading View</Link>
               </div>
             </motion.div>
@@ -1129,7 +1129,7 @@ style={{ backgroundImage: "url(/herosection.jpg)", backgroundSize: "cover", back
             <div>
               <h3 className="text-gray-900 font-semibold mb-4 text-lg">Company</h3>
               <ul className="space-y-3">
-                <li><Link href="/contact-us" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Contact</Link></li>
+                <li><Link href="/support/contact" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Contact</Link></li>
                 <li><Link href="/support" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Support</Link></li>
                 <li><Link href="/blog" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Blog</Link></li>
                 <li><Link href="/careers" className="text-gray-600 hover:text-emerald-600 transition text-sm font-medium">Careers</Link></li>

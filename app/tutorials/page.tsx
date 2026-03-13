@@ -82,7 +82,7 @@ export default function TutorialsPage() {
         <section className="info-section">
           <h3 className="section-title">Need More Help?</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <Link href="/support/faqs" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 16, background: "var(--surface-hover)", borderRadius: 12, textDecoration: "none", color: "var(--text)" }}>
+            <Link href="/support" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 16, background: "var(--surface-hover)", borderRadius: 12, textDecoration: "none", color: "var(--text)" }}>
               <span style={{ fontWeight: 500 }}>FAQs</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 20, height: 20 }}><polyline points="9 18 15 12 9 6" /></svg>
             </Link>
