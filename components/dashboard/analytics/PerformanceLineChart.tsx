@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { CartesianGrid, DotProps, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { AnalyticsChartPoint, PerformanceLineChartInput } from "@/lib/dashboard/types";
+import { EmptyState, ErrorState, Skeleton } from "@/components/ui/LoadingStates";
 import { dashboardTokens } from "./types";
 
 function FocusDot(props: DotProps & { onActivate: (point: AnalyticsChartPoint | null) => void; label?: string; value?: number }) {
@@ -29,7 +30,14 @@ function FocusDot(props: DotProps & { onActivate: (point: AnalyticsChartPoint | 
   );
 }
 
-export default function PerformanceLineChart({ title, data, emptyStateLabel = "No performance data available yet." }: PerformanceLineChartInput) {
+export default function PerformanceLineChart({
+  title,
+  data,
+  emptyStateLabel = "No activity yet. Performance will appear once you have portfolio history.",
+  state,
+  errorMessage,
+  onRetry,
+}: PerformanceLineChartInput) {
   const [active, setActive] = useState<AnalyticsChartPoint | null>(null);
 
   const normalizedData = useMemo(
@@ -40,14 +48,21 @@ export default function PerformanceLineChart({ title, data, emptyStateLabel = "N
     [data]
   );
 
+  const resolvedState = state ?? (normalizedData.length === 0 ? "empty" : "ready");
+
   return (
     <section className="rounded-2xl p-4" style={{ border: `1px solid ${dashboardTokens.border}`, background: dashboardTokens.panel }}>
       <div className="mb-3 text-sm font-semibold">{title}</div>
       <div className="h-64">
-        {normalizedData.length === 0 ? (
-          <div className="h-full w-full flex items-center justify-center text-sm" style={{ color: dashboardTokens.textMuted }}>
-            {emptyStateLabel}
+        {resolvedState === "loading" ? (
+          <div className="space-y-3 pt-6">
+            <Skeleton width="45%" height={14} />
+            <Skeleton variant="rounded" width="100%" height={180} />
           </div>
+        ) : resolvedState === "error" ? (
+          <ErrorState title="Unable to load performance" message={errorMessage || "This performance chart is temporarily unavailable."} onRetry={onRetry} retryText="Try again" />
+        ) : resolvedState === "empty" ? (
+          <EmptyState title="No activity yet" message={emptyStateLabel} />
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={normalizedData}>
@@ -67,7 +82,7 @@ export default function PerformanceLineChart({ title, data, emptyStateLabel = "N
           </ResponsiveContainer>
         )}
       </div>
-      {active ? <p className="mt-2 text-xs" style={{ color: dashboardTokens.textMuted }}>{active.label}: {active.value}</p> : null}
+      {resolvedState === "ready" && active ? <p className="mt-2 text-xs" style={{ color: dashboardTokens.textMuted }}>{active.label}: {active.value}</p> : null}
     </section>
   );
 }
