@@ -2,16 +2,7 @@
 
 import * as React from "react";
 
-// Breakpoint definitions matching CSS breakpoints
-export const BREAKPOINTS = {
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-  xxl: 1536,
-} as const;
-
-export type BreakpointKey = keyof typeof BREAKPOINTS;
+import { BREAKPOINTS, type BreakpointKey } from "@/lib/config/breakpoints";
 
 // Type for window size state
 export interface WindowSize {
@@ -86,7 +77,7 @@ export function useWindowSize() {
   // Calculate responsive flags based on current window size
   const isReady = windowSize.width > 0;
   
-  // Match CSS breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px), xxl (1536px)
+  // Match shared breakpoints from lib/config/breakpoints.ts
   const isMobile = isReady && windowSize.width < BREAKPOINTS.md; // < 768px
   const isTablet = isReady && windowSize.width >= BREAKPOINTS.md && windowSize.width < BREAKPOINTS.lg; // 768px - 1023px
   const isLaptop = isReady && windowSize.width >= BREAKPOINTS.lg && windowSize.width < BREAKPOINTS.xl; // 1024px - 1279px

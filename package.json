@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:dashboard-routes": "node scripts/check-dashboard-routes.mjs"
+    "check:dashboard-routes": "node scripts/check-dashboard-routes.mjs",
+    "check:breakpoints": "node scripts/check-breakpoints.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
