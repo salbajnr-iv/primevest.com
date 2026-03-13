@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import DashboardHeader from "@/components/DashboardHeader";
+import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 
 export default function SellReviewPage() {
   const router = useRouter();
@@ -32,11 +32,7 @@ export default function SellReviewPage() {
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
-
-        <main className="page-card">
+    <DashboardShell mainClassName="pb-20" contentClassName="page-card">
           <h2>Verkauf bestätigen</h2>
           <p className="subtitle" style={{ marginTop: -4 }}>Bitte überprüfen Sie die folgenden Details.</p>
 
@@ -69,8 +65,6 @@ export default function SellReviewPage() {
               {isProcessing ? "Wird ausgeführt..." : "Jetzt verkaufen"}
             </button>
           </div>
-        </main>
-      </div>
-    </div>
+    </DashboardShell>
   );
 }

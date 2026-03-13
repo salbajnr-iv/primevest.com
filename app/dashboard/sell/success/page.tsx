@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import DashboardHeader from "@/components/DashboardHeader";
+import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 
 export default function SellSuccessPage() {
   const router = useRouter();
@@ -18,11 +18,7 @@ export default function SellSuccessPage() {
   }, []);
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
-
-        <main className="page-card">
+    <DashboardShell mainClassName="pb-20" contentClassName="page-card">
           <h2>Verkauf erfolgreich</h2>
           <p>Dein Verkauf wurde ausgeführt.</p>
           <p><strong>Auftragsnummer:</strong> {id}</p>
@@ -33,8 +29,6 @@ export default function SellSuccessPage() {
             <button className="btn" onClick={() => router.push('/dashboard')}>Zurück zum Dashboard</button>
             <button className="btn btn-primary" onClick={() => router.push('/dashboard/portfolio')}>Portfolio anzeigen</button>
           </div>
-        </main>
-      </div>
-    </div>
+    </DashboardShell>
   );
 }

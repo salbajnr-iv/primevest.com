@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import DashboardHeader from "@/components/DashboardHeader";
+import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 import { useRouter } from "next/navigation";
 
 interface Asset {
@@ -53,11 +53,7 @@ export default function SellSelectPage() {
   const percentActions = [25, 50, 75, 100];
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
-
-        <main className="page-card">
+    <DashboardShell mainClassName="pb-20" contentClassName="page-card">
           <div className="page-header" style={{ marginBottom: 16 }}>
             <h2 style={{ margin: 0 }}>Verkaufen</h2>
             <div className="subtitle">Verkaufen Sie Ihre Assets schnell und sicher</div>
@@ -227,8 +223,6 @@ export default function SellSelectPage() {
               Weiter zur Bestätigung
             </button>
           </div>
-        </main>
-      </div>
-    </div>
+    </DashboardShell>
   );
 }

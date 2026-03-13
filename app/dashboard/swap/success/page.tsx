@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import DashboardHeader from "@/components/DashboardHeader";
+import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 
 export default function SwapSuccessPage() {
   const router = useRouter();
@@ -22,11 +22,7 @@ export default function SwapSuccessPage() {
   }, []);
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
-
-        <main className="page-card">
+    <DashboardShell mainClassName="pb-20" contentClassName="page-card">
           <h2>Tausch abgeschlossen</h2>
           <p>Dein Tausch wurde erfolgreich ausgeführt.</p>
           <p><strong>Transaktion:</strong> {id}</p>
@@ -39,8 +35,6 @@ export default function SwapSuccessPage() {
             <button className="btn" onClick={() => router.push('/dashboard')}>Zum Dashboard</button>
             <button className="btn btn-primary" onClick={() => router.push('/dashboard/portfolio')}>Portfolio anzeigen</button>
           </div>
-        </main>
-      </div>
-    </div>
+    </DashboardShell>
   );
 }
