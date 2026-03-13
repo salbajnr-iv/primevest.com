@@ -10,7 +10,16 @@ import PerformanceLineChart from "@/components/dashboard/analytics/PerformanceLi
 import DataTable from "@/components/dashboard/analytics/DataTable";
 import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 import { EmptyState } from "@/components/ui/LoadingStates";
-import type { DashboardData, DashboardWidgetContract, DashboardWidgetState, KpiGaugeInput } from "@/lib/dashboard/types";
+import type {
+  ActivityFeedItem,
+  AlertNotificationItem,
+  DashboardData,
+  DashboardTimestampMeta,
+  DashboardWidgetContract,
+  DashboardWidgetState,
+  KpiGaugeInput,
+  PerformanceRange,
+} from "@/lib/dashboard/types";
 import { createClient as createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 function formatLastUpdated(isoTimestamp: string): string {
@@ -19,10 +28,10 @@ function formatLastUpdated(isoTimestamp: string): string {
 
 export default function DashboardClient({ initialData }: { initialData: DashboardData }) {
   const [range, setRange] = React.useState("Last 30 days");
-  const [activePerfRange, setActivePerfRange] = React.useState<keyof DashboardData["performanceSeries"]>("1M");
-  const [liveActivityFeed, setLiveActivityFeed] = React.useState(initialData.activityFeed);
+  const [activePerfRange, setActivePerfRange] = React.useState<PerformanceRange>("1M");
+  const [liveActivityFeed, setLiveActivityFeed] = React.useState<ActivityFeedItem[]>(initialData.activityFeed);
   const [liveAlerts, setLiveAlerts] = React.useState<AlertNotificationItem[]>(initialData.alerts);
-  const [freshness, setFreshness] = React.useState(initialData.freshness);
+  const [freshness, setFreshness] = React.useState<DashboardTimestampMeta>(initialData.freshness);
   const { isReady, breakpoint, width, height } = useWindowSize();
 
   const [kpiState, setKpiState] = React.useState<DashboardWidgetState>("ready");
