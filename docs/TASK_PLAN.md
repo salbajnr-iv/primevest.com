@@ -28,9 +28,17 @@
   - Minimum received is displayed and passed to review/submit flow.
   - Submission is blocked when quote is stale or minimum receive cannot be met.
 
+### 3) Complete profile save fix rollout and verification
+- **Owner:** Backend + QA
+- **Dependency:** deploy + DB
+- **Acceptance criteria:**
+  - Profile upsert policy migration has been executed in the target Supabase environment.
+  - Profile edit/save succeeds end-to-end for authenticated users without console/API errors.
+  - Regression checks confirm persisted profile fields remain consistent after reload.
+
 ## P1 — Core Product UX
 
-### 3) Add holdings filtering + sorting on portfolio holdings table
+### 4) Add holdings filtering + sorting on portfolio holdings table
 - **Owner:** Frontend
 - **Dependency:** code
 - **Acceptance criteria:**
@@ -38,7 +46,7 @@
   - Holdings can be sorted by allocation, value, and PnL.
   - Active filters/sort are visible in UI and can be reset.
 
-### 4) Complete buy flow market impact visibility
+### 5) Complete buy flow market impact visibility
 - **Owner:** Frontend + Backend
 - **Dependency:** code
 - **Acceptance criteria:**
@@ -46,7 +54,7 @@
   - Impact value is shown on input and review steps.
   - Warning style appears when impact exceeds threshold.
 
-### 5) Unify responsive breakpoint contract in CSS + JS
+### 6) Unify responsive breakpoint contract in CSS + JS
 - **Owner:** Frontend
 - **Dependency:** code
 - **Acceptance criteria:**
@@ -56,7 +64,7 @@
 
 ## P2 — Verification, Rename Cleanup, and QA
 
-### 6) Responsive verification pass across target viewports
+### 7) Responsive verification pass across target viewports
 - **Owner:** QA + Frontend
 - **Dependency:** code (if defects found)
 - **Acceptance criteria:**
@@ -64,7 +72,7 @@
   - Resize transitions are smooth on dashboard shell/sidebar/bottom-nav.
   - Any regressions discovered are fixed or tracked with owners.
 
-### 7) Rename cleanup: retire legacy Bitpanda-specific component naming ✅ Completed
+### 8) Rename cleanup: retire legacy Bitpanda-specific component naming ✅ Completed
 - **Owner:** Frontend
 - **Dependency:** code
 - **Acceptance criteria:**
@@ -72,7 +80,7 @@
   - [x] No user-facing text contains legacy Bitpanda branding across scoped pages/components.
   - [x] Build passes with updated imports/usage.
 
-### 8) Final product polish checks (navigation and performance)
+### 9) Final product polish checks (navigation and performance)
 - **Owner:** Frontend + QA
 - **Dependency:** code
 - **Acceptance criteria:**
