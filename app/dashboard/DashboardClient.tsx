@@ -10,15 +10,41 @@ import PerformanceLineChart from "@/components/dashboard/analytics/PerformanceLi
 import DataTable from "@/components/dashboard/analytics/DataTable";
 import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 import { EmptyState } from "@/components/ui/LoadingStates";
-import type { DashboardData, DashboardWidgetContract, DashboardWidgetState, KpiGaugeInput } from "@/lib/dashboard/types";
+import type { AlertNotificationItem, DashboardData, DashboardDateRange, DashboardWidgetContract, DashboardWidgetState, KpiGaugeInput } from "@/lib/dashboard/types";
 import { createClient as createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 function formatLastUpdated(isoTimestamp: string): string {
   return `Last updated ${new Date(isoTimestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 }
 
+
+type DateRangeInterval = {
+  from: Date;
+  to: Date;
+  label: string;
+};
+
+function getDateRangeInterval(range: DashboardDateRange, now = new Date()): DateRangeInterval {
+  const to = new Date(now);
+  const from = new Date(now);
+
+  if (range === "Today") {
+    from.setHours(0, 0, 0, 0);
+  } else if (range === "Last 7 days") {
+    from.setDate(from.getDate() - 7);
+  } else if (range === "Last quarter") {
+    from.setMonth(from.getMonth() - 3);
+  } else {
+    from.setDate(from.getDate() - 30);
+  }
+
+  return { from, to, label: `${from.toLocaleDateString()} - ${to.toLocaleDateString()}` };
+}
+
 export default function DashboardClient({ initialData }: { initialData: DashboardData }) {
-  const [range, setRange] = React.useState("Last 30 days");
+  const [range, setRange] = React.useState<DashboardDateRange>("Last 30 days");
+  const [dashboardData, setDashboardData] = React.useState(initialData);
+  const [isRangeLoading, setIsRangeLoading] = React.useState(false);
   const [activePerfRange, setActivePerfRange] = React.useState<keyof DashboardData["performanceSeries"]>("1M");
   const [liveActivityFeed, setLiveActivityFeed] = React.useState(initialData.activityFeed);
   const [liveAlerts, setLiveAlerts] = React.useState<AlertNotificationItem[]>(initialData.alerts);
@@ -29,70 +55,110 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
   const [metricsState, setMetricsState] = React.useState<DashboardWidgetState>("ready");
   const [performanceState, setPerformanceState] = React.useState<DashboardWidgetState>("ready");
   const [tableState, setTableState] = React.useState<DashboardWidgetState>("ready");
+  const activeDateInterval = React.useMemo(() => getDateRangeInterval(range), [range]);
 
   React.useEffect(() => {
-    setKpiState(initialData.kpis.length ? "ready" : "empty");
-    setMetricsState(initialData.volumeData.length ? "ready" : "empty");
-    setPerformanceState(initialData.performanceSeries[activePerfRange].length ? "ready" : "empty");
-    setTableState(initialData.topPairs.length ? "ready" : "empty");
-  }, [activePerfRange, initialData]);
+    setKpiState(dashboardData.kpis.length ? "ready" : "empty");
+    setMetricsState(dashboardData.volumeData.length ? "ready" : "empty");
+    setPerformanceState(dashboardData.performanceSeries[activePerfRange].length ? "ready" : "empty");
+    setTableState(dashboardData.topPairs.length ? "ready" : "empty");
+  }, [activePerfRange, dashboardData]);
 
   const widgetContract: DashboardWidgetContract = React.useMemo(() => ({
-    kpiGauges: (initialData.kpis as KpiGaugeInput[]).map((kpi) => ({
+    kpiGauges: (dashboardData.kpis as KpiGaugeInput[]).map((kpi) => ({
       ...kpi,
       state: kpiState,
       emptyStateLabel: "No orders yet. Place your first order to unlock KPI tracking.",
       onRetry: () => setKpiState("loading"),
     })),
     metricsBarChart: {
-      title: "Daily Filled Orders",
-      data: initialData.volumeData,
+      title: `Daily Filled Orders (${range})`,
+      data: dashboardData.volumeData,
       emptyStateLabel: "No orders yet. Your filled orders will show up here.",
       state: metricsState,
       onRetry: () => setMetricsState("loading"),
     },
     performanceLineChartByRange: {
       "7D": {
-        title: "Portfolio Performance (7D)",
-        data: initialData.performanceSeries["7D"],
+        title: `Portfolio Performance (7D · ${range})`,
+        data: dashboardData.performanceSeries["7D"],
         emptyStateLabel: "No activity yet. Performance history will appear after your first transactions.",
         state: performanceState,
         onRetry: () => setPerformanceState("loading"),
       },
       "1M": {
-        title: "Portfolio Performance (1M)",
-        data: initialData.performanceSeries["1M"],
+        title: `Portfolio Performance (1M · ${range})`,
+        data: dashboardData.performanceSeries["1M"],
         emptyStateLabel: "No activity yet. Performance history will appear after your first transactions.",
         state: performanceState,
         onRetry: () => setPerformanceState("loading"),
       },
       "3M": {
-        title: "Portfolio Performance (3M)",
-        data: initialData.performanceSeries["3M"],
+        title: `Portfolio Performance (3M · ${range})`,
+        data: dashboardData.performanceSeries["3M"],
         emptyStateLabel: "No activity yet. Performance history will appear after your first transactions.",
         state: performanceState,
         onRetry: () => setPerformanceState("loading"),
       },
     },
     topMarketsTable: {
-      title: "Top Markets",
+      title: `Top Markets (${range})`,
       columns: [
         { key: "pair", label: "Pair" },
         { key: "volume", label: "Volume" },
         { key: "spread", label: "Spread" },
         { key: "pnl", label: "PnL" },
       ],
-      rows: initialData.topPairs,
+      rows: dashboardData.topPairs,
       emptyStateLabel: "Your watchlist is empty. Add assets to get market insights.",
       state: tableState,
       onRetry: () => setTableState("loading"),
     },
     loadingState: {
-      isLoading: [kpiState, metricsState, performanceState, tableState].includes("loading"),
+      isLoading: isRangeLoading || [kpiState, metricsState, performanceState, tableState].includes("loading"),
       isRefreshing: false,
       lastUpdatedAt: freshness.aggregatesUpdatedAt,
     },
-  }), [initialData, kpiState, metricsState, performanceState, tableState]);
+  }), [dashboardData, freshness.aggregatesUpdatedAt, isRangeLoading, kpiState, metricsState, performanceState, range, tableState]);
+
+
+  React.useEffect(() => {
+    let isCancelled = false;
+
+    async function loadRangeData() {
+      setIsRangeLoading(true);
+      setKpiState("loading");
+      setMetricsState("loading");
+      setPerformanceState("loading");
+      setTableState("loading");
+
+      try {
+        const response = await fetch(`/api/dashboard/aggregates?range=${encodeURIComponent(range)}`);
+        if (!response.ok) throw new Error("Failed to load dashboard range data");
+
+        const payload = (await response.json()) as { data?: DashboardData };
+        if (!isCancelled && payload.data) {
+          setDashboardData(payload.data);
+          setFreshness(payload.data.freshness);
+        }
+      } catch {
+        if (!isCancelled) {
+          setKpiState("error");
+          setMetricsState("error");
+          setPerformanceState("error");
+          setTableState("error");
+        }
+      } finally {
+        if (!isCancelled) setIsRangeLoading(false);
+      }
+    }
+
+    void loadRangeData();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [range]);
 
   React.useEffect(() => {
     const supabase = createBrowserSupabaseClient();
@@ -153,53 +219,53 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
 
   React.useEffect(() => {
     if (kpiState === "loading") {
-      const t = window.setTimeout(() => setKpiState(initialData.kpis.length ? "ready" : "empty"), 600);
+      const t = window.setTimeout(() => setKpiState(dashboardData.kpis.length ? "ready" : "empty"), 600);
       return () => window.clearTimeout(t);
     }
-  }, [initialData.kpis.length, kpiState]);
+  }, [dashboardData.kpis.length, kpiState]);
 
   React.useEffect(() => {
     if (metricsState === "loading") {
-      const t = window.setTimeout(() => setMetricsState(initialData.volumeData.length ? "ready" : "empty"), 600);
+      const t = window.setTimeout(() => setMetricsState(dashboardData.volumeData.length ? "ready" : "empty"), 600);
       return () => window.clearTimeout(t);
     }
-  }, [initialData.volumeData.length, metricsState]);
+  }, [dashboardData.volumeData.length, metricsState]);
 
   React.useEffect(() => {
     if (performanceState === "loading") {
-      const t = window.setTimeout(() => setPerformanceState(initialData.performanceSeries[activePerfRange].length ? "ready" : "empty"), 600);
+      const t = window.setTimeout(() => setPerformanceState(dashboardData.performanceSeries[activePerfRange].length ? "ready" : "empty"), 600);
       return () => window.clearTimeout(t);
     }
-  }, [activePerfRange, initialData.performanceSeries, performanceState]);
+  }, [activePerfRange, dashboardData.performanceSeries, performanceState]);
 
   React.useEffect(() => {
     if (tableState === "loading") {
-      const t = window.setTimeout(() => setTableState(initialData.topPairs.length ? "ready" : "empty"), 600);
+      const t = window.setTimeout(() => setTableState(dashboardData.topPairs.length ? "ready" : "empty"), 600);
       return () => window.clearTimeout(t);
     }
-  }, [initialData.topPairs.length, tableState]);
+  }, [dashboardData.topPairs.length, tableState]);
 
   return (
     <DashboardShell
       title="Analytics Overview"
       subtitle="Unified KPI, live market pulse, and portfolio intelligence"
       header={{
-        userName: initialData.portfolioSummary.userName,
-        portfolioValue: `${initialData.portfolioSummary.portfolioValue.toLocaleString()} €`,
-        portfolioChange: `${initialData.portfolioSummary.portfolioChangePct >= 0 ? "+" : ""}${initialData.portfolioSummary.portfolioChangePct.toFixed(2)}%`,
-        notificationCount: initialData.portfolioSummary.notificationCount,
+        userName: dashboardData.portfolioSummary.userName,
+        portfolioValue: `${dashboardData.portfolioSummary.portfolioValue.toLocaleString()} €`,
+        portfolioChange: `${dashboardData.portfolioSummary.portfolioChangePct >= 0 ? "+" : ""}${dashboardData.portfolioSummary.portfolioChangePct.toFixed(2)}%`,
+        notificationCount: dashboardData.portfolioSummary.notificationCount,
       }}
     >
       <section className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Analytics Overview</h2>
-            <p className="text-sm text-slate-600 mt-1">Welcome back, {initialData.portfolioSummary.userName}! Here&apos;s your real-time investment snapshot.</p>
+            <p className="text-sm text-slate-600 mt-1">Welcome back, {dashboardData.portfolioSummary.userName}! Here&apos;s your real-time investment snapshot.</p>
           </div>
           <label className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700">
             <CalendarRange size={16} className="text-emerald-600" />
             <span className="sr-only">Select date range</span>
-            <select value={range} onChange={(e) => setRange(e.target.value)} className="bg-transparent outline-none">
+            <select value={range} onChange={(e) => setRange(e.target.value as DashboardDateRange)} className="bg-transparent outline-none">
               <option>Today</option>
               <option>Last 7 days</option>
               <option>Last 30 days</option>
@@ -207,6 +273,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
             </select>
           </label>
         </div>
+        <p className="mt-2 text-xs text-slate-500">Active interval: {activeDateInterval.label}</p>
       </section>
 
       <section className="grid gap-3 md:grid-cols-3">
@@ -220,7 +287,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       <section className="grid gap-3 lg:grid-cols-2">
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-semibold text-slate-900 flex items-center gap-2"><TrendingUp size={16} className="text-emerald-600" /> Market Trends</h3>
+            <h3 className="font-semibold text-slate-900 flex items-center gap-2"><TrendingUp size={16} className="text-emerald-600" /> Market Trends ({range})</h3>
             <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs text-emerald-700">Live feed</span>
           </div>
           <MetricsBarChart {...widgetContract.metricsBarChart} />
@@ -229,7 +296,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-semibold text-slate-900">Custom Performance Graph</h3>
+            <h3 className="font-semibold text-slate-900">Custom Performance Graph ({range})</h3>
             <div className="flex gap-2">
               {(["7D", "1M", "3M"] as const).map((period) => (
                 <button
@@ -250,14 +317,15 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       <section className="grid gap-3 xl:grid-cols-3">
         <article className="rounded-2xl border border-slate-200 bg-white p-4 xl:col-span-2">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-slate-900">News and Insights</h3>
+            <h3 className="font-semibold text-slate-900">News and Insights ({range})</h3>
             <span className="text-xs text-slate-500">Based on your watchlist</span>
           </div>
           <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-700 mb-3 flex items-center gap-2 overflow-x-auto whitespace-nowrap">
             <MessageCircle size={14} className="text-emerald-600" />
-            <span>{initialData.marketNews.length ? initialData.marketNews.map((item) => item.text).join(" • ") : "Your watchlist is empty. Add assets to receive tailored news."}</span>
+            <span>{dashboardData.marketNews.length ? dashboardData.marketNews.map((item) => item.text).join(" • ") : "Your watchlist is empty. Add assets to receive tailored news."}</span>
           </div>
           <DataTable {...widgetContract.topMarketsTable} />
+          <p className="mt-2 text-xs text-slate-500">Showing {activeDateInterval.label}</p>
         </article>
 
         <article className="rounded-2xl border border-slate-200 bg-white p-4">
