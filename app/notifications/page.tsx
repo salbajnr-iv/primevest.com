@@ -1,8 +1,10 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { PageMain, PageShell, StickyPageHeader, SurfaceCard } from "@/components/ui/page-layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 
@@ -15,6 +17,8 @@ interface Notification {
   read: boolean;
   action?: string;
 }
+
+type NotificationFilter = "all" | "unread" | "system" | "trading";
 
 const notifications: Notification[] = [
   {
@@ -37,7 +41,8 @@ const notifications: Notification[] = [
     id: "3",
     type: "warning",
     title: "Security Notice",
-    message: "A new device has logged into your account. If this wasn't you, please secure your account.",
+    message:
+      "A new device has logged into your account. If this wasn't you, please secure your account.",
     time: "Yesterday",
     read: false,
   },
@@ -45,7 +50,8 @@ const notifications: Notification[] = [
     id: "4",
     type: "promo",
     title: "VIP Benefits",
-    message: "Congratulations! You've qualified for BEST VIP Level with reduced trading fees.",
+    message:
+      "Congratulations! You've qualified for BEST VIP Level with reduced trading fees.",
     time: "2 days ago",
     read: true,
   },
@@ -75,29 +81,66 @@ const notifications: Notification[] = [
   },
 ];
 
-function NotificationItem({ notification, onNotificationClick }: { 
-  notification: Notification; 
+function ConfirmationModal({
+  open,
+  title,
+  description,
+  confirmLabel,
+  onConfirm,
+  onClose,
+}: {
+  open: boolean;
+  title: string;
+  description: string;
+  confirmLabel: string;
+  onConfirm: () => void;
+  onClose: () => void;
+}) {
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true">
+      <div className="w-full max-w-md rounded-xl border bg-white p-5 shadow-xl">
+        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <p className="mt-2 text-sm text-gray-600">{description}</p>
+        <div className="mt-4 flex justify-end gap-2">
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="destructive" onClick={onConfirm}>{confirmLabel}</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NotificationItem({
+  notification,
+  updateError,
+  onNotificationClick,
+}: {
+  notification: Notification;
+  updateError?: string;
   onNotificationClick: (notification: Notification) => void;
 }) {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
-  
-  // Define type-specific styling
+
   const getTypeStyle = () => {
-    switch(notification.type) {
-      case 'success':
-        return { 
+    switch (notification.type) {
+      case "success":
+        return {
           icon: (
             <svg viewBox="0 0 24 24" fill="none" stroke="#0f9d58" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           ),
-          bgColor: 'rgba(15, 157, 88, 0.1)',
-          textColor: '#0f9d58',
-          borderColor: 'rgba(15, 157, 88, 0.2)'
+          bgColor: "bg-green-100",
+          borderColor: "border-green-300",
+          textColor: "text-green-700",
         };
-      case 'warning':
-        return { 
+      case "warning":
+        return {
           icon: (
             <svg viewBox="0 0 24 24" fill="none" stroke="#ff9800" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
@@ -105,36 +148,24 @@ function NotificationItem({ notification, onNotificationClick }: {
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           ),
-          bgColor: 'rgba(255, 152, 0, 0.1)',
-          textColor: '#ff9800',
-          borderColor: 'rgba(255, 152, 0, 0.2)'
+          bgColor: "bg-amber-100",
+          borderColor: "border-amber-300",
+          textColor: "text-amber-700",
         };
-      case 'info':
-        return { 
-          icon: (
-            <svg viewBox="0 0 24 24" fill="none" stroke="#007aff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="16" x2="12" y2="12" />
-              <line x1="12" y1="8" x2="12.01" y2="8" />
-            </svg>
-          ),
-          bgColor: 'rgba(0, 122, 255, 0.1)',
-          textColor: '#007aff',
-          borderColor: 'rgba(0, 122, 255, 0.2)'
-        };
-      case 'promo':
-        return { 
+      case "promo":
+        return {
           icon: (
             <svg viewBox="0 0 24 24" fill="none" stroke="#9c27b0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
             </svg>
           ),
-          bgColor: 'rgba(156, 39, 176, 0.1)',
-          textColor: '#9c27b0',
-          borderColor: 'rgba(156, 39, 176, 0.2)'
+          bgColor: "bg-purple-100",
+          borderColor: "border-purple-300",
+          textColor: "text-purple-700",
         };
+      case "info":
       default:
-        return { 
+        return {
           icon: (
             <svg viewBox="0 0 24 24" fill="none" stroke="#007aff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
@@ -142,100 +173,76 @@ function NotificationItem({ notification, onNotificationClick }: {
               <line x1="12" y1="8" x2="12.01" y2="8" />
             </svg>
           ),
-          bgColor: 'rgba(0, 122, 255, 0.1)',
-          textColor: '#007aff',
-          borderColor: 'rgba(0, 122, 255, 0.2)'
+          bgColor: "bg-blue-100",
+          borderColor: "border-blue-300",
+          textColor: "text-blue-700",
         };
     }
   };
 
-  const { icon, bgColor, textColor, borderColor } = getTypeStyle();
-
-  const handleMarkAsRead = () => {
-    // Update notification to mark as read
-    console.log(`Marking notification ${notification.id} as read`);
-    setDropdownOpen(false);
-  };
-
-  const handleDelete = () => {
-    // Delete notification
-    console.log(`Deleting notification ${notification.id}`);
-    setDropdownOpen(false);
-  };
-
-  const handleDismiss = () => {
-    // Dismiss notification
-    console.log(`Dismissing notification ${notification.id}`);
-    setDropdownOpen(false);
-  };
+  const { icon, bgColor, borderColor, textColor } = getTypeStyle();
 
   return (
-    <div 
-      className={`notification-item ${notification.read ? 'read' : 'unread'}`}
-      style={{ borderLeft: `4px solid ${borderColor}` }}
-      onClick={() => {
-        onNotificationClick(notification);
-      }}
+    <article
+      className={`rounded-xl border bg-white p-4 transition ${borderColor} ${
+        notification.read ? "opacity-80" : "shadow-sm"
+      }`}
+      onClick={() => onNotificationClick(notification)}
     >
-      <div className="notification-icon" style={{ backgroundColor: bgColor }}>
-        {icon}
-      </div>
-      <div className="notification-content">
-        <div className="notification-header">
-          <h4>{notification.title}</h4>
-          <span className="notification-time">{notification.time}</span>
+      <div className="flex items-start gap-3">
+        <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${bgColor}`}>
+          <div className="h-5 w-5">{icon}</div>
         </div>
-        <p>{notification.message}</p>
-        {notification.action && (
-          <button className="btn btn-small" style={{ color: textColor }}>
-            {notification.action}
-          </button>
-        )}
-      </div>
-      <div className="notification-actions">
-        {!notification.read && <span className="unread-indicator"></span>}
-        <div className="dropdown-container">
-          <button 
-            className="btn-icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              setDropdownOpen(!dropdownOpen);
-            }}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="1" />
-              <circle cx="19" cy="12" r="1" />
-              <circle cx="5" cy="12" r="1" />
-            </svg>
-          </button>
-          {dropdownOpen && (
-            <div className="dropdown-menu">
-              <button className="dropdown-item" onClick={handleMarkAsRead}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
-                Mark as Read
-              </button>
-              <button className="dropdown-item" onClick={handleDismiss}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-                Dismiss
-              </button>
-              <button className="dropdown-item" onClick={handleDelete}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
-                Delete
-              </button>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold text-gray-900">{notification.title}</h4>
+              <p className="text-sm text-gray-600">{notification.message}</p>
             </div>
-          )}
+
+            <div className="relative ml-2 shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDropdownOpen((prev) => !prev);
+                }}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                  <circle cx="12" cy="12" r="1" />
+                  <circle cx="19" cy="12" r="1" />
+                  <circle cx="5" cy="12" r="1" />
+                </svg>
+              </Button>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 z-20 mt-1 w-40 rounded-lg border bg-white py-1 shadow-md">
+                  {!notification.read && (
+                    <button className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                      Mark as read
+                    </button>
+                  )}
+                  <button className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
+                    Dismiss
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+            <span>{notification.time}</span>
+            {!notification.read && <Badge variant="secondary">Unread</Badge>}
+            {notification.action && <span className={textColor}>{notification.action}</span>}
+          </div>
+
+          {updateError && <p className="mt-2 text-xs text-red-600">{updateError}</p>}
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -243,8 +250,12 @@ export default function NotificationsPage() {
   const { user: authUser, loading: authLoading } = useAuth();
   const [isClient, setIsClient] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [filter, setFilter] = React.useState<"all" | "unread">("all");
+  const [filter, setFilter] = React.useState<NotificationFilter>("all");
   const [notificationsList, setNotificationsList] = React.useState<Notification[]>([]);
+  const [bulkMenuOpen, setBulkMenuOpen] = React.useState(false);
+  const [clearAllModalOpen, setClearAllModalOpen] = React.useState(false);
+  const [updateErrors, setUpdateErrors] = React.useState<Record<string, string>>({});
+  const [toolbarError, setToolbarError] = React.useState<string | null>(null);
   const supabase = createClient();
 
   React.useEffect(() => {
@@ -253,7 +264,6 @@ export default function NotificationsPage() {
 
   React.useEffect(() => {
     if (authLoading || !authUser) {
-      // not signed in or still loading - show nothing or fallback mock
       setNotificationsList(notifications);
       return;
     }
@@ -266,31 +276,31 @@ export default function NotificationsPage() {
 
       try {
         const { data, error } = await supabase
-          .from('notifications')
-          .select('*')
-          .eq('user_id', authUser.id)
-          .order('created_at', { ascending: false });
+          .from("notifications")
+          .select("*")
+          .eq("user_id", authUser.id)
+          .order("created_at", { ascending: false });
 
         if (error) {
-          console.warn('Notifications table not available or query failed, using mock data', error);
+          console.warn("Notifications table not available or query failed, using mock data", error);
           setNotificationsList(notifications);
         } else if (data && data.length > 0) {
           interface SupabaseNotification {
             id: number;
-            type: 'success' | 'warning' | 'info' | 'promo';
+            type: "success" | "warning" | "info" | "promo";
             title: string;
             message: string;
             created_at: string;
             read: boolean;
             action?: string;
           }
-          
+
           const mapped = data.map((row: SupabaseNotification) => ({
             id: String(row.id),
-            type: row.type || 'info',
-            title: row.title || 'Notification',
-            message: row.message || '',
-            time: row.created_at ? new Date(row.created_at).toLocaleString() : '',
+            type: row.type || "info",
+            title: row.title || "Notification",
+            message: row.message || "",
+            time: row.created_at ? new Date(row.created_at).toLocaleString() : "",
             read: !!row.read,
             action: row.action || undefined,
           }));
@@ -299,68 +309,74 @@ export default function NotificationsPage() {
           setNotificationsList(notifications);
         }
       } catch (err) {
-        console.error('Failed to load notifications', err);
+        console.error("Failed to load notifications", err);
         setNotificationsList(notifications);
       }
     })();
   }, [authLoading, authUser, supabase]);
 
-  const unreadCount = notificationsList.filter(n => !n.read).length;
+  const unreadCount = notificationsList.filter((n) => !n.read).length;
 
-  const filteredNotifications = notificationsList.filter(n => {
-    if (filter === "unread") return !n.read;
+  const getCategory = React.useCallback((notification: Notification) => {
+    if (notification.type === "info" || notification.type === "warning") return "system";
+    return "trading";
+  }, []);
+
+  const filteredNotifications = notificationsList.filter((notification) => {
+    if (filter === "unread") return !notification.read;
+    if (filter === "system") return getCategory(notification) === "system";
+    if (filter === "trading") return getCategory(notification) === "trading";
     return true;
   });
 
   const markAllAsRead = async () => {
-    setNotificationsList(prev => prev.map(n => ({ ...n, read: true })));
+    setToolbarError(null);
+    const previous = notificationsList;
+    setNotificationsList((prev) => prev.map((n) => ({ ...n, read: true })));
+
     if (!authUser || !supabase) return;
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ read: true })
-        .eq('user_id', authUser.id);
-      if (error) console.warn('Could not bulk mark notifications as read on server', error);
+      const { error } = await supabase.from("notifications").update({ read: true }).eq("user_id", authUser.id);
+      if (error) {
+        setNotificationsList(previous);
+        setToolbarError("Could not mark all notifications as read. Please try again.");
+      }
     } catch (err) {
-      console.error('Error updating notifications', err);
+      console.error("Error updating notifications", err);
+      setNotificationsList(previous);
+      setToolbarError("Could not mark all notifications as read. Please try again.");
     }
   };
 
   const handleNotificationClick = async (clickedNotification: Notification) => {
-    if (!clickedNotification.read) {
-      // Update the notification in the local state
-      setNotificationsList(prev => 
-        prev.map(n => 
-          n.id === clickedNotification.id ? {...n, read: true} : n
-        )
-      );
-      
-      // Update in the database if user is authenticated
-      if (authUser && supabase) {
-        try {
-          const { error } = await supabase
-            .from('notifications')
-            .update({ read: true })
-            .eq('id', clickedNotification.id);
-          
-          if (error) {
-            console.error('Error updating notification:', error);
-            // Revert the local change if database update failed
-            setNotificationsList(prev => 
-              prev.map(n => 
-                n.id === clickedNotification.id ? {...n, read: false} : n
-              )
-            );
-          }
-        } catch (err) {
-          console.error('Error updating notification:', err);
-          // Revert the local change if database update failed
-          setNotificationsList(prev => 
-            prev.map(n => 
-              n.id === clickedNotification.id ? {...n, read: false} : n
-            )
-          );
+    if (clickedNotification.read) return;
+
+    setUpdateErrors((prev) => {
+      const next = { ...prev };
+      delete next[clickedNotification.id];
+      return next;
+    });
+
+    setNotificationsList((prev) => prev.map((n) => (n.id === clickedNotification.id ? { ...n, read: true } : n)));
+
+    if (authUser && supabase) {
+      try {
+        const { error } = await supabase.from("notifications").update({ read: true }).eq("id", clickedNotification.id);
+
+        if (error) {
+          setNotificationsList((prev) => prev.map((n) => (n.id === clickedNotification.id ? { ...n, read: false } : n)));
+          setUpdateErrors((prev) => ({
+            ...prev,
+            [clickedNotification.id]: "Failed to update status. Tap again to retry.",
+          }));
         }
+      } catch (err) {
+        console.error("Error updating notification:", err);
+        setNotificationsList((prev) => prev.map((n) => (n.id === clickedNotification.id ? { ...n, read: false } : n)));
+        setUpdateErrors((prev) => ({
+          ...prev,
+          [clickedNotification.id]: "Failed to update status. Tap again to retry.",
+        }));
       }
     }
   };
@@ -378,153 +394,82 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        {/* HEADER */}
-        <header className="header">
-          <div className="header-left">
-            <Link href="/dashboard" className="header-back">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </Link>
-            <span className="header-eyebrow">ALERTS</span>
-            <div className="header-title">Notifications</div>
-            {unreadCount > 0 && (
-              <span className="notification-count-badge">{unreadCount}</span>
-            )}
-          </div>
-          <div className="header-actions">
-            <button className="menu-btn" onClick={() => setIsSidebarOpen(true)}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-            </button>
-          </div>
-        </header>
+    <PageShell>
+      <StickyPageHeader
+        eyebrow="Alerts"
+        title="Notifications"
+        badge={unreadCount > 0 ? <Badge>{unreadCount} unread</Badge> : undefined}
+        action={<Button onClick={markAllAsRead} disabled={unreadCount === 0}>Mark all read</Button>}
+      />
 
-        {/* SUMMARY BAR */}
-        <section className="section">
-          <div className="summary-card">
-            <div className="summary-item">
-              <span className="summary-label">Unread</span>
-              <span className="summary-value">{unreadCount}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Total</span>
-              <span className="summary-value">{notificationsList.length}</span>
-            </div>
-          </div>
-        </section>
-
-        {/* FILTERS */}
-        <section className="section">
-          <div className="card">
-            <div className="filters-container">
-              <div className="filter-tabs">
-                <button
-                  className={`filter-tab ${filter === "all" ? "active" : ""}`}
-                  onClick={() => setFilter("all")}
-                >
-                  All
-                </button>
-                <button
-                  className={`filter-tab ${filter === "unread" ? "active" : ""}`}
-                  onClick={() => setFilter("unread")}
-                >
-                  Unread
-                  {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
-                </button>
-              </div>
-              <div className="filter-actions">
-                {unreadCount > 0 && (
-                  <button className="btn btn-secondary" onClick={markAllAsRead}>
-                    Mark All Read
-                  </button>
-                )}
-                {notificationsList.some(n => n.read) && (
-                  <button 
-                    className="btn btn-secondary"
-                    onClick={() => {
-                      setNotificationsList(prev => 
-                        prev.map(n => ({ ...n, read: false }))
-                      );
-                    }}
+      <PageMain>
+          <SurfaceCard className="p-3">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-wrap gap-2">
+                {(["all", "unread", "system", "trading"] as NotificationFilter[]).map((tab) => (
+                  <Button
+                    key={tab}
+                    size="sm"
+                    variant={filter === tab ? "default" : "outline"}
+                    onClick={() => setFilter(tab)}
+                    className="capitalize"
                   >
-                    Mark All Unread
-                  </button>
-                )}
-                {notificationsList.length > 0 && (
-                  <button 
-                    className="btn btn-secondary" 
-                    onClick={() => {
-                      if (window.confirm("Are you sure you want to clear all notifications?")) {
-                        setNotificationsList([]);
-                      }
-                    }}
-                  >
-                    Clear All
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* NOTIFICATIONS LIST */}
-        <section className="section">
-          <h3 className="section-title">Recent Activity</h3>
-          <div className="card">
-            {filteredNotifications.length > 0 ? (
-              <div className="notifications-container">
-                {filteredNotifications.map((notification) => (
-                  <NotificationItem 
-                    key={notification.id} 
-                    notification={notification} 
-                    onNotificationClick={handleNotificationClick}
-                  />
+                    {tab}
+                  </Button>
                 ))}
               </div>
+
+              <div className="relative self-start md:self-auto">
+                <Button variant="ghost" size="sm" onClick={() => setBulkMenuOpen((prev) => !prev)}>
+                  More actions
+                </Button>
+                {bulkMenuOpen && (
+                  <div className="absolute right-0 z-20 mt-1 w-48 rounded-lg border bg-white py-1 shadow-md">
+                    <button
+                      className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
+                      onClick={() => {
+                        setBulkMenuOpen(false);
+                        setClearAllModalOpen(true);
+                      }}
+                    >
+                      Clear all notifications
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+            {toolbarError && <p className="mt-2 text-sm text-red-600">{toolbarError}</p>}
+          </SurfaceCard>
+
+          <section className="space-y-3">
+            {filteredNotifications.length > 0 ? (
+              filteredNotifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  updateError={updateErrors[notification.id]}
+                  onNotificationClick={handleNotificationClick}
+                />
+              ))
             ) : (
-              <div className="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                </svg>
-                <p>No notifications to show</p>
-              </div>
+              <div className="rounded-xl border bg-white p-10 text-center text-sm text-gray-600">No notifications to show</div>
             )}
-          </div>
-        </section>
+          </section>
+      </PageMain>
 
-        {/* NOTIFICATION SETTINGS */}
-        <section className="section">
-          <div className="card">
-            <Link href="/settings" className="settings-link">
-              <div className="settings-item">
-                <div className="settings-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                  </svg>
-                </div>
-                <span>Notification Settings</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="chevron">
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </div>
-            </Link>
-          </div>
-        </section>
-      </div>
-
-      <BottomNav 
-        onMenuClick={() => setIsSidebarOpen(true)} 
-        isMenuActive={isSidebarOpen} 
+      <ConfirmationModal
+        open={clearAllModalOpen}
+        title="Clear all notifications?"
+        description="This will remove all notifications from this list. This action cannot be undone."
+        confirmLabel="Clear all"
+        onClose={() => setClearAllModalOpen(false)}
+        onConfirm={() => {
+          setNotificationsList([]);
+          setClearAllModalOpen(false);
+        }}
       />
-    </div>
+
+      <BottomNav onMenuClick={() => setIsSidebarOpen(true)} isMenuActive={isSidebarOpen} />
+    </PageShell>
   );
 }
-
