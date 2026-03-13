@@ -4,7 +4,10 @@ import * as React from "react";
 import BottomNav from "@/components/BottomNav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PageMain, PageShell, StickyPageHeader, SurfaceCard } from "@/components/ui/page-layout";
+import { FeatureCard } from "@/components/ui/FeatureCard";
+import { IconBadge } from "@/components/ui/IconBadge";
+import { PageSectionHeader } from "@/components/ui/PageSectionHeader";
+import { PageMain, PageShell, StickyPageHeader } from "@/components/ui/page-layout";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 
@@ -184,15 +187,13 @@ function NotificationItem({
 
   return (
     <article
-      className={`rounded-xl border bg-white p-4 transition ${borderColor} ${
+      className={`rounded-xl border bg-white p-4 shadow-sm transition ${borderColor} ${
         notification.read ? "opacity-80" : "shadow-sm"
       }`}
       onClick={() => onNotificationClick(notification)}
     >
       <div className="flex items-start gap-3">
-        <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${bgColor}`}>
-          <div className="h-5 w-5">{icon}</div>
-        </div>
+        <IconBadge icon={<div className="h-5 w-5">{icon}</div>} className={`mt-0.5 shrink-0 ${bgColor}`} />
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
@@ -403,7 +404,7 @@ export default function NotificationsPage() {
       />
 
       <PageMain>
-          <SurfaceCard className="p-3">
+          <FeatureCard title="Filter notifications" description="Switch between unread, system, and trading updates.">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-wrap gap-2">
                 {(["all", "unread", "system", "trading"] as NotificationFilter[]).map((tab) => (
@@ -439,7 +440,13 @@ export default function NotificationsPage() {
               </div>
             </div>
             {toolbarError && <p className="mt-2 text-sm text-red-600">{toolbarError}</p>}
-          </SurfaceCard>
+          </FeatureCard>
+
+          <PageSectionHeader
+            eyebrow="Inbox"
+            title="Recent activity"
+            description="Tap any item to mark it as read."
+          />
 
           <section className="space-y-3">
             {filteredNotifications.length > 0 ? (
