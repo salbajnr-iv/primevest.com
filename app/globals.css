@@ -214,7 +214,7 @@ html {
   padding-bottom: 6rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .section-padding {
     padding-top: 3rem;
     padding-bottom: 3rem;
@@ -271,6 +271,13 @@ html {
 
 /* PrimeVest Custom Styles */
 :root {
+  /* Canonical responsive breakpoints (must match lib/config/breakpoints.ts) */
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --bp-xxl: 1536px;
+
   /* Brand Colors */
   --color-brand-text-primary: #16764d;
   --color-brand-text-primary-inverted: #fff;
