@@ -1,3 +1,5 @@
+export const revalidate = 120;
+
 import { redirect } from "next/navigation";
 import DashboardClient from "@/app/dashboard/DashboardClient";
 import { getDashboardData } from "@/lib/dashboard/queries";

@@ -9,15 +9,20 @@ import MetricsBarChart from "@/components/dashboard/analytics/MetricsBarChart";
 import PerformanceLineChart from "@/components/dashboard/analytics/PerformanceLineChart";
 import DataTable from "@/components/dashboard/analytics/DataTable";
 import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
-import type { DashboardData, DashboardWidgetContract, KpiGaugeInput } from "@/lib/dashboard/types";
+import type { AlertNotificationItem, DashboardData, DashboardWidgetContract, KpiGaugeInput } from "@/lib/dashboard/types";
 import { createClient as createBrowserSupabaseClient } from "@/lib/supabase/client";
+
+function formatLastUpdated(isoTimestamp: string): string {
+  return `Last updated ${new Date(isoTimestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+}
 
 export default function DashboardClient({ initialData }: { initialData: DashboardData }) {
   const [range, setRange] = React.useState("Last 30 days");
   const [activePerfRange, setActivePerfRange] = React.useState<keyof DashboardData["performanceSeries"]>("1M");
   const [liveActivityFeed, setLiveActivityFeed] = React.useState(initialData.activityFeed);
+  const [liveAlerts, setLiveAlerts] = React.useState<AlertNotificationItem[]>(initialData.alerts);
+  const [freshness, setFreshness] = React.useState(initialData.freshness);
   const { isReady, breakpoint, width, height } = useWindowSize();
-
 
   const widgetContract: DashboardWidgetContract = React.useMemo(() => ({
     kpiGauges: initialData.kpis as KpiGaugeInput[],
@@ -45,21 +50,23 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
     loadingState: {
       isLoading: false,
       isRefreshing: false,
-      lastUpdatedAt: new Date().toISOString(),
+      lastUpdatedAt: freshness.aggregatesUpdatedAt,
     },
-  }), [initialData]);
+  }), [initialData, freshness.aggregatesUpdatedAt]);
 
   React.useEffect(() => {
     const supabase = createBrowserSupabaseClient();
     if (!supabase) return;
 
-    const channel = supabase
+    const activityChannel = supabase
       .channel("dashboard-live-activity")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "orders" },
         (payload) => {
           const amount = Number((payload.new as { total_amount?: number }).total_amount ?? 0);
+          const createdAt = String((payload.new as { created_at?: string }).created_at ?? new Date().toISOString());
+
           setLiveActivityFeed((current) => [
             {
               id: String(payload.new.id ?? Date.now()),
@@ -69,12 +76,38 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
             },
             ...current,
           ].slice(0, 5));
+
+          setFreshness((current) => ({ ...current, activityUpdatedAt: createdAt }));
+        }
+      )
+      .subscribe();
+
+    const alertsChannel = supabase
+      .channel("dashboard-live-alerts")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications" },
+        (payload) => {
+          const createdAt = String((payload.new as { created_at?: string }).created_at ?? new Date().toISOString());
+          const message = String((payload.new as { message?: string }).message ?? "New account notification");
+
+          setLiveAlerts((current) => [
+            {
+              id: String(payload.new.id ?? Date.now()),
+              message,
+              createdAt,
+            },
+            ...current,
+          ].slice(0, 3));
+
+          setFreshness((current) => ({ ...current, alertsUpdatedAt: createdAt }));
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      void supabase.removeChannel(activityChannel);
+      void supabase.removeChannel(alertsChannel);
     };
   }, []);
 
@@ -123,6 +156,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
             <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs text-emerald-700">Live feed</span>
           </div>
           <MetricsBarChart {...widgetContract.metricsBarChart} />
+          <p className="mt-2 text-xs text-slate-500">{formatLastUpdated(freshness.aggregatesUpdatedAt)}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
@@ -141,6 +175,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
             </div>
           </div>
           <PerformanceLineChart {...widgetContract.performanceLineChartByRange[activePerfRange]} />
+          <p className="mt-2 text-xs text-slate-500">{formatLastUpdated(freshness.aggregatesUpdatedAt)}</p>
         </div>
       </section>
 
@@ -154,11 +189,14 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
             <MessageCircle size={14} className="text-emerald-600" />
             <span>{initialData.marketNews.length ? initialData.marketNews.map((item) => item.text).join(" • ") : "No market news available."}</span>
           </div>
-<DataTable {...widgetContract.topMarketsTable} />
+          <DataTable {...widgetContract.topMarketsTable} />
         </article>
 
         <article className="rounded-2xl border border-slate-200 bg-white p-4">
-          <h3 className="font-semibold text-slate-900 mb-3">User Activity Feed</h3>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="font-semibold text-slate-900">User Activity Feed</h3>
+            <span className="text-xs text-slate-500">{formatLastUpdated(freshness.activityUpdatedAt)}</span>
+          </div>
           <ul className="space-y-3">
             {liveActivityFeed.map((activity) => (
               <li key={activity.id} className="rounded-xl border border-slate-100 p-3 hover:bg-slate-50">
@@ -174,10 +212,14 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
 
       <section className="grid gap-3 md:grid-cols-2">
         <article className="rounded-2xl border border-slate-200 bg-white p-4">
-          <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2"><AlertCircle size={16} className="text-emerald-600" /> Alerts & Notifications</h3>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="font-semibold text-slate-900 flex items-center gap-2"><AlertCircle size={16} className="text-emerald-600" /> Alerts & Notifications</h3>
+            <span className="text-xs text-slate-500">{formatLastUpdated(freshness.alertsUpdatedAt)}</span>
+          </div>
           <div className="space-y-2 text-sm text-slate-700">
-            <p className="rounded-lg bg-slate-50 p-2">Price alert: BTC crossed €58,000.</p>
-            <p className="rounded-lg bg-slate-50 p-2">Risk threshold warning for SOL allocation.</p>
+            {liveAlerts.map((alert) => (
+              <p key={alert.id} className="rounded-lg bg-slate-50 p-2">{alert.message}</p>
+            ))}
             <div className="flex gap-2"><button className="mt-1 rounded-lg bg-emerald-600 px-3 py-2 text-white text-xs">Open Notification Center</button><Link href="/support/contact" className="mt-1 rounded-lg border border-slate-300 px-3 py-2 text-xs">Get help</Link></div>
           </div>
         </article>
