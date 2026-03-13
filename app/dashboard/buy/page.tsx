@@ -11,18 +11,20 @@ import {
   TransactionPageHeader,
 } from "@/components/ui/transactional-page";
 import styles from "@/components/ui/transactional-pages.module.css";
+import { calculateMarketImpactPercent, formatImpactPercent } from "@/lib/swap/market-impact";
 
 interface Asset {
   symbol: string;
   name: string;
   price: number;
+  liquidityEur: number;
 }
 
 const assets: Asset[] = [
-  { symbol: "BTC", name: "Bitcoin", price: 45234.5 },
-  { symbol: "ETH", name: "Ethereum", price: 2845.3 },
-  { symbol: "SOL", name: "Solana", price: 156.92 },
-  { symbol: "BNB", name: "Binance Coin", price: 583.4 },
+  { symbol: "BTC", name: "Bitcoin", price: 45234.5, liquidityEur: 8_500_000 },
+  { symbol: "ETH", name: "Ethereum", price: 2845.3, liquidityEur: 6_100_000 },
+  { symbol: "SOL", name: "Solana", price: 156.92, liquidityEur: 2_250_000 },
+  { symbol: "BNB", name: "Binance Coin", price: 583.4, liquidityEur: 3_450_000 },
 ];
 
 export default function DashboardBuyPage() {
@@ -40,6 +42,7 @@ export default function DashboardBuyPage() {
   const fee = parsedEur > 0 ? parsedEur * 0.01 : 0;
   const total = parsedEur + fee;
   const estimatedReceive = parsedEur > 0 ? parsedEur / asset.price : 0;
+  const impactPct = calculateMarketImpactPercent({ amountEur: parsedEur, liquidityEur: asset.liquidityEur });
   const isValid = parsedEur > 0;
 
   function next() {
@@ -53,6 +56,7 @@ export default function DashboardBuyPage() {
       total: total.toFixed(2),
       price: asset.price.toFixed(2),
       receive: estimatedReceive.toFixed(8),
+      impactPct: impactPct.toFixed(2),
     });
 
     router.push(`/dashboard/buy/review?${params.toString()}`);
@@ -140,6 +144,7 @@ export default function DashboardBuyPage() {
           <div className="price-estimate">
             <SummaryRow label={`Preis (${asset.symbol})`} value={`${asset.price.toFixed(2)} €`} />
             <SummaryRow label="Geschätzter Erhalt" value={`${estimatedReceive.toFixed(8)} ${asset.symbol}`} />
+            <SummaryRow label="Markt-Impact" value={formatImpactPercent(impactPct)} />
             <SummaryRow label="Gebühr (1%)" value={`${fee.toFixed(2)} €`} />
             <SummaryRow label="Gesamt" value={`${total.toFixed(2)} €`} isTotal />
           </div>

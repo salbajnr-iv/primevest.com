@@ -82,6 +82,27 @@
   font-size: 0.875rem;
 }
 
+.impactNormal {
+  color: var(--text);
+}
+
+.impactWarn {
+  color: #c17b07;
+}
+
+.impactHigh {
+  color: #d64545;
+}
+
+.impactConfirmBox {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
 .actionFooter {
   display: flex;
   gap: 0.75rem;
