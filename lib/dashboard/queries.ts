@@ -1,5 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import {
+  AlertNotificationItem,
   DashboardData,
   KpiMetric,
   PortfolioSummary,
@@ -15,6 +16,11 @@ type ProfileRowDto = {
   account_balance: number | null;
 };
 
+type NotificationRowDto = {
+  id: string;
+  message: string | null;
+  created_at: string;
+};
 
 type OrderRowDto = {
   id: string;
@@ -111,6 +117,16 @@ function mapOrdersToActivityFeed(rows: OrderRowDto[]): DashboardData["activityFe
   }));
 }
 
+function mapNotificationsToAlerts(rows: NotificationRowDto[]): AlertNotificationItem[] {
+  if (!rows.length) return fallbackDashboardData.alerts;
+
+  return rows.slice(0, 3).map((row) => ({
+    id: row.id,
+    message: row.message ?? "New account notification",
+    createdAt: row.created_at,
+  }));
+}
+
 function mapOrdersToPerformance(rows: OrderRowDto[]): DashboardData["performanceSeries"] {
   if (!rows.length) return fallbackDashboardData.performanceSeries;
 
@@ -125,9 +141,10 @@ function mapOrdersToPerformance(rows: OrderRowDto[]): DashboardData["performance
 }
 
 export async function getDashboardData(supabase: SupabaseClient): Promise<DashboardData> {
-  const [{ data: profileData }, { count: notificationCount }, { data: ordersData }] = await Promise.all([
+  const [{ data: profileData }, { count: notificationCount }, { data: notificationsData }, { data: ordersData }] = await Promise.all([
     supabase.from("profiles").select("full_name, account_balance").maybeSingle(),
     supabase.from("notifications").select("id", { count: "exact", head: true }),
+    supabase.from("notifications").select("id, message, created_at").order("created_at", { ascending: false }).limit(5),
     supabase
       .from("orders")
       .select("id, order_type, status, total_amount, price, created_at, symbol")
@@ -136,7 +153,9 @@ export async function getDashboardData(supabase: SupabaseClient): Promise<Dashbo
   ]);
 
   const orders = (ordersData ?? []) as OrderRowDto[];
+  const notifications = (notificationsData ?? []) as NotificationRowDto[];
   const profile = (profileData ?? null) as ProfileRowDto | null;
+  const nowIso = new Date().toISOString();
 
   const assembled: DashboardData = {
     portfolioSummary: mapProfileToSummary(profile, notificationCount ?? 0),
@@ -146,6 +165,12 @@ export async function getDashboardData(supabase: SupabaseClient): Promise<Dashbo
     activityFeed: mapOrdersToActivityFeed(orders),
     marketNews: fallbackDashboardData.marketNews,
     performanceSeries: mapOrdersToPerformance(orders),
+    alerts: mapNotificationsToAlerts(notifications),
+    freshness: {
+      activityUpdatedAt: orders[0]?.created_at ?? nowIso,
+      alertsUpdatedAt: notifications[0]?.created_at ?? nowIso,
+      aggregatesUpdatedAt: nowIso,
+    },
   };
 
   if (!ENABLE_DASHBOARD_MOCK_FALLBACK) return assembled;
@@ -158,5 +183,7 @@ export async function getDashboardData(supabase: SupabaseClient): Promise<Dashbo
     activityFeed: assembled.activityFeed.length ? assembled.activityFeed : fallbackDashboardData.activityFeed,
     marketNews: assembled.marketNews.length ? assembled.marketNews : fallbackDashboardData.marketNews,
     performanceSeries: assembled.performanceSeries,
+    alerts: assembled.alerts.length ? assembled.alerts : fallbackDashboardData.alerts,
+    freshness: assembled.freshness,
   };
 }

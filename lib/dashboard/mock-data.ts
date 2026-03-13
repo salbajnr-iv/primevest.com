@@ -4,6 +4,7 @@ import {
   DashboardData,
   KpiMetric,
   NewsHeadline,
+  AlertNotificationItem,
   OrderHistoryItem,
   PerformanceSeriesResponse,
   PortfolioSummary,
@@ -52,6 +53,17 @@ export const dashboardMarketNews: NewsHeadline[] = [
   { id: "news-3", text: "Gold and crypto correlation drops to monthly lows." },
 ];
 
+export const dashboardAlerts: AlertNotificationItem[] = [
+  { id: "alert-1", message: "Price alert: BTC crossed €58,000.", createdAt: "2026-02-08T14:30:00.000Z" },
+  { id: "alert-2", message: "Risk threshold warning for SOL allocation.", createdAt: "2026-02-08T12:10:00.000Z" },
+];
+
+export const dashboardFreshness = {
+  activityUpdatedAt: new Date().toISOString(),
+  alertsUpdatedAt: new Date().toISOString(),
+  aggregatesUpdatedAt: new Date().toISOString(),
+};
+
 export const dashboardPerformanceSeries: DashboardData["performanceSeries"] = {
   "7D": [
     { label: "D1", value: 108 },
@@ -84,6 +96,8 @@ export const fallbackDashboardData: DashboardData = {
   activityFeed: dashboardActivityFeed,
   marketNews: dashboardMarketNews,
   performanceSeries: dashboardPerformanceSeries,
+  alerts: dashboardAlerts,
+  freshness: dashboardFreshness,
 };
 
 export const recentActivity: ActivityItem[] = [

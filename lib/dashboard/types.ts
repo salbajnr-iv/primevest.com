@@ -6,6 +6,13 @@ export type OrderStatus = "completed" | "pending" | "cancelled";
 export type PerformanceRange = "7D" | "1M" | "3M";
 export type DashboardRefreshCadence = "realtime" | "interval" | "on-load";
 export type DashboardWidgetState = "loading" | "ready" | "empty" | "error";
+export type DashboardRefreshCadence = "realtime" | "periodic" | "on-demand";
+
+export interface DashboardTimestampMeta {
+  activityUpdatedAt: string;
+  alertsUpdatedAt: string;
+  aggregatesUpdatedAt: string;
+}
 
 export interface PortfolioSummary {
   userName: string;
@@ -45,6 +52,12 @@ export interface ActivityFeedItem {
   action: string;
   detail: string;
   time: string;
+}
+
+export interface AlertNotificationItem {
+  id: string;
+  message: string;
+  createdAt: string;
 }
 
 export interface ActivityItem {
@@ -171,4 +184,6 @@ export interface DashboardData {
   activityFeed: ActivityFeedItem[];
   marketNews: NewsHeadline[];
   performanceSeries: Record<PerformanceRange, AnalyticsChartPoint[]>;
+  alerts: AlertNotificationItem[];
+  freshness: DashboardTimestampMeta;
 }
