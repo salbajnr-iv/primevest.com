@@ -10,6 +10,7 @@ export default function SwapSuccessPage() {
   const [to, setTo] = React.useState("-");
   const [amount, setAmount] = React.useState("0");
   const [id, setId] = React.useState("-");
+  const [received, setReceived] = React.useState("0");
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -17,6 +18,7 @@ export default function SwapSuccessPage() {
     setTo(params.get("to") || "-");
     setAmount(params.get("amount") || "0");
     setId(params.get("id") || "-");
+    setReceived(params.get("received") || "0");
   }, []);
 
   return (
@@ -31,6 +33,7 @@ export default function SwapSuccessPage() {
           <p><strong>Von:</strong> {from}</p>
           <p><strong>Nach:</strong> {to}</p>
           <p><strong>Betrag:</strong> {amount} {from}</p>
+          <p><strong>Erhalten:</strong> {received} {to}</p>
 
           <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
             <button className="btn" onClick={() => router.push('/dashboard')}>Zum Dashboard</button>
