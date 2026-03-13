@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import DashboardHeader from "@/components/DashboardHeader";
+import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 import { useRouter } from "next/navigation";
 
 interface PaymentMethod {
@@ -82,11 +82,7 @@ export default function DepositSelectPage() {
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
-
-        <main className="page-card">
+    <DashboardShell mainClassName="pb-20" contentClassName="page-card">
           <div className="page-header" style={{ marginBottom: 16 }}>
             <h2 style={{ margin: 0 }}>Deposit</h2>
             <div className="subtitle">Add funds securely using your preferred method</div>
@@ -209,8 +205,6 @@ export default function DepositSelectPage() {
               Continue to Confirmation
             </button>
           </div>
-        </main>
-      </div>
-    </div>
+    </DashboardShell>
   );
 }

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import DashboardHeader from "@/components/DashboardHeader";
+import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 
 type QuoteErrorCode = "quote_expired" | "insufficient_liquidity" | "amount_bounds" | "invalid_quote" | "invalid_pair" | "slippage_out_of_range";
 
@@ -140,11 +140,7 @@ export default function SwapReviewPage() {
   const isExpired = review ? review.expiresAt <= Date.now() : true;
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
-
-        <main className="page-card">
+    <DashboardShell mainClassName="pb-20" contentClassName="page-card">
           <h2>Confirm swap</h2>
           <p style={{ color: "var(--muted)", marginTop: 6 }}>Please review quote and execution limits before submitting.</p>
 
@@ -172,8 +168,6 @@ export default function SwapReviewPage() {
               {isSubmitting ? "Submitting..." : "Submit Swap"}
             </button>
           </div>
-        </main>
-      </div>
-    </div>
+    </DashboardShell>
   );
 }

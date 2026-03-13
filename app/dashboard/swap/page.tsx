@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import DashboardHeader from "@/components/DashboardHeader";
+import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 import { useRouter } from "next/navigation";
 
 const assets = [
@@ -103,11 +103,7 @@ export default function SwapSelectPage() {
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
-
-        <main className="page-card">
+    <DashboardShell mainClassName="pb-20" contentClassName="page-card">
           <div className="page-header" style={{ marginBottom: 16 }}>
             <h2 style={{ margin: 0 }}>Swap</h2>
             <div className="subtitle">Instantly exchange one asset for another</div>
@@ -292,8 +288,6 @@ export default function SwapSelectPage() {
               {isFetchingQuote ? "Fetching quote..." : "Continue to Confirmation"}
             </button>
           </div>
-        </main>
-      </div>
-    </div>
+    </DashboardShell>
   );
 }

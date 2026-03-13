@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import DashboardHeader from "@/components/DashboardHeader";
+import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 import { useRouter } from "next/navigation";
 
 interface Asset {
@@ -53,11 +53,7 @@ export default function DashboardBuyPage() {
   const quickAmounts = [100, 250, 500, 1000];
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
-
-        <main className="page-card">
+    <DashboardShell mainClassName="pb-20" contentClassName="page-card">
           <div className="page-header" style={{ marginBottom: 16 }}>
             <h2 style={{ margin: 0 }}>Kaufen</h2>
             <div className="subtitle">Kaufen Sie Assets mit EUR zum aktuellen Marktpreis</div>
@@ -197,8 +193,6 @@ export default function DashboardBuyPage() {
               Weiter zur Bestätigung
             </button>
           </div>
-        </main>
-      </div>
-    </div>
+    </DashboardShell>
   );
 }

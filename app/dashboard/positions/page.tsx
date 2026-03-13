@@ -2,9 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import DashboardHeader from "@/components/DashboardHeader";
-import BottomNav from "@/components/BottomNav";
-import Sidebar from "@/components/Sidebar";
+import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 
 interface Position {
   id: string;
@@ -55,15 +53,12 @@ const positions: Position[] = [
 ];
 
 export default function PositionsPage() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [expandedPosition, setExpandedPosition] = useState<string | null>(null);
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        <DashboardHeader userName="User" />
-
-        {/* Page Header with Back Button */}
+    <DashboardShell
+      mainClassName="space-y-4 pb-20"
+      pageHeader={
         <div style={{ padding: "12px 0", display: "flex", alignItems: "center", gap: "8px" }}>
           <Link href="/dashboard" className="back-button" style={{
             display: "inline-flex",
@@ -84,8 +79,9 @@ export default function PositionsPage() {
           </Link>
           <h1 style={{ margin: 0, fontSize: "18px", fontWeight: 700, flex: 1 }}>Positionen verwalten</h1>
         </div>
-
-        {/* Summary Card */}
+      }
+    >
+      {/* Summary Card */}
         <div style={{
           marginTop: "12px",
           padding: "16px",
@@ -278,10 +274,6 @@ export default function PositionsPage() {
             <input type="checkbox" defaultChecked style={{ width: "20px", height: "20px", cursor: "pointer" }} />
           </div>
         </div>
-      </div>
-
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <BottomNav onMenuClick={() => setIsSidebarOpen(true)} isMenuActive={isSidebarOpen} />
-    </div>
+    </DashboardShell>
   );
 }

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import DashboardHeader from "@/components/DashboardHeader";
+import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 
 export default function BuyReviewPage() {
   const router = useRouter();
@@ -40,11 +40,7 @@ export default function BuyReviewPage() {
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
-
-        <main className="page-card">
+    <DashboardShell mainClassName="pb-20" contentClassName="page-card">
           <h2>Kauf bestätigen</h2>
           <p className="subtitle" style={{ marginTop: -4 }}>Bitte überprüfen Sie die folgenden Details.</p>
 
@@ -81,8 +77,6 @@ export default function BuyReviewPage() {
               {isProcessing ? "Wird ausgeführt..." : "Jetzt kaufen"}
             </button>
           </div>
-        </main>
-      </div>
-    </div>
+    </DashboardShell>
   );
 }
