@@ -14,13 +14,13 @@ import type {
   ActivityFeedItem,
   AlertNotificationItem,
   DashboardData,
+  DashboardDateRange,
   DashboardTimestampMeta,
   DashboardWidgetContract,
   DashboardWidgetState,
   KpiGaugeInput,
   PerformanceRange,
 } from "@/lib/dashboard/types";
-import type { AlertNotificationItem, DashboardData, DashboardDateRange, DashboardWidgetContract, DashboardWidgetState, KpiGaugeInput } from "@/lib/dashboard/types";
 import { createClient as createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 function formatLastUpdated(isoTimestamp: string): string {
@@ -52,14 +52,11 @@ function getDateRangeInterval(range: DashboardDateRange, now = new Date()): Date
 }
 
 export default function DashboardClient({ initialData }: { initialData: DashboardData }) {
-  const [range, setRange] = React.useState("Last 30 days");
-  const [activePerfRange, setActivePerfRange] = React.useState<PerformanceRange>("1M");
-  const [liveActivityFeed, setLiveActivityFeed] = React.useState<ActivityFeedItem[]>(initialData.activityFeed);
   const [range, setRange] = React.useState<DashboardDateRange>("Last 30 days");
   const [dashboardData, setDashboardData] = React.useState(initialData);
   const [isRangeLoading, setIsRangeLoading] = React.useState(false);
-  const [activePerfRange, setActivePerfRange] = React.useState<keyof DashboardData["performanceSeries"]>("1M");
-  const [liveActivityFeed, setLiveActivityFeed] = React.useState(initialData.activityFeed);
+  const [activePerfRange, setActivePerfRange] = React.useState<PerformanceRange>("1M");
+  const [liveActivityFeed, setLiveActivityFeed] = React.useState<ActivityFeedItem[]>(initialData.activityFeed);
   const [liveAlerts, setLiveAlerts] = React.useState<AlertNotificationItem[]>(initialData.alerts);
   const [freshness, setFreshness] = React.useState<DashboardTimestampMeta>(initialData.freshness);
   const { isReady, breakpoint, width, height } = useWindowSize();
