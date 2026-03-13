@@ -4,6 +4,11 @@ import React, { useState, FormEvent } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
+import {
+  CONTACT_CATEGORIES,
+  ContactSubmissionPayload,
+  validateContactSubmission,
+} from "@/lib/support/contact-validation";
 
 interface ContactFormData {
   name: string;
@@ -12,6 +17,8 @@ interface ContactFormData {
   category: string;
   message: string;
 }
+
+type ContactFieldErrors = Partial<Record<keyof ContactSubmissionPayload, string>>;
 
 export default function ContactUsPage() {
   const [formData, setFormData] = useState<ContactFormData>({
@@ -23,54 +30,98 @@ export default function ContactUsPage() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [referenceId, setReferenceId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<ContactFieldErrors>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSubmitted(false);
+    setReferenceId("");
+
+    const validation = validateContactSubmission(formData);
+    if (!validation.isValid) {
+      setFieldErrors(validation.errors);
+      setError("Please fix the highlighted fields and try again.");
+      setLoading(false);
+      return;
+    }
+
+    setFieldErrors({});
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await fetch("/api/support/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(validation.values),
+      });
 
-      if (formData.name && formData.email && formData.message) {
-        setSubmitted(true);
-        setFormData({
-          name: "",
-          email: "",
-          subject: "",
-          category: "support",
-          message: "",
-        });
+      const data = (await response.json()) as {
+        error?: string;
+        code?: string;
+        referenceId?: string;
+        fieldErrors?: ContactFieldErrors;
+      };
 
-        // Reset submitted state after 5 seconds
-        setTimeout(() => setSubmitted(false), 5000);
-      } else {
-        setError("Please fill in all required fields");
+      if (!response.ok) {
+        if (data.fieldErrors) {
+          setFieldErrors(data.fieldErrors);
+        }
+
+        if (data.code === "RATE_LIMITED") {
+          setError(data.error || "Too many requests. Please wait before trying again.");
+        } else if (data.code === "INVALID_PAYLOAD") {
+          setError(data.error || "Some fields are invalid. Please update and resubmit.");
+        } else {
+          setError(data.error || "Support service is unavailable. Please try again later.");
+        }
+        return;
       }
-    } catch (err) {
-      setError("Failed to send message. Please try again.");
+
+      setSubmitted(true);
+      setReferenceId(data.referenceId || "");
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        category: "support",
+        message: "",
+      });
+    } catch {
+      setError("Unable to reach support service. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const contactCategories = [
-    { value: "support", label: "General Support" },
-    { value: "account", label: "Account Issues" },
-    { value: "trading", label: "Trading Help" },
-    { value: "verification", label: "Verification" },
-    { value: "withdrawal", label: "Withdrawal" },
-    { value: "complaint", label: "Complaint" },
-    { value: "other", label: "Other" },
-  ];
+  const contactCategories = CONTACT_CATEGORIES.map((value) => ({
+    value,
+    label:
+      value === "support"
+        ? "General Support"
+        : value === "account"
+          ? "Account Issues"
+          : value === "trading"
+            ? "Trading Help"
+            : value === "verification"
+              ? "Verification"
+              : value === "withdrawal"
+                ? "Withdrawal"
+                : value === "complaint"
+                  ? "Complaint"
+                  : "Other",
+  }));
 
   const contactMethods = [
     {
@@ -145,7 +196,7 @@ export default function ContactUsPage() {
       <div className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">Contact Us</h1>
-          <p className="text-xl text-gray-300">We're here to help. Reach out to our team anytime.</p>
+          <p className="text-xl text-gray-300">We&apos;re here to help. Reach out to our team anytime.</p>
         </div>
 
         {/* Contact Methods */}
@@ -169,8 +220,10 @@ export default function ContactUsPage() {
 
               {submitted && (
                 <div className="mb-6 p-4 bg-emerald-500/20 border border-emerald-500/50 rounded-lg">
-                  <p className="text-emerald-400 font-semibold">✓ Message sent successfully!</p>
-                  <p className="text-sm text-emerald-300">We'll get back to you within 24 hours.</p>
+                  <p className="text-emerald-400 font-semibold">✓ Message sent successfully.</p>
+                  <p className="text-sm text-emerald-300">
+                    Your support reference is <span className="font-semibold">{referenceId || "pending"}</span>. We&apos;ll get back to you within 24 hours.
+                  </p>
                 </div>
               )}
 
@@ -195,6 +248,7 @@ export default function ContactUsPage() {
                       className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500 transition"
                       required
                     />
+                    {fieldErrors.name && <p className="mt-1 text-sm text-red-400">{fieldErrors.name}</p>}
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-300 block mb-2">
@@ -209,6 +263,7 @@ export default function ContactUsPage() {
                       className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500 transition"
                       required
                     />
+                    {fieldErrors.email && <p className="mt-1 text-sm text-red-400">{fieldErrors.email}</p>}
                   </div>
                 </div>
 
@@ -223,6 +278,7 @@ export default function ContactUsPage() {
                       placeholder="Message subject"
                       className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500 transition"
                     />
+                    {fieldErrors.subject && <p className="mt-1 text-sm text-red-400">{fieldErrors.subject}</p>}
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-300 block mb-2">Category</label>
@@ -238,6 +294,7 @@ export default function ContactUsPage() {
                         </option>
                       ))}
                     </select>
+                    {fieldErrors.category && <p className="mt-1 text-sm text-red-400">{fieldErrors.category}</p>}
                   </div>
                 </div>
 
@@ -254,6 +311,7 @@ export default function ContactUsPage() {
                     className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-emerald-500 transition resize-none"
                     required
                   />
+                  {fieldErrors.message && <p className="mt-1 text-sm text-red-400">{fieldErrors.message}</p>}
                 </div>
 
                 <Button
