@@ -2,6 +2,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import {
   AlertNotificationItem,
   DashboardData,
+  DashboardDateRange,
   KpiMetric,
   PortfolioSummary,
   TopPairMetric,
@@ -34,6 +35,22 @@ type OrderRowDto = {
 
 const currencyFormatter = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 2 });
 const compactFormatter = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
+
+function getRangeStartIso(range: DashboardDateRange, now = new Date()): string {
+  const start = new Date(now);
+
+  if (range === "Today") {
+    start.setHours(0, 0, 0, 0);
+  } else if (range === "Last 7 days") {
+    start.setDate(start.getDate() - 7);
+  } else if (range === "Last quarter") {
+    start.setMonth(start.getMonth() - 3);
+  } else {
+    start.setDate(start.getDate() - 30);
+  }
+
+  return start.toISOString();
+}
 
 function toRelativeTime(isoDate: string): string {
   const seconds = Math.floor((Date.now() - new Date(isoDate).getTime()) / 1000);
@@ -140,16 +157,24 @@ function mapOrdersToPerformance(rows: OrderRowDto[]): DashboardData["performance
   };
 }
 
-export async function getDashboardData(supabase: SupabaseClient): Promise<DashboardData> {
+export async function getDashboardData(supabase: SupabaseClient, range: DashboardDateRange = "Last 30 days"): Promise<DashboardData> {
+  const rangeStartIso = getRangeStartIso(range);
+
   const [{ data: profileData }, { count: notificationCount }, { data: notificationsData }, { data: ordersData }] = await Promise.all([
     supabase.from("profiles").select("full_name, account_balance").maybeSingle(),
     supabase.from("notifications").select("id", { count: "exact", head: true }),
-    supabase.from("notifications").select("id, message, created_at").order("created_at", { ascending: false }).limit(5),
+    supabase
+      .from("notifications")
+      .select("id, message, created_at")
+      .gte("created_at", rangeStartIso)
+      .order("created_at", { ascending: false })
+      .limit(5),
     supabase
       .from("orders")
       .select("id, order_type, status, total_amount, price, created_at, symbol")
+      .gte("created_at", rangeStartIso)
       .order("created_at", { ascending: false })
-      .limit(20),
+      .limit(120),
   ]);
 
   const orders = (ordersData ?? []) as OrderRowDto[];

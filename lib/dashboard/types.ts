@@ -4,6 +4,7 @@ export type OrderType = "buy" | "sell" | "swap";
 export type OrderStatus = "completed" | "pending" | "cancelled";
 
 export type PerformanceRange = "7D" | "1M" | "3M";
+export type DashboardDateRange = "Today" | "Last 7 days" | "Last 30 days" | "Last quarter";
 export type DashboardRefreshCadence = "realtime" | "interval" | "on-load";
 export type DashboardWidgetState = "loading" | "ready" | "empty" | "error";
 export type DashboardRefreshCadence = "realtime" | "periodic" | "on-demand";
