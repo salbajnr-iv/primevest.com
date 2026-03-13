@@ -19,7 +19,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  const data = await getDashboardData(supabase, range);
+  const data = await getDashboardData(supabase, user.id, range);
 
   return NextResponse.json({ ok: true, data, range });
 }

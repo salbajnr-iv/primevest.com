@@ -8,11 +8,9 @@ import {
   TopPairMetric,
   VolumeDataPoint,
 } from "@/lib/dashboard/types";
-import { fallbackDashboardData } from "@/lib/dashboard/mock-data";
-
-const ENABLE_DASHBOARD_MOCK_FALLBACK = process.env.NEXT_PUBLIC_DASHBOARD_MOCK_FALLBACK === "true";
 
 type ProfileRowDto = {
+  id: string;
   full_name: string | null;
   account_balance: number | null;
 };
@@ -60,20 +58,47 @@ function toRelativeTime(isoDate: string): string {
   return `${Math.floor(seconds / 86400)} day ago`;
 }
 
-function mapProfileToSummary(profile: ProfileRowDto | null, notificationCount: number): PortfolioSummary {
-  const balance = Number(profile?.account_balance ?? fallbackDashboardData.portfolioSummary.portfolioValue);
+function buildEmptyDashboard(userName = "User"): DashboardData {
+  const now = new Date().toISOString();
   return {
-    userName: profile?.full_name?.split(" ")[0] ?? fallbackDashboardData.portfolioSummary.userName,
+    portfolioSummary: {
+      userName,
+      portfolioValue: 0,
+      portfolioChangePct: 0,
+      availableBalance: 0,
+      availableBalanceChangePct: 0,
+      notificationCount: 0,
+    },
+    kpis: [],
+    volumeData: [],
+    topPairs: [],
+    activityFeed: [],
+    marketNews: [],
+    performanceSeries: { "7D": [], "1M": [], "3M": [] },
+    alerts: [],
+    freshness: {
+      activityUpdatedAt: now,
+      alertsUpdatedAt: now,
+      aggregatesUpdatedAt: now,
+    },
+  };
+}
+
+function mapProfileToSummary(profile: ProfileRowDto | null, notificationCount: number): PortfolioSummary {
+  const userName = profile?.full_name?.split(" ")[0] ?? "User";
+  const balance = Number(profile?.account_balance ?? 0);
+  return {
+    userName,
     portfolioValue: balance,
-    portfolioChangePct: fallbackDashboardData.portfolioSummary.portfolioChangePct,
+    portfolioChangePct: 0,
     availableBalance: balance,
-    availableBalanceChangePct: fallbackDashboardData.portfolioSummary.availableBalanceChangePct,
+    availableBalanceChangePct: 0,
     notificationCount,
   };
 }
 
 function mapOrdersToKpis(rows: OrderRowDto[]): KpiMetric[] {
-  if (!rows.length) return fallbackDashboardData.kpis;
+  if (!rows.length) return [];
 
   const completed = rows.filter((row) => row.status === "completed").length;
   const fillRate = Math.round((completed / rows.length) * 100);
@@ -88,7 +113,7 @@ function mapOrdersToKpis(rows: OrderRowDto[]): KpiMetric[] {
 }
 
 function mapOrdersToVolumeData(rows: OrderRowDto[]): VolumeDataPoint[] {
-  if (!rows.length) return fallbackDashboardData.volumeData;
+  if (!rows.length) return [];
 
   const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const grouped = new Map<string, number>();
@@ -101,7 +126,7 @@ function mapOrdersToVolumeData(rows: OrderRowDto[]): VolumeDataPoint[] {
 }
 
 function mapOrdersToTopPairs(rows: OrderRowDto[]): TopPairMetric[] {
-  if (!rows.length) return fallbackDashboardData.topPairs;
+  if (!rows.length) return [];
 
   const aggregated = new Map<string, { volume: number; pnl: number }>();
   rows.forEach((row) => {
@@ -124,7 +149,7 @@ function mapOrdersToTopPairs(rows: OrderRowDto[]): TopPairMetric[] {
 }
 
 function mapOrdersToActivityFeed(rows: OrderRowDto[]): DashboardData["activityFeed"] {
-  if (!rows.length) return fallbackDashboardData.activityFeed;
+  if (!rows.length) return [];
 
   return rows.slice(0, 5).map((row) => ({
     id: row.id,
@@ -135,7 +160,7 @@ function mapOrdersToActivityFeed(rows: OrderRowDto[]): DashboardData["activityFe
 }
 
 function mapNotificationsToAlerts(rows: NotificationRowDto[]): AlertNotificationItem[] {
-  if (!rows.length) return fallbackDashboardData.alerts;
+  if (!rows.length) return [];
 
   return rows.slice(0, 3).map((row) => ({
     id: row.id,
@@ -145,7 +170,7 @@ function mapNotificationsToAlerts(rows: NotificationRowDto[]): AlertNotification
 }
 
 function mapOrdersToPerformance(rows: OrderRowDto[]): DashboardData["performanceSeries"] {
-  if (!rows.length) return fallbackDashboardData.performanceSeries;
+  if (!rows.length) return { "7D": [], "1M": [], "3M": [] };
 
   const sorted = [...rows].sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
   const points = sorted.map((row, index) => ({ label: `P${index + 1}`, value: Math.round(Number(row.total_amount ?? 0) / 10) || 100 + index * 2 }));
@@ -157,38 +182,48 @@ function mapOrdersToPerformance(rows: OrderRowDto[]): DashboardData["performance
   };
 }
 
-export async function getDashboardData(supabase: SupabaseClient, range: DashboardDateRange = "Last 30 days"): Promise<DashboardData> {
+export async function getDashboardData(
+  supabase: SupabaseClient,
+  userId: string,
+  range: DashboardDateRange = "Last 30 days",
+): Promise<DashboardData> {
   const rangeStartIso = getRangeStartIso(range);
 
   const [{ data: profileData }, { count: notificationCount }, { data: notificationsData }, { data: ordersData }] = await Promise.all([
-    supabase.from("profiles").select("full_name, account_balance").maybeSingle(),
-    supabase.from("notifications").select("id", { count: "exact", head: true }),
+    supabase.from("profiles").select("id, full_name, account_balance").eq("id", userId).maybeSingle(),
+    supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", userId),
     supabase
       .from("notifications")
       .select("id, message, created_at")
+      .eq("user_id", userId)
       .gte("created_at", rangeStartIso)
       .order("created_at", { ascending: false })
       .limit(5),
     supabase
       .from("orders")
       .select("id, order_type, status, total_amount, price, created_at, symbol")
+      .eq("user_id", userId)
       .gte("created_at", rangeStartIso)
       .order("created_at", { ascending: false })
       .limit(120),
   ]);
 
+  const profile = (profileData ?? null) as ProfileRowDto | null;
+  if (!profile && !(ordersData?.length || notificationsData?.length)) {
+    return buildEmptyDashboard();
+  }
+
   const orders = (ordersData ?? []) as OrderRowDto[];
   const notifications = (notificationsData ?? []) as NotificationRowDto[];
-  const profile = (profileData ?? null) as ProfileRowDto | null;
   const nowIso = new Date().toISOString();
 
-  const assembled: DashboardData = {
+  return {
     portfolioSummary: mapProfileToSummary(profile, notificationCount ?? 0),
     kpis: mapOrdersToKpis(orders),
     volumeData: mapOrdersToVolumeData(orders),
     topPairs: mapOrdersToTopPairs(orders),
     activityFeed: mapOrdersToActivityFeed(orders),
-    marketNews: fallbackDashboardData.marketNews,
+    marketNews: [],
     performanceSeries: mapOrdersToPerformance(orders),
     alerts: mapNotificationsToAlerts(notifications),
     freshness: {
@@ -196,19 +231,5 @@ export async function getDashboardData(supabase: SupabaseClient, range: Dashboar
       alertsUpdatedAt: notifications[0]?.created_at ?? nowIso,
       aggregatesUpdatedAt: nowIso,
     },
-  };
-
-  if (!ENABLE_DASHBOARD_MOCK_FALLBACK) return assembled;
-
-  return {
-    portfolioSummary: assembled.portfolioSummary,
-    kpis: assembled.kpis.length ? assembled.kpis : fallbackDashboardData.kpis,
-    volumeData: assembled.volumeData.length ? assembled.volumeData : fallbackDashboardData.volumeData,
-    topPairs: assembled.topPairs.length ? assembled.topPairs : fallbackDashboardData.topPairs,
-    activityFeed: assembled.activityFeed.length ? assembled.activityFeed : fallbackDashboardData.activityFeed,
-    marketNews: assembled.marketNews.length ? assembled.marketNews : fallbackDashboardData.marketNews,
-    performanceSeries: assembled.performanceSeries,
-    alerts: assembled.alerts.length ? assembled.alerts : fallbackDashboardData.alerts,
-    freshness: assembled.freshness,
   };
 }
