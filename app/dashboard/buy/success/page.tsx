@@ -3,6 +3,8 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import DashboardHeader from "@/components/DashboardHeader";
+import { TransactionActionFooter, TransactionPageHeader } from "@/components/ui/transactional-page";
+import styles from "@/components/ui/transactional-pages.module.css";
 
 export default function BuySuccessPage() {
   const router = useRouter();
@@ -20,19 +22,21 @@ export default function BuySuccessPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
+        <DashboardHeader userName="User" />
 
         <main className="page-card">
-          <h2>Erfolgreich gekauft</h2>
-          <p>Dein Kauf wurde ausgeführt.</p>
-          <p><strong>Auftragsnummer:</strong> {id}</p>
-          <p><strong>Asset:</strong> {asset}</p>
-          <p><strong>Betrag (EUR):</strong> {amount} €</p>
-
-          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-            <button className="btn" onClick={() => router.push('/dashboard')}>Zurück zum Dashboard</button>
-            <button className="btn btn-primary" onClick={() => router.push('/dashboard/portfolio')}>Portfolio anzeigen</button>
+          <TransactionPageHeader title="Erfolgreich gekauft" subtitle="Dein Kauf wurde ausgeführt." />
+          <div className={styles.successDetails}>
+            <p><strong>Auftragsnummer:</strong> {id}</p>
+            <p><strong>Asset:</strong> {asset}</p>
+            <p><strong>Betrag (EUR):</strong> {amount} €</p>
           </div>
+
+          <TransactionActionFooter
+            compact
+            secondary={<button className="btn" onClick={() => router.push("/dashboard")}>Zurück zum Dashboard</button>}
+            primary={<button className="btn btn-primary" onClick={() => router.push("/dashboard/portfolio")}>Portfolio anzeigen</button>}
+          />
         </main>
       </div>
     </div>

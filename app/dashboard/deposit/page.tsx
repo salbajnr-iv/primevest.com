@@ -3,6 +3,8 @@
 import React from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import { useRouter } from "next/navigation";
+import { QuickAmountChips, TransactionActionFooter, TransactionPageHeader } from "@/components/ui/transactional-page";
+import styles from "@/components/ui/transactional-pages.module.css";
 
 interface PaymentMethod {
   id: string;
@@ -24,7 +26,7 @@ const paymentMethods: PaymentMethod[] = [
     processingTime: "1-2 Werktage",
     minAmount: 10,
     maxAmount: 50000,
-    icon: "bank"
+    icon: "bank",
   },
   {
     id: "CARD",
@@ -34,7 +36,7 @@ const paymentMethods: PaymentMethod[] = [
     processingTime: "Sofort",
     minAmount: 25,
     maxAmount: 10000,
-    icon: "card"
+    icon: "card",
   },
   {
     id: "SOFORT",
@@ -44,7 +46,7 @@ const paymentMethods: PaymentMethod[] = [
     processingTime: "Sofort",
     minAmount: 10,
     maxAmount: 20000,
-    icon: "bank"
+    icon: "bank",
   },
   {
     id: "GIROPAY",
@@ -54,8 +56,8 @@ const paymentMethods: PaymentMethod[] = [
     processingTime: "Sofort",
     minAmount: 10,
     maxAmount: 5000,
-    icon: "bank"
-  }
+    icon: "bank",
+  },
 ];
 
 export default function DepositSelectPage() {
@@ -64,19 +66,19 @@ export default function DepositSelectPage() {
   const [amount, setAmount] = React.useState("");
   const [iban, setIban] = React.useState("");
 
-  const selectedPayment = paymentMethods.find(m => m.id === selectedMethod.id) || paymentMethods[0];
+  const selectedPayment = paymentMethods.find((m) => m.id === selectedMethod.id) || paymentMethods[0];
   const fee = selectedPayment.id === "SEPA" ? 0 : (parseFloat(amount || "0") * parseFloat(selectedPayment.fee.replace("%", "")) / 100);
   const totalAmount = parseFloat(amount || "0") + fee;
   const isValid = amount && parseFloat(amount) >= selectedPayment.minAmount && parseFloat(amount) <= selectedPayment.maxAmount;
 
   function next() {
     if (!isValid) return;
-    const params = new URLSearchParams({ 
-      method: selectedPayment.id, 
-      amount: String(parseFloat(amount)), 
+    const params = new URLSearchParams({
+      method: selectedPayment.id,
+      amount: String(parseFloat(amount)),
       fee: String(fee.toFixed(2)),
       total: String(totalAmount.toFixed(2)),
-      ...(selectedPayment.id === "SEPA" && { iban })
+      ...(selectedPayment.id === "SEPA" && { iban }),
     });
     router.push(`/dashboard/deposit/review?${params.toString()}`);
   }
@@ -84,24 +86,16 @@ export default function DepositSelectPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
+        <DashboardHeader userName="User" />
 
         <main className="page-card">
-          <div className="page-header" style={{ marginBottom: 16 }}>
-            <h2 style={{ margin: 0 }}>Deposit</h2>
-            <div className="subtitle">Add funds securely using your preferred method</div>
-          </div>
+          <TransactionPageHeader title="Deposit" subtitle="Add funds securely using your preferred method" />
 
-          {/* Payment Methods */}
           <div className="form-row">
             <label>Payment Method</label>
             <div className="payment-methods-grid">
               {paymentMethods.map((method) => (
-                <button
-                  key={method.id}
-                  className={`payment-method-card ${selectedMethod.id === method.id ? "active" : ""}`}
-                  onClick={() => setSelectedMethod(method)}
-                >
+                <button key={method.id} className={`payment-method-card ${selectedMethod.id === method.id ? "active" : ""}`} onClick={() => setSelectedMethod(method)}>
                   <div className="payment-method-icon">
                     {method.icon === "card" ? (
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -128,17 +122,15 @@ export default function DepositSelectPage() {
             </div>
           </div>
 
-          {/* Amount Input */}
           <div className="form-row">
             <label>Amount (EUR)</label>
             <div className="amount-input-container">
-              <input 
-                type="number" 
+              <input
+                type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder={`Min: ${selectedPayment.minAmount}€ - Max: ${selectedPayment.maxAmount}€`}
-                className="order-input"
-                style={{ textAlign: "left", fontSize: "16px" }}
+                className={`order-input ${styles.orderInput}`}
               />
               <div className="amount-info">
                 {amount && parseFloat(amount) > 0 && (
@@ -157,24 +149,17 @@ export default function DepositSelectPage() {
             </div>
           </div>
 
-          {/* SEPA Specific Fields */}
           {selectedPayment.id === "SEPA" && (
             <div className="form-row">
               <label>IBAN</label>
-              <input 
-                value={iban} 
-                onChange={(e) => setIban(e.target.value)} 
-                placeholder="DE89370400440532013000" 
-                className="order-input"
-              />
+              <input value={iban} onChange={(e) => setIban(e.target.value)} placeholder="DE89370400440532013000" className="order-input" />
               <div className="input-hint">Enter your IBAN for SEPA transfer</div>
             </div>
           )}
 
-          {/* Quick Amount Buttons */}
           <div className="form-row">
             <label>Quick Amounts</label>
-            <div className="quick-amounts">
+            <QuickAmountChips>
               {[100, 250, 500, 1000, 2500].map((val) => (
                 <button
                   key={val}
@@ -185,30 +170,24 @@ export default function DepositSelectPage() {
                   {val}€
                 </button>
               ))}
-            </div>
+            </QuickAmountChips>
           </div>
 
-          {/* Action Buttons */}
-          <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
-            <button 
-              className="btn" 
-              onClick={() => router.push('/dashboard')}
-              style={{ flex: 1, padding: "14px", border: "1px solid var(--border)" }}
-            >
-              Cancel
-            </button>
-            <button 
-              className="btn-primary" 
-              onClick={next}
-              disabled={!isValid}
-              style={{ flex: 2, opacity: isValid ? 1 : 0.5 }}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: "20px", height: "20px" }}>
-                <path d="M12 2v20M2 12h20" />
-              </svg>
-              Continue to Confirmation
-            </button>
-          </div>
+          <TransactionActionFooter
+            secondary={
+              <button className={`btn ${styles.actionSecondary}`} onClick={() => router.push("/dashboard")}>
+                Cancel
+              </button>
+            }
+            primary={
+              <button className={`btn-primary ${styles.actionPrimary}`} onClick={next} disabled={!isValid}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.plusIcon}>
+                  <path d="M12 2v20M2 12h20" />
+                </svg>
+                Continue to Confirmation
+              </button>
+            }
+          />
         </main>
       </div>
     </div>

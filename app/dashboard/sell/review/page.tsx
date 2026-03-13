@@ -3,6 +3,8 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import DashboardHeader from "@/components/DashboardHeader";
+import { SummaryRow, TransactionActionFooter, TransactionPageHeader } from "@/components/ui/transactional-page";
+import styles from "@/components/ui/transactional-pages.module.css";
 
 export default function SellReviewPage() {
   const router = useRouter();
@@ -34,41 +36,24 @@ export default function SellReviewPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
+        <DashboardHeader userName="User" />
 
         <main className="page-card">
-          <h2>Verkauf bestätigen</h2>
-          <p className="subtitle" style={{ marginTop: -4 }}>Bitte überprüfen Sie die folgenden Details.</p>
+          <TransactionPageHeader title="Verkauf bestätigen" subtitle="Bitte überprüfen Sie die folgenden Details." />
 
-          <div className="price-estimate" style={{ marginTop: 16 }}>
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Asset</span>
-              <span className="price-estimate-value">{asset}</span>
-            </div>
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Menge</span>
-              <span className="price-estimate-value">{amount}</span>
-            </div>
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Geschätzter Gegenwert</span>
-              <span className="price-estimate-value">{estimated} €</span>
-            </div>
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Gebühr</span>
-              <span className="price-estimate-value">{fee} €</span>
-            </div>
-            <div className="price-estimate-row" style={{ borderTop: "none", paddingTop: 0 }}>
-              <span className="price-estimate-label" style={{ fontWeight: 600 }}>Auszahlung</span>
-              <span className="price-estimate-value highlight" style={{ fontSize: 16 }}>{total} €</span>
-            </div>
+          <div className={`price-estimate ${styles.summaryBlock}`}>
+            <SummaryRow label="Asset" value={asset} />
+            <SummaryRow label="Menge" value={amount} />
+            <SummaryRow label="Geschätzter Gegenwert" value={`${estimated} €`} />
+            <SummaryRow label="Gebühr" value={`${fee} €`} />
+            <SummaryRow label="Auszahlung" value={`${total} €`} isTotal />
           </div>
 
-          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-            <button className="btn" onClick={() => router.back()} disabled={isProcessing}>Zurück</button>
-            <button className="btn btn-primary" onClick={confirm} disabled={isProcessing}>
-              {isProcessing ? "Wird ausgeführt..." : "Jetzt verkaufen"}
-            </button>
-          </div>
+          <TransactionActionFooter
+            compact
+            secondary={<button className="btn" onClick={() => router.back()} disabled={isProcessing}>Zurück</button>}
+            primary={<button className="btn btn-primary" onClick={confirm} disabled={isProcessing}>{isProcessing ? "Wird ausgeführt..." : "Jetzt verkaufen"}</button>}
+          />
         </main>
       </div>
     </div>

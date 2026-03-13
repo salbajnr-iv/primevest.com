@@ -3,6 +3,8 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import DashboardHeader from "@/components/DashboardHeader";
+import { SummaryRow, TransactionActionFooter, TransactionPageHeader } from "@/components/ui/transactional-page";
+import styles from "@/components/ui/transactional-pages.module.css";
 
 export default function BuyReviewPage() {
   const router = useRouter();
@@ -30,11 +32,7 @@ export default function BuyReviewPage() {
     setIsProcessing(true);
     setTimeout(() => {
       const id = `BUY-${Date.now()}`;
-      const params = new URLSearchParams({
-        asset: `${asset} (${symbol})`,
-        amount,
-        id,
-      });
+      const params = new URLSearchParams({ asset: `${asset} (${symbol})`, amount, id });
       router.push(`/dashboard/buy/success?${params.toString()}`);
     }, 800);
   }
@@ -42,45 +40,25 @@ export default function BuyReviewPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
+        <DashboardHeader userName="User" />
 
         <main className="page-card">
-          <h2>Kauf bestätigen</h2>
-          <p className="subtitle" style={{ marginTop: -4 }}>Bitte überprüfen Sie die folgenden Details.</p>
+          <TransactionPageHeader title="Kauf bestätigen" subtitle="Bitte überprüfen Sie die folgenden Details." />
 
-          <div className="price-estimate" style={{ marginTop: 16 }}>
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Asset</span>
-              <span className="price-estimate-value">{asset} ({symbol})</span>
-            </div>
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Betrag</span>
-              <span className="price-estimate-value">{amount} €</span>
-            </div>
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Marktpreis</span>
-              <span className="price-estimate-value">{price} €</span>
-            </div>
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Geschätzter Erhalt</span>
-              <span className="price-estimate-value">{receive} {symbol}</span>
-            </div>
-            <div className="price-estimate-row">
-              <span className="price-estimate-label">Gebühr</span>
-              <span className="price-estimate-value">{fee} €</span>
-            </div>
-            <div className="price-estimate-row" style={{ borderTop: "none", paddingTop: 0 }}>
-              <span className="price-estimate-label" style={{ fontWeight: 600 }}>Gesamtkosten</span>
-              <span className="price-estimate-value highlight" style={{ fontSize: 16 }}>{total} €</span>
-            </div>
+          <div className={`price-estimate ${styles.summaryBlock}`}>
+            <SummaryRow label="Asset" value={`${asset} (${symbol})`} />
+            <SummaryRow label="Betrag" value={`${amount} €`} />
+            <SummaryRow label="Marktpreis" value={`${price} €`} />
+            <SummaryRow label="Geschätzter Erhalt" value={`${receive} ${symbol}`} />
+            <SummaryRow label="Gebühr" value={`${fee} €`} />
+            <SummaryRow label="Gesamtkosten" value={`${total} €`} isTotal />
           </div>
 
-          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-            <button className="btn" onClick={() => router.back()} disabled={isProcessing}>Zurück</button>
-            <button className="btn btn-primary" onClick={confirm} disabled={isProcessing}>
-              {isProcessing ? "Wird ausgeführt..." : "Jetzt kaufen"}
-            </button>
-          </div>
+          <TransactionActionFooter
+            compact
+            secondary={<button className="btn" onClick={() => router.back()} disabled={isProcessing}>Zurück</button>}
+            primary={<button className="btn btn-primary" onClick={confirm} disabled={isProcessing}>{isProcessing ? "Wird ausgeführt..." : "Jetzt kaufen"}</button>}
+          />
         </main>
       </div>
     </div>

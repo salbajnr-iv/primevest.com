@@ -3,6 +3,8 @@
 import React from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import { useRouter } from "next/navigation";
+import { getAssetColorClass, TransactionActionFooter, TransactionPageHeader } from "@/components/ui/transactional-page";
+import styles from "@/components/ui/transactional-pages.module.css";
 
 const assets = [
   { symbol: "BTC", name: "Bitcoin" },
@@ -29,12 +31,8 @@ export default function SwapSelectPage() {
   const [isFetchingQuote, setIsFetchingQuote] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const filteredFrom = assets.filter(
-    (a) => a.name.toLowerCase().includes(searchFrom.toLowerCase()) || a.symbol.toLowerCase().includes(searchFrom.toLowerCase()),
-  );
-  const filteredTo = assets.filter(
-    (a) => a.name.toLowerCase().includes(searchTo.toLowerCase()) || a.symbol.toLowerCase().includes(searchTo.toLowerCase()),
-  );
+  const filteredFrom = assets.filter((a) => a.name.toLowerCase().includes(searchFrom.toLowerCase()) || a.symbol.toLowerCase().includes(searchFrom.toLowerCase()));
+  const filteredTo = assets.filter((a) => a.name.toLowerCase().includes(searchTo.toLowerCase()) || a.symbol.toLowerCase().includes(searchTo.toLowerCase()));
 
   const parsedAmount = amount ? parseFloat(amount) : 0;
   const parsedSlippage = slippageTolerance ? parseFloat(slippageTolerance) : 0;
@@ -67,12 +65,7 @@ export default function SwapSelectPage() {
       const response = await fetch("/api/swap/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          from: from.symbol,
-          to: to.symbol,
-          amount: parsedAmount,
-          slippageTolerance: parsedSlippage,
-        }),
+        body: JSON.stringify({ from: from.symbol, to: to.symbol, amount: parsedAmount, slippageTolerance: parsedSlippage }),
       });
 
       const data = await response.json();
@@ -105,48 +98,36 @@ export default function SwapSelectPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
+        <DashboardHeader userName="User" />
 
         <main className="page-card">
-          <div className="page-header" style={{ marginBottom: 16 }}>
-            <h2 style={{ margin: 0 }}>Swap</h2>
-            <div className="subtitle">Instantly exchange one asset for another</div>
-          </div>
+          <TransactionPageHeader title="Swap" subtitle="Instantly exchange one asset for another" />
 
           <div className="form-row">
             <label>From</label>
             <div className="asset-selector">
               <div className="asset-selector-input" onClick={() => setShowFromDropdown(!showFromDropdown)}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div
-                    className="asset-option-icon"
-                    style={{
-                      background:
-                        from.symbol === "BTC" ? "#f7931a" : from.symbol === "ETH" ? "#627eea" : from.symbol === "SOL" ? "#9945ff" : "#0f9d58",
-                    }}
-                  >
-                    {from.symbol}
-                  </div>
+                <div className={styles.assetSelectorContent}>
+                  <div className={`asset-option-icon ${getAssetColorClass(from.symbol)}`}>{from.symbol}</div>
                   <div>
                     <div className="asset-option-name">{from.name}</div>
                     <div className="asset-option-symbol">{from.symbol}</div>
                   </div>
                 </div>
-                <svg style={{ width: 20, height: 20, color: "var(--muted)" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg className={styles.chevronIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M6 9l6 6 6-6" />
                 </svg>
               </div>
 
               {showFromDropdown && (
                 <div className="asset-selector-dropdown">
-                  <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
+                  <div className={styles.dropdownSearchWrap}>
                     <input
                       type="text"
                       placeholder="Search..."
                       value={searchFrom}
                       onChange={(e) => setSearchFrom(e.target.value)}
-                      className="asset-selector-input"
-                      style={{ border: "none", padding: "8px 0", fontSize: 14 }}
+                      className={`${styles.dropdownSearchInput} asset-selector-input`}
                       autoFocus
                     />
                   </div>
@@ -160,14 +141,7 @@ export default function SwapSelectPage() {
                         setSearchFrom("");
                       }}
                     >
-                      <div
-                        className="asset-option-icon"
-                        style={{
-                          background: a.symbol === "BTC" ? "#f7931a" : a.symbol === "ETH" ? "#627eea" : a.symbol === "SOL" ? "#9945ff" : "#0f9d58",
-                        }}
-                      >
-                        {a.symbol}
-                      </div>
+                      <div className={`asset-option-icon ${getAssetColorClass(a.symbol)}`}>{a.symbol}</div>
                       <div className="asset-option-info">
                         <div className="asset-option-name">{a.name}</div>
                         <div className="asset-option-symbol">{a.symbol}</div>
@@ -183,35 +157,27 @@ export default function SwapSelectPage() {
             <label>To</label>
             <div className="asset-selector">
               <div className="asset-selector-input" onClick={() => setShowToDropdown(!showToDropdown)}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div
-                    className="asset-option-icon"
-                    style={{
-                      background: to.symbol === "BTC" ? "#f7931a" : to.symbol === "ETH" ? "#627eea" : to.symbol === "SOL" ? "#9945ff" : "#0f9d58",
-                    }}
-                  >
-                    {to.symbol}
-                  </div>
+                <div className={styles.assetSelectorContent}>
+                  <div className={`asset-option-icon ${getAssetColorClass(to.symbol)}`}>{to.symbol}</div>
                   <div>
                     <div className="asset-option-name">{to.name}</div>
                     <div className="asset-option-symbol">{to.symbol}</div>
                   </div>
                 </div>
-                <svg style={{ width: 20, height: 20, color: "var(--muted)" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg className={styles.chevronIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M6 9l6 6 6-6" />
                 </svg>
               </div>
 
               {showToDropdown && (
                 <div className="asset-selector-dropdown">
-                  <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
+                  <div className={styles.dropdownSearchWrap}>
                     <input
                       type="text"
                       placeholder="Search..."
                       value={searchTo}
                       onChange={(e) => setSearchTo(e.target.value)}
-                      className="asset-selector-input"
-                      style={{ border: "none", padding: "8px 0", fontSize: 14 }}
+                      className={`${styles.dropdownSearchInput} asset-selector-input`}
                       autoFocus
                     />
                   </div>
@@ -225,14 +191,7 @@ export default function SwapSelectPage() {
                         setSearchTo("");
                       }}
                     >
-                      <div
-                        className="asset-option-icon"
-                        style={{
-                          background: a.symbol === "BTC" ? "#f7931a" : a.symbol === "ETH" ? "#627eea" : a.symbol === "SOL" ? "#9945ff" : "#0f9d58",
-                        }}
-                      >
-                        {a.symbol}
-                      </div>
+                      <div className={`asset-option-icon ${getAssetColorClass(a.symbol)}`}>{a.symbol}</div>
                       <div className="asset-option-info">
                         <div className="asset-option-name">{a.name}</div>
                         <div className="asset-option-symbol">{a.symbol}</div>
@@ -246,52 +205,30 @@ export default function SwapSelectPage() {
 
           <div className="form-row">
             <label>Amount ({from.symbol})</label>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder={`e.g. 0.10`}
-              className="order-input"
-              style={{ textAlign: "left", fontSize: 16 }}
-            />
-            {from.symbol === to.symbol && (
-              <div className="input-hint" style={{ color: "#d64545", marginTop: 6 }}>
-                Select two different assets to swap
-              </div>
-            )}
+            <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="e.g. 0.10" className={`order-input ${styles.orderInput}`} />
+            {from.symbol === to.symbol && <div className={`input-hint ${styles.errorText}`}>Select two different assets to swap</div>}
           </div>
 
           <div className="form-row">
             <label>Slippage tolerance (%)</label>
-            <input
-              type="number"
-              min={0.1}
-              max={5}
-              step={0.1}
-              value={slippageTolerance}
-              onChange={(e) => setSlippageTolerance(e.target.value)}
-              className="order-input"
-              style={{ textAlign: "left", fontSize: 16 }}
-            />
-            {!slippageInRange && (
-              <div className="input-hint" style={{ color: "#d64545", marginTop: 6 }}>
-                Enter a value between 0.10% and 5.00%
-              </div>
-            )}
+            <input type="number" min={0.1} max={5} step={0.1} value={slippageTolerance} onChange={(e) => setSlippageTolerance(e.target.value)} className={`order-input ${styles.orderInput}`} />
+            {!slippageInRange && <div className={`input-hint ${styles.errorText}`}>Enter a value between 0.10% and 5.00%</div>}
           </div>
 
-          {error && (
-            <div style={{ color: "#d64545", marginTop: 8, fontSize: 14 }}>{error}</div>
-          )}
+          {error && <div className={styles.errorTextTight}>{error}</div>}
 
-          <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
-            <button className="btn" onClick={() => router.push("/dashboard")} style={{ flex: 1, padding: 14, border: "1px solid var(--border)" }}>
-              Cancel
-            </button>
-            <button className="btn-primary" onClick={next} disabled={!isValid || isFetchingQuote} style={{ flex: 2, padding: 14 }}>
-              {isFetchingQuote ? "Fetching quote..." : "Continue to Confirmation"}
-            </button>
-          </div>
+          <TransactionActionFooter
+            secondary={
+              <button className={`btn ${styles.actionSecondary}`} onClick={() => router.push("/dashboard")}>
+                Cancel
+              </button>
+            }
+            primary={
+              <button className={`btn-primary ${styles.actionPrimary}`} onClick={next} disabled={!isValid || isFetchingQuote}>
+                {isFetchingQuote ? "Fetching quote..." : "Continue to Confirmation"}
+              </button>
+            }
+          />
         </main>
       </div>
     </div>

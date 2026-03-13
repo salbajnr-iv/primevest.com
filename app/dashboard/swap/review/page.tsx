@@ -3,6 +3,8 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import DashboardHeader from "@/components/DashboardHeader";
+import { TransactionActionFooter, TransactionPageHeader } from "@/components/ui/transactional-page";
+import styles from "@/components/ui/transactional-pages.module.css";
 
 type QuoteErrorCode = "quote_expired" | "insufficient_liquidity" | "amount_bounds" | "invalid_quote" | "invalid_pair" | "slippage_out_of_range";
 
@@ -127,9 +129,7 @@ export default function SwapReviewPage() {
         return;
       }
 
-      router.push(
-        `/dashboard/swap/success?from=${review.from}&to=${review.to}&amount=${review.amount}&received=${data.settledAmount}&id=${data.executionId}`,
-      );
+      router.push(`/dashboard/swap/success?from=${review.from}&to=${review.to}&amount=${review.amount}&received=${data.settledAmount}&id=${data.executionId}`);
     } catch {
       setError("Failed to submit swap. Please try again.");
     } finally {
@@ -142,14 +142,13 @@ export default function SwapReviewPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader userName={"User"} />
+        <DashboardHeader userName="User" />
 
         <main className="page-card">
-          <h2>Confirm swap</h2>
-          <p style={{ color: "var(--muted)", marginTop: 6 }}>Please review quote and execution limits before submitting.</p>
+          <TransactionPageHeader title="Confirm swap" subtitle="Please review quote and execution limits before submitting." />
 
           {review && (
-            <div style={{ marginTop: 14, display: "grid", gap: 8 }}>
+            <div className={styles.reviewList}>
               <p><strong>From:</strong> {review.amount} {review.from}</p>
               <p><strong>To (estimated):</strong> {review.expectedReceive} {review.to}</p>
               <p><strong>Rate:</strong> 1 {review.from} = {review.rate} {review.to}</p>
@@ -162,16 +161,13 @@ export default function SwapReviewPage() {
             </div>
           )}
 
-          {error && <div style={{ color: "#d64545", marginTop: 12 }}>{error}</div>}
+          {error && <div className={styles.errorTextTight}>{error}</div>}
 
-          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-            <button className="btn" onClick={() => router.back()}>
-              Back
-            </button>
-            <button className="btn btn-primary" onClick={confirm} disabled={!review || isSubmitting || isExpired}>
-              {isSubmitting ? "Submitting..." : "Submit Swap"}
-            </button>
-          </div>
+          <TransactionActionFooter
+            compact
+            secondary={<button className="btn" onClick={() => router.back()}>Back</button>}
+            primary={<button className="btn btn-primary" onClick={confirm} disabled={!review || isSubmitting || isExpired}>{isSubmitting ? "Submitting..." : "Submit Swap"}</button>}
+          />
         </main>
       </div>
     </div>
