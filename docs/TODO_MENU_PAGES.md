@@ -2,7 +2,7 @@
 
 ## Overview
 
-Based on the BitpandaNavbar component, the following pages need to be created to complete the menu flow:
+Based on the legacy navigation component, the following pages need to be created to complete the menu flow:
 
 ## Missing Pages List
 
