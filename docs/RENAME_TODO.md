@@ -31,6 +31,6 @@
 - [x] `app/indices/page.tsx`
 
 ## Phase 5 - Components
-- [ ] `components/BitpandaNavbar.tsx` - Retire/rename legacy component naming
+- [x] `components/BitpandaNavbar.tsx` - Retired legacy component naming (component removed)
 
 ## COMPLETED:

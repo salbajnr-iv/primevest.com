@@ -543,7 +543,7 @@ style={{ backgroundImage: "url(/herosection.jpg)", backgroundSize: "cover", back
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">PrimeVest Vision</p>
               <h2 className="text-heading font-bold text-gray-900">Future-proof investing for modern cities and global markets</h2>
               <p className="text-body text-gray-600 max-w-3xl">
-                Inspired by the Primevest Capital Partners entry page, we added a clearer institutional-style introduction to highlight
+                Inspired by the PrimeVest Capital Partners entry page, we added a clearer institutional-style introduction to highlight
                 long-term urban themes alongside your trading and investment platform experience.
               </p>
             </div>

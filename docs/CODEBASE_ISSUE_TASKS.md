@@ -1,17 +1,17 @@
 # Codebase Issue Tasks
 
 ## 1) Typo fix task
-**Issue found:** Brand capitalization is inconsistent in a user-facing sentence (`Primevest` vs `PrimeVest`).
+**Issue found:** Brand capitalization is inconsistent in a user-facing sentence (`PrimeVest` casing was inconsistent).
 - Location: `app/page.tsx`
-- Current text snippet: `Inspired by the Primevest Capital Partners entry page...`
+- Current text snippet: `Inspired by the PrimeVest Capital Partners entry page...`
 
 **Proposed task:**
-- Update `Primevest` to `PrimeVest` in the homepage “PrimeVest Vision” section.
+- Updated `PrimeVest` casing in the homepage “PrimeVest Vision” section.
 - Run a quick copy consistency pass for brand mentions in the same file to ensure capitalization remains consistent.
 
 **Acceptance criteria:**
-- The sentence renders with correct brand capitalization (`PrimeVest`).
-- No lint or TypeScript regressions are introduced.
+- [x] The sentence renders with correct brand capitalization (`PrimeVest`).
+- [x] No lint or TypeScript regressions are introduced.
 
 ---
 

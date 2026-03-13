@@ -64,13 +64,13 @@
   - Resize transitions are smooth on dashboard shell/sidebar/bottom-nav.
   - Any regressions discovered are fixed or tracked with owners.
 
-### 7) Rename cleanup: retire legacy Bitpanda-specific component naming
+### 7) Rename cleanup: retire legacy Bitpanda-specific component naming ✅ Completed
 - **Owner:** Frontend
 - **Dependency:** code
 - **Acceptance criteria:**
-  - `components/BitpandaNavbar.tsx` is removed or renamed to a PrimeVest-neutral name.
-  - No user-facing text contains legacy Bitpanda branding across scoped pages/components.
-  - Build passes with updated imports/usage.
+  - [x] `components/BitpandaNavbar.tsx` has been removed (legacy naming retired).
+  - [x] No user-facing text contains legacy Bitpanda branding across scoped pages/components.
+  - [x] Build passes with updated imports/usage.
 
 ### 8) Final product polish checks (navigation and performance)
 - **Owner:** Frontend + QA
