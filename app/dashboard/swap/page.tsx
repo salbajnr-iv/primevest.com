@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import DashboardHeader from "@/components/DashboardHeader";
+import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 import { useRouter } from "next/navigation";
 import { getAssetColorClass, TransactionActionFooter, TransactionPageHeader } from "@/components/ui/transactional-page";
 import styles from "@/components/ui/transactional-pages.module.css";
