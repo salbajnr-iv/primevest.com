@@ -97,7 +97,7 @@ export default function OrdersPage() {
       ) : error ? (
         <ErrorState title="Unable to load orders" message={error} onRetry={() => void loadOrders()} />
       ) : filtered.length === 0 ? (
-        <EmptyState title="No orders found" message="Try changing filters or place a new order." />
+        <EmptyState title="No orders yet" message="No orders yet. Place your first order to get started." />
       ) : (
         <DataTable
           title="Order History"

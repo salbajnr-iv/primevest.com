@@ -153,8 +153,8 @@ export default function WatchlistsPage() {
           <div className="market-list-body">
             {getWatchlistData(watchlists[activeWatchlist] || []).length === 0 ? (
               <div className="empty-watchlist" role="note">
-                <p>{t("markets.favorites")}: 0</p>
-                <p>Click the + button to add assets</p>
+                <p>No watchlist items yet</p>
+                <p>Your watchlist is empty. Add assets with the + button.</p>
               </div>
             ) : (
               getWatchlistData(watchlists[activeWatchlist] || []).map((asset) => (

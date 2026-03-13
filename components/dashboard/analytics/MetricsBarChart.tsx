@@ -4,9 +4,17 @@ import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { MetricsBarChartInput } from "@/lib/dashboard/types";
+import { EmptyState, ErrorState, Skeleton } from "@/components/ui/LoadingStates";
 import { dashboardTokens } from "./types";
 
-export default function MetricsBarChart({ title, data, emptyStateLabel = "No metrics available yet." }: MetricsBarChartInput) {
+export default function MetricsBarChart({
+  title,
+  data,
+  emptyStateLabel = "No orders yet. Your filled orders will appear here.",
+  state,
+  errorMessage,
+  onRetry,
+}: MetricsBarChartInput) {
   const [active, setActive] = useState<{ label: string; value: number } | null>(null);
 
   const normalizedData = useMemo(
@@ -17,14 +25,25 @@ export default function MetricsBarChart({ title, data, emptyStateLabel = "No met
     [data]
   );
 
+  const resolvedState = state ?? (normalizedData.length === 0 ? "empty" : "ready");
+
   return (
     <section className="rounded-2xl p-4" style={{ border: `1px solid ${dashboardTokens.border}`, background: dashboardTokens.panel }}>
       <div className="mb-3 text-sm font-semibold">{title}</div>
       <div className="h-64">
-        {normalizedData.length === 0 ? (
-          <div className="h-full w-full flex items-center justify-center text-sm" style={{ color: dashboardTokens.textMuted }}>
-            {emptyStateLabel}
+        {resolvedState === "loading" ? (
+          <div className="space-y-3 pt-6">
+            <Skeleton width="35%" height={14} />
+            <div className="flex h-48 items-end gap-2">
+              {Array.from({ length: 8 }).map((_, idx) => (
+                <Skeleton key={idx} variant="rounded" className="flex-1" height={`${40 + ((idx % 4) + 1) * 18}px`} />
+              ))}
+            </div>
           </div>
+        ) : resolvedState === "error" ? (
+          <ErrorState title="Unable to load chart" message={errorMessage || "This chart is temporarily unavailable."} onRetry={onRetry} retryText="Try again" />
+        ) : resolvedState === "empty" ? (
+          <EmptyState title="No orders yet" message={emptyStateLabel} />
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={normalizedData}>
@@ -49,7 +68,7 @@ export default function MetricsBarChart({ title, data, emptyStateLabel = "No met
           </ResponsiveContainer>
         )}
       </div>
-      {active ? (
+      {resolvedState === "ready" && active ? (
         <p className="mt-2 text-xs" style={{ color: dashboardTokens.textMuted }}>
           {active.label}: {active.value}
         </p>

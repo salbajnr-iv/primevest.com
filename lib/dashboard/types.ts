@@ -5,6 +5,7 @@ export type OrderStatus = "completed" | "pending" | "cancelled";
 
 export type PerformanceRange = "7D" | "1M" | "3M";
 export type DashboardRefreshCadence = "realtime" | "interval" | "on-load";
+export type DashboardWidgetState = "loading" | "ready" | "empty" | "error";
 
 export interface PortfolioSummary {
   userName: string;
@@ -109,6 +110,10 @@ export interface KpiGaugeInput {
   target?: number;
   valueLabel: string;
   deltaLabel?: string;
+  state?: DashboardWidgetState;
+  emptyStateLabel?: string;
+  errorMessage?: string;
+  onRetry?: () => void;
 }
 
 export interface AnalyticsChartPoint {
@@ -120,12 +125,18 @@ export interface MetricsBarChartInput {
   title: string;
   data: AnalyticsChartPoint[];
   emptyStateLabel?: string;
+  state?: DashboardWidgetState;
+  errorMessage?: string;
+  onRetry?: () => void;
 }
 
 export interface PerformanceLineChartInput {
   title: string;
   data: AnalyticsChartPoint[];
   emptyStateLabel?: string;
+  state?: DashboardWidgetState;
+  errorMessage?: string;
+  onRetry?: () => void;
 }
 
 export interface DataTableColumnInput<T extends object> {
@@ -139,6 +150,9 @@ export interface DataTableInput<T extends object> {
   columns: DataTableColumnInput<T>[];
   rows: T[];
   emptyStateLabel?: string;
+  state?: DashboardWidgetState;
+  errorMessage?: string;
+  onRetry?: () => void;
 }
 
 export interface DashboardWidgetContract {

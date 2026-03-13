@@ -9,7 +9,8 @@ import MetricsBarChart from "@/components/dashboard/analytics/MetricsBarChart";
 import PerformanceLineChart from "@/components/dashboard/analytics/PerformanceLineChart";
 import DataTable from "@/components/dashboard/analytics/DataTable";
 import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
-import type { DashboardData, DashboardWidgetContract, KpiGaugeInput } from "@/lib/dashboard/types";
+import { EmptyState } from "@/components/ui/LoadingStates";
+import type { DashboardData, DashboardWidgetContract, DashboardWidgetState, KpiGaugeInput } from "@/lib/dashboard/types";
 import { createClient as createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 export default function DashboardClient({ initialData }: { initialData: DashboardData }) {
@@ -18,18 +19,54 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
   const [liveActivityFeed, setLiveActivityFeed] = React.useState(initialData.activityFeed);
   const { isReady, breakpoint, width, height } = useWindowSize();
 
+  const [kpiState, setKpiState] = React.useState<DashboardWidgetState>("ready");
+  const [metricsState, setMetricsState] = React.useState<DashboardWidgetState>("ready");
+  const [performanceState, setPerformanceState] = React.useState<DashboardWidgetState>("ready");
+  const [tableState, setTableState] = React.useState<DashboardWidgetState>("ready");
+
+  React.useEffect(() => {
+    setKpiState(initialData.kpis.length ? "ready" : "empty");
+    setMetricsState(initialData.volumeData.length ? "ready" : "empty");
+    setPerformanceState(initialData.performanceSeries[activePerfRange].length ? "ready" : "empty");
+    setTableState(initialData.topPairs.length ? "ready" : "empty");
+  }, [activePerfRange, initialData]);
 
   const widgetContract: DashboardWidgetContract = React.useMemo(() => ({
-    kpiGauges: initialData.kpis as KpiGaugeInput[],
+    kpiGauges: (initialData.kpis as KpiGaugeInput[]).map((kpi) => ({
+      ...kpi,
+      state: kpiState,
+      emptyStateLabel: "No orders yet. Place your first order to unlock KPI tracking.",
+      onRetry: () => setKpiState("loading"),
+    })),
     metricsBarChart: {
       title: "Daily Filled Orders",
       data: initialData.volumeData,
-      emptyStateLabel: "No filled orders in this period.",
+      emptyStateLabel: "No orders yet. Your filled orders will show up here.",
+      state: metricsState,
+      onRetry: () => setMetricsState("loading"),
     },
     performanceLineChartByRange: {
-      "7D": { title: "Portfolio Performance (7D)", data: initialData.performanceSeries["7D"], emptyStateLabel: "No performance points for 7D." },
-      "1M": { title: "Portfolio Performance (1M)", data: initialData.performanceSeries["1M"], emptyStateLabel: "No performance points for 1M." },
-      "3M": { title: "Portfolio Performance (3M)", data: initialData.performanceSeries["3M"], emptyStateLabel: "No performance points for 3M." },
+      "7D": {
+        title: "Portfolio Performance (7D)",
+        data: initialData.performanceSeries["7D"],
+        emptyStateLabel: "No activity yet. Performance history will appear after your first transactions.",
+        state: performanceState,
+        onRetry: () => setPerformanceState("loading"),
+      },
+      "1M": {
+        title: "Portfolio Performance (1M)",
+        data: initialData.performanceSeries["1M"],
+        emptyStateLabel: "No activity yet. Performance history will appear after your first transactions.",
+        state: performanceState,
+        onRetry: () => setPerformanceState("loading"),
+      },
+      "3M": {
+        title: "Portfolio Performance (3M)",
+        data: initialData.performanceSeries["3M"],
+        emptyStateLabel: "No activity yet. Performance history will appear after your first transactions.",
+        state: performanceState,
+        onRetry: () => setPerformanceState("loading"),
+      },
     },
     topMarketsTable: {
       title: "Top Markets",
@@ -40,14 +77,16 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
         { key: "pnl", label: "PnL" },
       ],
       rows: initialData.topPairs,
-      emptyStateLabel: "No market rows available.",
+      emptyStateLabel: "Your watchlist is empty. Add assets to get market insights.",
+      state: tableState,
+      onRetry: () => setTableState("loading"),
     },
     loadingState: {
-      isLoading: false,
+      isLoading: [kpiState, metricsState, performanceState, tableState].includes("loading"),
       isRefreshing: false,
       lastUpdatedAt: new Date().toISOString(),
     },
-  }), [initialData]);
+  }), [initialData, kpiState, metricsState, performanceState, tableState]);
 
   React.useEffect(() => {
     const supabase = createBrowserSupabaseClient();
@@ -77,6 +116,34 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       supabase.removeChannel(channel);
     };
   }, []);
+
+  React.useEffect(() => {
+    if (kpiState === "loading") {
+      const t = window.setTimeout(() => setKpiState(initialData.kpis.length ? "ready" : "empty"), 600);
+      return () => window.clearTimeout(t);
+    }
+  }, [initialData.kpis.length, kpiState]);
+
+  React.useEffect(() => {
+    if (metricsState === "loading") {
+      const t = window.setTimeout(() => setMetricsState(initialData.volumeData.length ? "ready" : "empty"), 600);
+      return () => window.clearTimeout(t);
+    }
+  }, [initialData.volumeData.length, metricsState]);
+
+  React.useEffect(() => {
+    if (performanceState === "loading") {
+      const t = window.setTimeout(() => setPerformanceState(initialData.performanceSeries[activePerfRange].length ? "ready" : "empty"), 600);
+      return () => window.clearTimeout(t);
+    }
+  }, [activePerfRange, initialData.performanceSeries, performanceState]);
+
+  React.useEffect(() => {
+    if (tableState === "loading") {
+      const t = window.setTimeout(() => setTableState(initialData.topPairs.length ? "ready" : "empty"), 600);
+      return () => window.clearTimeout(t);
+    }
+  }, [initialData.topPairs.length, tableState]);
 
   return (
     <DashboardShell
@@ -152,23 +219,27 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
           </div>
           <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-700 mb-3 flex items-center gap-2 overflow-x-auto whitespace-nowrap">
             <MessageCircle size={14} className="text-emerald-600" />
-            <span>{initialData.marketNews.length ? initialData.marketNews.map((item) => item.text).join(" • ") : "No market news available."}</span>
+            <span>{initialData.marketNews.length ? initialData.marketNews.map((item) => item.text).join(" • ") : "Your watchlist is empty. Add assets to receive tailored news."}</span>
           </div>
-<DataTable {...widgetContract.topMarketsTable} />
+          <DataTable {...widgetContract.topMarketsTable} />
         </article>
 
         <article className="rounded-2xl border border-slate-200 bg-white p-4">
           <h3 className="font-semibold text-slate-900 mb-3">User Activity Feed</h3>
-          <ul className="space-y-3">
-            {liveActivityFeed.map((activity) => (
-              <li key={activity.id} className="rounded-xl border border-slate-100 p-3 hover:bg-slate-50">
-                <p className="text-sm font-medium text-slate-900">{activity.action}</p>
-                <p className="text-xs text-slate-600">{activity.detail}</p>
-                <button className="mt-2 text-xs text-emerald-700 inline-flex items-center gap-1">Details <ArrowRight size={12} /></button>
-                <p className="text-[11px] text-slate-400 mt-1">{activity.time}</p>
-              </li>
-            ))}
-          </ul>
+          {liveActivityFeed.length === 0 ? (
+            <EmptyState title="No activity yet" message="No activity yet. Place your first order to start your activity feed." />
+          ) : (
+            <ul className="space-y-3">
+              {liveActivityFeed.map((activity) => (
+                <li key={activity.id} className="rounded-xl border border-slate-100 p-3 hover:bg-slate-50">
+                  <p className="text-sm font-medium text-slate-900">{activity.action}</p>
+                  <p className="text-xs text-slate-600">{activity.detail}</p>
+                  <button className="mt-2 text-xs text-emerald-700 inline-flex items-center gap-1">Details <ArrowRight size={12} /></button>
+                  <p className="text-[11px] text-slate-400 mt-1">{activity.time}</p>
+                </li>
+              ))}
+            </ul>
+          )}
         </article>
       </section>
 
