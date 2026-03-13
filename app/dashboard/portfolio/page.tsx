@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
 import AllocationPieChart from "@/components/dashboard/analytics/AllocationPieChart";
 import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 import DataTable from "@/components/dashboard/analytics/DataTable";
@@ -23,11 +25,22 @@ const performance = [
 ];
 
 const holdings = [
-  { asset: "Bitcoin", allocation: "40%", price: "€62,210", value: "€124,420", pnl: "+12.5%" },
-  { asset: "Ethereum", allocation: "28%", price: "€3,010", value: "€87,870", pnl: "+8.2%" },
-  { asset: "Solana", allocation: "14%", price: "€146", value: "€43,120", pnl: "+16.4%" },
-  { asset: "USDC", allocation: "18%", price: "€1.00", value: "€56,300", pnl: "+0.1%" },
+  { asset: "Bitcoin", symbol: "BTC", allocation: "40%", price: "€62,210", value: "€124,420", pnl: "+12.5%" },
+  { asset: "Ethereum", symbol: "ETH", allocation: "28%", price: "€3,010", value: "€87,870", pnl: "+8.2%" },
+  { asset: "Solana", symbol: "SOL", allocation: "14%", price: "€146", value: "€43,120", pnl: "+16.4%" },
+  { asset: "USDC", symbol: "USDC", allocation: "18%", price: "€1.00", value: "€56,300", pnl: "+0.1%" },
 ];
+
+type HoldingsSort = "allocation" | "value" | "pnl";
+type SortDirection = "asc" | "desc";
+
+function parsePercent(value: string): number {
+  return Number.parseFloat(value.replace("%", ""));
+}
+
+function parseEuro(value: string): number {
+  return Number.parseFloat(value.replace("€", "").replaceAll(",", ""));
+}
 
 const riskInsights = [
   { metric: "Portfolio Volatility", value: "14.3%", status: "Moderate" },
@@ -65,6 +78,50 @@ const watchlistSignals = [
 ];
 
 export default function PortfolioPage() {
+  const [holdingsSearch, setHoldingsSearch] = useState("");
+  const [holdingsSort, setHoldingsSort] = useState<HoldingsSort>("allocation");
+  const [holdingsDirection, setHoldingsDirection] = useState<SortDirection>("desc");
+
+  const filteredAndSortedHoldings = useMemo(() => {
+    const query = holdingsSearch.trim().toLowerCase();
+    const filtered = holdings.filter((holding) => {
+      if (!query) return true;
+      return holding.asset.toLowerCase().includes(query) || holding.symbol.toLowerCase().includes(query);
+    });
+
+    const sorted = [...filtered].sort((a, b) => {
+      let left = 0;
+      let right = 0;
+
+      if (holdingsSort === "allocation") {
+        left = parsePercent(a.allocation);
+        right = parsePercent(b.allocation);
+      }
+
+      if (holdingsSort === "value") {
+        left = parseEuro(a.value);
+        right = parseEuro(b.value);
+      }
+
+      if (holdingsSort === "pnl") {
+        left = parsePercent(a.pnl);
+        right = parsePercent(b.pnl);
+      }
+
+      return holdingsDirection === "asc" ? left - right : right - left;
+    });
+
+    return sorted;
+  }, [holdingsSearch, holdingsSort, holdingsDirection]);
+
+  const hasActiveHoldingControls = holdingsSearch.trim().length > 0 || holdingsSort !== "allocation" || holdingsDirection !== "desc";
+
+  const resetHoldingsControls = () => {
+    setHoldingsSearch("");
+    setHoldingsSort("allocation");
+    setHoldingsDirection("desc");
+  };
+
   return (
     <DashboardShell title="Portfolio Analytics" subtitle="Allocation, performance trend, holdings, risk, and activity overview">
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -143,17 +200,88 @@ export default function PortfolioPage() {
         />
       </section>
 
-      <DataTable
-        title="Holdings"
-        columns={[
-          { key: "asset", label: "Asset" },
-          { key: "allocation", label: "Allocation" },
-          { key: "price", label: "Price" },
-          { key: "value", label: "Market Value" },
-          { key: "pnl", label: "Return" },
-        ]}
-        rows={holdings}
-      />
+      <section className="rounded-2xl border p-4" style={{ borderColor: dashboardTokens.border, background: dashboardTokens.panel }}>
+        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h3 className="text-sm font-semibold">Holdings</h3>
+            <p className="text-xs" style={{ color: dashboardTokens.textMuted }}>
+              Filter by symbol/name and sort by allocation, value, or return.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="rounded-full border px-2 py-1" style={{ borderColor: dashboardTokens.border, color: dashboardTokens.textMuted }}>
+              Sort: {holdingsSort} ({holdingsDirection})
+            </span>
+            <span className="rounded-full border px-2 py-1" style={{ borderColor: dashboardTokens.border, color: dashboardTokens.textMuted }}>
+              Filter: {holdingsSearch.trim() || "none"}
+            </span>
+            <button
+              type="button"
+              onClick={resetHoldingsControls}
+              disabled={!hasActiveHoldingControls}
+              className="rounded-lg border px-3 py-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+              style={{ borderColor: dashboardTokens.border }}
+            >
+              Reset controls
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-3 grid gap-2 sm:grid-cols-3">
+          <label className="text-xs" style={{ color: dashboardTokens.textMuted }}>
+            Search asset or symbol
+            <input
+              value={holdingsSearch}
+              onChange={(event) => setHoldingsSearch(event.target.value)}
+              placeholder="e.g. BTC or Ethereum"
+              className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
+              style={{ borderColor: dashboardTokens.border }}
+            />
+          </label>
+
+          <label className="text-xs" style={{ color: dashboardTokens.textMuted }}>
+            Sort by
+            <select
+              value={holdingsSort}
+              onChange={(event) => setHoldingsSort(event.target.value as HoldingsSort)}
+              className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
+              style={{ borderColor: dashboardTokens.border }}
+            >
+              <option value="allocation">Allocation</option>
+              <option value="value">Market value</option>
+              <option value="pnl">PnL</option>
+            </select>
+          </label>
+
+          <label className="text-xs" style={{ color: dashboardTokens.textMuted }}>
+            Direction
+            <select
+              value={holdingsDirection}
+              onChange={(event) => setHoldingsDirection(event.target.value as SortDirection)}
+              className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
+              style={{ borderColor: dashboardTokens.border }}
+            >
+              <option value="desc">High to low</option>
+              <option value="asc">Low to high</option>
+            </select>
+          </label>
+        </div>
+
+        <DataTable
+          title="Holdings breakdown"
+          columns={[
+            { key: "asset", label: "Asset" },
+            { key: "symbol", label: "Symbol" },
+            { key: "allocation", label: "Allocation" },
+            { key: "price", label: "Price" },
+            { key: "value", label: "Market Value" },
+            { key: "pnl", label: "Return" },
+          ]}
+          rows={filteredAndSortedHoldings}
+          emptyStateLabel="No holdings match your active filter."
+        />
+      </section>
     </DashboardShell>
   );
 }
