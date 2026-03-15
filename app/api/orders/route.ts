@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     // Check and verify order amount doesn't exceed user balance
     const { data: profileData, error: profileErr } = await supabase
       .from('profiles')
-      .select('balance')
+      .select('account_balance')
       .eq('id', userId)
       .maybeSingle()
 
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     }
 
     const totalAmount = parseFloat(String(total))
-    const balanceAmount = parseFloat(String(profileData.balance))
+    const balanceAmount = parseFloat(String(profileData.account_balance ?? 0))
 
     if (side === 'buy' && totalAmount > balanceAmount) {
       return NextResponse.json(

@@ -15,7 +15,7 @@ interface UserProfileDetail {
   id: string
   email: string
   full_name: string | null
-  balance: number | null
+  account_balance: number | null
   is_active: boolean
   created_at: string | null
 }
@@ -240,7 +240,7 @@ export default function AdminUserDetailPage() {
               <div className="mt-3 text-sm text-gray-300">
                 <p><strong>Email:</strong> {user.email}</p>
                 <p><strong>Full name:</strong> {user.full_name || '—'}</p>
-                <p><strong>Balance:</strong> {user.balance ?? '0'} EUR</p>
+                <p><strong>Balance:</strong> {user.account_balance ?? '0'} EUR</p>
                 <p><strong>Status:</strong> {user.is_active ? 'Active' : 'Inactive'}</p>
                 <p><strong>Member since:</strong> {user.created_at ? new Date(user.created_at).toLocaleString() : '—'}</p>
               </div>
