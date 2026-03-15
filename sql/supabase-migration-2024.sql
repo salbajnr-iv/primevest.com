@@ -99,6 +99,7 @@ END $$;
 -- Drop existing functions if they exist (for clean recreation)
 DROP FUNCTION IF EXISTS public.adjust_balance(UUID, TEXT, DECIMAL, TEXT);
 DROP FUNCTION IF EXISTS public.toggle_user_status(UUID, BOOLEAN);
+DROP FUNCTION IF EXISTS public.set_admin_role(UUID);
 DROP FUNCTION IF EXISTS public.get_user_stats();
 DROP FUNCTION IF EXISTS public.search_users(TEXT, TEXT, BOOLEAN, INTEGER, INTEGER);
 DROP FUNCTION IF EXISTS public.get_admin_settings();
@@ -187,6 +188,73 @@ BEGIN
     INSERT INTO admin_actions (admin_id, action_type, target_user_id, target_table, new_value)
     VALUES (v_admin_id, 'user_status_change', p_user_id, 'profiles', 
             jsonb_build_object('is_active', p_is_active));
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- set_admin_role function
+-- Behavior: toggles profiles.is_admin for a target user and keeps admin_users in sync.
+CREATE OR REPLACE FUNCTION public.set_admin_role(
+    p_user_id UUID
+) RETURNS VOID AS $$
+DECLARE
+    v_admin_id UUID;
+    v_previous_is_admin BOOLEAN;
+    v_new_is_admin BOOLEAN;
+    v_user_email TEXT;
+    v_user_full_name TEXT;
+BEGIN
+    v_admin_id := auth.uid();
+
+    -- Allow only admins to promote/demote roles
+    IF NOT EXISTS (SELECT 1 FROM profiles WHERE id = v_admin_id AND is_admin = true) THEN
+        RAISE EXCEPTION 'Only admins can set admin role';
+    END IF;
+
+    -- Ensure target user exists and lock row for consistent toggle behavior
+    SELECT is_admin, email, full_name
+    INTO v_previous_is_admin, v_user_email, v_user_full_name
+    FROM profiles
+    WHERE id = p_user_id
+    FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'User not found';
+    END IF;
+
+    -- Prevent self-demotion to avoid accidental admin lockout
+    IF v_admin_id = p_user_id AND v_previous_is_admin = true THEN
+        RAISE EXCEPTION 'Admins cannot remove their own admin role';
+    END IF;
+
+    v_new_is_admin := NOT COALESCE(v_previous_is_admin, false);
+
+    UPDATE profiles
+    SET is_admin = v_new_is_admin,
+        updated_at = NOW()
+    WHERE id = p_user_id;
+
+    -- Keep admin_users table consistent with profiles.is_admin
+    IF v_new_is_admin THEN
+        INSERT INTO admin_users (id, email, full_name)
+        VALUES (p_user_id, v_user_email, v_user_full_name)
+        ON CONFLICT (id) DO UPDATE SET
+            email = EXCLUDED.email,
+            full_name = EXCLUDED.full_name,
+            updated_at = NOW();
+    ELSE
+        DELETE FROM admin_users WHERE id = p_user_id;
+    END IF;
+
+    -- Audit log
+    INSERT INTO admin_actions (admin_id, action_type, target_user_id, target_table, old_value, new_value)
+    VALUES (
+        v_admin_id,
+        CASE WHEN v_new_is_admin THEN 'admin_role_granted' ELSE 'admin_role_revoked' END,
+        p_user_id,
+        'profiles',
+        jsonb_build_object('is_admin', v_previous_is_admin),
+        jsonb_build_object('is_admin', v_new_is_admin)
+    );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -513,4 +581,3 @@ ORDER BY proname;
 -- 1. Verify function exists: SELECT proname FROM pg_proc WHERE proname = 'adjust_balance';
 -- 2. Check you're an admin: SELECT is_admin FROM profiles WHERE id = auth.uid();
 -- 3. Try manually: SELECT public.adjust_balance('user-uuid', 'add', 100, 'test');
-
