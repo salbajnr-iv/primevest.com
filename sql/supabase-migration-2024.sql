@@ -132,7 +132,7 @@ BEGIN
     END IF;
     
     -- Get current balance
-    SELECT balance INTO v_previous_balance FROM profiles WHERE id = p_user_id;
+    SELECT account_balance INTO v_previous_balance FROM profiles WHERE id = p_user_id;
     
     -- Calculate new balance based on action type
     IF p_action_type = 'add' THEN
@@ -151,7 +151,7 @@ BEGIN
     END IF;
     
     -- Update the balance
-    UPDATE profiles SET balance = v_new_balance, updated_at = NOW() WHERE id = p_user_id;
+    UPDATE profiles SET account_balance = v_new_balance, updated_at = NOW() WHERE id = p_user_id;
     
     -- Record the balance change
     INSERT INTO balance_history (user_id, admin_id, action_type, amount, previous_balance, new_balance, reason)
@@ -205,8 +205,8 @@ BEGIN
         COUNT(*)::BIGINT as total_users,
         COUNT(*) FILTER (WHERE is_active = true)::BIGINT as active_users,
         COUNT(*) FILTER (WHERE is_active = false)::BIGINT as inactive_users,
-        COALESCE(SUM(balance), 0)::DECIMAL(20, 8) as total_balance,
-        COALESCE(AVG(balance), 0)::DECIMAL(20, 8) as avg_balance
+        COALESCE(SUM(account_balance), 0)::DECIMAL(20, 8) as total_balance,
+        COALESCE(AVG(account_balance), 0)::DECIMAL(20, 8) as avg_balance
     FROM profiles;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -234,7 +234,7 @@ BEGIN
         p.id,
         p.email,
         p.full_name,
-        p.balance,
+        p.account_balance AS balance,
         p.is_active,
         p.is_admin,
         p.created_at,
@@ -350,7 +350,7 @@ BEGIN
     END IF;
     
     -- Update all balances to zero
-    UPDATE profiles SET balance = 0, updated_at = NOW();
+    UPDATE profiles SET account_balance = 0, updated_at = NOW();
     
     -- Log admin action
     INSERT INTO admin_actions (admin_id, action_type, target_table, new_value)
