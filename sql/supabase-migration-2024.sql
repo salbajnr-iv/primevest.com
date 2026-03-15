@@ -166,8 +166,8 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- toggle_user_status function
 CREATE OR REPLACE FUNCTION public.toggle_user_status(
-    user_id UUID,
-    is_active BOOLEAN
+    p_user_id UUID,
+    p_is_active BOOLEAN
 ) RETURNS VOID AS $$
 DECLARE
     v_admin_id UUID;
@@ -178,15 +178,15 @@ BEGIN
         RAISE EXCEPTION 'Only admins can toggle user status';
     END IF;
     
-    IF NOT EXISTS (SELECT 1 FROM profiles WHERE id = user_id) THEN
+    IF NOT EXISTS (SELECT 1 FROM profiles WHERE id = p_user_id) THEN
         RAISE EXCEPTION 'User not found';
     END IF;
     
-    UPDATE profiles SET is_active = is_active, updated_at = NOW() WHERE id = user_id;
+    UPDATE profiles SET is_active = p_is_active, updated_at = NOW() WHERE id = p_user_id;
     
     INSERT INTO admin_actions (admin_id, action_type, target_user_id, target_table, new_value)
-    VALUES (v_admin_id, 'user_status_change', user_id, 'profiles', 
-            jsonb_build_object('is_active', is_active));
+    VALUES (v_admin_id, 'user_status_change', p_user_id, 'profiles', 
+            jsonb_build_object('is_active', p_is_active));
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
