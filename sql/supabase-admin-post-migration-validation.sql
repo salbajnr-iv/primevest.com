@@ -31,7 +31,17 @@ WHERE n.nspname = 'public'
     'get_admin_settings',
     'update_admin_settings'
   )
-ORDER BY p.proname;
+ORDER BY p.proname, args;
+
+-- B1) Explicit signature check for set_admin_role
+SELECT EXISTS (
+  SELECT 1
+  FROM pg_proc p
+  JOIN pg_namespace n ON n.oid = p.pronamespace
+  WHERE n.nspname = 'public'
+    AND p.proname = 'set_admin_role'
+    AND pg_get_function_arguments(p.oid) = 'p_user_id uuid'
+) AS set_admin_role_signature_ok;
 
 -- C) RLS enabled for critical tables
 SELECT c.relname AS table_name,
@@ -81,6 +91,14 @@ WITH checks AS (
      JOIN pg_namespace n ON n.oid = p.pronamespace
      WHERE n.nspname = 'public'
        AND p.proname IN ('adjust_balance','toggle_user_status','set_admin_role','get_admin_settings','update_admin_settings')) AS functions_ok,
+    (SELECT EXISTS (
+       SELECT 1
+       FROM pg_proc p
+       JOIN pg_namespace n ON n.oid = p.pronamespace
+       WHERE n.nspname = 'public'
+         AND p.proname = 'set_admin_role'
+         AND pg_get_function_arguments(p.oid) = 'p_user_id uuid'
+     )) AS set_admin_role_signature_ok,
     (SELECT COUNT(*) = 6
      FROM pg_class c
      JOIN pg_namespace n ON n.oid = c.relnamespace
@@ -94,7 +112,8 @@ WITH checks AS (
 )
 SELECT tables_ok,
        functions_ok,
+       set_admin_role_signature_ok,
        rls_ok,
        admin_exists_ok,
-       (tables_ok AND functions_ok AND rls_ok AND admin_exists_ok) AS technical_go
+       (tables_ok AND functions_ok AND set_admin_role_signature_ok AND rls_ok AND admin_exists_ok) AS technical_go
 FROM checks;
