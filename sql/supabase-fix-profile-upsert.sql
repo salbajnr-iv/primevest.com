@@ -52,17 +52,39 @@ ORDER BY policyname;
 -- Step 6: Grant admins full access (if not already done)
 -- Note: Admin policies are typically already created by other migration scripts
 -- This is just a safety check
-CREATE POLICY IF NOT EXISTS "Admins can view all profiles" ON profiles
-  FOR SELECT
-  USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
-  );
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE polrelid = 'public.profiles'::regclass
+      AND policyname = 'Admins can view all profiles'
+  ) THEN
+    CREATE POLICY "Admins can view all profiles" ON profiles
+      FOR SELECT
+      USING (
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+      );
+  END IF;
+END
+$$;
 
-CREATE POLICY IF NOT EXISTS "Admins can update any profile" ON profiles
-  FOR UPDATE
-  USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
-  );
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE polrelid = 'public.profiles'::regclass
+      AND policyname = 'Admins can update any profile'
+  ) THEN
+    CREATE POLICY "Admins can update any profile" ON profiles
+      FOR UPDATE
+      USING (
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+      );
+  END IF;
+END
+$$;
 
 -- Step 7: Verify table structure
 SELECT 
@@ -145,4 +167,3 @@ CREATE POLICY "Users can update own profile" ON profiles
 -- 2. The policy should have USING condition: (auth.uid() = id)
 -- 3. The WITH CHECK condition should also be: (auth.uid() = id)
 -- 4. Total policy count should be at least 3-4 policies on profiles table
-
