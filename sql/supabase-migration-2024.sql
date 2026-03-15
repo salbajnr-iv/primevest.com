@@ -30,55 +30,48 @@ SELECT id, email, full_name, is_admin FROM profiles WHERE email = 'admin@bitpand
 -- PART 1: Fix Profile Creation Trigger (if needed)
 -- =============================================================================
 
--- First, check if handle_new_user function exists, if not create it
--- Also update existing function to auto-detect admin emails
-DO $$
+-- Recreate the function with admin detection logic
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_is_admin BOOLEAN;
+    v_email TEXT;
 BEGIN
-    -- Always recreate the function with admin detection logic
-    EXECUTE $$
-    CREATE OR REPLACE FUNCTION public.handle_new_user()
-    RETURNS TRIGGER AS $$
-    DECLARE
-        v_is_admin BOOLEAN;
-        v_email TEXT;
-    BEGIN
-        -- Get email from metadata or from NEW.email
-        v_email := COALESCE(NEW.raw_user_meta_data->>'email', NEW.email);
-        
-        -- Check if email matches admin pattern
-        v_is_admin := v_email ILIKE 'admin@%' 
-                      OR v_email = 'support@bitpandapro.com'
-                      OR v_email = 'admin@bitpandapro.com';
-        
-        -- Insert into profiles with is_admin flag based on email pattern
-        INSERT INTO public.profiles (id, full_name, avatar_url, email, is_admin)
+    -- Get email from metadata or from NEW.email
+    v_email := COALESCE(NEW.raw_user_meta_data->>'email', NEW.email);
+    
+    -- Check if email matches admin pattern
+    v_is_admin := v_email ILIKE 'admin@%' 
+                  OR v_email = 'support@bitpandapro.com'
+                  OR v_email = 'admin@bitpandapro.com';
+    
+    -- Insert into profiles with is_admin flag based on email pattern
+    INSERT INTO public.profiles (id, full_name, avatar_url, email, is_admin)
+    VALUES (
+        NEW.id,
+        COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
+        NEW.raw_user_meta_data->>'avatar_url',
+        v_email,
+        v_is_admin
+    );
+    
+    -- If admin, also create admin_users record
+    IF v_is_admin THEN
+        INSERT INTO admin_users (id, email, full_name)
         VALUES (
             NEW.id,
-            COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
-            NEW.raw_user_meta_data->>'avatar_url',
             v_email,
-            v_is_admin
-        );
-        
-        -- If admin, also create admin_users record
-        IF v_is_admin THEN
-            INSERT INTO admin_users (id, email, full_name)
-            VALUES (
-                NEW.id,
-                v_email,
-                COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email)
-            )
-            ON CONFLICT (id) DO UPDATE SET 
-                email = EXCLUDED.email,
-                full_name = EXCLUDED.full_name,
-                updated_at = NOW();
-        END IF;
-        
-        RETURN NEW;
-    END;
-    $$ LANGUAGE plpgsql SECURITY DEFINER;
-    $$;
-END $$;
+            COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email)
+        )
+        ON CONFLICT (id) DO UPDATE SET 
+            email = EXCLUDED.email,
+            full_name = EXCLUDED.full_name,
+            updated_at = NOW();
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Check if trigger exists, if not create it
 DO $$
