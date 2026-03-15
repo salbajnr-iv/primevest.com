@@ -3,22 +3,25 @@
 import * as React from "react";
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
-import NotificationBadge from "./NotificationBadge";
+
+
+import { PortfolioSummary } from "@/lib/dashboard/types";
 
 interface DashboardHeaderProps {
-  userName?: string;
-  portfolioValue?: string;
-  portfolioChange?: string;
-  notificationCount?: number;
+  summary: PortfolioSummary;
 }
 
 export default function DashboardHeader({ 
-  userName = "User", 
-  portfolioValue = "0,00 €",
-  portfolioChange = "0%",
-  notificationCount = 0
+  summary 
 }: DashboardHeaderProps) {
-  const isPositive = !portfolioChange.startsWith('-');
+  const userName = summary.userName;
+  const portfolioValue = new Intl.NumberFormat('de-DE', { 
+    style: 'currency', 
+    currency: 'EUR' 
+  }).format(summary.portfolioValue);
+  const portfolioChange = `${summary.portfolioChangePct >= 0 ? '+' : ''}${summary.portfolioChangePct.toFixed(2)}%`;
+  const notificationCount = summary.notificationCount;
+  const isPositive = summary.portfolioChangePct >= 0;
 
   return (
     <header className="header">

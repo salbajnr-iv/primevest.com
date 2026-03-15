@@ -11,6 +11,7 @@
     "check:breakpoints": "node scripts/check-breakpoints.mjs"
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.90.1",
@@ -19,6 +20,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
     "framer-motion": "^12.34.1",
+    "lucide-react": "^0.577.0",
     "next": "16.1.1",
     "next-themes": "^0.4.6",
     "react": "19.2.3",

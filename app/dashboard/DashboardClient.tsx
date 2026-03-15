@@ -259,12 +259,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
     <DashboardShell
       title="Analytics Overview"
       subtitle="Unified KPI, live market pulse, and portfolio intelligence"
-      header={{
-        userName: dashboardData.portfolioSummary.userName,
-        portfolioValue: `${dashboardData.portfolioSummary.portfolioValue.toLocaleString()} €`,
-        portfolioChange: `${dashboardData.portfolioSummary.portfolioChangePct >= 0 ? "+" : ""}${dashboardData.portfolioSummary.portfolioChangePct.toFixed(2)}%`,
-        notificationCount: dashboardData.portfolioSummary.notificationCount,
-      }}
+      summary={dashboardData.portfolioSummary}
     >
       <section className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
