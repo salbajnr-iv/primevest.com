@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "check:dashboard-routes": "node scripts/check-dashboard-routes.mjs",
-    "check:breakpoints": "node scripts/check-breakpoints.mjs"
+    "check:breakpoints": "node scripts/check-breakpoints.mjs",
+    "check:routes": "node scripts/check-app-routes.mjs",
+    "check:all-routes": "npm run check:dashboard-routes && npm run check:routes"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
