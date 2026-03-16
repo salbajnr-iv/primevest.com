@@ -1,28 +1,28 @@
-# All Linting Errors Fixed
+# Fix TypeScript Errors in Admin Support & Ensure Realtime DB Fetching
 
-## Summary
+## Status: In Progress
 
-| Category  | Files Fixed | Status    |
-|-----------|-------------|-----------|
-| CRITICAL  | 3 SQL + 1 TS| ✅ Complete |
-| MEDIUM    | 2 PowerShell| ✅ Complete |
-| LOW       | 3 Markdown  | ✅ Complete |
+### Step 1: Create this TODO.md [✅ Completed]
 
-**Total: 8/8 files fixed**
+### Step 2: Fix date-fns imports and formatDistanceToNow calls in all 4 files [✅ Completed]
 
-## Verification Commands
+### Step 3: Fix lucide-react Send import in ChatInput.tsx [✅ Completed]
 
-```bash
-npm run lint                    # TypeScript/ESLint clean
-# SQL files ready for Supabase Dashboard  
-powershell -ExecutionPolicy Bypass -File test-api.ps1
-```
+### Step 4: Add missing awaits for Supabase calls [✅ Completed]
 
-## Final Status
+### Step 5: Ensure realtime subscriptions active
 
-- No more VSCode Problems panel errors
-- Ready for `npm run build`
-- All tests pass
+- Verify useTicketRealtime in [id]/page.tsx
+- Add realtime channel to list page if needed
 
-Project linting complete 🎉
+### Step 6: Lint and build check
 
+- npm run lint
+- npm run build
+
+### Step 7: Test navigation and realtime updates
+
+- /admin/support
+- /admin/support/[id]
+
+### Step 8: attempt_completion
