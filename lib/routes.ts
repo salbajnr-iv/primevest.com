@@ -5,6 +5,9 @@ export const ROUTES = {
   dashboard: {
     home: "/dashboard",
     overview: "/dashboard/overview",
+    market: "/dashboard/market",
+    gainersLosers: "/dashboard/market/gainers-losers",
+    strategies: "/dashboard/strategies",
     assetCenter: "/dashboard/asset-center",
     trade: "/dashboard/trade",
     orders: "/dashboard/orders",
