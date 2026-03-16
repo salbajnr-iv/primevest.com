@@ -52,15 +52,15 @@ const menuSections: MenuSection[] = [
     items: [
       { icon: Wallet, label: "My Portfolio", href: "/dashboard/portfolio" },
       { icon: PlusCircle, label: "Add Funds", href: "/dashboard/deposit" },
-      { icon: ArrowLeftRight, label: "Withdraw Funds", href: "/dashboard/withdraw" },
+      { icon: ArrowLeftRight, label: "Withdraw Funds", href: "/wallets/withdraw" },
     ],
   },
   {
     title: "Market Insights",
     items: [
-      { icon: TrendingUp, label: "Market Overview", href: "/dashboard/market" },
-      { icon: LineChart, label: "Top Gainers and Losers", href: "/dashboard/gainers-losers" },
-      { icon: Newspaper, label: "Market News", href: "/dashboard/news" },
+      { icon: TrendingUp, label: "Market Overview", href: "/markets" },
+      { icon: LineChart, label: "Top Gainers and Losers", href: "/markets" },
+      { icon: Newspaper, label: "Market News", href: "/tools/market-news" },
     ],
   },
   {
@@ -68,23 +68,23 @@ const menuSections: MenuSection[] = [
     items: [
       { icon: LayoutDashboard, label: "Trade Now", href: "/dashboard/trade" },
       { icon: ListOrdered, label: "Order History", href: "/dashboard/orders" },
-      { icon: Compass, label: "Trading Strategies", href: "/dashboard/strategies" },
+      { icon: Compass, label: "Trading Strategies", href: "/tutorials" },
     ],
   },
   {
     title: "Account Settings",
     items: [
       { icon: Settings, label: "Profile Settings", href: "/settings" },
-      { icon: AlertCircle, label: "Notifications", href: "/settings/notifications" },
-      { icon: ShieldCheck, label: "Security Settings", href: "/settings/security" },
+      { icon: AlertCircle, label: "Notifications", href: "/notifications" },
+      { icon: ShieldCheck, label: "Security Settings", href: "/profile/kyc" },
     ],
   },
   {
     title: "Help and Support",
     items: [
-      { icon: MessageCircle, label: "FAQ", href: "/faq" },
+      { icon: MessageCircle, label: "FAQ", href: "/support/faqs" },
       { icon: Headphones, label: "Contact Support", href: "/support" },
-      { icon: Users, label: "Community Forum", href: "/community" },
+      { icon: Users, label: "Community Forum", href: "/support/community" },
     ],
   },
 ];
