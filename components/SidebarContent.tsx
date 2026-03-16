@@ -53,8 +53,8 @@ const menuSections: MenuSection[] = [
   {
     title: "Market Insights",
     items: [
-      { icon: TrendingUp, label: "Market Overview", href: ROUTES.markets.home },
-      { icon: LineChart, label: "Top Gainers and Losers", href: ROUTES.markets.home },
+      { icon: TrendingUp, label: "Market Overview", href: ROUTES.dashboard.market },
+      { icon: LineChart, label: "Top Gainers and Losers", href: ROUTES.dashboard.gainersLosers },
       { icon: Newspaper, label: "Market News", href: ROUTES.markets.news },
     ],
   },
@@ -63,7 +63,7 @@ const menuSections: MenuSection[] = [
     items: [
       { icon: LayoutDashboard, label: "Trade Now", href: ROUTES.dashboard.trade },
       { icon: ListOrdered, label: "Order History", href: ROUTES.dashboard.orders },
-      { icon: Compass, label: "Trading Strategies", href: ROUTES.markets.tutorials },
+      { icon: Compass, label: "Trading Strategies", href: ROUTES.dashboard.strategies },
     ],
   },
   {
