@@ -1,0 +1,30 @@
+name: Route checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  route-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check dashboard routes
+        run: npm run check:dashboard-routes
+
+      - name: Check app routes
+        run: npm run check:routes
