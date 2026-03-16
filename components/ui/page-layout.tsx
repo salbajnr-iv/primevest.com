@@ -1,6 +1,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { ROUTES } from "@/lib/routes";
 
 export function PageShell({ children }: { children: React.ReactNode }) {
   return (
@@ -15,7 +16,7 @@ export function StickyPageHeader({
   title,
   badge,
   action,
-  backHref = "/dashboard",
+  backHref = ROUTES.dashboard.home,
 }: {
   eyebrow: string;
   title: string;
