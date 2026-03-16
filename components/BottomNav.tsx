@@ -4,12 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Wallet, ArrowLeftRight, Settings } from "lucide-react";
 import { useWindowSize } from "@/hooks/useWindowSize";
+import { ROUTES } from "@/lib/routes";
 
 const items = [
-  { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
-  { href: "/wallets", label: "Wallets", Icon: Wallet },
-  { href: "/wallets/transfer", label: "Transfer", Icon: ArrowLeftRight },
-  { href: "/settings", label: "Settings", Icon: Settings },
+  { href: ROUTES.dashboard.home, label: "Dashboard", Icon: LayoutDashboard },
+  { href: ROUTES.wallets.home, label: "Wallets", Icon: Wallet },
+  { href: ROUTES.wallets.transfer, label: "Transfer", Icon: ArrowLeftRight },
+  { href: ROUTES.settings.home, label: "Settings", Icon: Settings },
 ];
 
 interface BottomNavProps {
