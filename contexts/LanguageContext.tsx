@@ -1,8 +1,8 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
-import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from './AuthContext'
+import { createClient } from '@/lib/supabase/client'
 
 export type Language = 'en' | 'es' | 'de' | 'fr' | 'it'
 
@@ -34,12 +34,8 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>('en')
   const [isLoading, setIsLoading] = useState(true)
-  const { user, session } = useAuth()
-  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  const supabase = SUPABASE_URL && SUPABASE_ANON_KEY
-    ? createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    : null
+  const { session } = useAuth()
+  const supabase = createClient()
 
 
   // Get language name by code
