@@ -9,17 +9,10 @@ import { IconBadge } from "@/components/ui/IconBadge";
 import { PageSectionHeader } from "@/components/ui/PageSectionHeader";
 import { PageMain, PageShell, StickyPageHeader } from "@/components/ui/page-layout";
 import { useAuth } from "@/contexts/AuthContext";
+import { mapNotificationRow, useNotifications, type AppNotification, type NotificationRow } from "@/hooks/useNotifications";
 import { createClient } from "@/lib/supabase/client";
 
-interface Notification {
-  id: string;
-  type: "success" | "warning" | "info" | "promo";
-  title: string;
-  message: string;
-  time: string;
-  read: boolean;
-  action?: string;
-}
+type Notification = AppNotification;
 
 type NotificationFilter = "all" | "unread" | "system" | "trading";
 
@@ -257,64 +250,52 @@ export default function NotificationsPage() {
   const [clearAllModalOpen, setClearAllModalOpen] = React.useState(false);
   const [updateErrors, setUpdateErrors] = React.useState<Record<string, string>>({});
   const [toolbarError, setToolbarError] = React.useState<string | null>(null);
-  const supabase = createClient();
+  const supabase = React.useMemo(() => createClient(), []);
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
 
-  React.useEffect(() => {
-    if (authLoading || !authUser) {
+  const fetchUnreadNotifications = React.useCallback(async () => {
+    if (authLoading || !authUser || !supabase) {
       setNotificationsList(notifications);
       return;
     }
 
-    (async () => {
-      if (!supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", authUser.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.warn("Notifications table not available or query failed, using mock data", error);
         setNotificationsList(notifications);
         return;
       }
 
-      try {
-        const { data, error } = await supabase
-          .from("notifications")
-          .select("*")
-          .eq("user_id", authUser.id)
-          .order("created_at", { ascending: false });
-
-        if (error) {
-          console.warn("Notifications table not available or query failed, using mock data", error);
-          setNotificationsList(notifications);
-        } else if (data && data.length > 0) {
-          interface SupabaseNotification {
-            id: number;
-            type: "success" | "warning" | "info" | "promo";
-            title: string;
-            message: string;
-            created_at: string;
-            read: boolean;
-            action?: string;
-          }
-
-          const mapped = data.map((row: SupabaseNotification) => ({
-            id: String(row.id),
-            type: row.type || "info",
-            title: row.title || "Notification",
-            message: row.message || "",
-            time: row.created_at ? new Date(row.created_at).toLocaleString() : "",
-            read: !!row.read,
-            action: row.action || undefined,
-          }));
-          setNotificationsList(mapped);
-        } else {
-          setNotificationsList(notifications);
-        }
-      } catch (err) {
-        console.error("Failed to load notifications", err);
+      if (data && data.length > 0) {
+        setNotificationsList(data.map((row) => mapNotificationRow(row as NotificationRow)));
+      } else {
         setNotificationsList(notifications);
       }
-    })();
+    } catch (err) {
+      console.error("Failed to load notifications", err);
+      setNotificationsList(notifications);
+    }
   }, [authLoading, authUser, supabase]);
+
+  React.useEffect(() => {
+    void fetchUnreadNotifications();
+  }, [fetchUnreadNotifications]);
+
+  useNotifications({
+    userId: authUser?.id,
+    setNotifications: setNotificationsList,
+    fetchUnreadNotifications,
+    enableReplay: false,
+  });
 
   const unreadCount = notificationsList.filter((n) => !n.read).length;
 
