@@ -1,7 +1,6 @@
 import { createBrowserClient } from '@supabase/ssr'
-import type { SupabaseClient } from '@supabase/supabase-js'
 
-let browserClient: SupabaseClient | null = null
+let browserClient: ReturnType<typeof createBrowserClient> | null = null
 let realtimeAuthSyncInitialized = false
 
 export async function setRealtimeAuth(accessToken?: string, client = browserClient) {
@@ -14,7 +13,7 @@ export async function setRealtimeAuth(accessToken?: string, client = browserClie
   }
 }
 
-function initializeRealtimeAuthSync(client: SupabaseClient) {
+function initializeRealtimeAuthSync(client: ReturnType<typeof createBrowserClient>) {
   if (realtimeAuthSyncInitialized || typeof window === 'undefined') return
 
   realtimeAuthSyncInitialized = true
