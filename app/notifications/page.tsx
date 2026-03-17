@@ -9,8 +9,10 @@ import { IconBadge } from "@/components/ui/IconBadge";
 import { PageSectionHeader } from "@/components/ui/PageSectionHeader";
 import { PageMain, PageShell, StickyPageHeader } from "@/components/ui/page-layout";
 import { useAuth } from "@/contexts/AuthContext";
+import { mapNotificationRow, useNotifications, type AppNotification, type NotificationRow } from "@/hooks/useNotifications";
 import { createClient } from "@/lib/supabase/client";
 
+type Notification = AppNotification;
 interface Notification {
   id: string;
   type: "success" | "warning" | "info" | "promo";
@@ -258,6 +260,7 @@ export default function NotificationsPage() {
   const [clearAllModalOpen, setClearAllModalOpen] = React.useState(false);
   const [updateErrors, setUpdateErrors] = React.useState<Record<string, string>>({});
   const [toolbarError, setToolbarError] = React.useState<string | null>(null);
+  const supabase = React.useMemo(() => createClient(), []);
   const supabase = createClient();
   const hasFetchedUnreadOnMountRef = React.useRef(false);
 
@@ -320,6 +323,8 @@ export default function NotificationsPage() {
     setIsClient(true);
   }, []);
 
+  const fetchUnreadNotifications = React.useCallback(async () => {
+    if (authLoading || !authUser || !supabase) {
   React.useEffect(() => {
     if (authLoading || !authUser) {
       hasFetchedUnreadOnMountRef.current = false;
@@ -327,12 +332,29 @@ export default function NotificationsPage() {
       return;
     }
 
-    (async () => {
-      if (!supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", authUser.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.warn("Notifications table not available or query failed, using mock data", error);
         setNotificationsList(notifications);
         return;
       }
 
+      if (data && data.length > 0) {
+        setNotificationsList(data.map((row) => mapNotificationRow(row as NotificationRow)));
+      } else {
+        setNotificationsList(notifications);
+      }
+    } catch (err) {
+      console.error("Failed to load notifications", err);
+      setNotificationsList(notifications);
+    }
+  }, [authLoading, authUser, supabase]);
       try {
         const { data, error } = await supabase
           .from("notifications")
@@ -417,6 +439,17 @@ export default function NotificationsPage() {
       void supabase.removeChannel(channel);
     };
   }, [authUser, fetchUnreadNotifications, supabase]);
+
+  React.useEffect(() => {
+    void fetchUnreadNotifications();
+  }, [fetchUnreadNotifications]);
+
+  useNotifications({
+    userId: authUser?.id,
+    setNotifications: setNotificationsList,
+    fetchUnreadNotifications,
+    enableReplay: false,
+  });
 
   const unreadCount = notificationsList.filter((n) => !n.read).length;
 
