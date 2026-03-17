@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { Button } from '@/components/ui/button';
@@ -17,9 +16,7 @@ type SupportTicket = {
 };
 
 export default async function AdminSupportPage() {
-  const cookieStore = cookies();
-
-  const supabase = await createClient(cookieStore);
+  const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -30,8 +27,7 @@ export default async function AdminSupportPage() {
   const { data: tickets } = await supabase
     .from('support_tickets')
     .select('*')
-    .eq('status', 'open')
-    .or('status.eq.pending, status.eq.open')
+    .in('status', ['open', 'pending'])
     .order('updated_at', { ascending: false });
 
   return (
