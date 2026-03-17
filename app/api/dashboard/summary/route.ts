@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import type { PortfolioSummary } from "@/lib/dashboard/types";
+import { getLatestMarketFreshness } from "@/lib/market/snapshots";
 
 
 type RouteErrorCode = "UNAUTHENTICATED" | "FORBIDDEN" | "QUERY_FAILED";
@@ -46,8 +47,10 @@ export async function GET() {
     return errorResponse(403, "FORBIDDEN", "Forbidden");
   }
 
+  const marketFreshness = await getLatestMarketFreshness();
+
   if (!profile) {
-    return NextResponse.json({ ok: true, summary: EMPTY_SUMMARY });
+    return NextResponse.json({ ok: true, summary: EMPTY_SUMMARY, marketFreshness });
   }
 
   const userName = profile.full_name?.trim().split(" ")[0] || "User";
@@ -55,6 +58,7 @@ export async function GET() {
 
   return NextResponse.json({
     ok: true,
+    marketFreshness,
     summary: {
       userName,
       portfolioValue: balance,
