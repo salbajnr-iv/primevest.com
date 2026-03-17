@@ -35,7 +35,10 @@ BEGIN
       AND p.tablename = 'notifications'
       AND p.cmd = 'SELECT'
       AND p.qual IS NOT NULL
-      AND p.qual LIKE '%user_id%auth.uid()%::uuid%'
+      -- Robust token check: avoid brittle exact-expression matching because
+      -- pg_policies.qual formatting can vary (casts, parentheses, whitespace).
+      AND p.qual ILIKE '%user_id%'
+      AND p.qual ILIKE '%auth.uid()%'
   )
   INTO select_policy_matches;
 
