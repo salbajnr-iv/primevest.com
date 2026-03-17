@@ -9,6 +9,7 @@ interface DbOrder {
 }
 
 export async function GET(req: Request) {
+  const demoModeEnabled = process.env.ASSET_CENTER_DEMO_MODE === "true";
   const fallbackAccounts = [
     { id: "live-main", name: "Live Account", type: "live", balance: 0, currency: "USD" },
   ];
@@ -16,20 +17,51 @@ export async function GET(req: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!supabaseUrl || !serviceRole) {
-    return NextResponse.json({ ok: true, accounts: fallbackAccounts, platforms: tradingPlatforms });
+    if (demoModeEnabled) {
+      return NextResponse.json({
+        ok: true,
+        accounts: fallbackAccounts,
+        platforms: tradingPlatforms,
+        meta: { demoMode: true },
+      });
+    }
+
+    return NextResponse.json(
+      {
+        ok: false,
+        code: "ASSET_CENTER_CONFIG_UNAVAILABLE",
+        message:
+          "Asset Center is temporarily unavailable because required backend configuration is missing. Please contact support.",
+      },
+      { status: 503 },
+    );
   }
 
   try {
     const token = (req.headers.get("authorization") || "").replace("Bearer ", "");
     if (!token) {
-      return NextResponse.json({ ok: true, accounts: fallbackAccounts, platforms: tradingPlatforms });
+      return NextResponse.json(
+        {
+          ok: false,
+          code: "ASSET_CENTER_AUTH_REQUIRED",
+          message: "Please sign in again to view your asset center accounts.",
+        },
+        { status: 401 },
+      );
     }
 
     const supabase = createClient(supabaseUrl, serviceRole);
 
     const { data: userData, error: userErr } = await supabase.auth.getUser(token);
     if (userErr || !userData?.user) {
-      return NextResponse.json({ ok: true, accounts: fallbackAccounts, platforms: tradingPlatforms });
+      return NextResponse.json(
+        {
+          ok: false,
+          code: "ASSET_CENTER_AUTH_INVALID",
+          message: "Your session has expired. Please sign in again to continue.",
+        },
+        { status: 401 },
+      );
     }
 
     const userId = userData.user.id;
@@ -66,7 +98,12 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, accounts, platforms: tradingPlatforms });
   } catch (error) {
     return NextResponse.json(
-      { ok: false, error: "Failed to load asset center data", details: String(error) },
+      {
+        ok: false,
+        code: "ASSET_CENTER_LOAD_FAILED",
+        message: "Unable to load asset center data right now. Please try again.",
+        details: String(error),
+      },
       { status: 500 },
     );
   }
