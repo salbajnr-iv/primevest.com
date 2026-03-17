@@ -3,6 +3,15 @@ import { createClient } from '@supabase/supabase-js'
 
 export async function POST(req: Request) {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    if (!supabaseUrl || !anonKey) {
+      return NextResponse.json(
+        { error: 'Trading is unavailable right now.' },
+        { status: 503 }
+      )
+    }
+
     const body = await req.json()
     const { side, asset, amount, price, total, orderType } = body
 
@@ -29,10 +38,13 @@ export async function POST(req: Request) {
       )
     }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = createClient(supabaseUrl, anonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    })
 
     // Verify user token
     const { data: userData, error: userErr } = await supabase.auth.getUser(token)
@@ -43,67 +55,40 @@ export async function POST(req: Request) {
       )
     }
 
-    const userId = userData.user.id
+    const { data: rpcData, error: rpcErr } = await supabase.rpc('create_order_atomic', {
+      p_side: side,
+      p_asset: asset,
+      p_amount: Number(amount),
+      p_price: price ? Number(price) : null,
+      p_total: Number(total),
+      p_order_type: orderType || 'market',
+    })
 
-    // Check and verify order amount doesn't exceed user balance
-    const { data: profileData, error: profileErr } = await supabase
-      .from('profiles')
-      .select('account_balance')
-      .eq('id', userId)
-      .maybeSingle()
-
-    if (profileErr || !profileData) {
+    if (rpcErr) {
       return NextResponse.json(
-        { error: 'User profile not found' },
-        { status: 404 }
-      )
-    }
-
-    const totalAmount = parseFloat(String(total))
-    const balanceAmount = parseFloat(String(profileData.account_balance ?? 0))
-
-    if (side === 'buy' && totalAmount > balanceAmount) {
-      return NextResponse.json(
-        { error: 'Insufficient balance for this order' },
-        { status: 400 }
-      )
-    }
-
-    // Create the order in the database
-    const { data: orderData, error: orderErr } = await supabase
-      .from('orders')
-      .insert([
-        {
-          user_id: userId,
-          side,
-          asset,
-          amount: parseFloat(String(amount)),
-          price: price ? parseFloat(String(price)) : null,
-          total: totalAmount,
-          order_type: orderType || 'market',
-          status: 'pending',
-          created_at: new Date().toISOString(),
-        },
-      ])
-      .select()
-      .single()
-
-    if (orderErr || !orderData) {
-      return NextResponse.json(
-        { error: 'Failed to create order', details: String(orderErr) },
+        { error: 'Failed to create order', details: String(rpcErr.message || rpcErr) },
         { status: 500 }
+      )
+    }
+
+    const result = Array.isArray(rpcData) ? rpcData[0] : rpcData
+    if (!result?.success) {
+      const status = result?.code === 'INSUFFICIENT_FUNDS' ? 400 : 422
+      return NextResponse.json(
+        { error: result?.message || 'Failed to create order', code: result?.code || 'ORDER_FAILED' },
+        { status }
       )
     }
 
     // Log admin action for tracking
     await supabase.from('admin_actions').insert([
       {
-        admin_id: userId,
+        admin_id: userData.user.id,
         action_type: 'order_created',
-        target_user_id: userId,
+        target_user_id: userData.user.id,
         target_table: 'orders',
         new_value: JSON.stringify({
-          order_id: orderData.id,
+          order_id: result.order_id,
           side,
           asset,
           amount,
@@ -115,14 +100,18 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       order: {
-        id: orderData.id,
-        side: orderData.side,
-        asset: orderData.asset,
-        amount: orderData.amount,
-        price: orderData.price,
-        total: orderData.total,
-        status: orderData.status,
-        created_at: orderData.created_at,
+        id: result.order_id,
+        side,
+        asset,
+        amount: Number(amount),
+        price: price ? Number(price) : null,
+        total: Number(total),
+        status: 'pending',
+      },
+      transaction_id: result.transaction_id,
+      balance: {
+        before: result.balance_before,
+        after: result.balance_after,
       },
     })
   } catch (err) {
