@@ -233,7 +233,7 @@ export async function getLatestPrices(assets?: string[]) {
 
   let query = supabase
     .from("asset_snapshots")
-    .select("asset, price_eur, source, status, priced_at")
+    .select("asset, price_eur, source, source_status, priced_at")
     .order("priced_at", { ascending: false });
 
   if (assets?.length) {
@@ -246,7 +246,7 @@ export async function getLatestPrices(assets?: string[]) {
     asset: String(row.asset).toUpperCase(),
     priceEur: Number(row.price_eur ?? 0),
     source: String(row.source ?? "unknown"),
-    status: (row.status ?? "stale") as MarketFreshnessState,
+    status: (row.source_status ?? "stale") as MarketFreshnessState,
     pricedAt: row.priced_at ?? new Date(0).toISOString(),
   }));
 }
