@@ -15,25 +15,40 @@ CREATE INDEX IF NOT EXISTS idx_replies_ticket_user
   ON support_ticket_replies (ticket_id, user_id);
 
 -- RLS: Users own tickets replies (no IF NOT EXISTS for policy)
-DROP POLICY IF EXISTS "User own chat replies" ON support_ticket_replies;
-CREATE POLICY "User own chat replies" ON support_ticket_replies
+DROP POLICY IF EXISTS "User own chat replies" ON public.support_ticket_replies;
+CREATE POLICY "User own chat replies" ON public.support_ticket_replies
 FOR ALL TO authenticated
 USING (
   EXISTS (
-    SELECT 1 FROM support_tickets 
-    WHERE id = support_ticket_replies.ticket_id 
+    SELECT 1 FROM public.support_tickets
+    WHERE id = support_ticket_replies.ticket_id
+      AND user_id = auth.uid()
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.support_tickets
+    WHERE id = support_ticket_replies.ticket_id
       AND user_id = auth.uid()
   )
 );
 
 -- Admins full access
-DROP POLICY IF EXISTS "Admin full chat access" ON support_ticket_replies;
-CREATE POLICY "Admin full chat access" ON support_ticket_replies
+DROP POLICY IF EXISTS "Admin full chat access" ON public.support_ticket_replies;
+CREATE POLICY "Admin full chat access" ON public.support_ticket_replies
 FOR ALL TO authenticated
 USING (
   EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE id = auth.uid() 
-      AND raw_user_meta_data->>'email' ILIKE 'admin@%'
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid()
+      AND is_admin = true
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid()
+      AND is_admin = true
   )
 );
+
