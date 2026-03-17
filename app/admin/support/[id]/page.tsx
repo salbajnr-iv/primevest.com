@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
 import * as React from 'react';
-import { useTicketRealtime } from '@/lib/supabase/realtime';
-import { MessageList, ChatInput } from '@/components/ui';
-import { createClient } from '@/lib/supabase/client';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import Link from 'next/link';
+import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
+import { createClient } from '@/lib/supabase/client';
+import { useSupportTicketRepliesRealtime, useSupportTicketStatusRealtime, useTicketRealtime, type RealtimeReply } from '@/lib/supabase/realtime';
+import { MessageList, ChatInput } from '@/components/ui';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
 interface Props {
@@ -14,6 +14,7 @@ interface Props {
 }
 
 interface TicketData {
+  id: number;
   subject: string;
   updated_at: string;
   profiles: {
@@ -25,32 +26,79 @@ interface TicketData {
 
 export default function AdminChatPage({ params }: Props) {
   const ticketId = Number(params.id);
-  const supabase = createClient();
   const [ticket, setTicket] = React.useState<TicketData | null>(null);
-  const [userProfile, setUserProfile] = React.useState<{ full_name?: string; email?: string; avatar_url?: string; } | null>(null);
+  const [userProfile, setUserProfile] = React.useState<{ full_name?: string; email?: string; avatar_url?: string } | null>(null);
+  const [initialMessages, setInitialMessages] = React.useState<RealtimeReply[]>([]);
+
+  const loadTicket = React.useCallback(async () => {
+    const supabase = createClient();
+    if (!supabase || !ticketId) return;
+
+    const { data } = await supabase
+      .from('support_tickets')
+      .select('id, subject, updated_at, profiles(*)')
+      .eq('id', ticketId)
+      .single();
+
+    if (data) {
+      setTicket(data as TicketData);
+      setUserProfile((data as TicketData).profiles);
+    }
+  }, [ticketId]);
+
+  const loadMessages = React.useCallback(async () => {
+    const supabase = createClient();
+    if (!supabase || !ticketId) return;
+
+    const { data } = await supabase
+      .from('support_ticket_replies')
+      .select('*')
+      .eq('ticket_id', ticketId)
+      .order('created_at', { ascending: true });
+
+    setInitialMessages((data as RealtimeReply[]) || []);
+  }, [ticketId]);
 
   React.useEffect(() => {
-    async function loadTicket() {
-      if (!supabase) return;
-      const { data } = await supabase
-        .from('support_tickets')
-        .select('*, profiles(*)')
-        .eq('id', ticketId)
-        .single();
-
-      if (data) {
-        setTicket(data);
-        setUserProfile(data.profiles);
-      }
-    }
-    loadTicket();
-  }, [ticketId, supabase]);
+    void loadTicket();
+    void loadMessages();
+  }, [loadMessages, loadTicket]);
 
   const { messages, sendMessage } = useTicketRealtime(ticketId);
-  const adminSend = (msg: string) => sendMessage(msg, true); // admin is_staff = true
+
+  const mergedMessages = React.useMemo(() => {
+    const byKey = new Map<string, RealtimeReply>();
+
+    for (const message of initialMessages) {
+      byKey.set(String(message.id), message);
+    }
+
+    for (const message of messages) {
+      byKey.set(String(message.id), message);
+    }
+
+    return [...byKey.values()].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  }, [initialMessages, messages]);
+  const adminSend = (msg: string) => sendMessage(msg, true);
+
+  useSupportTicketStatusRealtime((updatedTicket) => {
+    if (updatedTicket.id !== ticketId) return;
+    setTicket((current) =>
+      current
+        ? {
+            ...current,
+            updated_at: updatedTicket.updated_at,
+          }
+        : current
+    );
+  });
+
+  useSupportTicketRepliesRealtime((reply) => {
+    if (reply.ticket_id !== ticketId) return;
+    void loadTicket();
+  }, ticketId);
 
   if (!ticket) return <div>Loading...</div>;
-  if (!supabase) return <div>No Supabase client</div>;
 
   const currentUserId = 'admin';
 
@@ -63,7 +111,7 @@ export default function AdminChatPage({ params }: Props) {
         <div className="flex items-center gap-2">
           <Avatar className="h-10 w-10">
             <AvatarImage src={userProfile?.avatar_url} />
-            <AvatarFallback>{userProfile?.full_name?.slice(0,2) || 'U'}</AvatarFallback>
+            <AvatarFallback>{userProfile?.full_name?.slice(0, 2) || 'U'}</AvatarFallback>
           </Avatar>
           <div>
             <p className="font-medium">{ticket.subject}</p>
@@ -76,7 +124,7 @@ export default function AdminChatPage({ params }: Props) {
       </div>
 
       <div className="h-[600px] border rounded-lg flex flex-col overflow-hidden">
-        <MessageList messages={messages} currentUserId={currentUserId} />
+        <MessageList messages={mergedMessages} currentUserId={currentUserId} />
         <ChatInput onSend={adminSend} placeholder="Reply to user..." />
       </div>
     </div>
