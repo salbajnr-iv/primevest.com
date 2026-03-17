@@ -44,6 +44,13 @@
   - Profile upsert policy migration has been executed in the target Supabase environment.
   - Profile edit/save succeeds end-to-end for authenticated users without console/API errors.
   - Regression checks confirm persisted profile fields remain consistent after reload.
+  - Release QA checklist includes explicit profile save verification (create + update + reload/session refresh).
+
+- **QA checklist update (2026-03-18):**
+  - [ ] Confirm `supabase/migrations/20260315_fix_profile_rls.sql` is present in deployment migration history for each target environment.
+  - [ ] Execute `supabase/tests/profile_upsert_rls_regression.sql` in target DB and capture query output evidence.
+  - [ ] Validate `/profile` UI save flow in authenticated session for both first-save (create) and subsequent-save (update).
+  - [ ] After save, reload profile page and refresh auth session; verify saved `full_name` and avatar path remain persisted without fallback values.
 
 ## P1 — Core Product UX
 
