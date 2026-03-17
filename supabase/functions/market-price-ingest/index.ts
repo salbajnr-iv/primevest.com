@@ -2,7 +2,6 @@ import { supabaseAdmin } from "../_shared/supabase.ts";
 import { badRequest, errorResponse, json } from "../_shared/http.ts";
 import { logError, logInfo } from "../_shared/log.ts";
 
-
 function getMarketFreshnessState(ageSeconds: number): "live" | "delayed" | "stale" {
   if (ageSeconds <= 90) return "live";
   if (ageSeconds <= 300) return "delayed";
@@ -21,6 +20,15 @@ type AssetRow = {
   name: string;
 };
 
+type SourceHealth = {
+  source: string;
+  status: "healthy" | "degraded" | "down";
+  checked_at: string;
+  latency_ms: number;
+  failure_count: number;
+  details: string | null;
+};
+
 const COINGECKO_MAP: Record<string, string> = {
   BTC: "bitcoin",
   ETH: "ethereum",
@@ -34,10 +42,42 @@ const COINGECKO_MAP: Record<string, string> = {
   LINK: "chainlink",
 };
 
+const MAX_RETRIES = 3;
+const BASE_BACKOFF_MS = 350;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function updateSourceHealth(payload: SourceHealth) {
+  await supabaseAdmin.from("market_data_source_health").upsert(payload, { onConflict: "source" });
+}
+
+async function fetchWithRetry(url: string) {
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
+    const response = await fetch(url, { headers: { accept: "application/json" } });
+
+    if (response.ok) {
+      return response;
+    }
+
+    if (attempt < MAX_RETRIES && (response.status === 429 || response.status >= 500)) {
+      const retryAfter = Number(response.headers.get("retry-after") || "0");
+      const backoff = (retryAfter > 0 ? retryAfter * 1000 : BASE_BACKOFF_MS * 2 ** attempt) + Math.floor(Math.random() * 120);
+      await sleep(backoff);
+      continue;
+    }
+
+    return response;
+  }
+
+  throw new Error("Unreachable retry state");
+}
+
 Deno.serve(async (req) => {
   if (req.method !== "POST" && req.method !== "GET") {
     return badRequest("Unsupported HTTP method");
   }
+
+  const start = Date.now();
 
   try {
     const { data: assets, error: assetError } = await supabaseAdmin
@@ -54,17 +94,32 @@ Deno.serve(async (req) => {
       .filter((asset) => Boolean(COINGECKO_MAP[asset.symbol]));
 
     if (!trackedAssets.length) {
+      await updateSourceHealth({
+        source: "coingecko",
+        status: "degraded",
+        checked_at: new Date().toISOString(),
+        latency_ms: Date.now() - start,
+        failure_count: 1,
+        details: "No active mapped assets",
+      });
       return json({ ok: true, ingested: 0, snapshotsRefreshed: 0, message: "No tracked assets configured." });
     }
 
     const ids = trackedAssets.map((asset) => COINGECKO_MAP[asset.symbol]).join(",");
-    const feedResponse = await fetch(
+    const feedResponse = await fetchWithRetry(
       `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=eur&include_last_updated_at=true`,
-      { headers: { accept: "application/json" } },
     );
 
     if (!feedResponse.ok) {
       const body = await feedResponse.text();
+      await updateSourceHealth({
+        source: "coingecko",
+        status: feedResponse.status === 429 ? "degraded" : "down",
+        checked_at: new Date().toISOString(),
+        latency_ms: Date.now() - start,
+        failure_count: 1,
+        details: `CoinGecko error (${feedResponse.status}): ${body}`,
+      });
       return errorResponse(`CoinGecko error (${feedResponse.status}): ${body}`, 502);
     }
 
@@ -91,6 +146,14 @@ Deno.serve(async (req) => {
       .filter(Boolean);
 
     if (!rows.length) {
+      await updateSourceHealth({
+        source: "coingecko",
+        status: "degraded",
+        checked_at: new Date().toISOString(),
+        latency_ms: Date.now() - start,
+        failure_count: 1,
+        details: "No prices returned by provider",
+      });
       return json({ ok: true, ingested: 0, snapshotsRefreshed: 0, message: "No prices returned by provider." });
     }
 
@@ -107,6 +170,15 @@ Deno.serve(async (req) => {
       throw snapshotError;
     }
 
+    await updateSourceHealth({
+      source: "coingecko",
+      status: "healthy",
+      checked_at: new Date().toISOString(),
+      latency_ms: Date.now() - start,
+      failure_count: 0,
+      details: null,
+    });
+
     logInfo("market_price_ingest", {
       ingested: rows.length,
       snapshotsRefreshed: snapshotRefreshCount ?? 0,
@@ -120,6 +192,15 @@ Deno.serve(async (req) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
+    await updateSourceHealth({
+      source: "coingecko",
+      status: "down",
+      checked_at: new Date().toISOString(),
+      latency_ms: Date.now() - start,
+      failure_count: 1,
+      details: String(error),
+    });
+
     logError("market_price_ingest_error", error);
     return errorResponse("Market price ingestion failed", 500, {
       details: String(error),

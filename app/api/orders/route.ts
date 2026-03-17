@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getLatestPrices } from '@/lib/market/service'
 
 export async function POST(req: Request) {
   try {
@@ -55,11 +56,15 @@ export async function POST(req: Request) {
       )
     }
 
+    const latestPrice = !price && asset
+      ? (await getLatestPrices([String(asset)])).find((row) => row.asset === String(asset).toUpperCase())
+      : null
+
     const { data: rpcData, error: rpcErr } = await supabase.rpc('create_order_atomic', {
       p_side: side,
       p_asset: asset,
       p_amount: Number(amount),
-      p_price: price ? Number(price) : null,
+      p_price: price ? Number(price) : latestPrice?.priceEur ?? null,
       p_total: Number(total),
       p_order_type: orderType || 'market',
     })
@@ -104,7 +109,7 @@ export async function POST(req: Request) {
         side,
         asset,
         amount: Number(amount),
-        price: price ? Number(price) : null,
+        price: price ? Number(price) : latestPrice?.priceEur ?? null,
         total: Number(total),
         status: 'pending',
       },

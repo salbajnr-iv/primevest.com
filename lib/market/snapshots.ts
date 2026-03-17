@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { getAgeSeconds, getMarketFreshnessState, type MarketFreshnessState } from "@/lib/market/freshness";
+import { getLatestPrices } from "@/lib/market/service";
 
 export type AssetSnapshot = {
   asset: string;
@@ -23,6 +24,21 @@ function createServiceSupabase() {
 }
 
 export async function getAssetSnapshots(assets: string[]): Promise<AssetSnapshot[]> {
+  const latest = await getLatestPrices(assets);
+  if (latest.length) {
+    return latest.map((row) => {
+      const freshnessAgeSeconds = getAgeSeconds(row.pricedAt);
+      return {
+        asset: row.asset,
+        priceEur: row.priceEur,
+        source: row.source,
+        pricedAt: row.pricedAt,
+        freshnessAgeSeconds,
+        freshnessStatus: getMarketFreshnessState(freshnessAgeSeconds),
+      };
+    });
+  }
+
   const supabase = createServiceSupabase();
   if (!supabase || !assets.length) return [];
 

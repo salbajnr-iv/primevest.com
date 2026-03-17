@@ -5,7 +5,7 @@ import BottomNav from "@/components/BottomNav";
 import { track } from "@vercel/analytics";
 import SupportLayout from "@/app/support/SupportLayout";
 import { createClient } from "@/lib/supabase/client";
-import { useTicketRealtime, type RealtimeReply } from "@/lib/supabase/realtime";
+import { useSupportTicketStatusRealtime, useTicketRealtime, type RealtimeReply } from "@/lib/supabase/realtime";
 import { EmptyState, ErrorState, LoadingSpinner } from "@/components/ui/LoadingStates";
 import { MessageList, ChatInput } from "@/components/ui";
 import type { SupportTicketState } from "@/lib/support/tickets";
@@ -137,6 +137,22 @@ export default function SupportTicketsPage() {
       loadTickets();
     }
   }, [authToken, loadTickets]);
+
+  useSupportTicketStatusRealtime((ticketUpdate) => {
+    setTickets((current) =>
+      current.map((ticket) =>
+        ticket.id === ticketUpdate.id
+          ? { ...ticket, status: ticketUpdate.status as SupportTicketState, updated_at: ticketUpdate.updated_at }
+          : ticket
+      )
+    );
+
+    setSelectedTicket((current) =>
+      current && current.id === ticketUpdate.id
+        ? { ...current, status: ticketUpdate.status as SupportTicketState, updated_at: ticketUpdate.updated_at }
+        : current
+    );
+  });
 
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
