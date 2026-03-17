@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useOrderStatusRealtime } from "@/lib/supabase/realtime";
 import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 import DashboardFilters from "@/components/dashboard/analytics/DashboardFilters";
 import ExportMenu from "@/components/dashboard/analytics/ExportMenu";
@@ -47,6 +48,18 @@ export default function OrdersPage() {
   useEffect(() => {
     void loadOrders();
   }, [loadOrders]);
+
+
+  useOrderStatusRealtime((event) => {
+    const orderId = `ORD-${event.id}`;
+    setOrders((current) =>
+      current.map((order) =>
+        order.id === orderId
+          ? { ...order, status: String(event.status || order.status).replace(/^\w/, (c) => c.toUpperCase()) }
+          : order
+      )
+    );
+  });
 
   const filtered = useMemo(
     () =>

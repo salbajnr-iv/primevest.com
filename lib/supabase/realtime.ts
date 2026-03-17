@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createClient } from './client';
 
 interface RealtimeReply {
@@ -11,7 +11,112 @@ interface RealtimeReply {
   seen_at: string | null;
 }
 
-export type { RealtimeReply };
+interface MarketPriceRealtimeRow {
+  asset: string;
+  last_price: number;
+  source: string;
+  status: 'live' | 'delayed' | 'stale';
+  priced_at: string;
+}
+
+interface OrderStatusRealtimeRow {
+  id: string | number;
+  status: string;
+  updated_at: string;
+}
+
+interface SupportTicketRealtimeRow {
+  id: number;
+  status: string;
+  updated_at: string;
+  reference_id?: string;
+}
+
+export type { RealtimeReply, MarketPriceRealtimeRow, OrderStatusRealtimeRow, SupportTicketRealtimeRow };
+
+export function useMarketPriceRealtime(onPriceUpdate: (row: MarketPriceRealtimeRow) => void, assets?: string[]) {
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+
+    const channel = supabase
+      .channel('realtime:market-prices')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'market_prices',
+        },
+        (payload) => {
+          const row = payload.new as MarketPriceRealtimeRow;
+          if (assets?.length && !assets.includes(String(row.asset).toUpperCase())) {
+            return;
+          }
+          onPriceUpdate({ ...row, asset: String(row.asset).toUpperCase() });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [onPriceUpdate, assets]);
+}
+
+export function useOrderStatusRealtime(onOrderUpdate: (row: OrderStatusRealtimeRow) => void) {
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+
+    const channel = supabase
+      .channel('realtime:orders-status')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+        },
+        (payload) => {
+          const row = payload.new as OrderStatusRealtimeRow;
+          onOrderUpdate(row);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [onOrderUpdate]);
+}
+
+export function useSupportTicketStatusRealtime(onTicketUpdate: (row: SupportTicketRealtimeRow) => void) {
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+
+    const channel = supabase
+      .channel('realtime:support-tickets')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'support_tickets',
+        },
+        (payload) => {
+          const row = payload.new as SupportTicketRealtimeRow;
+          onTicketUpdate(row);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [onTicketUpdate]);
+}
 
 export function useTicketRealtime(ticketId: number | null, initialMessages: RealtimeReply[] = []) {
   const [messages, setMessages] = useState<RealtimeReply[]>(initialMessages);
@@ -22,7 +127,6 @@ export function useTicketRealtime(ticketId: number | null, initialMessages: Real
 
     const supabase = createClient();
     if (!supabase) return;
-
 
     const channel = supabase
       .channel(`realtime:ticket-${ticketId}`)
