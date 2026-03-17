@@ -37,11 +37,8 @@ export async function updateAdminSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Admin-only routes
-  const adminRoutes = ['/admin/dashboard', '/admin/users', '/admin/transactions', '/admin/balances', '/admin/audit', '/admin/settings']
-  const isAdminRoute = adminRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
-  )
+  // Admin-only routes: protect every /admin path except explicit auth screens.
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin') && !request.nextUrl.pathname.startsWith('/admin/auth')
 
   // Admin auth routes
   const adminAuthRoutes = ['/admin/auth/signin']
@@ -95,4 +92,3 @@ export const adminConfig = {
     '/admin/:path*',
   ],
 }
-

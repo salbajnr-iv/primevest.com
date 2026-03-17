@@ -5,8 +5,7 @@ import type { User } from '@supabase/supabase-js'
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  const adminRoutes = ['/admin/dashboard', '/admin/users', '/admin/transactions', '/admin/balances', '/admin/audit', '/admin/settings']
-  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route))
+  const isAdminRoute = pathname.startsWith('/admin') && !pathname.startsWith('/admin/auth')
 
   const adminAuthRoutes = ['/admin/auth/signin', '/admin/signin']
   const isAdminAuthRoute = adminAuthRoutes.some((route) => pathname.startsWith(route))
