@@ -2,6 +2,12 @@
 
 ## Status: In Progress
 
+### Deployment verification checkpoint (2026-03-17 23:14 UTC)
+- Environment: production
+- Operator sign-off: pending (DB Operator / App Operator / Release Owner)
+- Migration/application evidence: pending production SQL Editor + runbook artifacts
+- Route/auth gating update: completed in middleware to include `/admin/support` and `/admin/support/[id]`
+
 ### Step 1: Create this TODO.md [✅ Completed]
 
 ### Step 2: Fix date-fns imports and formatDistanceToNow calls in all 4 files [✅ Completed]

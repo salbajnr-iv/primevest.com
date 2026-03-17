@@ -19,6 +19,15 @@
   - Required env vars are configured in deployment.
   - Admin route strategy (`/admin` and optional admin subdomain) is verified in production.
 
+- **Deployment verification status (2026-03-17 23:14 UTC):**
+  - Environment: production
+  - 202610* migration order in repository: verified sequential filenames; production application status requires DB operator execution evidence.
+  - Runbook SQL validation: prepared (`sql/supabase-admin-post-migration-validation.sql`), but production execution must be performed against the production database.
+  - `public.set_admin_role(...)`: operator promotion evidence must be captured in production SQL output.
+  - Env controls: runtime contains `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and service-role key; move `NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY` to server-only `SUPABASE_SERVICE_ROLE_KEY`.
+  - Route/auth gating: `/admin/support` and `/admin/support/[id]` are now covered by admin middleware scope in code.
+  - Operator sign-off: pending DB Operator + App Operator + Release Owner.
+
 ### 2) Add swap execution safeguards/details (rate, slippage, minimum received)
 - **Owner:** Frontend + Backend
 - **Dependency:** code (+ optional quote API)
