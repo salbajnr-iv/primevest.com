@@ -34,6 +34,34 @@ interface SupportTicketRealtimeRow {
 
 export type { RealtimeReply, MarketPriceRealtimeRow, OrderStatusRealtimeRow, SupportTicketRealtimeRow };
 
+export function useSupportTicketRepliesRealtime(onReplyInsert: (row: RealtimeReply) => void, ticketId?: number) {
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+
+    const channel = supabase
+      .channel(`realtime:support-ticket-replies${ticketId ? `-${ticketId}` : ''}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'support_ticket_replies',
+          ...(ticketId ? { filter: `ticket_id=eq.${ticketId}` } : {}),
+        },
+        (payload) => {
+          const row = payload.new as RealtimeReply;
+          onReplyInsert(row);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [onReplyInsert, ticketId]);
+}
+
 export function useMarketPriceRealtime(onPriceUpdate: (row: MarketPriceRealtimeRow) => void, assets?: string[]) {
   useEffect(() => {
     const supabase = createClient();
@@ -121,6 +149,7 @@ export function useSupportTicketStatusRealtime(onTicketUpdate: (row: SupportTick
 export function useTicketRealtime(ticketId: number | null, initialMessages: RealtimeReply[] = []) {
   const [messages, setMessages] = useState<RealtimeReply[]>(initialMessages);
   const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     if (!ticketId) return;
