@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import AuthLogo from '@/components/AuthLogo'
+import { BRAND } from '@/lib/brand'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -87,7 +88,7 @@ export default function SignUpPage() {
           <AuthLogo />
           <CardTitle className="text-2xl font-bold text-gray-900">Create an account</CardTitle>
           <CardDescription className="text-gray-600">
-            Join millions of users on PrimeVest
+            Join millions of users on {BRAND.productName}
           </CardDescription>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">
