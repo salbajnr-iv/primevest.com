@@ -6,7 +6,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import { TransactionActionFooter, TransactionPageHeader } from "@/components/ui/transactional-page";
 import styles from "@/components/ui/transactional-pages.module.css";
 
-type QuoteErrorCode = "quote_expired" | "insufficient_liquidity" | "amount_bounds" | "invalid_quote" | "invalid_pair" | "slippage_out_of_range";
+type QuoteErrorCode = "quote_expired" | "insufficient_liquidity" | "amount_bounds" | "invalid_quote" | "invalid_pair" | "slippage_out_of_range" | "invalid_slippage_tolerance" | "missing_quote_timestamp" | "missing_expected_rate" | "missing_min_received" | "quote_stale" | "min_received_violation";
 
 type ReviewState = {
   from: string;
@@ -14,6 +14,8 @@ type ReviewState = {
   amount: number;
   slippageTolerance: number;
   quoteId: string;
+  quoteTimestamp: number;
+  expectedRate: number;
   rate: number;
   fee: number;
   slippageEstimate: number;
@@ -31,7 +33,15 @@ function errorText(code?: QuoteErrorCode) {
     case "amount_bounds":
       return "Amount no longer satisfies the allowed range.";
     case "slippage_out_of_range":
+    case "invalid_slippage_tolerance":
       return "Slippage tolerance is invalid. Return and set a value between 0.10% and 5.00%.";
+    case "quote_stale":
+      return "Quote is stale. Please go back and request a fresh quote.";
+    case "min_received_violation":
+      return "Current market output is below your minimum received amount.";
+    case "missing_quote_timestamp":
+    case "missing_expected_rate":
+    case "missing_min_received":
     case "invalid_quote":
     case "invalid_pair":
     default:
@@ -54,6 +64,8 @@ export default function SwapReviewPage() {
       amount: Number(params.get("amount") || "0"),
       slippageTolerance: Number(params.get("slippageTolerance") || "0"),
       quoteId: params.get("quoteId") || "",
+      quoteTimestamp: Number(params.get("quoteTimestamp") || "0"),
+      expectedRate: Number(params.get("expectedRate") || "0"),
       rate: Number(params.get("rate") || "0"),
       fee: Number(params.get("fee") || "0"),
       slippageEstimate: Number(params.get("slippageEstimate") || "0"),
@@ -72,6 +84,8 @@ export default function SwapReviewPage() {
       nextReview.slippageTolerance < 0.1 ||
       nextReview.slippageTolerance > 5 ||
       !nextReview.quoteId ||
+      !Number.isFinite(nextReview.quoteTimestamp) ||
+      !Number.isFinite(nextReview.expectedRate) ||
       !Number.isFinite(nextReview.expiresAt) ||
       !Number.isFinite(nextReview.rate) ||
       !Number.isFinite(nextReview.fee) ||
@@ -151,7 +165,7 @@ export default function SwapReviewPage() {
             <div className={styles.reviewList}>
               <p><strong>From:</strong> {review.amount} {review.from}</p>
               <p><strong>To (estimated):</strong> {review.expectedReceive} {review.to}</p>
-              <p><strong>Rate:</strong> 1 {review.from} = {review.rate} {review.to}</p>
+              <p><strong>Rate:</strong> 1 {review.from} = {review.expectedRate} {review.to}</p>
               <p><strong>Fee:</strong> {review.fee} {review.to}</p>
               <p><strong>Slippage estimate:</strong> {review.slippageEstimate}%</p>
               <p><strong>Your slippage tolerance:</strong> {review.slippageTolerance}%</p>

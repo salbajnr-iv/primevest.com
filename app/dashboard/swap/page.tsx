@@ -15,7 +15,7 @@ const assets = [
 
 type Asset = (typeof assets)[number];
 
-type QuoteApiErrorCode = "quote_expired" | "insufficient_liquidity" | "amount_bounds" | "invalid_quote" | "invalid_pair" | "slippage_out_of_range";
+type QuoteApiErrorCode = "quote_expired" | "insufficient_liquidity" | "amount_bounds" | "invalid_quote" | "invalid_pair" | "slippage_out_of_range" | "invalid_slippage_tolerance" | "quote_stale" | "min_received_violation";
 
 export default function SwapSelectPage() {
   const router = useRouter();
@@ -48,7 +48,12 @@ export default function SwapSelectPage() {
       case "quote_expired":
         return "Quote expired before confirmation. Please request a new one.";
       case "slippage_out_of_range":
+      case "invalid_slippage_tolerance":
         return "Slippage tolerance must stay between 0.10% and 5.00%.";
+      case "quote_stale":
+        return "Quote is stale. Request a fresh quote and try again.";
+      case "min_received_violation":
+        return "Current market output is below your minimum received amount.";
       case "invalid_quote":
       case "invalid_pair":
       default:
@@ -80,6 +85,8 @@ export default function SwapSelectPage() {
         amount: String(parsedAmount),
         slippageTolerance: String(parsedSlippage),
         quoteId: String(data.quote.quoteId),
+        quoteTimestamp: String(data.quote.quoteTimestamp),
+        expectedRate: String(data.quote.expectedRate),
         rate: String(data.quote.rate),
         fee: String(data.quote.fee),
         slippageEstimate: String(data.quote.slippageEstimate),

@@ -55,22 +55,20 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ok: true,
-      data: {
-        quote,
-        freshness: {
-          source: fromSnapshot.source,
-          fromAsset: {
-            asset: fromSnapshot.asset,
-            pricedAt: fromSnapshot.pricedAt,
-            ageSeconds: fromSnapshot.freshnessAgeSeconds,
-            status: fromSnapshot.freshnessStatus,
-          },
-          toAsset: {
-            asset: toSnapshot.asset,
-            pricedAt: toSnapshot.pricedAt,
-            ageSeconds: toSnapshot.freshnessAgeSeconds,
-            status: toSnapshot.freshnessStatus,
-          },
+      quote,
+      freshness: {
+        source: fromSnapshot.source,
+        fromAsset: {
+          asset: fromSnapshot.asset,
+          pricedAt: fromSnapshot.pricedAt,
+          ageSeconds: fromSnapshot.freshnessAgeSeconds,
+          status: fromSnapshot.freshnessStatus,
+        },
+        toAsset: {
+          asset: toSnapshot.asset,
+          pricedAt: toSnapshot.pricedAt,
+          ageSeconds: toSnapshot.freshnessAgeSeconds,
+          status: toSnapshot.freshnessStatus,
         },
       },
     });
