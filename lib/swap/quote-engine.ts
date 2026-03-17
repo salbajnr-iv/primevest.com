@@ -50,6 +50,21 @@ function isSupported(asset: string) {
   return (SUPPORTED_ASSETS as readonly string[]).includes(asset);
 }
 
+function resolveBaseRate(input: QuoteInput, directRate?: number): number {
+  if (Number.isFinite(directRate) && (directRate as number) > 0) {
+    return directRate as number;
+  }
+  return BASE_RATES[input.from][input.to];
+}
+
+export function deriveCrossRate(fromAssetPriceEur: number, toAssetPriceEur: number): number | null {
+  if (!Number.isFinite(fromAssetPriceEur) || !Number.isFinite(toAssetPriceEur) || fromAssetPriceEur <= 0 || toAssetPriceEur <= 0) {
+    return null;
+  }
+
+  return fromAssetPriceEur / toAssetPriceEur;
+}
+
 export function validateSwapInput(input: QuoteInput): QuoteErrorCode | null {
   if (!isSupported(input.from) || !isSupported(input.to) || input.from === input.to) {
     return "invalid_pair";
@@ -76,8 +91,8 @@ export function validateSwapInput(input: QuoteInput): QuoteErrorCode | null {
   return null;
 }
 
-export function buildQuote(input: QuoteInput, now = Date.now()): SwapQuote {
-  const baseRate = BASE_RATES[input.from][input.to];
+export function buildQuote(input: QuoteInput, now = Date.now(), directRate?: number): SwapQuote {
+  const baseRate = resolveBaseRate(input, directRate);
   const notional = input.amount * baseRate;
 
   const feeRate = 0.0015;

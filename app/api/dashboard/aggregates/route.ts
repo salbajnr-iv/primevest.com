@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDashboardData } from "@/lib/dashboard/queries";
 import type { DashboardDateRange } from "@/lib/dashboard/types";
 import { createClient } from "@/lib/supabase/server";
+import { getLatestMarketFreshness } from "@/lib/market/snapshots";
 
 const ALLOWED_RANGES: DashboardDateRange[] = ["Today", "Last 7 days", "Last 30 days", "Last quarter"];
 
@@ -19,7 +20,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
-  const data = await getDashboardData(supabase, user.id, range);
+  const [data, marketFreshness] = await Promise.all([
+    getDashboardData(supabase, user.id, range),
+    getLatestMarketFreshness(),
+  ]);
 
-  return NextResponse.json({ ok: true, data, range });
+  return NextResponse.json({ ok: true, data, range, marketFreshness });
 }

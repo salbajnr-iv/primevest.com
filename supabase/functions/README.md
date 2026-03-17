@@ -13,3 +13,4 @@ This directory contains server-only operations for payment callbacks and admin w
 - `payment-webhook`
 - `admin-kyc-decision`
 - `admin-balance-adjustment`
+- `market-price-ingest` (scheduled/manual ingestion from CoinGecko into `market_prices` + `asset_snapshots`)
