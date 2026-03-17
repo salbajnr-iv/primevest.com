@@ -6,10 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint && npm run check:support-routes",
     "check:dashboard-routes": "node scripts/check-dashboard-routes.mjs",
     "check:breakpoints": "node scripts/check-breakpoints.mjs",
     "check:routes": "node scripts/check-app-routes.mjs",
+    "check:support-routes": "node scripts/check-support-route-contract.mjs",
     "check:all-routes": "npm run check:dashboard-routes && npm run check:routes"
   },
   "dependencies": {
