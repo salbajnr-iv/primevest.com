@@ -42,7 +42,8 @@ export default function KycUploader({ userId, onUploaded }: { userId: string, on
     const uploaded: UploadedDoc[] = []
 
     for (const f of files) {
-      const path = `user-${userId}/${Date.now()}-${f.name}`
+      const safeName = f.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+      const path = `${userId}/${docType}/${Date.now()}-${safeName}`
       const bucket = 'kyc-documents'
       try {
         const { error: upErr } = await supabase.storage.from(bucket).upload(path, f)
