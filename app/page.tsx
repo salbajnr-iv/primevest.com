@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { BRAND } from "@/lib/brand";
 
 // Investment options
 const investmentOptions = [
@@ -190,7 +191,7 @@ export default function Home() {
             <Link href="/" className="flex items-center group">
               <Image
                 src="/primevest-logo.svg"
-                alt="PrimeVest Financial Solutions, Inc."
+                alt={BRAND.productName}
                 width={140}
                 height={35}
                 className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
@@ -260,7 +261,7 @@ export default function Home() {
                 </svg>
               </button>
               <div className="absolute top-full left-0 mt-2 w-52 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-gray-100 py-2">
-                <Link href="/demo" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-t-lg transition-colors duration-200 text-sm">PrimeVest Financial Solutions, Inc. App</Link>
+                <Link href="/demo" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-t-lg transition-colors duration-200 text-sm">{BRAND.appName}</Link>
                 <Link href="/dashboard/trade" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">Web Trader</Link>
                 <Link href="#" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">MetaTrader 4</Link>
                 <Link href="/platforms/mt4-mobile" className="block px-4 py-2.5 text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-colors duration-200 text-sm">MT4 Mobile</Link>
@@ -540,15 +541,15 @@ style={{ backgroundImage: "url(/herosection.jpg)", backgroundSize: "cover", back
         <div className="max-w-7xl mx-auto space-y-16">
           <motion.div variants={fadeInUp} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-2 space-y-4">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">PrimeVest Vision</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">{BRAND.visionLabel}</p>
               <h2 className="text-heading font-bold text-gray-900">Future-proof investing for modern cities and global markets</h2>
               <p className="text-body text-gray-600 max-w-3xl">
-                Inspired by the PrimeVest Capital Partners entry page, we added a clearer institutional-style introduction to highlight
+                Inspired by the PrimeVest entry page, we added a clearer institutional-style introduction to highlight
                 long-term urban themes alongside your trading and investment platform experience.
               </p>
             </div>
             <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
-              <p className="text-sm text-emerald-700 font-semibold mb-2">PrimeVest Capital</p>
+              <p className="text-sm text-emerald-700 font-semibold mb-2">{BRAND.productName}</p>
               <p className="text-sm text-emerald-900 leading-relaxed">
                 We combine active market access with long-term opportunities in mobility, housing, and digital infrastructure.
               </p>
@@ -578,7 +579,7 @@ style={{ backgroundImage: "url(/herosection.jpg)", backgroundSize: "cover", back
           </motion.div>
 
           <motion.div variants={fadeInUp} className="bg-gray-900 rounded-3xl p-8 md:p-10">
-            <p className="text-center text-gray-300 text-sm mb-8">PrimeVest at a glance</p>
+            <p className="text-center text-gray-300 text-sm mb-8">{BRAND.atAGlanceLabel}</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
               {primevestHighlights.map((item) => (
                 <div key={item.label} className="text-center">
@@ -593,7 +594,7 @@ style={{ backgroundImage: "url(/herosection.jpg)", backgroundSize: "cover", back
             <div className="rounded-2xl border border-gray-200 p-6 bg-gray-50">
               <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600 mb-2">Latest News</p>
               <h4 className="text-xl font-semibold text-gray-900 mb-2">Sustainability report insights</h4>
-              <p className="text-sm text-gray-600 mb-4">Explore PrimeVest updates focused on resilient portfolios and future-ready investing themes.</p>
+              <p className="text-sm text-gray-600 mb-4">Explore {BRAND.updatesLabel} focused on resilient portfolios and future-ready investing themes.</p>
               <Link href="/blog" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700">Read News →</Link>
             </div>
             <div className="rounded-2xl border border-gray-200 p-6 bg-gray-50">
@@ -1109,7 +1110,7 @@ style={{ backgroundImage: "url(/herosection.jpg)", backgroundSize: "cover", back
                   <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" />
                   <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-              <span className="font-bold">PrimeVest Capital</span>
+              <span className="font-bold">{BRAND.productName}</span>
               </Link>
               <p className="text-gray-600 text-sm leading-relaxed">Professional trading platform for everyone. Trade Forex, Crypto, Commodities & more.</p>
             </div>
@@ -1168,7 +1169,7 @@ style={{ backgroundImage: "url(/herosection.jpg)", backgroundSize: "cover", back
           {/* Divider */}
           <div className="border-t border-gray-200 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center text-gray-600 text-sm gap-6">
-              <p>&copy; 2026 PrimeVest Capital. All rights reserved.</p>
+              <p>&copy; 2026 {BRAND.legalEntityName}. All rights reserved.</p>
               <div className="flex gap-6 transition-professional">
                 <a href="#" className="hover:text-emerald-600 transition font-medium">Twitter</a>
                 <a href="#" className="hover:text-emerald-600 transition font-medium">LinkedIn</a>
