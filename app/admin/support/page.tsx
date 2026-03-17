@@ -17,6 +17,7 @@ type SupportTicket = {
 
 export default async function AdminSupportPage() {
   const supabase = await createClient();
+  const activeStatuses = ['open', 'pending'];
 
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -27,7 +28,7 @@ export default async function AdminSupportPage() {
   const { data: tickets } = await supabase
     .from('support_tickets')
     .select('*')
-    .in('status', ['open', 'pending'])
+    .in('status', activeStatuses)
     .order('updated_at', { ascending: false });
 
   return (
