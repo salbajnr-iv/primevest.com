@@ -190,10 +190,11 @@ export default function NotificationsPage() {
   const [clearAllModalOpen, setClearAllModalOpen] = React.useState(false);
   const [updateErrors, setUpdateErrors] = React.useState<Record<string, string>>({});
   const [toolbarError, setToolbarError] = React.useState<string | null>(null);
-  const supabase = React.useMemo(() => createClient(), []);
-
   const fetchUnreadNotifications = React.useCallback(async (userId?: string) => {
-    if (!userId || !supabase) return;
+    if (!userId) return;
+
+    const supabase = createClient();
+    if (!supabase) return;
 
     const { data, error } = await supabase
       .from("notifications")
@@ -210,7 +211,7 @@ export default function NotificationsPage() {
       const currentReadNotifications = current.filter((notification) => notification.is_read);
       return [...unreadNotifications, ...currentReadNotifications];
     });
-  }, [supabase]);
+  }, []);
 
   React.useEffect(() => {
     setIsClient(true);
@@ -223,6 +224,12 @@ export default function NotificationsPage() {
     }
 
     const load = async () => {
+      const supabase = createClient();
+      if (!supabase) {
+        setNotificationsList(notifications);
+        return;
+      }
+
       const { data, error } = await supabase
         .from("notifications")
         .select("*")
@@ -238,12 +245,16 @@ export default function NotificationsPage() {
     };
 
     void load();
-  }, [authLoading, authUser, supabase]);
+  }, [authLoading, authUser]);
+
+  const handleFetchUnreadNotifications = React.useCallback(async () => {
+    await fetchUnreadNotifications(authUser?.id);
+  }, [authUser?.id, fetchUnreadNotifications]);
 
   useNotifications({
     userId: authUser?.id,
     setNotifications: setNotificationsList,
-    fetchUnreadNotifications: () => fetchUnreadNotifications(authUser?.id),
+    fetchUnreadNotifications: handleFetchUnreadNotifications,
     enableReplay: false,
   });
 
@@ -261,7 +272,10 @@ export default function NotificationsPage() {
     const previous = notificationsList;
     setNotificationsList((prev) => prev.map((n) => ({ ...n, is_read: true })));
 
-    if (!authUser || !supabase) return;
+    if (!authUser) return;
+
+    const supabase = createClient();
+    if (!supabase) return;
 
     const { error } = await supabase
       .from("notifications")
@@ -286,7 +300,10 @@ export default function NotificationsPage() {
 
     setNotificationsList((prev) => prev.map((n) => (n.id === clickedNotification.id ? { ...n, is_read: true } : n)));
 
-    if (!authUser || !supabase) return;
+    if (!authUser) return;
+
+    const supabase = createClient();
+    if (!supabase) return;
 
     const { error } = await supabase
       .from("notifications")
