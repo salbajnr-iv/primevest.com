@@ -42,6 +42,10 @@ export async function POST(req: Request) {
       );
     }
 
+    if (fromSnapshot.freshnessStatus === "stale" || toSnapshot.freshnessStatus === "stale") {
+      return errorResponse(503, "SWAP_QUOTE_DEPENDENCY_UNAVAILABLE", "Market snapshots are stale. Please retry shortly.");
+    }
+
     const derivedRate = deriveCrossRate(fromSnapshot.priceEur, toSnapshot.priceEur);
     if (!derivedRate) {
       return errorResponse(

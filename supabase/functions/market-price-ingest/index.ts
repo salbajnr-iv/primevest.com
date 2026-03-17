@@ -20,6 +20,8 @@ type AssetRow = {
   name: string;
 };
 
+type IngestTier = "core" | "tail" | "all";
+
 type SourceHealth = {
   source: string;
   status: "healthy" | "degraded" | "down";
@@ -42,6 +44,8 @@ const COINGECKO_MAP: Record<string, string> = {
   LINK: "chainlink",
 };
 
+const CORE_SYMBOLS = new Set(["BTC", "ETH", "SOL", "BNB", "XRP"]);
+
 const MAX_RETRIES = 3;
 const BASE_BACKOFF_MS = 350;
 
@@ -51,12 +55,30 @@ async function updateSourceHealth(payload: SourceHealth) {
   await supabaseAdmin.from("market_data_source_health").upsert(payload, { onConflict: "source" });
 }
 
+async function logIngestionFailure(payload: {
+  source: string;
+  tier: IngestTier;
+  reason: string;
+  status_code?: number;
+  attempt_count: number;
+  details?: string;
+}) {
+  await supabaseAdmin.from("market_data_ingest_failures").insert({
+    source: payload.source,
+    tier: payload.tier,
+    reason: payload.reason,
+    status_code: payload.status_code ?? null,
+    attempt_count: payload.attempt_count,
+    details: payload.details ?? null,
+  });
+}
+
 async function fetchWithRetry(url: string) {
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
     const response = await fetch(url, { headers: { accept: "application/json" } });
 
     if (response.ok) {
-      return response;
+      return { response, attemptCount: attempt + 1 };
     }
 
     if (attempt < MAX_RETRIES && (response.status === 429 || response.status >= 500)) {
@@ -66,7 +88,7 @@ async function fetchWithRetry(url: string) {
       continue;
     }
 
-    return response;
+    return { response, attemptCount: attempt + 1 };
   }
 
   throw new Error("Unreachable retry state");
@@ -78,6 +100,14 @@ Deno.serve(async (req) => {
   }
 
   const start = Date.now();
+  const url = new URL(req.url);
+  const rawTier = (url.searchParams.get("tier") || "").toLowerCase();
+  const bodyTier = req.method === "POST" ? await req.clone().json().catch(() => ({})) as { tier?: string } : {};
+  const tier = (bodyTier.tier || rawTier || "all") as IngestTier;
+
+  if (!["core", "tail", "all"].includes(tier)) {
+    return badRequest("Invalid tier. Expected one of: core, tail, all.");
+  }
 
   try {
     const { data: assets, error: assetError } = await supabaseAdmin
@@ -91,6 +121,11 @@ Deno.serve(async (req) => {
 
     const trackedAssets = ((assets ?? []) as AssetRow[])
       .map((asset) => ({ ...asset, symbol: asset.symbol.toUpperCase() }))
+      .filter((asset) => {
+        if (tier === "all") return true;
+        if (tier === "core") return CORE_SYMBOLS.has(asset.symbol);
+        return !CORE_SYMBOLS.has(asset.symbol);
+      })
       .filter((asset) => Boolean(COINGECKO_MAP[asset.symbol]));
 
     if (!trackedAssets.length) {
@@ -102,11 +137,11 @@ Deno.serve(async (req) => {
         failure_count: 1,
         details: "No active mapped assets",
       });
-      return json({ ok: true, ingested: 0, snapshotsRefreshed: 0, message: "No tracked assets configured." });
+      return json({ ok: true, ingested: 0, snapshotsRefreshed: 0, tier, message: "No tracked assets configured." });
     }
 
     const ids = trackedAssets.map((asset) => COINGECKO_MAP[asset.symbol]).join(",");
-    const feedResponse = await fetchWithRetry(
+    const { response: feedResponse, attemptCount } = await fetchWithRetry(
       `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=eur&include_last_updated_at=true`,
     );
 
@@ -120,6 +155,14 @@ Deno.serve(async (req) => {
         failure_count: 1,
         details: `CoinGecko error (${feedResponse.status}): ${body}`,
       });
+      await logIngestionFailure({
+        source: "coingecko",
+        tier,
+        reason: feedResponse.status === 429 ? "rate_limited" : "provider_http_error",
+        status_code: feedResponse.status,
+        attempt_count: attemptCount,
+        details: body.slice(0, 500),
+      });
       return errorResponse(`CoinGecko error (${feedResponse.status}): ${body}`, 502);
     }
 
@@ -131,16 +174,21 @@ Deno.serve(async (req) => {
         const quote = payload[coinId];
         if (!quote || !Number.isFinite(quote.eur)) return null;
 
-        const pricedAt = quote.last_updated_at ? new Date(quote.last_updated_at * 1000).toISOString() : new Date().toISOString();
-        const ageSeconds = getAgeSeconds(pricedAt);
+        const sourceCapturedAt = quote.last_updated_at
+          ? new Date(quote.last_updated_at * 1000).toISOString()
+          : new Date().toISOString();
+        const ingestedAt = new Date().toISOString();
+        const ageSeconds = getAgeSeconds(sourceCapturedAt);
 
         return {
           asset_id: asset.id,
           asset: asset.symbol,
           last_price: quote.eur,
+          price: quote.eur,
           source: "coingecko",
           status: getMarketFreshnessState(ageSeconds),
-          priced_at: pricedAt,
+          captured_at: sourceCapturedAt,
+          priced_at: ingestedAt,
         };
       })
       .filter(Boolean);
@@ -157,7 +205,9 @@ Deno.serve(async (req) => {
       return json({ ok: true, ingested: 0, snapshotsRefreshed: 0, message: "No prices returned by provider." });
     }
 
-    const { error: insertError } = await supabaseAdmin.from("market_prices").insert(rows);
+    const { error: insertError } = await supabaseAdmin
+      .from("market_prices")
+      .upsert(rows, { onConflict: "asset_id,source,captured_at", ignoreDuplicates: true });
     if (insertError) {
       throw insertError;
     }
@@ -182,6 +232,7 @@ Deno.serve(async (req) => {
     logInfo("market_price_ingest", {
       ingested: rows.length,
       snapshotsRefreshed: snapshotRefreshCount ?? 0,
+      tier,
     });
 
     return json({
@@ -189,9 +240,17 @@ Deno.serve(async (req) => {
       source: "coingecko",
       ingested: rows.length,
       snapshotsRefreshed: snapshotRefreshCount ?? 0,
+      tier,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
+    await logIngestionFailure({
+      source: "coingecko",
+      tier,
+      reason: "runtime_error",
+      attempt_count: MAX_RETRIES + 1,
+      details: String(error).slice(0, 500),
+    });
     await updateSourceHealth({
       source: "coingecko",
       status: "down",
