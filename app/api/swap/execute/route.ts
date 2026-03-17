@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server";
 import { buildQuote, humanizeQuoteError, validateSwapInput } from "@/lib/swap/quote-engine";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+
+type RpcSwapResult = {
+  success: boolean;
+  code: string;
+  message: string;
+  swap_id: string | null;
+  transaction_id: string | null;
+};
 
 export async function POST(req: Request) {
   try {
@@ -55,11 +64,53 @@ export async function POST(req: Request) {
       );
     }
 
-    const executionId = `SWP-${Date.now()}`;
+    const supabase = await createServerClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ ok: false, code: "AUTH_REQUIRED", error: "Authentication required." }, { status: 401 });
+    }
+
+    const { data: rpcData, error: rpcError } = await supabase.rpc("execute_swap_atomic", {
+      p_source_asset: input.from,
+      p_destination_asset: input.to,
+      p_source_amount: input.amount,
+      p_destination_amount: expectedQuote.expectedReceive,
+      p_quote_id: expectedQuote.quoteId,
+      p_metadata: {
+        min_received: clientMinReceived,
+        slippage_tolerance: input.slippageTolerance,
+        quote_expires_at: new Date(clientExpiresAt).toISOString(),
+      },
+    });
+
+    if (rpcError) {
+      return NextResponse.json({ ok: false, code: "SWAP_RPC_FAILED", error: rpcError.message }, { status: 500 });
+    }
+
+    const result: RpcSwapResult | undefined = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+
+    if (!result?.success || !result.swap_id || !result.transaction_id) {
+      const code = result?.code || "SWAP_FAILED";
+      const status = code === "KYC_REQUIRED" ? 403 : code === "INSUFFICIENT_FUNDS" ? 400 : 422;
+      return NextResponse.json(
+        {
+          ok: false,
+          code,
+          error: result?.message || "Swap execution failed.",
+        },
+        { status },
+      );
+    }
 
     return NextResponse.json({
       ok: true,
-      executionId,
+      executionId: result.swap_id,
+      swap_id: result.swap_id,
+      transaction_id: result.transaction_id,
       settledAmount: expectedQuote.expectedReceive,
       quote: expectedQuote,
     });
