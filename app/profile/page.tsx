@@ -6,12 +6,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import KycUploader from '@/components/KycUploader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Users, CheckCircle } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Loader2, Save, User } from 'lucide-react';
 
 export default function ProfilePage() {
   const supabase = createClient();
   const { user } = useAuth();
-  const [profile, setProfile] = useState<{ full_name: string; avatar_url: string }>({ full_name: '', avatar_url: '' });
+  const [profile, setProfile] = useState<{ full_name: string; avatar_url: string; avatar_storage_path?: string }>({ full_name: '', avatar_url: '' });
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -27,12 +30,31 @@ export default function ProfilePage() {
     if (!supabase) return;
     const { data, error } = await supabase
       .from('profiles')
-      .select('full_name, avatar_url')
+      .select('full_name, avatar_url, avatar_storage_path')
       .eq('id', user!.id)
       .single();
 
     if (error) console.error('Fetch profile error:', error);
-    else setProfile(data || { full_name: '', avatar_url: '' });
+    else {
+      const nextProfile = data || { full_name: '', avatar_url: '' };
+      setProfile(nextProfile);
+
+      if (nextProfile.avatar_storage_path) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData.session?.access_token;
+        if (token) {
+          const resp = await fetch('/api/profile/avatar-url', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (resp.ok) {
+            const body = await resp.json();
+            if (body?.url) {
+              setProfile((prev) => ({ ...prev, avatar_url: body.url }));
+            }
+          }
+        }
+      }
+    }
   }
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,23 +69,19 @@ export default function ProfilePage() {
     if (!supabase || !user) return;
     setSaving(true);
     try {
-      const updateData = { full_name: profile.full_name } as any;
+      const updateData: { full_name: string; avatar_storage_path?: string } = { full_name: profile.full_name };
 
       // Upload avatar if new file
       if (avatarFile) {
-        const fileExt = avatarFile.name.split('.').pop();
-        const path = `${user.id}/${Date.now()}.${fileExt}`;
+        const safeName = avatarFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = `${user.id}/profile/${Date.now()}-${safeName}`;
         const { error: uploadError } = await supabase.storage
           .from('avatars')
           .upload(path, avatarFile);
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(path);
-
-        updateData.avatar_url = publicUrl;
+        updateData.avatar_storage_path = path;
       }
 
       const { error } = await supabase
