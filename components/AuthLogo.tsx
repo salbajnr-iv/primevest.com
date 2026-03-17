@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { BRAND } from '@/lib/brand'
 
 interface AuthLogoProps {
   className?: string
@@ -6,7 +7,7 @@ interface AuthLogoProps {
 
 export default function AuthLogo({ className = 'w-16 h-16 mx-auto mb-4' }: AuthLogoProps) {
   return (
-    <div className={className} aria-label="PrimeVest logo" role="img">
+    <div className={className} aria-label={`${BRAND.productName} logo`} role="img">
       <svg viewBox="0 0 256 256" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="primevestLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
