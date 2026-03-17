@@ -9,7 +9,7 @@ export interface AppNotification {
   title: string;
   message: string;
   time: string;
-  read: boolean;
+  is_read: boolean;
   action?: string;
 }
 
@@ -19,7 +19,7 @@ export interface NotificationRow {
   title: string | null;
   message: string | null;
   created_at: string | null;
-  read: boolean | null;
+  is_read: boolean | null;
   action?: string | null;
 }
 
@@ -42,7 +42,7 @@ export function mapNotificationRow(row: NotificationRow): AppNotification {
     title: row.title ?? "Notification",
     message: row.message ?? "",
     time: row.created_at ? new Date(row.created_at).toLocaleString() : "",
-    read: Boolean(row.read),
+    is_read: Boolean(row.is_read),
     action: row.action ?? undefined,
   };
 }
@@ -88,7 +88,7 @@ export function useNotifications({
 
           const { data, error } = await supabase
             .from("notifications")
-            .select("id, type, title, message, created_at, read, action")
+            .select("id, type, title, message, created_at, is_read, action")
             .eq("id", notificationId)
             .eq("user_id", userId)
             .maybeSingle();
