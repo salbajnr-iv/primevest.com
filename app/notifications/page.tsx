@@ -17,6 +17,7 @@ interface Notification {
   title: string;
   message: string;
   time: string;
+  createdAt?: string;
   read: boolean;
   action?: string;
 }
@@ -258,6 +259,62 @@ export default function NotificationsPage() {
   const [updateErrors, setUpdateErrors] = React.useState<Record<string, string>>({});
   const [toolbarError, setToolbarError] = React.useState<string | null>(null);
   const supabase = createClient();
+  const hasFetchedUnreadOnMountRef = React.useRef(false);
+
+  const mapSupabaseNotification = React.useCallback((row: {
+    id: number;
+    type?: "success" | "warning" | "info" | "promo";
+    title?: string;
+    message?: string;
+    created_at?: string;
+    read?: boolean;
+    is_read?: boolean;
+    action?: string;
+  }): Notification => ({
+    id: String(row.id),
+    type: row.type || "info",
+    title: row.title || "Notification",
+    message: row.message || "",
+    time: row.created_at ? new Date(row.created_at).toLocaleString() : "",
+    createdAt: row.created_at,
+    read: Boolean(row.read ?? row.is_read),
+    action: row.action || undefined,
+  }), []);
+
+  const fetchUnreadNotifications = React.useCallback(async (userId: string) => {
+    if (!supabase) {
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("is_read", false)
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.warn("Failed to refresh unread notifications", error);
+        return;
+      }
+
+      const unreadNotifications = (data ?? []).map(mapSupabaseNotification);
+      setNotificationsList((current) => {
+        const currentReadNotifications = current.filter((notification) => notification.read);
+        const merged = [...unreadNotifications, ...currentReadNotifications];
+
+        return merged.sort((left, right) => {
+          const leftDate = left.createdAt ? new Date(left.createdAt).getTime() : 0;
+          const rightDate = right.createdAt ? new Date(right.createdAt).getTime() : 0;
+          return rightDate - leftDate;
+        });
+      });
+    } catch (err) {
+      console.error("Failed to refresh unread notifications", err);
+    }
+  }, [mapSupabaseNotification, supabase]);
 
   React.useEffect(() => {
     setIsClient(true);
@@ -265,6 +322,7 @@ export default function NotificationsPage() {
 
   React.useEffect(() => {
     if (authLoading || !authUser) {
+      hasFetchedUnreadOnMountRef.current = false;
       setNotificationsList(notifications);
       return;
     }
@@ -296,15 +354,7 @@ export default function NotificationsPage() {
             action?: string;
           }
 
-          const mapped = data.map((row: SupabaseNotification) => ({
-            id: String(row.id),
-            type: row.type || "info",
-            title: row.title || "Notification",
-            message: row.message || "",
-            time: row.created_at ? new Date(row.created_at).toLocaleString() : "",
-            read: !!row.read,
-            action: row.action || undefined,
-          }));
+          const mapped = data.map((row: SupabaseNotification) => mapSupabaseNotification(row));
           setNotificationsList(mapped);
         } else {
           setNotificationsList(notifications);
@@ -314,7 +364,59 @@ export default function NotificationsPage() {
         setNotificationsList(notifications);
       }
     })();
-  }, [authLoading, authUser, supabase]);
+  }, [authLoading, authUser, mapSupabaseNotification, supabase]);
+
+  React.useEffect(() => {
+    if (!authUser || authLoading || hasFetchedUnreadOnMountRef.current) {
+      return;
+    }
+
+    hasFetchedUnreadOnMountRef.current = true;
+    void fetchUnreadNotifications(authUser.id);
+  }, [authLoading, authUser, fetchUnreadNotifications]);
+
+  React.useEffect(() => {
+    if (!authUser || !supabase) {
+      return;
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void fetchUnreadNotifications(authUser.id);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [authUser, fetchUnreadNotifications, supabase]);
+
+  React.useEffect(() => {
+    if (!authUser || !supabase) {
+      return;
+    }
+
+    const channel = supabase
+      .channel(`notifications-unread-${authUser.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${authUser.id}` },
+        () => {
+          void fetchUnreadNotifications(authUser.id);
+        }
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          void fetchUnreadNotifications(authUser.id);
+        }
+      });
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [authUser, fetchUnreadNotifications, supabase]);
 
   const unreadCount = notificationsList.filter((n) => !n.read).length;
 
