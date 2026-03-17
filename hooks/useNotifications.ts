@@ -54,10 +54,13 @@ export function useNotifications({
   enableReplay = false,
   replaySince,
 }: UseNotificationsOptions) {
-  const supabase = React.useMemo(() => createClient(), []);
-
   React.useEffect(() => {
-    if (!userId || !supabase) {
+    if (!userId) {
+      return;
+    }
+
+    const supabase = createClient();
+    if (!supabase) {
       return;
     }
 
@@ -114,5 +117,5 @@ export function useNotifications({
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [enableReplay, fetchUnreadNotifications, replaySince, setNotifications, supabase, userId]);
+  }, [enableReplay, fetchUnreadNotifications, replaySince, setNotifications, userId]);
 }

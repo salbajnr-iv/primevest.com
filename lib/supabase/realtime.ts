@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
 import { createClient } from './client';
-import type { UserResponse } from '@supabase/supabase-js';
 
 interface RealtimeReply {
   id: number;
@@ -13,17 +12,20 @@ interface RealtimeReply {
 }
 
 export type { RealtimeReply };
+
 export function useTicketRealtime(ticketId: number | null, initialMessages: RealtimeReply[] = []) {
   const [messages, setMessages] = useState<RealtimeReply[]>(initialMessages);
   const [loading, setLoading] = useState(false);
-  const supabase = createClient();
 
-  const subscribe = useCallback(() => {
-    if (!ticketId || !supabase) return;
+  useEffect(() => {
+    if (!ticketId) return;
 
-    const channel = supabase.channel(`realtime:ticket-${ticketId}`);
+    const supabase = createClient();
+    if (!supabase) return;
 
-    const changes = channel
+
+    const channel = supabase
+      .channel(`realtime:ticket-${ticketId}`)
       .on(
         'postgres_changes',
         {
@@ -33,8 +35,8 @@ export function useTicketRealtime(ticketId: number | null, initialMessages: Real
           filter: `ticket_id=eq.${ticketId}`,
         },
         (payload) => {
-        const newReply = payload.new as RealtimeReply;
-        setMessages((prev) => [...prev, newReply]);
+          const newReply = payload.new as RealtimeReply;
+          setMessages((prev) => [...prev, newReply]);
         }
       )
       .subscribe((status) => {
@@ -42,49 +44,47 @@ export function useTicketRealtime(ticketId: number | null, initialMessages: Real
       });
 
     return () => {
-      supabase.removeChannel(channel);
+      void supabase.removeChannel(channel);
     };
-  }, [ticketId, supabase]);
+  }, [ticketId]);
 
-  useEffect(() => {
-    const unsub = subscribe();
-    return unsub;
-  }, [subscribe]);
+  const sendMessage = useCallback(
+    async (message: string, isStaff = false): Promise<void> => {
+      if (!ticketId) return;
 
-  const sendMessage = async (message: string, isStaff = false): Promise<void> => {
-    if (!supabase || !ticketId) return;
+      const supabase = createClient();
+      if (!supabase) return;
 
-    const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id || 'anonymous';
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      const userId = user?.id || 'anonymous';
 
-    // Optimistic
-    const optimistic: RealtimeReply = {
-      id: Date.now(),
-      ticket_id: ticketId,
-      user_id: userId,
-      message,
-      is_staff: isStaff,
-      created_at: new Date().toISOString(),
-      seen_at: null,
-    };
-    setMessages((prev) => [...prev, optimistic]);
+      const optimistic: RealtimeReply = {
+        id: Date.now(),
+        ticket_id: ticketId,
+        user_id: userId,
+        message,
+        is_staff: isStaff,
+        created_at: new Date().toISOString(),
+        seen_at: null,
+      };
+      setMessages((prev) => [...prev, optimistic]);
 
-    const { error } = await supabase
-      .from('support_ticket_replies')
-      .insert({
+      const { error } = await supabase.from('support_ticket_replies').insert({
         ticket_id: ticketId,
         user_id: userId,
         message,
         is_staff: isStaff,
       });
 
-    if (error) {
-      // Rollback
-      setMessages((prev) => prev.slice(0, -1));
-      console.error('Send failed:', error);
-    }
-  };
+      if (error) {
+        setMessages((prev) => prev.slice(0, -1));
+        console.error('Send failed:', error);
+      }
+    },
+    [ticketId]
+  );
 
-  return { messages, sendMessage, loading, subscribe };
+  return { messages, sendMessage, loading };
 }
-
