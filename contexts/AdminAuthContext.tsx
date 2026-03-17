@@ -1,8 +1,8 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
-import { createBrowserClient } from '@supabase/ssr'
 import type { User, Session, AuthError } from '@supabase/supabase-js'
+import { createClient, setRealtimeAuth } from '@/lib/supabase/client'
 
 interface AdminAuthContextType {
   user: User | null
@@ -22,11 +22,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  const supabase = supabaseUrl && supabaseAnonKey
-    ? createBrowserClient(supabaseUrl, supabaseAnonKey)
-    : null
+  const supabase = createClient()
 
   // Check if user is admin
   const checkAdminStatus = useCallback(async (userId: string): Promise<boolean> => {
@@ -62,6 +58,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
 
     // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      await setRealtimeAuth(session?.access_token, supabase)
       setSession(session)
       setUser(session?.user ?? null)
       
@@ -77,6 +74,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      await setRealtimeAuth(session?.access_token, supabase)
       setSession(session)
       setUser(session?.user ?? null)
       
@@ -115,6 +113,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (!supabase) return
 
+      await setRealtimeAuth(undefined, supabase)
       const { error } = await supabase.auth.signOut()
       if (error) {
         console.error('Admin sign out error:', error)
