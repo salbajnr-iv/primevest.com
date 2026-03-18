@@ -69,6 +69,11 @@ export default function AdminSupportPage() {
     void loadTickets();
   });
 
+  const { data: tickets } = await supabase
+    .from('support_tickets')
+    .select('*')
+    .in('status', activeStatuses)
+    .order('updated_at', { ascending: false });
   if (isAuthorized === null) return <div>Loading...</div>;
   if (!isAuthorized) return <div>Not authorized</div>;
 
