@@ -1,10 +1,26 @@
-import eslintConfigRecommended from "@eslint/js";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypeScript from "eslint-config-next/typescript";
 
-export default [
-  eslintConfigRecommended.configs.recommended,
+const eslintConfig = [
+  ...nextCoreWebVitals,
+  ...nextTypeScript,
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    rules: {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
+  },
+  {
+    files: ["**/*.js", "**/*.cjs"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
   {
     rules: {
-      "no-unused-vars": "warn",
+      "react/no-unescaped-entities": "warn",
       "no-console": "off",
     },
   },
@@ -17,3 +33,5 @@ export default [
     ],
   },
 ];
+
+export default eslintConfig;
