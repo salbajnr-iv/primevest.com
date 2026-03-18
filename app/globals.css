@@ -2028,6 +2028,8 @@ h2 {
   align-items: center;
   justify-content: center;
   background: transparent;
+}
+
 .nav-button {
   background: none;
   border: none;
@@ -2071,7 +2073,7 @@ h2 {
   }
 }
 
-   SIDEBAR STYLES
+/* SIDEBAR STYLES */
 
 .sidebar-overlay {
   position: fixed;
@@ -3993,7 +3995,6 @@ h2 {
   color: var(--muted);
 }
 
-}
 
 .pairs-scroll {
   display: flex;
@@ -4164,6 +4165,8 @@ h2 {
 .spread-label {
   font-size: 10px;
   color: var(--muted);
+}
+
 .stats-row {
   display: flex;
   gap: 10px;
@@ -5119,5 +5122,4 @@ h2 {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
-}
 }
