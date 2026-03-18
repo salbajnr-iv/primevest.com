@@ -42,6 +42,10 @@ export async function POST(req: Request) {
       );
     }
 
+    if (fromSnapshot.freshnessStatus === "stale" || toSnapshot.freshnessStatus === "stale") {
+      return errorResponse(503, "SWAP_QUOTE_DEPENDENCY_UNAVAILABLE", "Market snapshots are stale. Please retry shortly.");
+    }
+
     const derivedRate = deriveCrossRate(fromSnapshot.priceEur, toSnapshot.priceEur);
     if (!derivedRate) {
       return errorResponse(
@@ -55,22 +59,20 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ok: true,
-      data: {
-        quote,
-        freshness: {
-          source: fromSnapshot.source,
-          fromAsset: {
-            asset: fromSnapshot.asset,
-            pricedAt: fromSnapshot.pricedAt,
-            ageSeconds: fromSnapshot.freshnessAgeSeconds,
-            status: fromSnapshot.freshnessStatus,
-          },
-          toAsset: {
-            asset: toSnapshot.asset,
-            pricedAt: toSnapshot.pricedAt,
-            ageSeconds: toSnapshot.freshnessAgeSeconds,
-            status: toSnapshot.freshnessStatus,
-          },
+      quote,
+      freshness: {
+        source: fromSnapshot.source,
+        fromAsset: {
+          asset: fromSnapshot.asset,
+          pricedAt: fromSnapshot.pricedAt,
+          ageSeconds: fromSnapshot.freshnessAgeSeconds,
+          status: fromSnapshot.freshnessStatus,
+        },
+        toAsset: {
+          asset: toSnapshot.asset,
+          pricedAt: toSnapshot.pricedAt,
+          ageSeconds: toSnapshot.freshnessAgeSeconds,
+          status: toSnapshot.freshnessStatus,
         },
       },
     });

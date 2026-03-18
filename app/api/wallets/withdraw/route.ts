@@ -87,7 +87,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Amount must be greater than fee" }, { status: 400 });
     }
 
-    const { data: rpcData, error: rpcErr } = await supabase.rpc("request_withdrawal_atomic", {
+    const { data: rpcData, error: rpcErr } = await supabase.rpc("request_withdrawal_review", {
       p_currency: currency,
       p_destination: destination,
       p_amount: amount,
@@ -138,8 +138,8 @@ export async function GET(req: Request) {
     }
 
     const reference = new URL(req.url).searchParams.get("reference") || "";
-    const txId = Number(reference.replace("WDR-", ""));
-    if (!Number.isInteger(txId) || txId <= 0) {
+    const txId = reference.replace("WDR-", "").trim();
+    if (!/^[0-9a-fA-F-]{36}$/.test(txId)) {
       return NextResponse.json({ error: "Invalid withdrawal reference" }, { status: 400 });
     }
 

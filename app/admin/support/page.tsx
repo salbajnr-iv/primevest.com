@@ -1,6 +1,10 @@
-import { createClient } from '@/lib/supabase/server';
+"use client";
+
+import * as React from 'react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
+import { createClient } from '@/lib/supabase/client';
+import { useSupportTicketRepliesRealtime, useSupportTicketStatusRealtime } from '@/lib/supabase/realtime';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -15,21 +19,63 @@ type SupportTicket = {
   open_at: string;
 };
 
-export default async function AdminSupportPage() {
-  const supabase = await createClient();
-  const activeStatuses = ['open', 'pending'];
+export default function AdminSupportPage() {
+  const [isAuthorized, setIsAuthorized] = React.useState<boolean | null>(null);
+  const [tickets, setTickets] = React.useState<SupportTicket[]>([]);
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const loadTickets = React.useCallback(async () => {
+    const supabase = createClient();
+    if (!supabase) return;
 
-  if (!user || !user.email?.includes('admin')) {
-    return <div>Not authorized</div>;
-  }
+    const activeStatuses = ['open', 'pending'];
+    const { data } = await supabase
+      .from('support_tickets')
+      .select('*')
+      .in('status', activeStatuses)
+      .order('updated_at', { ascending: false });
+
+    setTickets((data as SupportTicket[]) || []);
+  }, []);
+
+  React.useEffect(() => {
+    const initialize = async () => {
+      const supabase = createClient();
+      if (!supabase) {
+        setIsAuthorized(false);
+        return;
+      }
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user || !user.email?.includes('admin')) {
+        setIsAuthorized(false);
+        return;
+      }
+
+      setIsAuthorized(true);
+      await loadTickets();
+    };
+
+    void initialize();
+  }, [loadTickets]);
+
+  useSupportTicketStatusRealtime(() => {
+    void loadTickets();
+  });
+
+  useSupportTicketRepliesRealtime(() => {
+    void loadTickets();
+  });
 
   const { data: tickets } = await supabase
     .from('support_tickets')
     .select('*')
     .in('status', activeStatuses)
     .order('updated_at', { ascending: false });
+  if (isAuthorized === null) return <div>Loading...</div>;
+  if (!isAuthorized) return <div>Not authorized</div>;
 
   return (
     <div className="space-y-4">
@@ -40,7 +86,7 @@ export default async function AdminSupportPage() {
         </Link>
       </div>
 
-      {tickets && tickets.length === 0 ? (
+      {tickets.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center">
             <h3>No open chats</h3>
@@ -49,7 +95,7 @@ export default async function AdminSupportPage() {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {tickets?.map((ticket: SupportTicket) => (
+          {tickets.map((ticket) => (
             <Link key={ticket.id} href={`/admin/support/${ticket.id}`} className="block">
               <Card>
                 <CardHeader>

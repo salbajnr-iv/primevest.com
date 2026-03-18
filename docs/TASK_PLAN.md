@@ -19,6 +19,15 @@
   - Required env vars are configured in deployment.
   - Admin route strategy (`/admin` and optional admin subdomain) is verified in production.
 
+- **Deployment verification status (2026-03-17 23:14 UTC):**
+  - Environment: production
+  - 202610* migration order in repository: verified sequential filenames; production application status requires DB operator execution evidence.
+  - Runbook SQL validation: prepared (`sql/supabase-admin-post-migration-validation.sql`), but production execution must be performed against the production database.
+  - `public.set_admin_role(...)`: operator promotion evidence must be captured in production SQL output.
+  - Env controls: runtime contains `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and service-role key; move `NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY` to server-only `SUPABASE_SERVICE_ROLE_KEY`.
+  - Route/auth gating: `/admin/support` and `/admin/support/[id]` are now covered by admin middleware scope in code.
+  - Operator sign-off: pending DB Operator + App Operator + Release Owner.
+
 ### 2) Add swap execution safeguards/details (rate, slippage, minimum received)
 - **Owner:** Frontend + Backend
 - **Dependency:** code (+ optional quote API)
@@ -35,6 +44,13 @@
   - Profile upsert policy migration has been executed in the target Supabase environment.
   - Profile edit/save succeeds end-to-end for authenticated users without console/API errors.
   - Regression checks confirm persisted profile fields remain consistent after reload.
+  - Release QA checklist includes explicit profile save verification (create + update + reload/session refresh).
+
+- **QA checklist update (2026-03-18):**
+  - [ ] Confirm `supabase/migrations/20260315_fix_profile_rls.sql` is present in deployment migration history for each target environment.
+  - [ ] Execute `supabase/tests/profile_upsert_rls_regression.sql` in target DB and capture query output evidence.
+  - [ ] Validate `/profile` UI save flow in authenticated session for both first-save (create) and subsequent-save (update).
+  - [ ] After save, reload profile page and refresh auth session; verify saved `full_name` and avatar path remain persisted without fallback values.
 
 ## P1 — Core Product UX
 
@@ -134,28 +150,46 @@
 
 ### Remediation tracker (owner + acceptance criteria per page)
 
-> **Screenshot gate (required for every page fix):** each remediation PR must include **before + after screenshots** for the modified route(s). Store artifacts under `docs/ui-audit/<route-slug>/before.png` and `docs/ui-audit/<route-slug>/after.png`, and link both in the PR description.
+> **Screenshot gate (required for every page fix):** capture **before + after screenshots** for modified route(s) under `docs/ui-audit/<route-slug>/before.png` and `docs/ui-audit/<route-slug>/after.png` during QA. This repository does not commit binary screenshot files; keep capture notes in `docs/ui-audit/<route-slug>/README.md` and attach images in PR/review tooling.
 
-| Route | Priority | Owner | Acceptance criteria |
-|---|---|---|---|
-| `/dashboard/buy` | P0 | Frontend (Trading) | Uses shared `PageSectionHeader`, `FeatureCard`, and standard `Button` variants; removes fragmented legacy blocks; mobile/desktop layouts verified; before/after screenshots attached. |
-| `/dashboard/sell` | P0 | Frontend (Trading) | Matches buy-flow visual system and spacing scale; unifies button/form styles; responsive behavior verified at mobile/tablet/desktop; before/after screenshots attached. |
-| `/dashboard/deposit` | P0 | Frontend (Payments) | Multi-step deposit flow uses consistent card hierarchy and input controls; payment-method tiles and CTA states normalized; before/after screenshots attached. |
-| `/support/contact` | P1 | Frontend (Support) | Replace legacy `btn/card` treatment with shared UI primitives; maintain success/error/empty states; before/after screenshots attached. |
-| `/support/tickets` | P1 | Frontend (Support) | Normalize table/filter/action styling and spacing; improve hierarchy in detail pane; preserve ticket state actions; before/after screenshots attached. |
-| `/tools/economic-calendar` | P1 | Frontend (Tools) | Align section spacing, headings, and CTA styles to tools hub; preserve existing data interactions; before/after screenshots attached. |
-| `/tools/market-news` | P1 | Frontend (Tools) | Standardize cards, typography rhythm, and action controls; remove visual placeholders where possible; before/after screenshots attached. |
-| `/tools/analysis` | P1 | Frontend (Tools) | Clarify section hierarchy and control grouping; align icon/button variants to design system; before/after screenshots attached. |
-| `/tools/trading-view` | P1 | Frontend (Tools) | Bring panel and control styling in line with tools design language; confirm responsive chart container behavior; before/after screenshots attached. |
-| `/dashboard` | P1 | Frontend (Dashboard Core) | Shell landing content uses consistent typography and spacing tokens; navigation actions visually unified; before/after screenshots attached. |
-| `/dashboard/overview` | P1 | Frontend (Dashboard Core) | KPI/stat/summary blocks share card and heading scale; clear visual hierarchy for primary actions; before/after screenshots attached. |
-| `/dashboard/asset-center` | P1 | Frontend (Dashboard Core) | Asset list/filter controls and summary widgets use consistent spacing and buttons; verify responsiveness; before/after screenshots attached. |
-| `/dashboard/trade` | P1 | Frontend (Trading) | Order form controls and action buttons mapped to shared component variants; spacing and status messaging standardized; before/after screenshots attached. |
-| `/dashboard/orders` | P1 | Frontend (Trading) | Table and filter toolbar aligned to consistent layout and button system; empty/loading/error states visually aligned; before/after screenshots attached. |
-| `/dashboard/portfolio` | P1 | Frontend (Portfolio) | Portfolio sections follow consistent heading, spacing, and card rhythm; action buttons standardized; before/after screenshots attached. |
-| `/dashboard/positions` | P1 | Frontend (Portfolio) | Positions table/cards use unified visual language with clear hierarchy for status and actions; before/after screenshots attached. |
-| `/dashboard/swap` | P1 | Frontend (Trading) | Quote/slippage controls fully migrated to shared form and button primitives; responsive dropdown behavior validated; before/after screenshots attached. |
-| `/support/status` | P2 | Frontend (Support) | Minor typography/icon/button consistency polish with no flow changes; before/after screenshots attached. |
-| `/support/community` | P2 | Frontend (Support) | Apply light consistency pass for cards, icon badges, and spacing; before/after screenshots attached. |
-| `/support` | P2 | Frontend (Support) | Optional polish for micro-spacing and badge consistency while preserving current structure; before/after screenshots attached. |
-| `/` | P2 | Frontend (Marketing) | Polish-only adjustments must retain current visual hierarchy and performance; before/after screenshots attached. |
+| Route | Priority | Owner | Status | Acceptance criteria |
+|---|---|---|---|---|
+| `/dashboard/buy` | P0 | Frontend (Trading) | In progress (UI updated; authenticated visual captures pending in PR tooling) | Uses shared `PageSectionHeader`, `FeatureCard`, and standard `Button` variants; removes fragmented legacy blocks; mobile/desktop layouts verified; before/after screenshots attached. |
+| `/dashboard/sell` | P0 | Frontend (Trading) | In progress (UI updated; authenticated visual captures pending in PR tooling) | Matches buy-flow visual system and spacing scale; unifies button/form styles; responsive behavior verified at mobile/tablet/desktop; before/after screenshots attached. |
+| `/dashboard/deposit` | P0 | Frontend (Payments) | In progress (UI updated; authenticated visual captures pending in PR tooling) | Multi-step deposit flow uses consistent card hierarchy and input controls; payment-method tiles and CTA states normalized; before/after screenshots attached. |
+| `/support/contact` | P1 | Frontend (Support) | Pending | Replace legacy `btn/card` treatment with shared UI primitives; maintain success/error/empty states; before/after screenshots attached. |
+| `/support/tickets` | P1 | Frontend (Support) | Pending | Normalize table/filter/action styling and spacing; improve hierarchy in detail pane; preserve ticket state actions; before/after screenshots attached. |
+| `/tools/economic-calendar` | P1 | Frontend (Tools) | Pending | Align section spacing, headings, and CTA styles to tools hub; preserve existing data interactions; before/after screenshots attached. |
+| `/tools/market-news` | P1 | Frontend (Tools) | Pending | Standardize cards, typography rhythm, and action controls; remove visual placeholders where possible; before/after screenshots attached. |
+| `/tools/analysis` | P1 | Frontend (Tools) | Pending | Clarify section hierarchy and control grouping; align icon/button variants to design system; before/after screenshots attached. |
+| `/tools/trading-view` | P1 | Frontend (Tools) | Pending | Bring panel and control styling in line with tools design language; confirm responsive chart container behavior; before/after screenshots attached. |
+| `/dashboard` | P1 | Frontend (Dashboard Core) | Pending | Shell landing content uses consistent typography and spacing tokens; navigation actions visually unified; before/after screenshots attached. |
+| `/dashboard/overview` | P1 | Frontend (Dashboard Core) | Pending | KPI/stat/summary blocks share card and heading scale; clear visual hierarchy for primary actions; before/after screenshots attached. |
+| `/dashboard/asset-center` | P1 | Frontend (Dashboard Core) | Pending | Asset list/filter controls and summary widgets use consistent spacing and buttons; verify responsiveness; before/after screenshots attached. |
+| `/dashboard/trade` | P1 | Frontend (Trading) | Pending | Order form controls and action buttons mapped to shared component variants; spacing and status messaging standardized; before/after screenshots attached. |
+| `/dashboard/orders` | P1 | Frontend (Trading) | Pending | Table and filter toolbar aligned to consistent layout and button system; empty/loading/error states visually aligned; before/after screenshots attached. |
+| `/dashboard/portfolio` | P1 | Frontend (Portfolio) | Pending | Portfolio sections follow consistent heading, spacing, and card rhythm; action buttons standardized; before/after screenshots attached. |
+| `/dashboard/positions` | P1 | Frontend (Portfolio) | Pending | Positions table/cards use unified visual language with clear hierarchy for status and actions; before/after screenshots attached. |
+| `/dashboard/swap` | P1 | Frontend (Trading) | Pending | Quote/slippage controls fully migrated to shared form and button primitives; responsive dropdown behavior validated; before/after screenshots attached. |
+| `/support/status` | P2 | Frontend (Support) | Pending | Minor typography/icon/button consistency polish with no flow changes; before/after screenshots attached. |
+| `/support/community` | P2 | Frontend (Support) | Pending | Apply light consistency pass for cards, icon badges, and spacing; before/after screenshots attached. |
+| `/support` | P2 | Frontend (Support) | Pending | Optional polish for micro-spacing and badge consistency while preserving current structure; before/after screenshots attached. |
+| `/` | P2 | Frontend (Marketing) | Pending | Polish-only adjustments must retain current visual hierarchy and performance; before/after screenshots attached. |
+
+
+#### Route completion checks (active)
+- `/dashboard/buy` (Owner: Frontend (Trading))
+  - [x] Layout primitives aligned to `PageSectionHeader` + `FeatureCard`.
+  - [x] Buttons mapped to shared `Button` variants.
+  - [ ] Visual acceptance confirmed with authenticated before/after screenshots.
+  - [ ] Responsive acceptance confirmed (mobile/tablet/desktop capture).
+- `/dashboard/sell` (Owner: Frontend (Trading))
+  - [x] Layout primitives aligned to `PageSectionHeader` + `FeatureCard`.
+  - [x] Button/form styling normalized to shared variants.
+  - [ ] Visual acceptance confirmed with authenticated before/after screenshots.
+  - [ ] Responsive acceptance confirmed (mobile/tablet/desktop capture).
+- `/dashboard/deposit` (Owner: Frontend (Payments))
+  - [x] Card hierarchy/input controls normalized to shared primitives.
+  - [x] CTA actions mapped to shared `Button` variants.
+  - [ ] Visual acceptance confirmed with authenticated before/after screenshots.
+  - [ ] Responsive acceptance confirmed (mobile/tablet/desktop capture).
