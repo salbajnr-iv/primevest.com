@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ext .ts,.tsx,.js,.mjs || true && npm run check:support-routes || true",
+    "lint": "eslint . --ext .ts,.tsx,.js,.mjs && npm run check:support-routes",
     "check:dashboard-routes": "node scripts/check-dashboard-routes.mjs",
     "check:breakpoints": "node scripts/check-breakpoints.mjs",
     "check:routes": "node scripts/check-app-routes.mjs",
