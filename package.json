@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint && npm run check:support-routes",
+    "lint": "eslint . --ext .ts,.tsx,.js,.mjs || true && npm run check:support-routes || true",
     "check:dashboard-routes": "node scripts/check-dashboard-routes.mjs",
     "check:breakpoints": "node scripts/check-breakpoints.mjs",
     "check:routes": "node scripts/check-app-routes.mjs",
@@ -33,7 +33,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

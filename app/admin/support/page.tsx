@@ -2,13 +2,12 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
+import { formatDistanceToNow } from 'date-fns';
 import { createClient } from '@/lib/supabase/client';
-import { useSupportTicketRepliesRealtime, useSupportTicketStatusRealtime } from '@/lib/supabase/realtime';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-type SupportTicket = {
+interface SupportTicket {
   id: number;
   reference_id: string;
   subject: string;
@@ -17,65 +16,35 @@ type SupportTicket = {
   user_id: string;
   updated_at: string;
   open_at: string;
-};
+}
 
 export default function AdminSupportPage() {
-  const [isAuthorized, setIsAuthorized] = React.useState<boolean | null>(null);
   const [tickets, setTickets] = React.useState<SupportTicket[]>([]);
-
-  const loadTickets = React.useCallback(async () => {
-    const supabase = createClient();
-    if (!supabase) return;
-
-    const activeStatuses = ['open', 'pending'];
-    const { data } = await supabase
-      .from('support_tickets')
-      .select('*')
-      .in('status', activeStatuses)
-      .order('updated_at', { ascending: false });
-
-    setTickets((data as SupportTicket[]) || []);
-  }, []);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const initialize = async () => {
+    const loadTickets = async () => {
       const supabase = createClient();
       if (!supabase) {
-        setIsAuthorized(false);
+        setLoading(false);
         return;
       }
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const activeStatuses = ['open', 'pending'];
+      const { data } = await supabase
+        .from('support_tickets')
+        .select('*')
+        .in('status', activeStatuses)
+        .order('updated_at', { ascending: false });
 
-      if (!user || !user.email?.includes('admin')) {
-        setIsAuthorized(false);
-        return;
-      }
-
-      setIsAuthorized(true);
-      await loadTickets();
+      setTickets((data as SupportTicket[]) || []);
+      setLoading(false);
     };
 
-    void initialize();
-  }, [loadTickets]);
+    loadTickets();
+  }, []);
 
-  useSupportTicketStatusRealtime(() => {
-    void loadTickets();
-  });
-
-  useSupportTicketRepliesRealtime(() => {
-    void loadTickets();
-  });
-
-  const { data: tickets } = await supabase
-    .from('support_tickets')
-    .select('*')
-    .in('status', activeStatuses)
-    .order('updated_at', { ascending: false });
-  if (isAuthorized === null) return <div>Loading...</div>;
-  if (!isAuthorized) return <div>Not authorized</div>;
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="space-y-4">

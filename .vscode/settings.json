@@ -1,3 +1,15 @@
 {
-    "codium.codeCompletion.enable": false
+    "codium.codeCompletion.enable": false,
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "driver": "PostgreSQL",
+            "connectionTimeout": 60,
+            "connectString": "postgresql://postgres.xhyivvvbrcmbjvzmvlod:primevestdatabase@aws-1-eu-west-1.pooler.supabase.com:5432/postgres",
+            "name": "postgres.xhyivvvbrcmbjvzmvlod",
+            "group": "postgres"
+        }
+    ]
 }

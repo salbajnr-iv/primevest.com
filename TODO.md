@@ -1,34 +1,8 @@
-# Fix TypeScript Errors in Admin Support & Ensure Realtime DB Fetching
+# Supabase Migrations TODO
 
-## Status: In Progress
-
-### Deployment verification checkpoint (2026-03-17 23:14 UTC)
-- Environment: production
-- Operator sign-off: pending (DB Operator / App Operator / Release Owner)
-- Migration/application evidence: pending production SQL Editor + runbook artifacts
-- Route/auth gating update: completed in middleware to include `/admin/support` and `/admin/support/[id]`
-
-### Step 1: Create this TODO.md [✅ Completed]
-
-### Step 2: Fix date-fns imports and formatDistanceToNow calls in all 4 files [✅ Completed]
-
-### Step 3: Fix lucide-react Send import in ChatInput.tsx [✅ Completed]
-
-### Step 4: Add missing awaits for Supabase calls [✅ Completed]
-
-### Step 5: Ensure realtime subscriptions active
-
-- Verify useTicketRealtime in [id]/page.tsx
-- Add realtime channel to list page if needed
-
-### Step 6: Lint and build check
-
-- npm run lint
-- npm run build
-
-### Step 7: Test navigation and realtime updates
-
-- /admin/support
-- /admin/support/[id]
-
-### Step 8: attempt_completion
+- [x] Understand current status (1/21 applied)
+- [x] Plan and get approval for uuid_generate_v4 fix
+- [x] Edit supabase/migrations/20260315001845_setup.sql to use gen_random_uuid()
+- [x] Run npx supabase db push
+- [ ] Verify with npx supabase migration list (all Remote filled)
+- [x] Test app functionality (user feedback shows progressive application)

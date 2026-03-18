@@ -1,7 +1,5 @@
--- Atomic swap execution workflow via RPC
-
 CREATE TABLE IF NOT EXISTS public.asset_balances (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   asset TEXT NOT NULL,
   balance NUMERIC(24, 8) NOT NULL DEFAULT 0 CHECK (balance >= 0),
@@ -32,7 +30,7 @@ BEGIN
 END $$;
 
 CREATE TABLE IF NOT EXISTS public.swap_orders (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   transaction_id UUID,
   source_asset TEXT NOT NULL,

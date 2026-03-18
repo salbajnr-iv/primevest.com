@@ -1,10 +1,6 @@
--- Supabase PostgreSQL Migration: Complete Setup (20260315001845)
--- ======================================================================
--- PostgreSQL/Supabase only. VSCode: Language Mode → PostgreSQL / Plain SQL
--- ======================================================================
 
--- Enable required extensions first
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- STEP 1: KYC Status Enum (idempotent)
 DO $enum_create$
@@ -68,7 +64,7 @@ CREATE POLICY "Admins view admin_users" ON public.admin_users FOR ALL
 
 -- STEP 4: Balance History (Audit)
 CREATE TABLE IF NOT EXISTS public.balance_history (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   admin_id UUID REFERENCES auth.users(id),
   action_type TEXT NOT NULL CHECK (action_type IN ('add','subtract','set','reset')),
@@ -90,7 +86,7 @@ CREATE POLICY "Admins full history" ON public.balance_history FOR ALL
 
 -- STEP 5: Admin Actions Log
 CREATE TABLE IF NOT EXISTS public.admin_actions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   admin_id UUID NOT NULL REFERENCES auth.users(id),
   action_type TEXT NOT NULL,
   target_user_id UUID REFERENCES public.profiles(id),

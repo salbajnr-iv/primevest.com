@@ -1,10 +1,13 @@
-import { defineConfig } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import eslintConfigRecommended from "@eslint/js";
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
+export default [
+  eslintConfigRecommended.configs.recommended,
+  {
+    rules: {
+      "no-unused-vars": "warn",
+      "no-console": "off",
+    },
+  },
   {
     ignores: [
       ".next/**",
@@ -13,6 +16,4 @@ const eslintConfig = defineConfig([
       "next-env.d.ts",
     ],
   },
-]);
-
-export default eslintConfig;
+];
