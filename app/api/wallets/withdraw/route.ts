@@ -32,8 +32,8 @@ function hasValidPrecision(value: number, currency: Currency) {
 export async function POST(req: Request) {
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!supabaseUrl || !serviceRole) {
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !anonKey) {
       return NextResponse.json({ error: "Withdrawals are unavailable right now." }, { status: 503 });
     }
 
@@ -69,25 +69,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid destination format" }, { status: 400 });
     }
 
-    const supabase = createClient(supabaseUrl, serviceRole);
+    const supabase = createClient(supabaseUrl, anonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
     const { data: userData, error: userErr } = await supabase.auth.getUser(token);
 
     if (userErr || !userData?.user) {
       return NextResponse.json({ error: "Invalid auth token" }, { status: 401 });
-    }
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("account_balance")
-      .eq("id", userData.user.id)
-      .maybeSingle();
-
-    if (!profile) {
-      return NextResponse.json({ error: "Profile not found" }, { status: 404 });
-    }
-
-    if (amount > Number(profile.account_balance ?? 0)) {
-      return NextResponse.json({ error: "Insufficient balance" }, { status: 400 });
     }
 
     const payout = Number((amount - fee).toFixed(amountPrecision[currency]));
@@ -95,36 +87,36 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Amount must be greater than fee" }, { status: 400 });
     }
 
-    const { data: tx, error: insertErr } = await supabase
-      .from("transactions")
-      .insert([
-        {
-          user_id: userData.user.id,
-          type: "withdrawal",
-          asset: currency,
-          amount: `${amount} ${currency}`,
-          value: `${payout} ${currency}`,
-          status: "pending",
-          date: new Date().toLocaleString(),
-          created_at: new Date().toISOString(),
-        },
-      ])
-      .select("id,status,created_at")
-      .single();
+    const { data: rpcData, error: rpcErr } = await supabase.rpc("request_withdrawal_review", {
+      p_currency: currency,
+      p_destination: destination,
+      p_amount: amount,
+      p_fee: fee,
+    });
 
-    if (insertErr || !tx) {
-      return NextResponse.json({ error: "Failed to create withdrawal request" }, { status: 500 });
+    if (rpcErr) {
+      return NextResponse.json({ error: "Failed to create withdrawal request", details: rpcErr.message }, { status: 500 });
+    }
+
+    const result = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+    if (!result?.success) {
+      const status = result?.code === "INSUFFICIENT_FUNDS" ? 400 : 422;
+      return NextResponse.json({ error: result?.message || "Failed to create withdrawal request", code: result?.code }, { status });
     }
 
     return NextResponse.json({
       ok: true,
-      reference: `WDR-${tx.id}`,
+      reference: `WDR-${result.transaction_id}`,
       withdrawal: {
-        id: tx.id,
-        status: tx.status,
-        createdAt: tx.created_at,
+        id: result.transaction_id,
+        status: "pending",
+        createdAt: new Date().toISOString(),
         currency,
-        payout,
+        payout: result.payout,
+      },
+      balance: {
+        before: result.balance_before,
+        after: result.balance_after,
       },
     });
   } catch (error) {
@@ -134,8 +126,8 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceRole) {
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !anonKey) {
     return NextResponse.json({ error: "Withdrawals are unavailable right now." }, { status: 503 });
   }
 
@@ -146,12 +138,18 @@ export async function GET(req: Request) {
     }
 
     const reference = new URL(req.url).searchParams.get("reference") || "";
-    const txId = Number(reference.replace("WDR-", ""));
-    if (!Number.isInteger(txId) || txId <= 0) {
+    const txId = reference.replace("WDR-", "").trim();
+    if (!/^[0-9a-fA-F-]{36}$/.test(txId)) {
       return NextResponse.json({ error: "Invalid withdrawal reference" }, { status: 400 });
     }
 
-    const supabase = createClient(supabaseUrl, serviceRole);
+    const supabase = createClient(supabaseUrl, anonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    });
     const { data: userData, error: userErr } = await supabase.auth.getUser(token);
 
     if (userErr || !userData?.user) {

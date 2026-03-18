@@ -1,0 +1,195 @@
+{
+  "info": {
+    "_postman_id": "primevest-api-tests",
+    "name": "Primevest API Tests",
+    "description": "Collection for Primevest Next.js/Supabase API endpoints. Set {{base_url}} = http://localhost:3000, {{auth_token}} = Bearer [JWT from Supabase].",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Dashboard Summary GET",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{auth_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/dashboard/summary",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "dashboard",
+            "summary"
+          ]
+        }
+      }
+    },
+    {
+      "name": "KYC Submit POST",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  pm.test('Success', () => {",
+              "    pm.expect(pm.response.json().ok).to.eql(true);",
+              "  });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"documents\": [\n    {\n      \"doc_type\": \"passport\",\n      \"storage_path\": \"path/to/file\",\n      \"file_name\": \"passport.jpg\",\n      \"mime_type\": \"image/jpeg\",\n      \"size\": 12345,\n      \"meta\": {}\n    }\n  ],\n  \"metadata\": {\n    \"country\": \"US\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/kyc/submit",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "kyc",
+            "submit"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin User Delete POST",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"example-user-uuid\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/admin/users/delete",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "admin",
+            "users",
+            "delete"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Support Tickets GET",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{auth_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/support/tickets?status=open&page=1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "support",
+            "tickets"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "open"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Support Ticket Create POST",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"category\": \"general\",\n  \"subject\": \"Test Ticket\",\n  \"message\": \"Testing support ticket creation via Postman.\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/support/tickets",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "support",
+            "tickets"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "auth_token",
+      "value": "Bearer YOUR_SUPABASE_JWT"
+    }
+  ]
+}

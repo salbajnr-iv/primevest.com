@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import AuthLogo from '@/components/AuthLogo'
+import { BRAND } from '@/lib/brand'
 
 export default function SignInPage() {
   const [email, setEmail] = useState('')
@@ -87,7 +88,7 @@ export default function SignInPage() {
           <AuthLogo />
           <CardTitle className="text-2xl font-bold text-gray-900">Welcome back</CardTitle>
           <CardDescription className="text-gray-600">
-            Sign in to your PrimeVest account
+            Sign in to your {BRAND.productName} account
           </CardDescription>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">

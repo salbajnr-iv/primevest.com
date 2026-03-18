@@ -1,9 +1,9 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { createBrowserClient } from '@supabase/ssr'
 import type { User, Session, UserMetadata, AuthError } from '@supabase/supabase-js'
 import { SupabaseErrorHandler } from '@/lib/supabase/error-handler'
+import { createClient, setRealtimeAuth } from '@/lib/supabase/client'
 
 interface AuthContextType {
   user: User | null
@@ -25,11 +25,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  const supabase = SUPABASE_URL && SUPABASE_ANON_KEY
-    ? createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    : null
+  const supabase = createClient()
 
   useEffect(() => {
     if (!supabase) {
@@ -45,6 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const { data: { session } } = await supabase.auth.getSession()
           setSession(session)
           setUser(session?.user ?? null)
+          await setRealtimeAuth(session?.access_token, supabase)
           setLoading(false)
         })
       } catch {
@@ -63,6 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           setSession(session)
           setUser(session?.user ?? null)
+          await setRealtimeAuth(session?.access_token, supabase)
           setLoading(false)
         } catch (error) {
           console.warn('Auth state change error:', error)
@@ -149,6 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       if (supabase) {
+        await setRealtimeAuth(undefined, supabase)
         const { error } = await supabase.auth.signOut()
         if (error) {
           console.error('Sign out error:', error)

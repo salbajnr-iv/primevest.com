@@ -122,7 +122,8 @@ export default function EnhancedKycUploader({
 
     try {
       for (const f of files) {
-        const path = `user-${userId}/${Date.now()}-${f.name}`;
+        const safeName = f.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = `${userId}/${docType}/${Date.now()}-${safeName}`;
         const bucket = 'kyc-documents';
 
         const { error: upErr } = await supabase.storage

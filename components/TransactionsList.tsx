@@ -21,74 +21,25 @@ interface TransactionsListProps {
   maxItems?: number;
 }
 
-const defaultTransactions: Transaction[] = [
-  {
-    id: "1",
-    type: "buy",
-    asset: "Bitcoin",
-    assetSymbol: "BTC",
-    amount: "0,0054 BTC",
-    value: "≈ 356,78 €",
-    date: "Heute",
-    time: "14:32",
-    status: "completed",
-  },
-  {
-    id: "2",
-    type: "deposit",
-    asset: "Euro",
-    assetSymbol: "EUR",
-    amount: "1.500,00 €",
-    value: "Eingezahlt",
-    date: "Heute",
-    time: "10:15",
-    status: "completed",
-  },
-  {
-    id: "3",
-    type: "sell",
-    asset: "Ethereum",
-    assetSymbol: "ETH",
-    amount: "0,15 ETH",
-    value: "≈ 489,25 €",
-    date: "Gestern",
-    time: "16:48",
-    status: "completed",
-  },
-  {
-    id: "4",
-    type: "transfer",
-    asset: "Solana",
-    assetSymbol: "SOL",
-    amount: "12,5 SOL",
-    value: "≈ 1.875,00 €",
-    date: "Gestern",
-    time: "09:22",
-    status: "completed",
-  },
-  {
-    id: "5",
-    type: "buy",
-    asset: "Cardano",
-    assetSymbol: "ADA",
-    amount: "2.500 ADA",
-    value: "≈ 925,00 €",
-    date: "19.01.2025",
-    time: "20:05",
-    status: "completed",
-  },
-  {
-    id: "6",
-    type: "withdrawal",
-    asset: "Euro",
-    assetSymbol: "EUR",
-    amount: "500,00 €",
-    value: "Abgehoben",
-    date: "18.01.2025",
-    time: "11:30",
-    status: "completed",
-  },
-];
+import { ActivityFeedItem } from "@/lib/dashboard/types";
+
+interface Transaction {
+  id: string;
+  type: "buy" | "sell" | "deposit" | "withdrawal" | "transfer";
+  asset: string;
+  assetSymbol: string;
+  amount: string;
+  value: string;
+  date: string;
+  time: string;
+  status: "completed" | "pending" | "failed";
+}
+
+interface TransactionsListProps {
+  activityFeed: ActivityFeedItem[];
+  showHeader?: boolean;
+  maxItems?: number;
+}
 
 const typeIcons: Record<string, React.ReactNode> = {
   buy: (
@@ -131,11 +82,34 @@ const typeLabels: Record<string, string> = {
   transfer: "Transfer",
 };
 
+function mapActivityToTransaction(activity: ActivityFeedItem): Transaction {
+  const type = activity.action.toLowerCase().includes('buy') ? 'buy' :
+               activity.action.toLowerCase().includes('sell') ? 'sell' :
+               activity.action.toLowerCase().includes('deposit') ? 'deposit' :
+               activity.action.toLowerCase().includes('withdraw') ? 'withdrawal' : 'transfer';
+  
+  const date = new Date(activity.time).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' });
+  const time = new Date(activity.time).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  
+  return {
+    id: activity.id,
+    type,
+    asset: 'Asset', // From detail parsing if needed
+    assetSymbol: 'N/A',
+    amount: activity.detail.split('•')[0] || 'N/A',
+    value: activity.detail,
+    date,
+    time,
+    status: "completed",
+  };
+}
+
 export default function TransactionsList({
-  transactions = defaultTransactions,
+  activityFeed,
   showHeader = true,
   maxItems,
 }: TransactionsListProps) {
+  const transactions = activityFeed.map(mapActivityToTransaction);
   const displayTransactions = maxItems 
     ? transactions.slice(0, maxItems) 
     : transactions;

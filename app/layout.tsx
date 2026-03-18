@@ -4,15 +4,16 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import AuthProvider from "@/components/AuthProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { BRAND, BRAND_COPY } from "@/lib/brand";
 
 
 export const metadata: Metadata = {
-  title: "PrimeVest - Professional Trading Platform",
-  description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest. European regulated crypto & securities broker platform.",
-  keywords: "PrimeVest, cryptocurrency, crypto, trading, invest, stocks, ETFs, precious metals, bitcoin, ethereum, professional trading",
-  authors: [{ name: "PrimeVest" }],
-  creator: "PrimeVest",
-  publisher: "PrimeVest",
+  title: BRAND_COPY.platformTagline,
+  description: BRAND_COPY.platformDescription,
+  keywords: BRAND_COPY.keywords,
+  authors: [{ name: BRAND.productName }],
+  creator: BRAND.productName,
+  publisher: BRAND.productName,
   robots: "index, follow",
   referrer: "origin",
   alternates: {
@@ -20,16 +21,16 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    title: "PrimeVest - Professional Trading Platform",
-    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest. European regulated crypto & securities broker platform.",
+    title: BRAND_COPY.platformTagline,
+    description: BRAND_COPY.platformDescription,
     url: "https://www.primevest.com",
-    siteName: "PrimeVest",
+    siteName: BRAND.productName,
     images: [
       {
         url: "https://www.primevest.com/primevest-og.svg",
         width: 1200,
         height: 630,
-        alt: "PrimeVest - Professional Trading Platform"
+        alt: BRAND_COPY.platformTagline
       }
     ]
   },
@@ -43,8 +44,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     site: "@PrimeVest_global",
-    title: "PrimeVest - Professional Trading Platform",
-    description: "Join over 7 million people investing in 650+ cryptos and 3,000+ digital assets with PrimeVest. European regulated crypto & securities broker platform."
+    title: BRAND_COPY.platformTagline,
+    description: BRAND_COPY.platformDescription
   }
 };
 

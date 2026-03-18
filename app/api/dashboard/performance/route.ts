@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import type { ChartSeriesPoint, PerformanceSeriesResponse } from "@/lib/dashboard/types";
 
-type RouteErrorCode = "UNAUTHENTICATED" | "FORBIDDEN" | "QUERY_FAILED";
+type RouteErrorCode =
+  | "PERFORMANCE_UNAUTHENTICATED"
+  | "PERFORMANCE_FORBIDDEN"
+  | "PERFORMANCE_INVALID_PERIOD"
+  | "PERFORMANCE_DEPENDENCY_UNAVAILABLE";
 
 type WalletRow = { balance: number | null; created_at: string };
 type PositionRow = { market_value: number | null; updated_at: string | null; created_at: string };
@@ -10,8 +14,8 @@ type PositionRow = { market_value: number | null; updated_at: string | null; cre
 const ALLOWED_PERIODS = new Set(["1D", "7D", "30D", "1Y", "ALL"]);
 const PERIOD_DAYS: Record<string, number> = { "1D": 1, "7D": 7, "30D": 30, "1Y": 365, ALL: 3650 };
 
-const errorResponse = (status: number, code: RouteErrorCode, error: string) =>
-  NextResponse.json({ ok: false, code, error }, { status });
+const errorResponse = (status: number, code: RouteErrorCode, message: string, details?: string) =>
+  NextResponse.json({ ok: false, code, message, details }, { status });
 
 function buildEmptyPerformance(period: string): PerformanceSeriesResponse {
   return {
@@ -30,7 +34,10 @@ function buildEmptyPerformance(period: string): PerformanceSeriesResponse {
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const requested = searchParams.get("period") ?? "1D";
-  const period = ALLOWED_PERIODS.has(requested) ? requested : "1D";
+  if (!ALLOWED_PERIODS.has(requested)) {
+    return errorResponse(400, "PERFORMANCE_INVALID_PERIOD", "Invalid period value. Use one of: 1D, 7D, 30D, 1Y, ALL.");
+  }
+  const period = requested;
 
   const supabase = await createServerClient();
   const {
@@ -39,7 +46,7 @@ export async function GET(req: Request) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return errorResponse(401, "UNAUTHENTICATED", "Authentication required");
+    return errorResponse(401, "PERFORMANCE_UNAUTHENTICATED", "Authentication required");
   }
 
   const since = new Date();
@@ -63,16 +70,21 @@ export async function GET(req: Request) {
   const combinedError = walletRes.error || positionsRes.error;
   if (combinedError) {
     if (combinedError.code === "42501") {
-      return errorResponse(403, "FORBIDDEN", "Forbidden");
+      return errorResponse(403, "PERFORMANCE_FORBIDDEN", "Forbidden");
     }
-    return errorResponse(500, "QUERY_FAILED", "Failed to load performance data");
+    return errorResponse(
+      503,
+      "PERFORMANCE_DEPENDENCY_UNAVAILABLE",
+      "Performance data provider is temporarily unavailable.",
+      combinedError.message,
+    );
   }
 
   const wallets = (walletRes.data ?? []) as WalletRow[];
   const positions = (positionsRes.data ?? []) as PositionRow[];
 
   if (!wallets.length && !positions.length) {
-    return NextResponse.json({ ok: true, performance: buildEmptyPerformance(period) });
+    return NextResponse.json({ ok: true, data: { performance: buildEmptyPerformance(period) } });
   }
 
   const bucket = new Map<string, { wallet: number; positions: number }>();
@@ -117,5 +129,5 @@ export async function GET(req: Request) {
     },
   };
 
-  return NextResponse.json({ ok: true, performance: response });
+  return NextResponse.json({ ok: true, data: { performance: response } });
 }

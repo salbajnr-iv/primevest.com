@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import { TRADEW_HEADER_NAV_ITEMS } from "@/app/dashboard/_config/routes";
+import { ROUTES } from "@/lib/routes";
 
 interface TradeWHeaderProps {
   activeTab?: string;
@@ -28,7 +29,7 @@ const TradeWHeader: React.FC<TradeWHeaderProps> = ({ activeTab = "overview" }) =
     <header className="tradew-header">
       <div className="tradew-header-content">
         {/* Logo */}
-        <Link href="/dashboard" className="tradew-logo">
+        <Link href={ROUTES.dashboard.home} className="tradew-logo">
           <svg
             width="32"
             height="32"

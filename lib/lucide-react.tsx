@@ -77,3 +77,6 @@ export const Lock = createIcon("Lock");
 export const Newspaper = createIcon("Newspaper");
 export const PlusCircle = createIcon("PlusCircle");
 export const UserCog = createIcon("UserCog");
+
+export const Save = createIcon("Save");
+export const User = createIcon("User");

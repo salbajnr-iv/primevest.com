@@ -5,7 +5,9 @@ import BottomNav from "@/components/BottomNav";
 import { track } from "@vercel/analytics";
 import SupportLayout from "@/app/support/SupportLayout";
 import { createClient } from "@/lib/supabase/client";
+import { useSupportTicketStatusRealtime, useTicketRealtime, type RealtimeReply } from "@/lib/supabase/realtime";
 import { EmptyState, ErrorState, LoadingSpinner } from "@/components/ui/LoadingStates";
+import { MessageList, ChatInput } from "@/components/ui";
 import type { SupportTicketState } from "@/lib/support/tickets";
 
 interface SupportTicket {
@@ -23,15 +25,6 @@ interface SupportTicket {
   closed_at: string | null;
 }
 
-interface SupportReply {
-  id: number;
-  ticket_id: number;
-  user_id: string;
-  message: string;
-  is_staff: boolean;
-  created_at: string;
-}
-
 const STATUS_OPTIONS: Array<"all" | SupportTicketState> = ["all", "open", "pending", "resolved", "closed"];
 const PAGE_SIZE = 8;
 
@@ -44,19 +37,20 @@ export default function SupportTicketsPage() {
   const [authToken, setAuthToken] = React.useState<string>("");
   const [tickets, setTickets] = React.useState<SupportTicket[]>([]);
   const [selectedTicket, setSelectedTicket] = React.useState<SupportTicket | null>(null);
-  const [replies, setReplies] = React.useState<SupportReply[]>([]);
+
   const [status, setStatus] = React.useState<"loading" | "ready" | "error">("loading");
   const [detailStatus, setDetailStatus] = React.useState<"idle" | "loading" | "error">("idle");
   const [activeFilter, setActiveFilter] = React.useState<(typeof STATUS_OPTIONS)[number]>("all");
   const [searchQuery, setSearchQuery] = React.useState("");
   const [page, setPage] = React.useState(1);
   const [total, setTotal] = React.useState(0);
-  const [replyMessage, setReplyMessage] = React.useState("");
-  const [pendingStatus, setPendingStatus] = React.useState<SupportTicketState | "">("");
+  const [currentUserId, setCurrentUserId] = React.useState<string>("");
+  const [realtimeMessages, setRealtimeMessages] = React.useState<RealtimeReply[]>([]);
+
   const [mutating, setMutating] = React.useState(false);
   const [newTicketSubject, setNewTicketSubject] = React.useState("");
   const [newTicketCategory, setNewTicketCategory] = React.useState("general");
-  const [newTicketMessage, setNewTicketMessage] = React.useState("");
+  const [newTicketMessage, setNewTicketMessage] = React.useState(""); 
 
   const loadTickets = React.useCallback(async () => {
     if (!authToken) return;
@@ -104,8 +98,11 @@ export default function SupportTicketsPage() {
         const data = await response.json();
         track("support_funnel_viewed_ticket", { step: "ticket_detail", ticketId });
         setSelectedTicket(data.ticket);
-        setReplies(data.replies ?? []);
-        setPendingStatus(data.ticket?.status ?? "");
+        const rtReplies: RealtimeReply[] = (data.replies ?? []).map((r: RealtimeReply) => ({
+          ...r,
+          seen_at: null,
+        }));
+        setRealtimeMessages(rtReplies);
         setDetailStatus("idle");
       } catch {
         setDetailStatus("error");
@@ -113,7 +110,6 @@ export default function SupportTicketsPage() {
     },
     [authToken]
   );
-
 
   React.useEffect(() => {
     track("support_funnel_opened", { step: "tickets", path: "/support/tickets" });
@@ -126,8 +122,10 @@ export default function SupportTicketsPage() {
         return;
       }
 
-      const { data } = await supabase.auth.getSession();
-      const token = data.session?.access_token ?? "";
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || '');
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token ?? "";
       setAuthToken(token);
     };
 
@@ -140,63 +138,29 @@ export default function SupportTicketsPage() {
     }
   }, [authToken, loadTickets]);
 
+  useSupportTicketStatusRealtime((ticketUpdate) => {
+    setTickets((current) =>
+      current.map((ticket) =>
+        ticket.id === ticketUpdate.id
+          ? { ...ticket, status: ticketUpdate.status as SupportTicketState, updated_at: ticketUpdate.updated_at }
+          : ticket
+      )
+    );
+
+    setSelectedTicket((current) =>
+      current && current.id === ticketUpdate.id
+        ? { ...current, status: ticketUpdate.status as SupportTicketState, updated_at: ticketUpdate.updated_at }
+        : current
+    );
+  });
+
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const submitReply = async () => {
-    if (!selectedTicket || !authToken || mutating) return;
+  const { messages: rtMessages, sendMessage } = useTicketRealtime(selectedTicket?.id || null, realtimeMessages);
 
-    const trimmed = replyMessage.trim();
-    const statusChange = pendingStatus && pendingStatus !== selectedTicket.status ? pendingStatus : undefined;
-
-    if (!trimmed && !statusChange) return;
-
-    const optimisticReply: SupportReply | null = trimmed
-      ? {
-          id: Date.now(),
-          ticket_id: selectedTicket.id,
-          user_id: "me",
-          message: trimmed,
-          is_staff: false,
-          created_at: new Date().toISOString(),
-        }
-      : null;
-
-    if (optimisticReply) {
-      setReplies((current) => [...current, optimisticReply]);
-    }
-
-    if (statusChange) {
-      setSelectedTicket((current) => (current ? { ...current, status: statusChange, updated_at: new Date().toISOString() } : current));
-      setTickets((current) => current.map((ticket) => (ticket.id === selectedTicket.id ? { ...ticket, status: statusChange } : ticket)));
-    }
-
-    setReplyMessage("");
-    setMutating(true);
-
-    try {
-      const response = await fetch(`/api/support/tickets/${selectedTicket.id}/reply`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ message: trimmed || undefined, status: statusChange }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Unable to submit reply");
-      }
-
-      const data = await response.json();
-      setSelectedTicket(data.ticket);
-      setReplies(data.replies ?? []);
-      await loadTickets();
-    } catch {
-      await loadTicketDetail(selectedTicket.id);
-    } finally {
-      setMutating(false);
-    }
-  };
+  React.useEffect(() => {
+    setRealtimeMessages(rtMessages);
+  }, [rtMessages]);
 
   const createTicket = async () => {
     if (!authToken || !newTicketMessage.trim()) return;
@@ -321,32 +285,9 @@ export default function SupportTicketsPage() {
                   <p>{selectedTicket.message}</p>
                   <small>Opened: {formatDate(selectedTicket.open_at || selectedTicket.created_at)} · Pending: {formatDate(selectedTicket.pending_at)} · Resolved: {formatDate(selectedTicket.resolved_at)} · Closed: {formatDate(selectedTicket.closed_at)}</small>
 
-                  <div className="space-y-2">
-                    {replies.map((reply) => (
-                      <div key={reply.id} className="quick-action-card">
-                        <div className="quick-action-content">
-                          <span>{reply.is_staff ? "Support" : "You"}</span>
-                          <small>{formatDate(reply.created_at)}</small>
-                          <p>{reply.message}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="space-y-2">
-                    <select className="search-input" value={pendingStatus} onChange={(event) => setPendingStatus(event.target.value as SupportTicketState)}>
-                      {STATUS_OPTIONS.filter((value) => value !== "all").map((value) => (
-                        <option key={value} value={value}>{value}</option>
-                      ))}
-                    </select>
-                    <textarea
-                      className="search-input"
-                      rows={4}
-                      value={replyMessage}
-                      onChange={(event) => setReplyMessage(event.target.value)}
-                      placeholder="Write a reply or update status"
-                    />
-                    <button className="menu-btn" onClick={submitReply} disabled={mutating}>{mutating ? "Saving..." : "Post reply"}</button>
+                  <div className="h-96 border rounded-lg flex flex-col overflow-hidden">
+                    <MessageList messages={realtimeMessages} currentUserId={currentUserId} />
+                    <ChatInput onSend={sendMessage} />
                   </div>
                 </>
               )}

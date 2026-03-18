@@ -27,6 +27,15 @@ interface Platform {
   };
 }
 
+interface AssetCenterApiResponse {
+  ok: boolean;
+  accounts?: Account[];
+  platforms?: Platform[];
+  code?: string;
+  message?: string;
+  error?: string;
+}
+
 function AssetCenterContent() {
   const { session } = useAuth();
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -43,10 +52,12 @@ function AssetCenterContent() {
       const response = await fetch("/api/dashboard/asset-center", {
         headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
       });
-      const payload = await response.json();
+      const payload = (await response.json()) as AssetCenterApiResponse;
 
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || "Failed to load asset center data");
+        const message = payload.message || payload.error || "Failed to load asset center data";
+        const code = payload.code ? `[${payload.code}] ` : "";
+        throw new Error(`${code}${message}`);
       }
 
       setAccounts(Array.isArray(payload.accounts) ? payload.accounts : []);

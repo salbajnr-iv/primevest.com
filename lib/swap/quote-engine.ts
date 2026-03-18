@@ -11,6 +11,17 @@ const MIN_AMOUNT: Record<string, number> = { BTC: 0.001, ETH: 0.01, SOL: 1, BNB:
 const MAX_AMOUNT: Record<string, number> = { BTC: 8, ETH: 120, SOL: 25000, BNB: 1800 };
 const LIQUIDITY_CAP: Record<string, number> = { BTC: 6, ETH: 95, SOL: 18000, BNB: 1300 };
 
+export const MIN_SLIPPAGE_TOLERANCE = 0.1;
+export const MAX_SLIPPAGE_TOLERANCE = 5;
+
+function readPositiveEnvMs(name: string, fallback: number) {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+export const SWAP_QUOTE_TTL_MS = readPositiveEnvMs("SWAP_QUOTE_TTL_MS", 30_000);
+export const SWAP_QUOTE_STALE_THRESHOLD_MS = readPositiveEnvMs("SWAP_QUOTE_STALE_THRESHOLD_MS", 45_000);
+
 export type QuoteErrorCode =
   | "invalid_pair"
   | "amount_bounds"
@@ -21,10 +32,12 @@ export type QuoteErrorCode =
 
 export type SwapQuote = {
   quoteId: string;
+  quoteTimestamp: number;
   from: string;
   to: string;
   amount: number;
   rate: number;
+  expectedRate: number;
   fee: number;
   slippageEstimate: number;
   minReceived: number;
@@ -50,6 +63,21 @@ function isSupported(asset: string) {
   return (SUPPORTED_ASSETS as readonly string[]).includes(asset);
 }
 
+function resolveBaseRate(input: QuoteInput, directRate?: number): number {
+  if (Number.isFinite(directRate) && (directRate as number) > 0) {
+    return directRate as number;
+  }
+  return BASE_RATES[input.from][input.to];
+}
+
+export function deriveCrossRate(fromAssetPriceEur: number, toAssetPriceEur: number): number | null {
+  if (!Number.isFinite(fromAssetPriceEur) || !Number.isFinite(toAssetPriceEur) || fromAssetPriceEur <= 0 || toAssetPriceEur <= 0) {
+    return null;
+  }
+
+  return fromAssetPriceEur / toAssetPriceEur;
+}
+
 export function validateSwapInput(input: QuoteInput): QuoteErrorCode | null {
   if (!isSupported(input.from) || !isSupported(input.to) || input.from === input.to) {
     return "invalid_pair";
@@ -69,15 +97,19 @@ export function validateSwapInput(input: QuoteInput): QuoteErrorCode | null {
     return "insufficient_liquidity";
   }
 
-  if (!Number.isFinite(input.slippageTolerance) || input.slippageTolerance < 0.1 || input.slippageTolerance > 5) {
+  if (
+    !Number.isFinite(input.slippageTolerance) ||
+    input.slippageTolerance < MIN_SLIPPAGE_TOLERANCE ||
+    input.slippageTolerance > MAX_SLIPPAGE_TOLERANCE
+  ) {
     return "slippage_out_of_range";
   }
 
   return null;
 }
 
-export function buildQuote(input: QuoteInput, now = Date.now()): SwapQuote {
-  const baseRate = BASE_RATES[input.from][input.to];
+export function buildQuote(input: QuoteInput, now = Date.now(), directRate?: number): SwapQuote {
+  const baseRate = resolveBaseRate(input, directRate);
   const notional = input.amount * baseRate;
 
   const feeRate = 0.0015;
@@ -90,15 +122,17 @@ export function buildQuote(input: QuoteInput, now = Date.now()): SwapQuote {
   const toleranceFactor = Math.max(input.slippageTolerance, slippageEstimate) / 100;
   const minReceived = round(expectedReceive * (1 - toleranceFactor));
 
-  const expiresAt = now + 30_000;
+  const expiresAt = now + SWAP_QUOTE_TTL_MS;
   const quoteId = `Q-${input.from}-${input.to}-${Math.round(input.amount * 1e6)}-${Math.round(baseRate * 1e6)}`;
 
   return {
     quoteId,
+    quoteTimestamp: now,
     from: input.from,
     to: input.to,
     amount: round(input.amount),
     rate: round(baseRate),
+    expectedRate: round(baseRate),
     fee,
     slippageEstimate,
     minReceived,
@@ -120,7 +154,7 @@ export function humanizeQuoteError(code: QuoteErrorCode): string {
     case "invalid_quote":
       return "The quote is invalid or has been tampered with.";
     case "slippage_out_of_range":
-      return "Slippage tolerance must be between 0.10% and 5.00%.";
+      return `Slippage tolerance must be between ${MIN_SLIPPAGE_TOLERANCE.toFixed(2)}% and ${MAX_SLIPPAGE_TOLERANCE.toFixed(2)}%.`;
     case "invalid_pair":
     default:
       return "Invalid asset pair selected.";

@@ -43,6 +43,18 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 3. Make changes and click "Save"
 4. Check browser console for any errors
 
+### Step 4: Run DB Regression Validation Script
+Run the SQL regression script to verify create/update behavior and persisted profile fields:
+
+```sql
+-- execute in target environment SQL editor
+\i supabase/tests/profile_upsert_rls_regression.sql
+```
+
+If your SQL editor does not support `\i`, copy/paste the file contents from:
+- `supabase/tests/profile_upsert_rls_regression.sql`
+
+
 ## Alternative: If Step 1 Doesn't Work
 Try this more permissive policy:
 

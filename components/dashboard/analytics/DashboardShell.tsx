@@ -5,6 +5,7 @@ import { useState } from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import BottomNav from "@/components/BottomNav";
 import Sidebar from "@/components/Sidebar";
+import { PortfolioSummary } from "@/lib/dashboard/types";
 
 interface DashboardShellProps {
   title?: string;
@@ -13,7 +14,7 @@ interface DashboardShellProps {
   pageHeader?: ReactNode;
   contentClassName?: string;
   mainClassName?: string;
-  header?: { userName?: string; portfolioValue?: string; portfolioChange?: string; notificationCount?: number };
+  summary?: PortfolioSummary;
 }
 
 export default function DashboardShell({
@@ -23,7 +24,14 @@ export default function DashboardShell({
   pageHeader,
   contentClassName,
   mainClassName,
-  header = { userName: "User", portfolioValue: "12,540.50 €", portfolioChange: "+2.41%", notificationCount: 3 },
+  summary = {
+    userName: "User",
+    portfolioValue: 0,
+    portfolioChangePct: 0,
+    availableBalance: 0,
+    availableBalanceChangePct: 0,
+    notificationCount: 0,
+  },
 }: DashboardShellProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -34,7 +42,7 @@ export default function DashboardShell({
           <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
           <div className="min-w-0 flex-1">
-            <DashboardHeader {...header} />
+            <DashboardHeader summary={summary} />
             <main className={mainClassName ?? "space-y-4 pb-20"}>
               {pageHeader ?? (title ? (
                 <header className="rounded-2xl border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
