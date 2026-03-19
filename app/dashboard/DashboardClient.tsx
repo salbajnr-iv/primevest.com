@@ -28,6 +28,15 @@ function formatLastUpdated(isoTimestamp: string): string {
 }
 
 
+type LiveInsertPayload = {
+  new: {
+    id?: string | number;
+    total_amount?: number | string;
+    created_at?: string;
+    message?: string;
+  };
+};
+
 type DateRangeInterval = {
   from: Date;
   to: Date;
@@ -179,7 +188,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "orders" },
-        (payload) => {
+        (payload: LiveInsertPayload) => {
           const amount = Number((payload.new as { total_amount?: number }).total_amount ?? 0);
           const createdAt = String((payload.new as { created_at?: string }).created_at ?? new Date().toISOString());
 
@@ -203,7 +212,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications" },
-        (payload) => {
+        (payload: LiveInsertPayload) => {
           const createdAt = String((payload.new as { created_at?: string }).created_at ?? new Date().toISOString());
           const message = String((payload.new as { message?: string }).message ?? "New account notification");
 

@@ -27,7 +27,6 @@ export default function AllocationPieChart({ title, data }: { title: string; dat
                   aria-label={`${entry.name} allocation ${entry.value} percent`}
                   onFocus={() => setActive(entry)}
                   onMouseEnter={() => setActive(entry)}
-                  title={`${entry.name}: ${entry.value}%`}
                 />
               ))}
             </Pie>

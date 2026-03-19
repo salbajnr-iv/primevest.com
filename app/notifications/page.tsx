@@ -206,7 +206,7 @@ export default function NotificationsPage() {
 
     if (error) return;
 
-    const unreadNotifications = (data ?? []).map((row) => mapNotificationRow(row as NotificationRow));
+    const unreadNotifications = (data ?? []).map((row: unknown) => mapNotificationRow(row as NotificationRow));
     setNotificationsList((current) => {
       const currentReadNotifications = current.filter((notification) => notification.is_read);
       return [...unreadNotifications, ...currentReadNotifications];
@@ -241,7 +241,7 @@ export default function NotificationsPage() {
         return;
       }
 
-      setNotificationsList(data.map((row) => mapNotificationRow(row as NotificationRow)));
+      setNotificationsList(data.map((row: unknown) => mapNotificationRow(row as NotificationRow)));
     };
 
     void load();

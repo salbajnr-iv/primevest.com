@@ -47,7 +47,7 @@ export default function DataTable<T extends object>({
                 {rows.map((row, idx) => (
                   <tr key={idx} style={{ borderTop: `1px solid ${dashboardTokens.border}` }}>
                     {columns.map((column) => {
-                      const value = (row as Record<string, unknown>)[column.key as string];
+                      const value = (row as Record<string, unknown>)[column.key as string] as T[keyof T];
                       const renderedValue = column.render ? column.render(value, row) : String(value);
                       const tooltipText = `${column.label}: ${String(value)}`;
                       const tooltipKey = `${idx}-${String(column.key)}`;
