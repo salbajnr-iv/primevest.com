@@ -113,7 +113,7 @@ export default function AdvancedChart({
   }));
 
   return (
-    <div className="advanced-chart" style={{ width: "100%", height }}>
+    <div className="advanced-chart" style={{ width: "100%", height: height || 300 }}>
       <div className="chart-header" style={{ 
         display: "flex", 
         justifyContent: "space-between", 

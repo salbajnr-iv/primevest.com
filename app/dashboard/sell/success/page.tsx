@@ -22,7 +22,7 @@ export default function SellSuccessPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader userName="User" />
+        <DashboardHeader summary={{ userName: "User", portfolioValue: 0, portfolioChangePct: 0, availableBalance: 0, availableBalanceChangePct: 0, notificationCount: 0 }} />
 
         <main className="page-card">
           <TransactionPageHeader title="Erfolgreich verkauft" subtitle="Dein Verkauf wurde ausgeführt." />

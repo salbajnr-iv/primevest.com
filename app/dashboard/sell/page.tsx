@@ -61,8 +61,8 @@ export default function SellSelectPage() {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-app">
-        <DashboardHeader userName="User" />
+        <div className="dashboard-app">
+          <DashboardHeader summary={{ userName: "User", portfolioValue: 0, portfolioChangePct: 0, availableBalance: 0, availableBalanceChangePct: 0, notificationCount: 0 }} />
 
         <main className="page-card space-y-5">
           <PageSectionHeader
