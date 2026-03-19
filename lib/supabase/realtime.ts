@@ -10,12 +10,16 @@ interface RealtimeReply {
   is_staff: boolean;
   created_at: string;
   seen_at: string | null;
+  [key: string]: unknown;
 }
 
-type RealtimePayload<T extends Record<string, any>> = RealtimePostgresChangesPayload<T>;
+type RealtimePayload<T extends Record<string, unknown>> = RealtimePostgresChangesPayload<T>;
 
-function isValidRow<T extends Record<string, any>>(row: T | {}): row is T {
-  return row !== null && typeof row === 'object' && Object.keys(row).length > 0;
+function isValidRow<T extends Record<string, unknown>>(row: unknown): row is T {
+  if (!row || typeof row !== 'object' || row === null || Array.isArray(row)) {
+    return false;
+  }
+  return Object.keys(row).length > 0;
 }
 
 interface MarketPriceRealtimeRow {
@@ -24,12 +28,14 @@ interface MarketPriceRealtimeRow {
   source: string;
   status: 'live' | 'delayed' | 'stale';
   priced_at: string;
+  [key: string]: unknown;
 }
 
 interface OrderStatusRealtimeRow {
   id: string | number;
   status: string;
   updated_at: string;
+  [key: string]: unknown;
 }
 
 interface SupportTicketRealtimeRow {
@@ -37,6 +43,7 @@ interface SupportTicketRealtimeRow {
   status: string;
   updated_at: string;
   reference_id?: string;
+  [key: string]: unknown;
 }
 
 export type { RealtimeReply, MarketPriceRealtimeRow, OrderStatusRealtimeRow, SupportTicketRealtimeRow };
@@ -58,7 +65,7 @@ export function useSupportTicketRepliesRealtime(onReplyInsert: (row: RealtimeRep
         },
         (payload: RealtimePayload<RealtimeReply>) => {
           const row = payload.new;
-          if (isValidRow(row)) {
+          if (isValidRow<RealtimeReply>(row)) {
             onReplyInsert(row);
           }
         }
@@ -87,7 +94,7 @@ export function useMarketPriceRealtime(onPriceUpdate: (row: MarketPriceRealtimeR
         },
         (payload: RealtimePayload<MarketPriceRealtimeRow>) => {
           const row = payload.new;
-          if (!isValidRow(row) || (assets?.length && !assets.includes(row.asset.toUpperCase()))) {
+          if (!isValidRow<MarketPriceRealtimeRow>(row) || (assets?.length && !assets.includes(row.asset.toUpperCase()))) {
             return;
           }
           onPriceUpdate({ 
@@ -123,7 +130,7 @@ export function useOrderStatusRealtime(onOrderUpdate: (row: OrderStatusRealtimeR
         },
         (payload: RealtimePayload<OrderStatusRealtimeRow>) => {
           const row = payload.new;
-          if (isValidRow(row)) {
+          if (isValidRow<OrderStatusRealtimeRow>(row)) {
             onOrderUpdate(row);
           }
         }
@@ -152,7 +159,7 @@ export function useSupportTicketStatusRealtime(onTicketUpdate: (row: SupportTick
         },
         (payload: RealtimePayload<SupportTicketRealtimeRow>) => {
           const row = payload.new;
-          if (isValidRow(row)) {
+          if (isValidRow<SupportTicketRealtimeRow>(row)) {
             onTicketUpdate(row);
           }
         }
@@ -187,7 +194,7 @@ export function useTicketRealtime(ticketId: number | null, initialMessages: Real
         },
         (payload: RealtimePayload<RealtimeReply>) => {
           const newReply = payload.new;
-          if (isValidRow(newReply)) {
+          if (isValidRow<RealtimeReply>(newReply)) {
             setMessages((prev) => [...prev, newReply]);
           }
         }
@@ -232,7 +239,7 @@ export function useTicketRealtime(ticketId: number | null, initialMessages: Real
       });
 
       if (error) {
-        setMessages((prev) => prev.slice(0, -1));
+        setMessages((prev) => prev.filter((m, index) => index !== prev.length - 1));
         console.error('Send failed:', error);
       }
     },

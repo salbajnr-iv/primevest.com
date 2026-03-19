@@ -149,7 +149,8 @@ export default function AdvancedChart({
         )}
       </div>
 
-      <ResponsiveContainer width="100%" height={height - 40}>
+<ResponsiveContainer width="100%" height={height - 40} minWidth={0} minHeight={0}>
+
         {type === "area" ? (
           <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
             {showGrid && (
