@@ -215,7 +215,7 @@ function TradePageContent() {
                     <span>Available</span>
                     <span>€{availableBalance.toLocaleString("de-DE", { minimumFractionDigits: 2 })}</span>
                   </div>
-                  {formData.total && (
+                  {formData.total && fee && (
                     <>
                       <div className="order-total"><span>Total</span><span className="total-value">€{parseFloat(formData.total).toLocaleString("de-DE", { minimumFractionDigits: 2 })}</span></div>
                       <div className="fee-info">

@@ -70,6 +70,8 @@ export default function DashboardBuyPage() {
     userName: "User",
     portfolioValue: 12500.50,
     portfolioChangePct: 2.34,
+    availableBalance: 2450.2,
+    availableBalanceChangePct: 1.12,
     notificationCount: 3,
   };
 

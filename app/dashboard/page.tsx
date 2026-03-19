@@ -15,7 +15,7 @@ export default async function DashboardPage() {
     redirect("/auth/signin?redirect=/dashboard");
   }
 
-  const dashboardData = await getDashboardData(supabase);
+  const dashboardData = await getDashboardData(supabase, user.id);
 
   return <DashboardClient initialData={dashboardData} />;
 }

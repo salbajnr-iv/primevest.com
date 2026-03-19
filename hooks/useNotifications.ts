@@ -27,6 +27,10 @@ interface NotificationBroadcastPayload {
   notification_id?: number | string;
 }
 
+interface NotificationBroadcastEvent {
+  payload?: NotificationBroadcastPayload;
+}
+
 interface UseNotificationsOptions {
   userId?: string;
   setNotifications: React.Dispatch<React.SetStateAction<AppNotification[]>>;
@@ -78,7 +82,7 @@ export function useNotifications({
           event: "notification_created",
           ...(replayConfig ?? {}),
         } as Record<string, unknown>,
-        async (payload) => {
+        async (payload: NotificationBroadcastEvent) => {
           const broadcastPayload = payload.payload as NotificationBroadcastPayload | undefined;
           const notificationId = broadcastPayload?.notification_id;
 

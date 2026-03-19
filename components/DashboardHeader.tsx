@@ -7,20 +7,31 @@ import { PortfolioSummary } from "@/lib/dashboard/types";
 import { ROUTES } from "@/lib/routes";
 
 interface DashboardHeaderProps {
-  summary: PortfolioSummary;
+  summary?: Partial<PortfolioSummary>;
+  userName?: string;
 }
 
 export default function DashboardHeader({ 
-  summary 
+  summary,
+  userName: legacyUserName,
 }: DashboardHeaderProps) {
-  const userName = summary.userName;
+  const resolvedSummary: PortfolioSummary = {
+    userName: summary?.userName ?? legacyUserName ?? "User",
+    portfolioValue: summary?.portfolioValue ?? 0,
+    portfolioChangePct: summary?.portfolioChangePct ?? 0,
+    availableBalance: summary?.availableBalance ?? 0,
+    availableBalanceChangePct: summary?.availableBalanceChangePct ?? 0,
+    notificationCount: summary?.notificationCount ?? 0,
+  };
+
+  const userName = resolvedSummary.userName;
   const portfolioValue = new Intl.NumberFormat('de-DE', { 
     style: 'currency', 
     currency: 'EUR' 
-  }).format(summary.portfolioValue);
-  const portfolioChange = `${summary.portfolioChangePct >= 0 ? '+' : ''}${summary.portfolioChangePct.toFixed(2)}%`;
-  const notificationCount = summary.notificationCount;
-  const isPositive = summary.portfolioChangePct >= 0;
+  }).format(resolvedSummary.portfolioValue);
+  const portfolioChange = `${resolvedSummary.portfolioChangePct >= 0 ? '+' : ''}${resolvedSummary.portfolioChangePct.toFixed(2)}%`;
+  const notificationCount = resolvedSummary.notificationCount;
+  const isPositive = resolvedSummary.portfolioChangePct >= 0;
 
   return (
     <header className="header">
@@ -55,4 +66,3 @@ export default function DashboardHeader({
     </header>
   );
 }
-

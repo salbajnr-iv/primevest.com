@@ -10,6 +10,7 @@ import { EmptyState, ErrorState, LoadingSpinner } from "@/components/ui/LoadingS
 import { useAuth } from "@/contexts/AuthContext";
 
 interface OrderRow {
+  [key: string]: string;
   id: string;
   side: string;
   symbol: string;
