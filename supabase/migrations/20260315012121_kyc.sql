@@ -60,7 +60,11 @@ ALTER TABLE public.kyc_documents ENABLE ROW LEVEL SECURITY;
 DO $$
 BEGIN
   IF NOT EXISTS (
-SELECT 1 FROM pg_policies WHERE policyname = 'Allow insert by owner' AND polrelid = 'public.kyc_requests'::regclass
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'kyc_requests'
+      AND policyname = 'Allow insert by owner'
   ) THEN
     CREATE POLICY "Allow insert by owner" ON public.kyc_requests
       FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -71,7 +75,11 @@ END$$;
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE policyname = 'Allow select by owner' AND polrelid = 'public.kyc_requests'::regclass
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'kyc_requests'
+      AND policyname = 'Allow select by owner'
   ) THEN
     CREATE POLICY "Allow select by owner" ON public.kyc_requests
       FOR SELECT USING (auth.uid() = user_id);
@@ -82,7 +90,11 @@ END$$;
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE policyname = 'Admins can select all' AND polrelid = 'public.kyc_requests'::regclass
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'kyc_requests'
+      AND policyname = 'Admins can select all'
   ) THEN
     CREATE POLICY "Admins can select all" ON public.kyc_requests
       FOR SELECT USING (
@@ -95,7 +107,11 @@ END$$;
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE policyname = 'Admins can update requests' AND polrelid = 'public.kyc_requests'::regclass
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'kyc_requests'
+      AND policyname = 'Admins can update requests'
   ) THEN
     CREATE POLICY "Admins can update requests" ON public.kyc_requests
       FOR UPDATE USING (
@@ -111,7 +127,11 @@ END$$;
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE policyname = 'Allow insert documents by owner' AND polrelid = 'public.kyc_documents'::regclass
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'kyc_documents'
+      AND policyname = 'Allow insert documents by owner'
   ) THEN
     CREATE POLICY "Allow insert documents by owner" ON public.kyc_documents
       FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -122,7 +142,11 @@ END$$;
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE policyname = 'Allow select documents by owner' AND polrelid = 'public.kyc_documents'::regclass
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'kyc_documents'
+      AND policyname = 'Allow select documents by owner'
   ) THEN
     CREATE POLICY "Allow select documents by owner" ON public.kyc_documents
       FOR SELECT USING (auth.uid() = user_id);
@@ -133,7 +157,11 @@ END$$;
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE policyname = 'Admins can select documents' AND polrelid = 'public.kyc_documents'::regclass
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'kyc_documents'
+      AND policyname = 'Admins can select documents'
   ) THEN
     CREATE POLICY "Admins can select documents" ON public.kyc_documents
       FOR SELECT USING (
@@ -145,7 +173,11 @@ END$$;
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE policyname = 'Admins can update documents' AND polrelid = 'public.kyc_documents'::regclass
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'kyc_documents'
+      AND policyname = 'Admins can update documents'
   ) THEN
     CREATE POLICY "Admins can update documents" ON public.kyc_documents
       FOR UPDATE USING (
@@ -159,7 +191,11 @@ END$$;
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE policyname = 'Admins can delete documents' AND polrelid = 'public.kyc_documents'::regclass
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'kyc_documents'
+      AND policyname = 'Admins can delete documents'
   ) THEN
     CREATE POLICY "Admins can delete documents" ON public.kyc_documents
       FOR DELETE USING (
@@ -172,7 +208,11 @@ END$$;
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE policyname = 'Allow delete by owner' AND polrelid = 'public.kyc_documents'::regclass
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'kyc_documents'
+      AND policyname = 'Allow delete by owner'
   ) THEN
     CREATE POLICY "Allow delete by owner" ON public.kyc_documents
       FOR DELETE USING (auth.uid() = user_id);
@@ -235,7 +275,10 @@ BEGIN
       ('Admins can delete documents','public.kyc_documents'),
       ('Allow delete by owner','public.kyc_documents')
   ) AS expected(name, relname)
-  LEFT JOIN pg_policies pol ON pol.policyname = expected.name AND pol.polrelid = expected.relname::regclass
+  LEFT JOIN pg_policies pol
+    ON pol.policyname = expected.name
+   AND pol.schemaname = split_part(expected.relname, '.', 1)
+   AND pol.tablename = split_part(expected.relname, '.', 2)
   WHERE pol.policyname IS NULL;
 
   IF missing = 0 THEN
