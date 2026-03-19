@@ -1,16 +1,19 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
-import type { User, Session, UserMetadata, AuthError, AuthChangeEvent } from '@supabase/supabase-js'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import type { User, Session, UserMetadata, AuthError } from '@supabase/supabase-js'
 import { SupabaseErrorHandler } from '@/lib/supabase/error-handler'
 import { createClient, setRealtimeAuth } from '@/lib/supabase/client'
+import { frontendAuthService } from '@/lib/auth/client'
 
 interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
+  sessionError: string | null
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null; data?: { user: User | null; session: Session | null } }>
-  signUp: (email: string, password: string, metadata?: UserMetadata) => Promise<{ error: AuthError | null; data?: { user: User | null; session: Session | null; identities?: unknown[] } }>
+  signUp: (email: string, password: string, metadata?: UserMetadata) => Promise<{ error: AuthError | null; data?: { user: User | null; session: Session | null } }>
   signInWithOAuth: (provider: 'google' | 'apple' | 'github') => Promise<{ error: AuthError | null; data?: { url: string | null } }>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>
@@ -19,59 +22,82 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const SESSION_EXPIRED_MESSAGE = 'Session expired. Please sign in again.'
+const PROTECTED_PREFIXES = ['/dashboard', '/settings', '/profile', '/account']
+const AUTH_PREFIXES = ['/auth/signin', '/auth/signup', '/auth/reset-password', '/auth/new-password', '/auth/otp-verify', '/auth/callback']
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [sessionError, setSessionError] = useState<string | null>(null)
 
-  const supabase = createClient()
+  const pathname = usePathname()
+  const router = useRouter()
+  const supabase = useMemo(() => createClient(), [])
 
-  useEffect(() => {
-    if (!supabase) {
-      // Guest mode if Supabase env vars are missing
-      setTimeout(() => setLoading(false), 0)
+  const syncSessionState = useCallback(async (nextSession: Session | null, nextUser: User | null) => {
+    setSession(nextSession)
+    setUser(nextUser)
+    await setRealtimeAuth(nextSession?.access_token, supabase)
+  }, [supabase])
+
+  const redirectToSignIn = useCallback(async (message = SESSION_EXPIRED_MESSAGE) => {
+    setSessionError(message)
+    await syncSessionState(null, null)
+
+    if (AUTH_PREFIXES.some((prefix) => pathname?.startsWith(prefix))) {
       return
     }
 
-    // Get initial session with retry logic
-    const getInitialSession = async () => {
-      try {
-        await SupabaseErrorHandler.withRetry(async () => {
-          const { data: { session } } = await supabase.auth.getSession()
-          setSession(session)
-          setUser(session?.user ?? null)
-          await setRealtimeAuth(session?.access_token, supabase)
-          setLoading(false)
-        })
-      } catch {
-        console.warn('Failed to get initial session, continuing in guest mode')
-        setSession(null)
-        setUser(null)
-        setLoading(false)
-      }
+    if (pathname && PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+      const redirect = pathname === '/' ? '/dashboard' : pathname
+      router.push(`/auth/signin?reason=session_expired&redirect=${encodeURIComponent(redirect)}`)
     }
+  }, [pathname, router, syncSessionState])
 
-    getInitialSession()
+  useEffect(() => {
+    let active = true
 
-    // Listen for auth changes with error handling
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event: AuthChangeEvent, session: Session | null) => {
-        try {
-          setSession(session)
-          setUser(session?.user ?? null)
-          await setRealtimeAuth(session?.access_token, supabase)
+    const hydrateSession = async () => {
+      try {
+        const result = await frontendAuthService.getSession()
+
+        if (!active) return
+
+        if (result.error) {
+          await redirectToSignIn(result.error.message)
+          return
+        }
+
+        const nextSession = result.data.session
+        const nextUser = result.data.user
+
+        if (!nextSession || !nextUser) {
+          await syncSessionState(null, null)
           setLoading(false)
-        } catch (error) {
-          console.warn('Auth state change error:', error)
+          return
+        }
+
+        setSessionError(null)
+        await syncSessionState(nextSession, nextUser)
+      } catch {
+        if (active) {
+          await redirectToSignIn()
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
         }
       }
-    )
+    }
+
+    void hydrateSession()
 
     return () => {
-      subscription.unsubscribe()
+      active = false
     }
-  }, [supabase])
+  }, [pathname, redirectToSignIn, syncSessionState])
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError, data: undefined }
@@ -79,22 +105,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const normalizedEmail = email.trim().toLowerCase()
 
     try {
-      const result = await SupabaseErrorHandler.withRetry(async () => {
-        return await supabase.auth.signInWithPassword({ email: normalizedEmail, password })
-      })
+      const result = await SupabaseErrorHandler.withRetry(async () => frontendAuthService.signIn({ email: normalizedEmail, password }))
 
       if (result.error || !result.data.session || !result.data.user) {
         return result
       }
 
-      const { data: verifiedUserData, error: verifiedUserError } = await supabase.auth.getUser(result.data.session.access_token)
-
-      if (
-        verifiedUserError ||
-        !verifiedUserData.user ||
-        verifiedUserData.user.email?.toLowerCase() !== normalizedEmail
-      ) {
-        await supabase.auth.signOut()
+      if (result.data.user.email?.toLowerCase() !== normalizedEmail) {
+        await signOut()
         return {
           error: {
             name: 'AuthVerificationFailed',
@@ -105,29 +123,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
+      setSessionError(null)
+      await syncSessionState(result.data.session, result.data.user)
       return result
     } catch (error) {
       return await SupabaseErrorHandler.handleSupabaseError(error, () => ({
         error: { name: 'NetworkError', message: 'Authentication service unavailable', status: 0 } as AuthError,
-        data: undefined
+        data: undefined,
       })) as { error: AuthError | null; data?: { user: User | null; session: Session | null } }
     }
   }
 
-  const signUp = async (
-    email: string,
-    password: string,
-    metadata?: UserMetadata
-  ) => {
+  const signUp = async (email: string, password: string, metadata?: UserMetadata) => {
     if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError, data: undefined }
-    return await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: metadata,
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-      },
-    })
+
+    const normalizedEmail = email.trim().toLowerCase()
+    const result = await frontendAuthService.signUp({ email: normalizedEmail, password, metadata })
+
+    if (!result.error && result.data.session && result.data.user) {
+      setSessionError(null)
+      await syncSessionState(result.data.session, result.data.user)
+    }
+
+    return result
   }
 
   const signInWithOAuth = async (provider: 'google' | 'apple' | 'github') => {
@@ -140,7 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
     return {
       error: response.error,
-      data: response.data ? { url: response.data.url } : undefined
+      data: response.data ? { url: response.data.url } : undefined,
     }
   }
 
@@ -148,17 +166,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (supabase) {
         await setRealtimeAuth(undefined, supabase)
-        const { error } = await supabase.auth.signOut()
-        if (error) {
-          console.error('Sign out error:', error)
-        }
       }
-      // Clear local state regardless of API call result
-      setUser(null)
-      setSession(null)
+      await frontendAuthService.signOut()
     } catch (error) {
       console.error('Unexpected sign out error:', error)
-      // Still clear local state on error
+    } finally {
+      setSessionError(null)
       setUser(null)
       setSession(null)
     }
@@ -182,20 +195,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        session,
-        loading,
-        signIn,
-        signUp,
-        signInWithOAuth,
-        signOut,
-        resetPassword,
-        updatePassword,
-        verifyOtp,
-      }}
-    >
+    <AuthContext.Provider value={{ user, session, loading, sessionError, signIn, signUp, signInWithOAuth, signOut, resetPassword, updatePassword, verifyOtp }}>
       {children}
     </AuthContext.Provider>
   )
@@ -208,4 +208,3 @@ export function useAuth() {
   }
   return context
 }
-
