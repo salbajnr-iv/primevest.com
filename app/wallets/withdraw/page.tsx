@@ -6,11 +6,12 @@ import BottomNav from "@/components/BottomNav";
 import { ArrowUpRight, Check, Wallet } from "lucide-react";
 import { ErrorState, LoadingButton, LoadingSpinner } from "@/components/ui/LoadingStates";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDashboardSummary } from "@/lib/dashboard/use-dashboard-summary";
 
 type Currency = "EUR" | "BTC" | "ETH" | "USDT";
 
-const availableBalances: Record<Currency, number> = {
-  EUR: 12000,
+const placeholderAssetBalances: Record<Currency, number> = {
+  EUR: 0,
   BTC: 0.42,
   ETH: 3,
   USDT: 4800,
@@ -39,6 +40,7 @@ const destinationValidators: Record<Currency, RegExp> = {
 
 export default function WithdrawPage() {
   const { session } = useAuth();
+  const { summary } = useDashboardSummary();
   const [step, setStep] = React.useState<"form" | "review" | "success">("form");
   const [currency, setCurrency] = React.useState<Currency>("EUR");
   const [amount, setAmount] = React.useState("");
@@ -47,6 +49,14 @@ export default function WithdrawPage() {
   const [withdrawalStatus, setWithdrawalStatus] = React.useState("pending");
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  const availableBalances = React.useMemo<Record<Currency, number>>(
+    () => ({
+      ...placeholderAssetBalances,
+      EUR: Number(summary.availableBalance ?? 0),
+    }),
+    [summary.availableBalance],
+  );
 
   const parsedAmount = amount ? parseFloat(amount) : 0;
   const fee = networkFee[currency];
@@ -145,7 +155,7 @@ export default function WithdrawPage() {
                   <select value={currency} onChange={(e) => setCurrency(e.target.value as Currency)} className="form-input">
                     {Object.entries(availableBalances).map(([curr, balance]) => (
                       <option key={curr} value={curr}>
-                        {curr} ({balance})
+                        {curr} ({curr === "EUR" ? balance.toLocaleString("de-DE", { style: "currency", currency: "EUR" }) : balance})
                       </option>
                     ))}
                   </select>
@@ -154,7 +164,9 @@ export default function WithdrawPage() {
                 <div className="form-group">
                   <label>Amount ({currency})</label>
                   <input type="number" className="form-input" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
-                  <div className="balance-hint">Available: {formatAmount(availableBalances[currency], currency)}</div>
+                  <div className="balance-hint">
+                    {currency === "EUR" ? "Available cash balance" : "Available asset balance"}: {formatAmount(availableBalances[currency], currency)}
+                  </div>
                 </div>
 
                 <div className="form-group">
@@ -194,6 +206,12 @@ export default function WithdrawPage() {
             {step === "review" && (
               <>
                 <div className="price-estimate">
+                  {currency === "EUR" && (
+                    <div className="price-estimate-row">
+                      <span className="price-estimate-label">Available cash balance</span>
+                      <span className="price-estimate-value">{Number(summary.availableBalance ?? 0).toLocaleString("de-DE", { style: "currency", currency: "EUR" })}</span>
+                    </div>
+                  )}
                   <div className="price-estimate-row">
                     <span className="price-estimate-label">Currency</span>
                     <span className="price-estimate-value">{currency}</span>

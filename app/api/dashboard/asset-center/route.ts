@@ -77,9 +77,30 @@ export async function GET(req: Request) {
     const liveBalance = Number(profile?.account_balance ?? 0);
 
     const accounts = [
-      { id: "live-main", name: "Live Account", type: "live", balance: liveBalance, currency: "USD" },
-      { id: "tradew", name: "Trade W Account", type: "tradew", balance: pendingOrderTotal, currency: "USD" },
-      { id: "investment", name: "Investment Account", type: "investment", balance: completedBuyTotal, currency: "USD" },
+      {
+        id: "live-main",
+        name: "Live Account",
+        type: "live",
+        balance: liveBalance,
+        currency: "EUR",
+        balanceSource: "profiles.account_balance",
+      },
+      {
+        id: "tradew",
+        name: "Trade W Account",
+        type: "tradew",
+        balance: pendingOrderTotal,
+        currency: "EUR",
+        balanceSource: "pending orders total",
+      },
+      {
+        id: "investment",
+        name: "Investment Account",
+        type: "investment",
+        balance: completedBuyTotal,
+        currency: "EUR",
+        balanceSource: "completed buy orders total",
+      },
     ];
 
     return NextResponse.json({ ok: true, data: { accounts, platforms: tradingPlatforms } });

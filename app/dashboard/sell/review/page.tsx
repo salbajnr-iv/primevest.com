@@ -5,15 +5,18 @@ import { useRouter } from "next/navigation";
 import DashboardHeader from "@/components/DashboardHeader";
 import { SummaryRow, TransactionActionFooter, TransactionPageHeader } from "@/components/ui/transactional-page";
 import styles from "@/components/ui/transactional-pages.module.css";
+import { useDashboardSummary } from "@/lib/dashboard/use-dashboard-summary";
 
 export default function SellReviewPage() {
   const router = useRouter();
+  const { summary } = useDashboardSummary();
   const [asset, setAsset] = React.useState("-");
   const [amount, setAmount] = React.useState("0");
   const [estimated, setEstimated] = React.useState("0");
   const [fee, setFee] = React.useState("0");
   const [total, setTotal] = React.useState("0");
   const [isProcessing, setIsProcessing] = React.useState(false);
+  const availableCashBalance = Number(summary.availableBalance ?? 0);
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -36,12 +39,13 @@ export default function SellReviewPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader summary={{ userName: "User", portfolioValue: 0, portfolioChangePct: 0, availableBalance: 0, availableBalanceChangePct: 0, notificationCount: 0 }} />
+        <DashboardHeader summary={summary} />
 
         <main className="page-card">
           <TransactionPageHeader title="Verkauf bestätigen" subtitle="Bitte überprüfen Sie die folgenden Details." />
 
           <div className={`price-estimate ${styles.summaryBlock}`}>
+            <SummaryRow label="Verfügbares Guthaben" value={availableCashBalance.toLocaleString("de-DE", { style: "currency", currency: "EUR" })} />
             <SummaryRow label="Asset" value={asset} />
             <SummaryRow label="Menge" value={amount} />
             <SummaryRow label="Geschätzter Gegenwert" value={`${estimated} €`} />
