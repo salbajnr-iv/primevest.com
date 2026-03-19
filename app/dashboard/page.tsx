@@ -1,4 +1,4 @@
-export const revalidate = 120;
+export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
 import DashboardClient from "@/app/dashboard/DashboardClient";

@@ -152,7 +152,9 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       setTableState("loading");
 
       try {
-        const response = await fetch(`/api/dashboard/aggregates?range=${encodeURIComponent(range)}`);
+        const response = await fetch(`/api/dashboard/aggregates?range=${encodeURIComponent(range)}`, {
+          cache: "no-store",
+        });
         if (!response.ok) throw new Error("Failed to load dashboard range data");
 
         const payload = (await response.json()) as { data?: DashboardData };
