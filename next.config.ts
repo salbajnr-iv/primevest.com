@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
         hostname: "sbcdn.bitpanda.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "cryptomus.com",
+        pathname: "/public/icons/services/trading/**",
+      },
     ],
   },
   
