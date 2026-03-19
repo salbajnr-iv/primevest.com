@@ -1,3 +1,4 @@
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { useCallback, useEffect, useState } from 'react';
 import { createClient } from './client';
 
@@ -9,6 +10,12 @@ interface RealtimeReply {
   is_staff: boolean;
   created_at: string;
   seen_at: string | null;
+}
+
+type RealtimePayload<T extends Record<string, any>> = RealtimePostgresChangesPayload<T>;
+
+function isValidRow<T extends Record<string, any>>(row: T | {}): row is T {
+  return row !== null && typeof row === 'object' && Object.keys(row).length > 0;
 }
 
 interface MarketPriceRealtimeRow {
@@ -49,9 +56,11 @@ export function useSupportTicketRepliesRealtime(onReplyInsert: (row: RealtimeRep
           table: 'support_ticket_replies',
           ...(ticketId ? { filter: `ticket_id=eq.${ticketId}` } : {}),
         },
-        (payload) => {
-          const row = payload.new as RealtimeReply;
-          onReplyInsert(row);
+        (payload: RealtimePayload<RealtimeReply>) => {
+          const row = payload.new;
+          if (isValidRow(row)) {
+            onReplyInsert(row);
+          }
         }
       )
       .subscribe();
@@ -76,12 +85,18 @@ export function useMarketPriceRealtime(onPriceUpdate: (row: MarketPriceRealtimeR
           schema: 'public',
           table: 'market_prices',
         },
-        (payload) => {
-          const row = payload.new as MarketPriceRealtimeRow;
-          if (assets?.length && !assets.includes(String(row.asset).toUpperCase())) {
+        (payload: RealtimePayload<MarketPriceRealtimeRow>) => {
+          const row = payload.new;
+          if (!isValidRow(row) || (assets?.length && !assets.includes(row.asset.toUpperCase()))) {
             return;
           }
-          onPriceUpdate({ ...row, asset: String(row.asset).toUpperCase() });
+          onPriceUpdate({ 
+            asset: row.asset.toUpperCase(), 
+            last_price: row.last_price, 
+            source: row.source, 
+            status: row.status, 
+            priced_at: row.priced_at 
+          });
         }
       )
       .subscribe();
@@ -106,9 +121,11 @@ export function useOrderStatusRealtime(onOrderUpdate: (row: OrderStatusRealtimeR
           schema: 'public',
           table: 'orders',
         },
-        (payload) => {
-          const row = payload.new as OrderStatusRealtimeRow;
-          onOrderUpdate(row);
+        (payload: RealtimePayload<OrderStatusRealtimeRow>) => {
+          const row = payload.new;
+          if (isValidRow(row)) {
+            onOrderUpdate(row);
+          }
         }
       )
       .subscribe();
@@ -133,9 +150,11 @@ export function useSupportTicketStatusRealtime(onTicketUpdate: (row: SupportTick
           schema: 'public',
           table: 'support_tickets',
         },
-        (payload) => {
-          const row = payload.new as SupportTicketRealtimeRow;
-          onTicketUpdate(row);
+        (payload: RealtimePayload<SupportTicketRealtimeRow>) => {
+          const row = payload.new;
+          if (isValidRow(row)) {
+            onTicketUpdate(row);
+          }
         }
       )
       .subscribe();
@@ -149,7 +168,6 @@ export function useSupportTicketStatusRealtime(onTicketUpdate: (row: SupportTick
 export function useTicketRealtime(ticketId: number | null, initialMessages: RealtimeReply[] = []) {
   const [messages, setMessages] = useState<RealtimeReply[]>(initialMessages);
   const [loading, setLoading] = useState(false);
-
 
   useEffect(() => {
     if (!ticketId) return;
@@ -167,12 +185,14 @@ export function useTicketRealtime(ticketId: number | null, initialMessages: Real
           table: 'support_ticket_replies',
           filter: `ticket_id=eq.${ticketId}`,
         },
-        (payload) => {
-          const newReply = payload.new as RealtimeReply;
-          setMessages((prev) => [...prev, newReply]);
+        (payload: RealtimePayload<RealtimeReply>) => {
+          const newReply = payload.new;
+          if (isValidRow(newReply)) {
+            setMessages((prev) => [...prev, newReply]);
+          }
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         if (status === 'SUBSCRIBED') setLoading(false);
       });
 
@@ -221,3 +241,4 @@ export function useTicketRealtime(ticketId: number | null, initialMessages: Real
 
   return { messages, sendMessage, loading };
 }
+

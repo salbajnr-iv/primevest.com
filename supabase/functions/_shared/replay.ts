@@ -1,6 +1,6 @@
-import { PostgrestError } from "https://esm.sh/@supabase/supabase-js@2.56.1";
 
-import { supabaseAdmin } from "./supabase.ts";
+
+import { supabaseAdmin } from "./supabase";
 
 type ReplayRow = {
   status: "processing" | "completed" | "failed";
@@ -16,7 +16,10 @@ export const claimReplay = async (taskType: string, replayKey: string): Promise<
     return { claimed: true };
   }
 
-  const pgError = error as PostgrestError;
+  interface PgError {
+    code?: string;
+  }
+  const pgError = error as PgError;
   if (pgError.code !== "23505") {
     throw error;
   }

@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -14,7 +15,7 @@ import {
 } from "@/lib/swap/market-impact";
 import { DASHBOARD_BUY_SUMMARY } from "@/app/dashboard/buy/mock-summary";
 
-export default function BuyReviewPage() {
+function BuyReviewPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [asset, setAsset] = React.useState("-");
@@ -110,3 +111,12 @@ export default function BuyReviewPage() {
     </div>
   );
 }
+
+export default function BuyReviewPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center">Loading buy review...</div>}>
+      <BuyReviewPageContent />
+    </Suspense>
+  );
+}
+
