@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -130,8 +131,59 @@ const trustMetrics = [
   { label: "Support", value: "24/7" }
 ];
 
+const featureCarouselCards = [
+  {
+    title: "Consistent Liquidity",
+    description: "Ensure seamless trading with constant access to active market orders.",
+    image: "https://cryptomus.com/public/icons/services/trading/blog-consistent-icon.png",
+    alt: "Liquidity Icon"
+  },
+  {
+    title: "Premium Products",
+    description: "Promote and utilize our top-tier crypto management tools designed for every user level.",
+    image: "https://cryptomus.com/public/icons/services/trading/blog-quality-icon.png",
+    alt: "Quality Icon"
+  },
+  {
+    title: "Partnership Rewards",
+    description: "Earn exclusive bonuses by participating in our affiliate programs and growing the community.",
+    image: "https://cryptomus.com/public/icons/services/trading/blog-bonuses-icon.png",
+    alt: "Bonuses Icon"
+  },
+  {
+    title: "Competitive Rates",
+    description: "Maximize your returns with some of the most favorable trading rates in the industry.",
+    image: "https://cryptomus.com/public/icons/services/trading/blog-profit-icon.png",
+    alt: "Profit Icon"
+  }
+];
+
 export default function Home() {
   const router = useRouter();
+  const [currentFeatureIndex, setCurrentFeatureIndex] = useState(0);
+  const [slidesPerView, setSlidesPerView] = useState(1);
+
+  useEffect(() => {
+    const updateSlidesPerView = () => {
+      const nextSlidesPerView = window.innerWidth >= 1280 ? 4 : window.innerWidth >= 768 ? 2 : 1;
+
+      setSlidesPerView((prevSlidesPerView) => {
+        if (prevSlidesPerView === nextSlidesPerView) {
+          return prevSlidesPerView;
+        }
+
+        setCurrentFeatureIndex((prevIndex) => Math.min(prevIndex, Math.max(featureCarouselCards.length - nextSlidesPerView, 0)));
+        return nextSlidesPerView;
+      });
+    };
+
+    updateSlidesPerView();
+    window.addEventListener("resize", updateSlidesPerView);
+
+    return () => window.removeEventListener("resize", updateSlidesPerView);
+  }, []);
+
+  const maxFeatureIndex = Math.max(featureCarouselCards.length - slidesPerView, 0);
 
   const handleTryDemo = () => {
     router.push("/demo");
@@ -473,6 +525,81 @@ style={{ backgroundImage: "url(/herosection.jpg)", backgroundSize: "cover", back
               </div>
             </motion.div>
           </div>
+        </div>
+      </motion.section>
+
+      <motion.section
+        initial="initial"
+        animate="animate"
+        variants={staggerContainer}
+        className="features-carousel py-20 px-4 md:px-8 bg-gray-50 border-b border-gray-200 section-padding"
+      >
+        <div className="container max-w-7xl mx-auto">
+          <motion.div variants={fadeInUp} className="slider-wrapper space-y-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">Trading advantages</p>
+                <h2 className="text-heading font-bold text-gray-900 mt-3">Why traders choose PrimeVest</h2>
+                <p className="text-body text-gray-600 mt-3">
+                  A streamlined feature carousel showcasing the benefits that help clients trade, grow, and stay active in the market.
+                </p>
+              </div>
+
+              <div className="slider-nav flex items-center gap-3">
+                <button
+                  type="button"
+                  className="nav-btn prev flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  aria-label="Previous slide"
+                  disabled={currentFeatureIndex === 0}
+                  onClick={() => setCurrentFeatureIndex((prev) => Math.max(prev - 1, 0))}
+                >
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+                </button>
+                <button
+                  type="button"
+                  className="nav-btn next flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  aria-label="Next slide"
+                  disabled={currentFeatureIndex >= maxFeatureIndex}
+                  onClick={() => setCurrentFeatureIndex((prev) => Math.min(prev + 1, maxFeatureIndex))}
+                >
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="swiper-container overflow-hidden">
+              <div
+                className="swiper-track flex gap-6 transition-transform duration-500 ease-out"
+                style={{
+                  transform: `translateX(calc(-${currentFeatureIndex} * ((100% - ${(slidesPerView - 1) * 1.5}rem) / ${slidesPerView} + 1.5rem)))`
+                }}
+              >
+                {featureCarouselCards.map((feature) => (
+                  <article
+                    key={feature.title}
+                    className="feature-card rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                    style={{ flex: `0 0 calc((100% - ${(slidesPerView - 1) * 1.5}rem) / ${slidesPerView})` }}
+                  >
+                    <div className="flex h-full flex-col">
+                      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 ring-1 ring-emerald-100">
+                        <Image
+                          src={feature.image}
+                          alt={feature.alt}
+                          width={56}
+                          height={56}
+                          className="h-14 w-14 object-contain"
+                        />
+                      </div>
+                      <div className="card-content space-y-3">
+                        <h3 className="text-xl font-semibold text-gray-900">{feature.title}</h3>
+                        <p className="text-sm leading-6 text-gray-600">{feature.description}</p>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </div>
       </motion.section>
 
