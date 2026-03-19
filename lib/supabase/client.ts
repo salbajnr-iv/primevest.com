@@ -31,6 +31,7 @@ export function createClient() {
         persistSession: false,
       },
     })
+    initializeRealtimeAuthSync(browserClient)
   }
 
   return browserClient

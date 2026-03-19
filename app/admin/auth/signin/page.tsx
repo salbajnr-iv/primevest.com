@@ -23,6 +23,18 @@ export default function AdminSignInPage() {
     }
   }, [sessionError])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const nextMessage = window.sessionStorage.getItem('primevest:admin-auth-message')
+    if (nextMessage) {
+      setError(nextMessage)
+      window.sessionStorage.removeItem('primevest:admin-auth-message')
+    }
+  }, [])
+
   // Redirect if already logged in as admin (useEffect for proper side effect handling)
   useEffect(() => {
     if (!contextLoading && isAdmin) {

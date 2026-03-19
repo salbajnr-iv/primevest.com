@@ -25,6 +25,18 @@ export default function SignInPage() {
     }
   }, [sessionError])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const nextMessage = window.sessionStorage.getItem('primevest:auth-message')
+    if (nextMessage) {
+      setError(nextMessage)
+      window.sessionStorage.removeItem('primevest:auth-message')
+    }
+  }, [])
+
   const getSafeRedirectPath = () => {
     if (typeof window === 'undefined') {
       return '/dashboard'
