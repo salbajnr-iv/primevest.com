@@ -10,12 +10,43 @@ import AdminHeader from '@/components/admin/AdminHeader'
 export const dynamic = 'force-dynamic'
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
-  const { user, isAdmin, loading } = useAdminAuth()
+  const { user, isAdmin, loading, refreshAdminStatus } = useAdminAuth()
   const router = useRouter()
   const pathname = usePathname()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isRouteChecking, setIsRouteChecking] = useState(false)
 
   const isAuthPage = pathname?.startsWith('/admin/auth/signin') || pathname?.startsWith('/admin/signin')
+
+  useEffect(() => {
+    if (loading || isAuthPage || !user) return
+
+    let active = true
+
+    const verifyRouteAccess = async () => {
+      setIsRouteChecking(true)
+
+      try {
+        const hasAccess = await refreshAdminStatus()
+
+        if (!active || hasAccess) {
+          return
+        }
+
+        router.push('/dashboard')
+      } finally {
+        if (active) {
+          setIsRouteChecking(false)
+        }
+      }
+    }
+
+    void verifyRouteAccess()
+
+    return () => {
+      active = false
+    }
+  }, [isAuthPage, loading, pathname, refreshAdminStatus, router, user])
 
   useEffect(() => {
     if (loading || isAuthPage) return
@@ -25,14 +56,14 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       return
     }
 
-    if (!isAdmin) {
+    if (!isRouteChecking && !isAdmin) {
       router.push('/dashboard')
     }
-  }, [isAdmin, isAuthPage, loading, router, user])
+  }, [isAdmin, isAuthPage, isRouteChecking, loading, router, user])
 
   if (isAuthPage) return <div className="min-h-screen bg-white dark:bg-gray-900">{children}</div>
 
-  if (loading || !user || !isAdmin) {
+  if (loading || isRouteChecking || !user || !isAdmin) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
         <div className="w-16 h-16 border-4 border-green-800 border-t-transparent rounded-full animate-spin" />

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+import { verifyAdminBearerToken } from '@/lib/admin/server'
+
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url)
@@ -14,19 +16,12 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Missing authorization token' }, { status: 401 })
     }
 
+    const verification = await verifyAdminBearerToken(token)
+    if (verification.error) {
+      return NextResponse.json({ error: verification.error }, { status: verification.status || 401 })
+    }
+
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
-
-    const { data: userData, error: userErr } = await supabase.auth.getUser(token)
-    if (userErr || !userData?.user) {
-      return NextResponse.json({ error: 'Invalid auth token' }, { status: 401 })
-    }
-
-    const adminId = userData.user.id
-    const { data: profileData, error: profileErr } = await supabase.from('profiles').select('is_admin').eq('id', adminId).maybeSingle()
-
-    if (profileErr || !profileData || profileData.is_admin !== true) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
 
     if (id) {
       const { data, error } = await supabase.from('kyc_requests').select('*, kyc_documents(*)').eq('id', id).maybeSingle()

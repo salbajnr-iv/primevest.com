@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import type { User, Session, AuthError, AuthChangeEvent } from '@supabase/supabase-js'
+import { verifyAdminAccess } from '@/lib/admin/check'
 import { createClient, setRealtimeAuth } from '@/lib/supabase/client'
 
 interface AdminAuthContextType {
@@ -24,31 +25,18 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
 
   const supabase = createClient()
 
-  // Check if user is admin
-  const checkAdminStatus = useCallback(async (userId: string): Promise<boolean> => {
-    try {
-      if (!supabase) return false
+  const checkAdminStatus = useCallback(async (): Promise<boolean> => {
+    const { isAdmin: hasAdminAccess, userId } = await verifyAdminAccess()
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('is_admin')
-        .eq('id', userId)
-        .single()
+    setIsAdmin(hasAdminAccess)
 
-      if (error) {
-        // Don't log errors for "not found" - this is expected for users without profiles
-        if (error.code !== 'PGRST116') {
-          console.warn('Could not verify admin status:', error.message)
-        }
-        return false
-      }
-
-      return data?.is_admin === true
-    } catch {
-      console.warn('Error checking admin status')
-      return false
+    if (!hasAdminAccess && userId === null) {
+      setUser(null)
+      setSession(null)
     }
-  }, [supabase])
+
+    return hasAdminAccess
+  }, [])
 
   useEffect(() => {
     if (!supabase) {
@@ -63,8 +51,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null)
       
       if (session?.user) {
-        const adminStatus = await checkAdminStatus(session.user.id)
-        setIsAdmin(adminStatus)
+        await checkAdminStatus()
       }
       
       setLoading(false)
@@ -79,8 +66,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null)
       
       if (session?.user) {
-        const adminStatus = await checkAdminStatus(session.user.id)
-        setIsAdmin(adminStatus)
+        await checkAdminStatus()
       } else {
         setIsAdmin(false)
       }
@@ -102,8 +88,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     
     // Check admin status after sign in
     if (result.data.user) {
-      const adminStatus = await checkAdminStatus(result.data.user.id)
-      setIsAdmin(adminStatus)
+      await checkAdminStatus()
     }
     
     return result
@@ -134,9 +119,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       return false
     }
     
-    const status = await checkAdminStatus(user.id)
-    setIsAdmin(status)
-    return status
+    return checkAdminStatus()
   }
 
   return (
