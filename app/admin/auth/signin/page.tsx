@@ -14,7 +14,26 @@ export default function AdminSignInPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const { signIn, signOut, refreshAdminStatus, isAdmin, loading: contextLoading } = useAdminAuth()
+  const { signIn, signOut, refreshAdminStatus, isAdmin, loading: contextLoading, sessionError } = useAdminAuth()
+
+  useEffect(() => {
+    const reason = new URLSearchParams(window.location.search).get('reason')
+    if (reason === 'session_expired') {
+      setError(sessionError ?? 'Session expired. Please sign in again.')
+    }
+  }, [sessionError])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const nextMessage = window.sessionStorage.getItem('primevest:admin-auth-message')
+    if (nextMessage) {
+      setError(nextMessage)
+      window.sessionStorage.removeItem('primevest:admin-auth-message')
+    }
+  }, [])
 
   // Redirect if already logged in as admin (useEffect for proper side effect handling)
   useEffect(() => {

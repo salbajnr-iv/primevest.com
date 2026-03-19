@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
@@ -16,7 +16,26 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false)
   const [oauthLoading, setOauthLoading] = useState<string | null>(null)
   const router = useRouter()
-  const { signIn, signInWithOAuth } = useAuth()
+  const { signIn, signInWithOAuth, sessionError } = useAuth()
+
+  useEffect(() => {
+    const reason = new URLSearchParams(window.location.search).get('reason')
+    if (reason === 'session_expired') {
+      setError(sessionError ?? 'Session expired. Please sign in again.')
+    }
+  }, [sessionError])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const nextMessage = window.sessionStorage.getItem('primevest:auth-message')
+    if (nextMessage) {
+      setError(nextMessage)
+      window.sessionStorage.removeItem('primevest:auth-message')
+    }
+  }, [])
 
   const getSafeRedirectPath = () => {
     if (typeof window === 'undefined') {
