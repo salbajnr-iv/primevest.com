@@ -1,22 +1,9 @@
-import type { AuthError, Session, User, UserMetadata } from '@supabase/supabase-js'
-
-export interface AuthSessionPayload {
-  session: Session | null
-  user: User | null
-}
+import type { AuthError, UserMetadata } from '@supabase/supabase-js'
+import type { AuthApiResult, AuthSessionPayload } from '@/lib/auth/types'
 
 export interface AuthActionResponse extends AuthSessionPayload {
   error: AuthError | null
   identities?: unknown[]
-}
-
-interface AuthServiceErrorBody {
-  error?: {
-    message?: string
-    status?: number
-    name?: string
-    code?: string
-  }
 }
 
 const DEFAULT_HEADERS = {
@@ -28,33 +15,35 @@ function toAuthError(message: string, status = 500, name = 'AuthApiError'): Auth
 }
 
 async function parseAuthResponse(response: Response): Promise<AuthActionResponse> {
-  let body: AuthActionResponse | AuthServiceErrorBody | null = null
+  let body: AuthApiResult<AuthSessionPayload & { identities?: unknown[] }> | null = null
 
   try {
-    body = (await response.json()) as AuthActionResponse | AuthServiceErrorBody
+    body = (await response.json()) as AuthApiResult<AuthSessionPayload & { identities?: unknown[] }>
   } catch {
     body = null
   }
 
   if (!response.ok) {
-    const errorMessage = body && 'error' in body ? body.error?.message : undefined
-    const errorStatus = body && 'error' in body ? body.error?.status : undefined
-    const errorName = body && 'error' in body ? body.error?.name : undefined
-
     return {
       session: null,
       user: null,
-      error: toAuthError(errorMessage ?? 'Authentication request failed', errorStatus ?? response.status, errorName ?? 'AuthApiError'),
+      error: body?.error ?? toAuthError('Authentication request failed', response.status, 'AuthApiError'),
     }
   }
 
-  const result = body as AuthActionResponse | null
+  if (!body?.data) {
+    return {
+      session: null,
+      user: null,
+      error: toAuthError('Authentication response was invalid', response.status, 'AuthApiError'),
+    }
+  }
 
   return {
-    session: result?.session ?? null,
-    user: result?.user ?? null,
-    identities: result?.identities,
-    error: result?.error ?? null,
+    session: body.data.session,
+    user: body.data.user,
+    identities: body.data.identities,
+    error: null,
   }
 }
 
@@ -127,9 +116,9 @@ export async function signOutWithBackend(): Promise<{ error: AuthError | null }>
       return { error: null }
     }
 
-    const body = (await response.json().catch(() => null)) as AuthServiceErrorBody | null
+    const body = (await response.json().catch(() => null)) as AuthApiResult<{ success: true }> | null
     return {
-      error: toAuthError(body?.error?.message ?? 'Unable to sign out', body?.error?.status ?? response.status, body?.error?.name ?? 'AuthApiError'),
+      error: body?.error ?? toAuthError('Unable to sign out', response.status, 'AuthApiError'),
     }
   } catch {
     return {

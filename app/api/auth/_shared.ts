@@ -1,22 +1,25 @@
 import { NextResponse } from 'next/server'
 import type { AuthError, Session, User } from '@supabase/supabase-js'
+import { sanitizeSession } from '@/lib/auth/server'
+import type { AuthApiResult, AuthSessionPayload } from '@/lib/auth/types'
 
 export function authErrorResponse(status: number, message: string, name = 'AuthApiError') {
-  return NextResponse.json(
-    {
-      session: null,
-      user: null,
-      error: { message, status, name } satisfies Partial<AuthError>,
-    },
-    { status }
-  )
+  const payload: AuthApiResult<AuthSessionPayload> = {
+    error: { message, status, name } as AuthError,
+  }
+
+  return NextResponse.json(payload, { status })
 }
 
 export function authSuccessResponse(session: Session | null, user: User | null, extra: Record<string, unknown> = {}) {
-  return NextResponse.json({
-    session,
-    user,
+  const payload: AuthApiResult<AuthSessionPayload & Record<string, unknown>> = {
+    data: {
+      session: sanitizeSession(session),
+      user,
+      ...extra,
+    },
     error: null,
-    ...extra,
-  })
+  }
+
+  return NextResponse.json(payload)
 }
