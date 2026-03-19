@@ -16,6 +16,18 @@ export default function AdminSignInPage() {
   const router = useRouter()
   const { signIn, signOut, refreshAdminStatus, isAdmin, loading: contextLoading } = useAdminAuth()
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const nextMessage = window.sessionStorage.getItem('primevest:admin-auth-message')
+    if (nextMessage) {
+      setError(nextMessage)
+      window.sessionStorage.removeItem('primevest:admin-auth-message')
+    }
+  }, [])
+
   // Redirect if already logged in as admin (useEffect for proper side effect handling)
   useEffect(() => {
     if (!contextLoading && isAdmin) {

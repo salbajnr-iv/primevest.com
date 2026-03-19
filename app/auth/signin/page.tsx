@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
@@ -17,6 +17,18 @@ export default function SignInPage() {
   const [oauthLoading, setOauthLoading] = useState<string | null>(null)
   const router = useRouter()
   const { signIn, signInWithOAuth } = useAuth()
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const nextMessage = window.sessionStorage.getItem('primevest:auth-message')
+    if (nextMessage) {
+      setError(nextMessage)
+      window.sessionStorage.removeItem('primevest:auth-message')
+    }
+  }, [])
 
   const getSafeRedirectPath = () => {
     if (typeof window === 'undefined') {

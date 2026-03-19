@@ -41,7 +41,12 @@ export function createClient() {
   }
 
   if (!browserClient) {
-    browserClient = createBrowserClient(supabaseUrl, supabaseAnonKey)
+    browserClient = createBrowserClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
     initializeRealtimeAuthSync(browserClient)
   }
 
