@@ -1,3 +1,4 @@
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js"
 import { createBrowserClient } from '@supabase/ssr'
 
 let browserClient: ReturnType<typeof createBrowserClient> | null = null
@@ -18,11 +19,11 @@ function initializeRealtimeAuthSync(client: ReturnType<typeof createBrowserClien
 
   realtimeAuthSyncInitialized = true
 
-  void client.auth.getSession().then(async ({ data: { session } }) => {
+  void client.auth.getSession().then(async ({ data: { session } }: { data: { session: Session | null } }) => {
     await setRealtimeAuth(session?.access_token, client)
   })
 
-  client.auth.onAuthStateChange(async (_event, session) => {
+  client.auth.onAuthStateChange(async (_event: AuthChangeEvent, session: Session | null) => {
     await setRealtimeAuth(session?.access_token, client)
   })
 }

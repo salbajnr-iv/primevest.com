@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import type { User, Session, UserMetadata, AuthError } from '@supabase/supabase-js'
+import type { User, Session, UserMetadata, AuthError, AuthChangeEvent } from '@supabase/supabase-js'
 import { SupabaseErrorHandler } from '@/lib/supabase/error-handler'
 import { createClient, setRealtimeAuth } from '@/lib/supabase/client'
 
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth changes with error handling
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (_event: AuthChangeEvent, session: Session | null) => {
         try {
           setSession(session)
           setUser(session?.user ?? null)

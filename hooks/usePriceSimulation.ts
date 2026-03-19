@@ -17,6 +17,7 @@ export interface MarketData {
   high24h: number;
   low24h: number;
   iconSrc?: string;
+  category?: string;
 }
 
 // Volatility configuration for each coin

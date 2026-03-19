@@ -281,7 +281,7 @@ export default function AssetsPage() {
                     {!asset.iconSrc && <span className="asset-category-icon">
                       <Image
                         src={asset.category === "crypto" ? "/vectors/icons/icon-coins.svg" : asset.category === "stocks" ? "/vectors/icons/icon-analytics.svg" : asset.category === "etfs" ? "/vectors/icons/icon-diversify.svg" : "/vectors/icons/icon-shield.svg"}
-                        alt={asset.category}
+                        alt={asset.category ?? "asset"}
                         width={16}
                         height={16}
                       />
@@ -326,7 +326,7 @@ export default function AssetsPage() {
                   {!selectedAsset.iconSrc && <span className="asset-category-icon-large">
                     <Image
                       src={selectedAsset.category === "crypto" ? "/vectors/icons/icon-coins.svg" : selectedAsset.category === "stocks" ? "/vectors/icons/icon-analytics.svg" : selectedAsset.category === "etfs" ? "/vectors/icons/icon-diversify.svg" : "/vectors/icons/icon-shield.svg"}
-                      alt={selectedAsset.category}
+                      alt={selectedAsset.category ?? "asset"}
                       width={22}
                       height={22}
                     />
@@ -335,7 +335,7 @@ export default function AssetsPage() {
                 <div>
                   <h3 className="modal-asset-name">{selectedAsset.name}</h3>
                   <span className="modal-asset-symbol">{selectedAsset.symbol}</span>
-                  <span className="modal-asset-category">{selectedAsset.category.toUpperCase()}</span>
+                  <span className="modal-asset-category">{(selectedAsset.category ?? "asset").toUpperCase()}</span>
                 </div>
               </div>
               <button className="modal-close" onClick={() => setSelectedAsset(null)}>✕</button>

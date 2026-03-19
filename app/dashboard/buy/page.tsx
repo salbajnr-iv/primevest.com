@@ -67,6 +67,15 @@ export default function DashboardBuyPage() {
 
   const quickAmounts = [100, 250, 500, 1000];
 
+  const mockSummary = {
+    userName: "User",
+    portfolioValue: 12500.50,
+    portfolioChangePct: 2.34,
+    availableBalance: 2450.2,
+    availableBalanceChangePct: 1.12,
+    notificationCount: 3,
+  };
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">

@@ -12,10 +12,16 @@ type DbPositionRow = {
   unrealized_pnl: number | null;
   avg_cost: number | null;
   updated_at: string | null;
-  assets?: {
-    symbol: string | null;
-    name: string | null;
-  } | null;
+  assets?:
+    | {
+        symbol: string | null;
+        name: string | null;
+      }
+    | Array<{
+        symbol: string | null;
+        name: string | null;
+      }>
+    | null;
 };
 
 const DEFAULT_PAGE = 1;
@@ -109,12 +115,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: false, error: "Failed to load positions.", details: error.message }, { status: 500 });
     }
 
-    const rows = ((data || []) as DbPositionRow[]).map((row) => {
-      const symbol = (row.assets?.symbol || row.asset || "").toUpperCase();
+    const rows = (data || []).map((row) => {
+      const assetInfo = Array.isArray(row.assets) ? row.assets[0] : row.assets;
+      const symbol = (assetInfo?.symbol || row.asset || "").toUpperCase();
       return {
         id: row.id,
         symbol,
-        name: row.assets?.name || symbol,
+        name: assetInfo?.name || symbol,
         quantity: safeNumber(row.quantity),
         value: safeNumber(row.market_value),
         pnl: safeNumber(row.unrealized_pnl),

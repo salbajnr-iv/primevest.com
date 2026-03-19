@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
-import type { User, Session, AuthError } from '@supabase/supabase-js'
+import type { User, Session, AuthError, AuthChangeEvent } from '@supabase/supabase-js'
 import { createClient, setRealtimeAuth } from '@/lib/supabase/client'
 
 interface AdminAuthContextType {
@@ -57,7 +57,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }: { data: { session: Session | null } }) => {
       await setRealtimeAuth(session?.access_token, supabase)
       setSession(session)
       setUser(session?.user ?? null)
@@ -73,7 +73,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event: AuthChangeEvent, session: Session | null) => {
       await setRealtimeAuth(session?.access_token, supabase)
       setSession(session)
       setUser(session?.user ?? null)
