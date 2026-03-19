@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/transactional-page";
 import styles from "@/components/ui/transactional-pages.module.css";
 import { calculateMarketImpactPercent, formatImpactPercent } from "@/lib/swap/market-impact";
-import { DASHBOARD_BUY_SUMMARY } from "@/app/dashboard/buy/mock-summary";
+import { useDashboardSummary } from "@/lib/dashboard/use-dashboard-summary";
 
 interface Asset {
   symbol: string;
@@ -32,6 +32,7 @@ const assets: Asset[] = [
 
 export default function DashboardBuyPage() {
   const router = useRouter();
+  const { summary } = useDashboardSummary();
   const [asset, setAsset] = React.useState<Asset>(assets[0]);
   const [amountEur, setAmountEur] = React.useState<string>("");
   const [showDropdown, setShowDropdown] = React.useState(false);
@@ -46,7 +47,9 @@ export default function DashboardBuyPage() {
   const total = parsedEur + fee;
   const estimatedReceive = parsedEur > 0 ? parsedEur / asset.price : 0;
   const impactPct = calculateMarketImpactPercent({ amountEur: parsedEur, liquidityEur: asset.liquidityEur });
-  const isValid = parsedEur > 0;
+  const availableCashBalance = Number(summary.availableBalance ?? 0);
+  const hasCashBalance = total <= availableCashBalance;
+  const isValid = parsedEur > 0 && hasCashBalance;
 
   function next() {
     if (!isValid) return;
@@ -67,19 +70,10 @@ export default function DashboardBuyPage() {
 
   const quickAmounts = [100, 250, 500, 1000];
 
-  const mockSummary = {
-    userName: "User",
-    portfolioValue: 12500.50,
-    portfolioChangePct: 2.34,
-    availableBalance: 2450.2,
-    availableBalanceChangePct: 1.12,
-    notificationCount: 3,
-  };
-
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader summary={DASHBOARD_BUY_SUMMARY} />
+        <DashboardHeader summary={summary} />
 
         <main className="page-card space-y-5">
           <PageSectionHeader
@@ -145,6 +139,9 @@ export default function DashboardBuyPage() {
                 <div className="form-row">
                   <label>Amount (EUR)</label>
                   <input type="number" value={amountEur} onChange={(e) => setAmountEur(e.target.value)} placeholder="100.00" className={`order-input ${styles.orderInput}`} />
+                  <div className="input-hint">
+                    Available cash balance: {availableCashBalance.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}
+                  </div>
 
                   <QuickAmountChips>
                     {quickAmounts.map((quickAmount) => (
@@ -169,6 +166,7 @@ export default function DashboardBuyPage() {
                 <SummaryRow label="Market impact" value={formatImpactPercent(impactPct)} />
                 <SummaryRow label="Fee (1%)" value={`${fee.toFixed(2)} €`} />
                 <SummaryRow label="Total" value={`${total.toFixed(2)} €`} isTotal />
+                {!hasCashBalance && parsedEur > 0 && <div className={`input-hint ${styles.errorText}`}>Total exceeds your available cash balance.</div>}
               </div>
             </FeatureCard>
           </div>

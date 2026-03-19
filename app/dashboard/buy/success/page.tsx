@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import DashboardHeader from "@/components/DashboardHeader";
 import { TransactionActionFooter, TransactionPageHeader } from "@/components/ui/transactional-page";
 import styles from "@/components/ui/transactional-pages.module.css";
-import { DASHBOARD_BUY_SUMMARY } from "@/app/dashboard/buy/mock-summary";
+import { useDashboardSummary } from "@/lib/dashboard/use-dashboard-summary";
 
 export default function BuySuccessPage() {
   const router = useRouter();
+  const { summary } = useDashboardSummary();
   const [asset, setAsset] = React.useState("-");
   const [amount, setAmount] = React.useState("0");
   const [id, setId] = React.useState("-");
@@ -23,7 +24,7 @@ export default function BuySuccessPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader summary={DASHBOARD_BUY_SUMMARY} />
+        <DashboardHeader summary={summary} />
 
         <main className="page-card">
           <TransactionPageHeader title="Erfolgreich gekauft" subtitle="Dein Kauf wurde ausgeführt." />

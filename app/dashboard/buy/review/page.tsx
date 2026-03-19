@@ -13,11 +13,12 @@ import {
   MARKET_IMPACT_THRESHOLDS,
   requiresImpactConfirmation,
 } from "@/lib/swap/market-impact";
-import { DASHBOARD_BUY_SUMMARY } from "@/app/dashboard/buy/mock-summary";
+import { useDashboardSummary } from "@/lib/dashboard/use-dashboard-summary";
 
 function BuyReviewPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { summary } = useDashboardSummary();
   const [asset, setAsset] = React.useState("-");
   const [symbol, setSymbol] = React.useState("-");
   const [amount, setAmount] = React.useState("0");
@@ -41,6 +42,7 @@ function BuyReviewPageContent() {
     setImpactPct(Number(params.get("impactPct") || "0"));
   }, [searchParams]);
 
+  const availableCashBalance = Number(summary.availableBalance ?? 0);
   const impactSeverity = getImpactSeverity(impactPct);
   const shouldConfirmImpact = requiresImpactConfirmation(impactPct);
   const blockedByImpact = isImpactBlocked(impactPct);
@@ -65,12 +67,13 @@ function BuyReviewPageContent() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader summary={DASHBOARD_BUY_SUMMARY} />
+        <DashboardHeader summary={summary} />
 
         <main className="page-card">
           <TransactionPageHeader title="Kauf bestätigen" subtitle="Bitte überprüfen Sie die folgenden Details." />
 
           <div className={`price-estimate ${styles.summaryBlock}`}>
+            <SummaryRow label="Verfügbares Guthaben" value={availableCashBalance.toLocaleString("de-DE", { style: "currency", currency: "EUR" })} />
             <SummaryRow label="Asset" value={`${asset} (${symbol})`} />
             <SummaryRow label="Betrag" value={`${amount} €`} />
             <SummaryRow label="Marktpreis" value={`${price} €`} />
@@ -119,4 +122,3 @@ export default function BuyReviewPage() {
     </Suspense>
   );
 }
-

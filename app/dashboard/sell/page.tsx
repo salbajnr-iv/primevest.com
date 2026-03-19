@@ -13,6 +13,7 @@ import {
   TransactionActionFooter,
 } from "@/components/ui/transactional-page";
 import styles from "@/components/ui/transactional-pages.module.css";
+import { useDashboardSummary } from "@/lib/dashboard/use-dashboard-summary";
 
 interface Asset {
   symbol: string;
@@ -30,12 +31,14 @@ const assets: Asset[] = [
 
 export default function SellSelectPage() {
   const router = useRouter();
+  const { summary } = useDashboardSummary();
   const [asset, setAsset] = React.useState<Asset>(assets[0]);
   const [amount, setAmount] = React.useState<string>("");
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const filteredAssets = assets.filter((a) => a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.symbol.toLowerCase().includes(searchQuery.toLowerCase()));
+  const availableCashBalance = Number(summary.availableBalance ?? 0);
 
   const parsedAmount = amount ? parseFloat(amount) : 0;
   const estimatedValue = parsedAmount > 0 ? parsedAmount * asset.price : 0;
@@ -61,8 +64,8 @@ export default function SellSelectPage() {
 
   return (
     <div className="dashboard-container">
-        <div className="dashboard-app">
-          <DashboardHeader summary={{ userName: "User", portfolioValue: 0, portfolioChangePct: 0, availableBalance: 0, availableBalanceChangePct: 0, notificationCount: 0 }} />
+      <div className="dashboard-app">
+        <DashboardHeader summary={summary} />
 
         <main className="page-card space-y-5">
           <PageSectionHeader
@@ -131,7 +134,8 @@ export default function SellSelectPage() {
                 <div className="form-row">
                   <label>Amount ({asset.symbol})</label>
                   <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.001" className={`order-input ${styles.orderInput}`} />
-                  <div className="input-hint">Available: {asset.balance.toLocaleString("en-US", { maximumFractionDigits: 8 })} {asset.symbol}</div>
+                  <div className="input-hint">Available asset balance: {asset.balance.toLocaleString("en-US", { maximumFractionDigits: 8 })} {asset.symbol}</div>
+                  <div className="input-hint">Cash balance after sale settles to: {availableCashBalance.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}</div>
 
                   <QuickAmountChips>
                     {percentActions.map((p) => (
@@ -155,7 +159,7 @@ export default function SellSelectPage() {
                 <SummaryRow label="Gross value" value={`${estimatedValue.toFixed(2)} €`} />
                 <SummaryRow label="Fee (1%)" value={`${fee.toFixed(2)} €`} />
                 <SummaryRow label="Payout" value={`${total.toFixed(2)} €`} isTotal />
-                {!hasBalance && <div className={`input-hint ${styles.errorText}`}>Amount exceeds available balance.</div>}
+                {!hasBalance && <div className={`input-hint ${styles.errorText}`}>Amount exceeds available asset balance.</div>}
               </div>
             </FeatureCard>
           </div>
