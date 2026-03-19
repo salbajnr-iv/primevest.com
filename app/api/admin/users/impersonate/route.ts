@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+import { verifyAdminBearerToken } from '@/lib/admin/server'
+
 // This endpoint handles impersonation by creating an audit log entry
 // The actual impersonation session would be handled client-side or via a separate flow
 export async function POST(req: Request) {
@@ -24,33 +26,23 @@ export async function POST(req: Request) {
       )
     }
 
+    const verification = await verifyAdminBearerToken(token)
+    if (verification.error || !verification.adminId) {
+      const errorMessage = verification.status === 403
+        ? 'Forbidden: Only admins can impersonate users'
+        : verification.error || 'Invalid auth token'
+
+      return NextResponse.json(
+        { error: errorMessage },
+        { status: verification.status || 401 }
+      )
+    }
+
+    const adminId = verification.adminId
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
-
-    // Verify admin user
-    const { data: userData, error: userErr } = await supabase.auth.getUser(token)
-    if (userErr || !userData?.user) {
-      return NextResponse.json(
-        { error: 'Invalid auth token' },
-        { status: 401 }
-      )
-    }
-
-    const adminId = userData.user.id
-    const { data: adminProfile, error: adminErr } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', adminId)
-      .maybeSingle()
-
-    if (adminErr || !adminProfile || adminProfile.is_admin !== true) {
-      return NextResponse.json(
-        { error: 'Forbidden: Only admins can impersonate users' },
-        { status: 403 }
-      )
-    }
 
     // Cannot impersonate self
     if (adminId === user_id) {

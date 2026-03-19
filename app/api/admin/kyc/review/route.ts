@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 
+import { verifyAdminBearerToken } from '@/lib/admin/server'
 import { invokeEdgeFunction } from '@/lib/server/edge-functions'
 
 export async function POST(req: Request) {
@@ -9,6 +10,12 @@ export async function POST(req: Request) {
 
     if (!request_id || !status || !['verified', 'rejected'].includes(status)) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+    }
+
+    const token = (req.headers.get('authorization') || '').replace('Bearer ', '')
+    const verification = await verifyAdminBearerToken(token)
+    if (verification.error) {
+      return NextResponse.json({ error: verification.error }, { status: verification.status || 401 })
     }
 
     const idempotencyKey = req.headers.get('x-idempotency-key') ?? crypto.randomUUID()

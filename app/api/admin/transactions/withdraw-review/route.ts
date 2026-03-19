@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+import { verifyAdminBearerToken } from "@/lib/admin/server";
+
 export async function POST(req: Request) {
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -28,6 +30,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "decision must be approve or reject" }, { status: 400 });
     }
 
+    const verification = await verifyAdminBearerToken(token);
+    if (verification.error) {
+      return NextResponse.json({ error: verification.error }, { status: verification.status || 401 });
+    }
+
     const supabase = createClient(supabaseUrl, anonKey, {
       global: {
         headers: {
@@ -35,21 +42,6 @@ export async function POST(req: Request) {
         },
       },
     });
-
-    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
-    if (userErr || !userData?.user) {
-      return NextResponse.json({ error: "Invalid auth token" }, { status: 401 });
-    }
-
-    const { data: profile, error: profileErr } = await supabase
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", userData.user.id)
-      .single();
-
-    if (profileErr || !profile?.is_admin) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
 
     const { data: rpcData, error: rpcErr } = await supabase.rpc("review_withdrawal_request", {
       p_transaction_id: transactionId,

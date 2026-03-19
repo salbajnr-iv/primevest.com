@@ -76,12 +76,13 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         return false
       }
 
-      return data?.is_admin === true
-    } catch {
-      console.warn('Error checking admin status')
-      return false
+    if (!hasAdminAccess && userId === null) {
+      setUser(null)
+      setSession(null)
     }
-  }, [supabase])
+
+    return hasAdminAccess
+  }, [])
 
   const clearSessionState = useCallback(async () => {
     setSession(null)
