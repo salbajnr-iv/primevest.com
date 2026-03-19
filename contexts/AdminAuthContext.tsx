@@ -1,30 +1,43 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
-import type { User, Session, AuthError, AuthChangeEvent } from '@supabase/supabase-js'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import type { User, Session, AuthError } from '@supabase/supabase-js'
 import { createClient, setRealtimeAuth } from '@/lib/supabase/client'
+import { frontendAuthService } from '@/lib/auth/client'
 
 interface AdminAuthContextType {
   user: User | null
   session: Session | null
   isAdmin: boolean
   loading: boolean
+  sessionError: string | null
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null; data?: { user: User | null; session: Session | null } }>
   signOut: () => Promise<void>
   refreshAdminStatus: () => Promise<boolean>
 }
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined)
+const SESSION_EXPIRED_MESSAGE = 'Session expired. Please sign in again.'
 
 export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [sessionError, setSessionError] = useState<string | null>(null)
 
-  const supabase = createClient()
+  const pathname = usePathname()
+  const router = useRouter()
+  const supabase = useMemo(() => createClient(), [])
 
-  // Check if user is admin
+  const syncAdminState = useCallback(async (nextSession: Session | null, nextUser: User | null, nextIsAdmin: boolean) => {
+    setSession(nextSession)
+    setUser(nextUser)
+    setIsAdmin(nextIsAdmin)
+    await setRealtimeAuth(nextSession?.access_token, supabase)
+  }, [supabase])
+
   const checkAdminStatus = useCallback(async (userId: string): Promise<boolean> => {
     try {
       if (!supabase) return false
@@ -36,7 +49,6 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       if (error) {
-        // Don't log errors for "not found" - this is expected for users without profiles
         if (error.code !== 'PGRST116') {
           console.warn('Could not verify admin status:', error.message)
         }
@@ -50,78 +62,99 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [supabase])
 
+  const redirectToAdminSignIn = useCallback(async (message = SESSION_EXPIRED_MESSAGE) => {
+    setSessionError(message)
+    await syncAdminState(null, null, false)
+
+    if (pathname?.startsWith('/admin') && !pathname.startsWith('/admin/auth')) {
+      router.push(`/admin/auth/signin?reason=session_expired&redirect=${encodeURIComponent(pathname)}`)
+    }
+  }, [pathname, router, syncAdminState])
+
   useEffect(() => {
-    if (!supabase) {
-      setLoading(false)
-      return
+    let active = true
+
+    const hydrateAdminSession = async () => {
+      if (!supabase) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        const result = await frontendAuthService.getSession()
+
+        if (!active) return
+
+        if (result.error) {
+          await redirectToAdminSignIn(result.error.message)
+          return
+        }
+
+        const nextSession = result.data.session
+        const nextUser = result.data.user
+
+        if (!nextSession || !nextUser) {
+          await syncAdminState(null, null, false)
+          setLoading(false)
+          return
+        }
+
+        const adminStatus = await checkAdminStatus(nextUser.id)
+
+        if (!adminStatus) {
+          await syncAdminState(nextSession, nextUser, false)
+          setLoading(false)
+          return
+        }
+
+        setSessionError(null)
+        await syncAdminState(nextSession, nextUser, true)
+      } catch {
+        if (active) {
+          await redirectToAdminSignIn()
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
     }
 
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }: { data: { session: Session | null } }) => {
-      await setRealtimeAuth(session?.access_token, supabase)
-      setSession(session)
-      setUser(session?.user ?? null)
-      
-      if (session?.user) {
-        const adminStatus = await checkAdminStatus(session.user.id)
-        setIsAdmin(adminStatus)
-      }
-      
-      setLoading(false)
-    })
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event: AuthChangeEvent, session: Session | null) => {
-      await setRealtimeAuth(session?.access_token, supabase)
-      setSession(session)
-      setUser(session?.user ?? null)
-      
-      if (session?.user) {
-        const adminStatus = await checkAdminStatus(session.user.id)
-        setIsAdmin(adminStatus)
-      } else {
-        setIsAdmin(false)
-      }
-      
-      setLoading(false)
-    })
+    void hydrateAdminSession()
 
     return () => {
-      subscription.unsubscribe()
+      active = false
     }
-  }, [supabase, checkAdminStatus])
+  }, [checkAdminStatus, redirectToAdminSignIn, supabase, syncAdminState])
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) {
       return { error: { message: 'Supabase is not configured' } as AuthError }
     }
 
-    const result = await supabase.auth.signInWithPassword({ email, password })
-    
-    // Check admin status after sign in
-    if (result.data.user) {
-      const adminStatus = await checkAdminStatus(result.data.user.id)
-      setIsAdmin(adminStatus)
+    const result = await frontendAuthService.signIn({ email: email.trim().toLowerCase(), password })
+
+    if (result.error || !result.data.user || !result.data.session) {
+      return result
     }
-    
+
+    const adminStatus = await checkAdminStatus(result.data.user.id)
+    setSessionError(null)
+    await syncAdminState(result.data.session, result.data.user, adminStatus)
+
     return result
   }
 
   const signOut = async () => {
     try {
-      if (!supabase) return
-
-      await setRealtimeAuth(undefined, supabase)
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        console.error('Admin sign out error:', error)
+      if (supabase) {
+        await setRealtimeAuth(undefined, supabase)
       }
+      await frontendAuthService.signOut()
     } catch (error) {
       console.error('Unexpected admin sign out error:', error)
     } finally {
-      // Clear local state regardless of API call result
+      setSessionError(null)
       setUser(null)
       setSession(null)
       setIsAdmin(false)
@@ -133,24 +166,14 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       setIsAdmin(false)
       return false
     }
-    
+
     const status = await checkAdminStatus(user.id)
     setIsAdmin(status)
     return status
   }
 
   return (
-    <AdminAuthContext.Provider
-      value={{
-        user,
-        session,
-        isAdmin,
-        loading,
-        signIn,
-        signOut,
-        refreshAdminStatus,
-      }}
-    >
+    <AdminAuthContext.Provider value={{ user, session, isAdmin, loading, sessionError, signIn, signOut, refreshAdminStatus }}>
       {children}
     </AdminAuthContext.Provider>
   )
@@ -163,4 +186,3 @@ export function useAdminAuth() {
   }
   return context
 }
-
