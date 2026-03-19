@@ -11,7 +11,8 @@
     "check:breakpoints": "node scripts/check-breakpoints.mjs",
     "check:routes": "node scripts/check-app-routes.mjs",
     "check:support-routes": "node scripts/check-support-route-contract.mjs",
-    "check:all-routes": "npm run check:dashboard-routes && npm run check:routes"
+    "check:all-routes": "npm run check:dashboard-routes && npm run check:routes",
+    "verify:dashboard-profile-balance": "node scripts/verify-dashboard-profile-balance.mjs"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
