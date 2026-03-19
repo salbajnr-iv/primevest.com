@@ -16,7 +16,14 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false)
   const [oauthLoading, setOauthLoading] = useState<string | null>(null)
   const router = useRouter()
-  const { signIn, signInWithOAuth } = useAuth()
+  const { signIn, signInWithOAuth, sessionError } = useAuth()
+
+  useEffect(() => {
+    const reason = new URLSearchParams(window.location.search).get('reason')
+    if (reason === 'session_expired') {
+      setError(sessionError ?? 'Session expired. Please sign in again.')
+    }
+  }, [sessionError])
 
   useEffect(() => {
     if (typeof window === 'undefined') {

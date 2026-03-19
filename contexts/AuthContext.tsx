@@ -6,14 +6,21 @@ import type { User, Session, UserMetadata, AuthError } from '@supabase/supabase-
 import { SupabaseErrorHandler } from '@/lib/supabase/error-handler'
 import { createClient, setRealtimeAuth } from '@/lib/supabase/client'
 import { getAuthSession, signInWithBackend, signOutWithBackend, signUpWithBackend } from '@/lib/auth/service'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import type { User, Session, UserMetadata, AuthError } from '@supabase/supabase-js'
+import { SupabaseErrorHandler } from '@/lib/supabase/error-handler'
+import { createClient, setRealtimeAuth } from '@/lib/supabase/client'
+import { frontendAuthService } from '@/lib/auth/client'
 
 interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
   authMessage: string | null
+  sessionError: string | null
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null; data?: { user: User | null; session: Session | null } }>
-  signUp: (email: string, password: string, metadata?: UserMetadata) => Promise<{ error: AuthError | null; data?: { user: User | null; session: Session | null; identities?: unknown[] } }>
+  signUp: (email: string, password: string, metadata?: UserMetadata) => Promise<{ error: AuthError | null; data?: { user: User | null; session: Session | null } }>
   signInWithOAuth: (provider: 'google' | 'apple' | 'github') => Promise<{ error: AuthError | null; data?: { url: string | null } }>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>
@@ -27,6 +34,9 @@ const SESSION_MESSAGE_KEY = 'primevest:auth-message'
 const SESSION_EXPIRED_MESSAGE = 'Session expired. Please sign in again.'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const SESSION_EXPIRED_MESSAGE = 'Session expired. Please sign in again.'
+const PROTECTED_PREFIXES = ['/dashboard', '/settings', '/profile', '/account']
+const AUTH_PREFIXES = ['/auth/signin', '/auth/signup', '/auth/reset-password', '/auth/new-password', '/auth/otp-verify', '/auth/callback']
 
 function isProtectedPath(pathname: string | null) {
   if (!pathname) return false
@@ -158,11 +168,75 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       await refreshSession()
     })
+  const [sessionError, setSessionError] = useState<string | null>(null)
+
+  const pathname = usePathname()
+  const router = useRouter()
+  const supabase = useMemo(() => createClient(), [])
+
+  const syncSessionState = useCallback(async (nextSession: Session | null, nextUser: User | null) => {
+    setSession(nextSession)
+    setUser(nextUser)
+    await setRealtimeAuth(nextSession?.access_token, supabase)
+  }, [supabase])
+
+  const redirectToSignIn = useCallback(async (message = SESSION_EXPIRED_MESSAGE) => {
+    setSessionError(message)
+    await syncSessionState(null, null)
+
+    if (AUTH_PREFIXES.some((prefix) => pathname?.startsWith(prefix))) {
+      return
+    }
+
+    if (pathname && PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+      const redirect = pathname === '/' ? '/dashboard' : pathname
+      router.push(`/auth/signin?reason=session_expired&redirect=${encodeURIComponent(redirect)}`)
+    }
+  }, [pathname, router, syncSessionState])
+
+  useEffect(() => {
+    let active = true
+
+    const hydrateSession = async () => {
+      try {
+        const result = await frontendAuthService.getSession()
+
+        if (!active) return
+
+        if (result.error) {
+          await redirectToSignIn(result.error.message)
+          return
+        }
+
+        const nextSession = result.data.session
+        const nextUser = result.data.user
+
+        if (!nextSession || !nextUser) {
+          await syncSessionState(null, null)
+          setLoading(false)
+          return
+        }
+
+        setSessionError(null)
+        await syncSessionState(nextSession, nextUser)
+      } catch {
+        if (active) {
+          await redirectToSignIn()
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void hydrateSession()
 
     return () => {
-      subscription.unsubscribe()
+      active = false
     }
   }, [applySessionState, clearSessionState, refreshSession, supabase])
+  }, [pathname, redirectToSignIn, syncSessionState])
 
   const signIn = async (email: string, password: string) => {
     const normalizedEmail = email.trim().toLowerCase()
@@ -171,6 +245,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (result.error || !result.session || !result.user) {
       return { error: result.error, data: undefined }
     }
+    try {
+      const result = await SupabaseErrorHandler.withRetry(async () => frontendAuthService.signIn({ email: normalizedEmail, password }))
 
     await applySessionState(result.session, result.user)
     return {
@@ -188,6 +264,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (result.error) {
       return { error: result.error, data: undefined }
+      if (result.data.user.email?.toLowerCase() !== normalizedEmail) {
+        await signOut()
+        return {
+          error: {
+            name: 'AuthVerificationFailed',
+            message: 'Authentication verification failed. Please check your credentials and try again.',
+            status: 401,
+          } as AuthError,
+          data: undefined,
+        }
+      }
+
+      setSessionError(null)
+      await syncSessionState(result.data.session, result.data.user)
+      return result
+    } catch (error) {
+      return await SupabaseErrorHandler.handleSupabaseError(error, () => ({
+        error: { name: 'NetworkError', message: 'Authentication service unavailable', status: 0 } as AuthError,
+        data: undefined,
+      })) as { error: AuthError | null; data?: { user: User | null; session: Session | null } }
     }
 
     if (result.session && result.user) {
@@ -202,6 +298,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         identities: result.identities,
       },
     }
+  const signUp = async (email: string, password: string, metadata?: UserMetadata) => {
+    if (!supabase) return { error: { name: 'AuthUnavailable', message: 'Supabase is not configured', status: 0 } as AuthError, data: undefined }
+
+    const normalizedEmail = email.trim().toLowerCase()
+    const result = await frontendAuthService.signUp({ email: normalizedEmail, password, metadata })
+
+    if (!result.error && result.data.session && result.data.user) {
+      setSessionError(null)
+      await syncSessionState(result.data.session, result.data.user)
+    }
+
+    return result
   }
 
   const signInWithOAuth = async (provider: 'google' | 'apple' | 'github') => {
@@ -228,6 +336,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Unexpected sign out error:', error)
     } finally {
       await clearSessionState()
+      if (supabase) {
+        await setRealtimeAuth(undefined, supabase)
+      }
+      await frontendAuthService.signOut()
+    } catch (error) {
+      console.error('Unexpected sign out error:', error)
+    } finally {
+      setSessionError(null)
+      setUser(null)
+      setSession(null)
     }
   }
 
@@ -286,6 +404,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         refreshSession,
       }}
     >
+    <AuthContext.Provider value={{ user, session, loading, sessionError, signIn, signUp, signInWithOAuth, signOut, resetPassword, updatePassword, verifyOtp }}>
       {children}
     </AuthContext.Provider>
   )
