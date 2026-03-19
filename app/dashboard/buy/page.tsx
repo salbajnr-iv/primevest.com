@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/transactional-page";
 import styles from "@/components/ui/transactional-pages.module.css";
 import { calculateMarketImpactPercent, formatImpactPercent } from "@/lib/swap/market-impact";
+import { DASHBOARD_BUY_SUMMARY } from "@/app/dashboard/buy/mock-summary";
 
 interface Asset {
   symbol: string;
@@ -78,7 +79,7 @@ export default function DashboardBuyPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader summary={mockSummary} />
+        <DashboardHeader summary={DASHBOARD_BUY_SUMMARY} />
 
         <main className="page-card space-y-5">
           <PageSectionHeader

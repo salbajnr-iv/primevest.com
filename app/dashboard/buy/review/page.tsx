@@ -12,6 +12,7 @@ import {
   MARKET_IMPACT_THRESHOLDS,
   requiresImpactConfirmation,
 } from "@/lib/swap/market-impact";
+import { DASHBOARD_BUY_SUMMARY } from "@/app/dashboard/buy/mock-summary";
 
 export default function BuyReviewPage() {
   const router = useRouter();
@@ -60,17 +61,10 @@ export default function BuyReviewPage() {
     }, 800);
   }
 
-  const mockSummary = {
-    userName: "User",
-    portfolioValue: 12500.50,
-    portfolioChangePct: 2.34,
-    notificationCount: 3,
-  };
-
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <DashboardHeader summary={mockSummary} />
+        <DashboardHeader summary={DASHBOARD_BUY_SUMMARY} />
 
         <main className="page-card">
           <TransactionPageHeader title="Kauf bestätigen" subtitle="Bitte überprüfen Sie die folgenden Details." />
