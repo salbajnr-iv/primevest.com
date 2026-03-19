@@ -1,79 +1,75 @@
-import type { AuthError, UserMetadata } from '@supabase/supabase-js'
-import type { AuthApiResult, AuthSessionPayload } from '@/lib/auth/types'
+import type { AuthError } from '@supabase/supabase-js'
+import type {
+  AuthApiResult,
+  AuthEndpoint,
+  AuthEndpointMethod,
+  AuthEndpointRequest,
+  AuthEndpointResponse,
+} from '@/lib/auth/types'
 
-interface SignInPayload {
-  email: string
-  password: string
-}
-
-interface SignUpPayload extends SignInPayload {
-  metadata?: UserMetadata
-}
-
-interface RequestOptions extends RequestInit {
+interface RequestOptions {
   defaultErrorMessage: string
 }
 
-async function request<T>(input: string, init: RequestOptions): Promise<AuthApiResult<T>> {
+async function request<TEndpoint extends AuthEndpoint>(
+  endpoint: TEndpoint,
+  method: AuthEndpointMethod<TEndpoint>,
+  payload: AuthEndpointRequest<TEndpoint>,
+  options: RequestOptions,
+): Promise<AuthApiResult<AuthEndpointResponse<TEndpoint>>> {
   try {
-    const response = await fetch(input, {
-      ...init,
+    const response = await fetch(endpoint, {
+      method,
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        ...(init.headers ?? {}),
       },
+      ...(payload === undefined ? {} : { body: JSON.stringify(payload) }),
     })
 
-    const payload = (await response.json().catch(() => null)) as AuthApiResult<T> | null
+    const parsed = (await response.json().catch(() => null)) as AuthApiResult<AuthEndpointResponse<TEndpoint>> | null
 
     if (!response.ok) {
       return {
-        error: payload?.error ?? ({ message: init.defaultErrorMessage, name: 'AuthApiError', status: response.status } as AuthError),
+        error: parsed?.error ?? ({ message: options.defaultErrorMessage, name: 'AuthApiError', status: response.status } as AuthError),
       }
     }
 
-    if (!payload?.data) {
+    if (!parsed?.data) {
       return {
-        error: { message: init.defaultErrorMessage, name: 'AuthApiError', status: response.status } as AuthError,
+        error: { message: options.defaultErrorMessage, name: 'AuthApiError', status: response.status } as AuthError,
       }
     }
 
     return {
-      data: payload.data,
+      data: parsed.data,
       error: null,
     }
   } catch {
     return {
-      error: { message: init.defaultErrorMessage, name: 'NetworkError', status: 0 } as AuthError,
+      error: { message: options.defaultErrorMessage, name: 'NetworkError', status: 0 } as AuthError,
     }
   }
 }
 
 export const frontendAuthService = {
   getSession() {
-    return request<AuthSessionPayload>('/api/auth/session', {
-      method: 'GET',
+    return request('/api/auth/session', 'GET', undefined, {
       defaultErrorMessage: 'Unable to load your session.',
     })
   },
-  signIn(payload: SignInPayload) {
-    return request<AuthSessionPayload>('/api/auth/signin', {
-      method: 'POST',
-      body: JSON.stringify(payload),
+  signIn(payload: AuthEndpointRequest<'/api/auth/signin'>) {
+    return request('/api/auth/signin', 'POST', payload, {
       defaultErrorMessage: 'Authentication service unavailable.',
     })
   },
-  signUp(payload: SignUpPayload) {
-    return request<AuthSessionPayload>('/api/auth/signup', {
-      method: 'POST',
-      body: JSON.stringify(payload),
+  signUp(payload: AuthEndpointRequest<'/api/auth/signup'>) {
+    return request('/api/auth/signup', 'POST', payload, {
       defaultErrorMessage: 'Unable to create your account.',
     })
   },
   signOut() {
-    return request<{ success: true }>('/api/auth/signout', {
-      method: 'POST',
+    return request('/api/auth/signout', 'POST', undefined, {
       defaultErrorMessage: 'Unable to sign out.',
     })
   },

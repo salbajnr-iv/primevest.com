@@ -43,6 +43,10 @@ function getAuthRedirectPath(pathname: string | null) {
   return pathname
 }
 
+function toAuthError(message: string, status = 500, name = 'AuthApiError') {
+  return { message, status, name } as AuthError
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
@@ -158,32 +162,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     const normalizedEmail = email.trim().toLowerCase()
-    const result = await signInWithBackend(normalizedEmail, password)
 
     if (result.error || !result.session || !result.user) {
       return { error: result.error, data: undefined }
     }
 
-    await applySessionState(result.session, result.user)
-    return {
-      error: null,
-      data: {
-        session: result.session,
-        user: result.user,
-      },
+      if (result.error || !result.data?.session || !result.data?.user) {
+        return { error: result.error ?? toAuthError('Authentication failed.', 401), data: undefined }
+      }
+
+    if (result.error) {
+      return { error: result.error, data: undefined }
     }
   }
 
   const signUp = async (email: string, password: string, metadata?: UserMetadata) => {
     const normalizedEmail = email.trim().toLowerCase()
-    const result = await signUpWithBackend(normalizedEmail, password, metadata)
+    const result = await frontendAuthService.signUp({ email: normalizedEmail, password, metadata })
 
     if (result.error) {
       return { error: result.error, data: undefined }
     }
 
-    if (result.session && result.user) {
-      await applySessionState(result.session, result.user)
+    if (result.data.session && result.data.user) {
+      await applySessionState(result.data.session, result.data.user)
     }
 
     return {
@@ -211,7 +213,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      const backendResult = await signOutWithBackend()
+      const backendResult = await frontendAuthService.signOut()
       if (backendResult.error) {
         console.error('Sign out error:', backendResult.error)
       }
@@ -242,7 +244,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return result
     } catch (error) {
       return await SupabaseErrorHandler.handleSupabaseError(error, () => ({
-        error: { name: 'NetworkError', message: 'Authentication service unavailable', status: 0 } as AuthError,
+        error: toAuthError('Authentication service unavailable', 0, 'NetworkError'),
       })) as { error: AuthError | null }
     }
   }
@@ -255,6 +257,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return result
   }
+
+  // Fallback rule: direct password sign-in is only allowed if backend auth flow is intentionally unavailable
+  // and the caller explicitly enables this non-sensitive fallback path.
+  const _directSignInFallback = async (email: string, password: string, allowDirectSupabaseFallback = false) => {
+    if (!allowDirectSupabaseFallback || !supabase) {
+      return { error: toAuthError('Direct sign-in fallback is disabled.', 503, 'DirectAuthFallbackDisabled') }
+    }
+
+    return await supabase.auth.signInWithPassword({ email, password })
+  }
+  void _directSignInFallback
 
   return (
     <AuthContext.Provider
