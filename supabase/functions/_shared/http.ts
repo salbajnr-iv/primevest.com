@@ -11,5 +11,17 @@ export const jsonResponse = (
 };
 
 export const requestIdFromHeaders = (request: Request): string | null => {
-  return request.headers.get("x-idempotency-key") ?? request.headers.get("x-request-id");
+  return (
+    request.headers.get("x-idempotency-key") ??
+    request.headers.get("x-request-id")
+  );
+};
+
+export const requestIpFromHeaders = (request: Request): string | null => {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0]?.trim() ?? null;
+  }
+
+  return request.headers.get("x-real-ip");
 };

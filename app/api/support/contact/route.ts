@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { validateContactSubmission } from "@/lib/support/contact-validation";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT_MAX_ATTEMPTS = 5;
@@ -8,14 +8,20 @@ const RATE_LIMIT_MAX_ATTEMPTS = 5;
 const rateLimitBuckets = new Map<string, number[]>();
 
 function getRateLimitKey(request: Request): string {
-  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const forwardedFor = request.headers
+    .get("x-forwarded-for")
+    ?.split(",")[0]
+    ?.trim();
   const realIp = request.headers.get("x-real-ip")?.trim();
   return forwardedFor || realIp || "anonymous";
 }
 
 function isRateLimited(key: string): boolean {
   const now = Date.now();
-  const attempts = rateLimitBuckets.get(key)?.filter((time) => now - time < RATE_LIMIT_WINDOW_MS) ?? [];
+  const attempts =
+    rateLimitBuckets
+      .get(key)
+      ?.filter((time) => now - time < RATE_LIMIT_WINDOW_MS) ?? [];
 
   if (attempts.length >= RATE_LIMIT_MAX_ATTEMPTS) {
     rateLimitBuckets.set(key, attempts);
@@ -37,10 +43,11 @@ export async function POST(request: Request) {
   if (isRateLimited(rateLimitKey)) {
     return NextResponse.json(
       {
-        error: "Too many submissions. Please wait a few minutes before sending another message.",
+        error:
+          "Too many submissions. Please wait a few minutes before sending another message.",
         code: "RATE_LIMITED",
       },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -53,7 +60,7 @@ export async function POST(request: Request) {
         error: "Invalid request format. Please submit valid JSON.",
         code: "INVALID_PAYLOAD",
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -65,27 +72,14 @@ export async function POST(request: Request) {
         code: "INVALID_PAYLOAD",
         fieldErrors: validation.errors,
       },
-      { status: 400 }
-    );
-  }
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    return NextResponse.json(
-      {
-        error: "Support service is temporarily unavailable. Please try again later.",
-        code: "SERVICE_UNAVAILABLE",
-      },
-      { status: 503 }
+      { status: 400 },
     );
   }
 
   const referenceId = generateTicketReference();
 
   try {
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from("support_tickets")
       .insert({
@@ -103,10 +97,11 @@ export async function POST(request: Request) {
     if (error || !data) {
       return NextResponse.json(
         {
-          error: "Support service is currently unavailable. Please try again shortly.",
+          error:
+            "Support service is currently unavailable. Please try again shortly.",
           code: "SERVICE_UNAVAILABLE",
         },
-        { status: 503 }
+        { status: 503 },
       );
     }
 
@@ -116,15 +111,16 @@ export async function POST(request: Request) {
         ticketId: data.id,
         referenceId: data.reference_id,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch {
     return NextResponse.json(
       {
-        error: "Unexpected support service error. Please try again later.",
+        error:
+          "Support service is temporarily unavailable. Please try again later.",
         code: "SERVICE_UNAVAILABLE",
       },
-      { status: 503 }
+      { status: 503 },
     );
   }
 }

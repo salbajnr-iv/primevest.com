@@ -1,84 +1,74 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { NextResponse } from "next/server";
 
-import { verifyAdminBearerToken } from '@/lib/admin/server'
+import { verifyAdminBearerToken } from "@/lib/admin/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-// This endpoint handles impersonation by creating an audit log entry
-// The actual impersonation session would be handled client-side or via a separate flow
 export async function POST(req: Request) {
   try {
-    const body = await req.json()
-    const { user_id } = body
+    const body = await req.json();
+    const { user_id } = body;
 
     if (!user_id) {
       return NextResponse.json(
-        { error: 'user_id is required' },
-        { status: 400 }
-      )
+        { error: "user_id is required" },
+        { status: 400 },
+      );
     }
 
-    const authHeader = req.headers.get('authorization') || ''
-    const token = authHeader.replace('Bearer ', '')
+    const authHeader = req.headers.get("authorization") || "";
+    const token = authHeader.replace("Bearer ", "");
     if (!token) {
       return NextResponse.json(
-        { error: 'Missing authorization token' },
-        { status: 401 }
-      )
+        { error: "Missing authorization token" },
+        { status: 401 },
+      );
     }
 
-    const verification = await verifyAdminBearerToken(token)
+    const verification = await verifyAdminBearerToken(token);
     if (verification.error || !verification.adminId) {
-      const errorMessage = verification.status === 403
-        ? 'Forbidden: Only admins can impersonate users'
-        : verification.error || 'Invalid auth token'
+      const errorMessage =
+        verification.status === 403
+          ? "Forbidden: Only admins can impersonate users"
+          : verification.error || "Invalid auth token";
 
       return NextResponse.json(
         { error: errorMessage },
-        { status: verification.status || 401 }
-      )
+        { status: verification.status || 401 },
+      );
     }
 
-    const adminId = verification.adminId
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const adminId = verification.adminId;
+    const supabase = createAdminClient();
 
-    // Cannot impersonate self
     if (adminId === user_id) {
       return NextResponse.json(
-        { error: 'Cannot impersonate yourself' },
-        { status: 400 }
-      )
+        { error: "Cannot impersonate yourself" },
+        { status: 400 },
+      );
     }
 
-    // Get target user info
     const { data: targetUser, error: targetErr } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user_id)
-      .maybeSingle()
+      .from("profiles")
+      .select("*")
+      .eq("id", user_id)
+      .maybeSingle();
 
     if (targetErr || !targetUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Log the impersonation action
-    await supabase.from('admin_actions').insert([
+    await supabase.from("admin_actions").insert([
       {
         admin_id: adminId,
-        action_type: 'user_impersonation',
+        action_type: "user_impersonation",
         target_user_id: user_id,
-        target_table: 'profiles',
+        target_table: "profiles",
         new_value: JSON.stringify({
           impersonated_user: targetUser.email,
           timestamp: new Date().toISOString(),
         }),
       },
-    ])
+    ]);
 
     return NextResponse.json({
       ok: true,
@@ -88,11 +78,11 @@ export async function POST(req: Request) {
         email: targetUser.email,
         full_name: targetUser.full_name,
       },
-    })
+    });
   } catch (err) {
     return NextResponse.json(
-      { error: 'Unexpected error', details: String(err) },
-      { status: 500 }
-    )
+      { error: "Unexpected error", details: String(err) },
+      { status: 500 },
+    );
   }
 }
