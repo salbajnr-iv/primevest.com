@@ -78,7 +78,6 @@ export type { RealtimeReply, MarketPriceRealtimeRow, OrderStatusRealtimeRow, Sup
 export function useBalanceHistoryRealtime(onEntryInsert: (row: BalanceHistoryRealtimeRow) => void) {
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel('realtime:balance-history')
@@ -107,7 +106,6 @@ export function useBalanceHistoryRealtime(onEntryInsert: (row: BalanceHistoryRea
 export function useBalanceRealtime(onBalanceUpdate: (row: BalanceRealtimeRow) => void, userId?: string) {
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel(`realtime:balances${userId ? `-${userId}` : ''}`)
@@ -137,7 +135,6 @@ export function useBalanceRealtime(onBalanceUpdate: (row: BalanceRealtimeRow) =>
 export function useLedgerRealtime(onEntryInsert: (row: LedgerRealtimeRow) => void, walletId?: string) {
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel(`realtime:ledger${walletId ? `-${walletId}` : ''}`)
@@ -167,7 +164,6 @@ export function useLedgerRealtime(onEntryInsert: (row: LedgerRealtimeRow) => voi
 export function useSupportTicketRepliesRealtime(onReplyInsert: (row: RealtimeReply) => void, ticketId?: number) {
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel(`realtime:support-ticket-replies${ticketId ? `-${ticketId}` : ''}`)
@@ -197,7 +193,6 @@ export function useSupportTicketRepliesRealtime(onReplyInsert: (row: RealtimeRep
 export function useMarketPriceRealtime(onPriceUpdate: (row: MarketPriceRealtimeRow) => void, assets?: string[]) {
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel('realtime:market-prices')
@@ -233,7 +228,6 @@ export function useMarketPriceRealtime(onPriceUpdate: (row: MarketPriceRealtimeR
 export function useOrderStatusRealtime(onOrderUpdate: (row: OrderStatusRealtimeRow) => void) {
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel('realtime:orders-status')
@@ -262,7 +256,6 @@ export function useOrderStatusRealtime(onOrderUpdate: (row: OrderStatusRealtimeR
 export function useSupportTicketStatusRealtime(onTicketUpdate: (row: SupportTicketRealtimeRow) => void) {
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel('realtime:support-tickets')
@@ -296,7 +289,6 @@ export function useTicketRealtime(ticketId: number | null, initialMessages: Real
     if (!ticketId) return;
 
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel(`realtime:ticket-${ticketId}`)
@@ -329,8 +321,7 @@ export function useTicketRealtime(ticketId: number | null, initialMessages: Real
       if (!ticketId) return;
 
       const supabase = createClient();
-      if (!supabase) return;
-
+  
       const {
         data: { user },
       } = await supabase.auth.getUser();

@@ -183,7 +183,6 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
 
   React.useEffect(() => {
     const supabase = createBrowserSupabaseClient();
-    if (!supabase) return;
 
     const activityChannel = supabase
       .channel("dashboard-live-activity")

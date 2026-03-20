@@ -46,12 +46,6 @@ export default function AdminTransactionsPage() {
   const fetchTransactions = async () => {
     setLoading(true)
 
-    if (!supabase) {
-      setTransactions([])
-      setPagination(prev => ({ ...prev, total: 0 }))
-      setLoading(false)
-      return
-    }
 
     try {
       const from = (pagination.page - 1) * pagination.limit

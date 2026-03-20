@@ -20,11 +20,6 @@ export default function AdminUsersPage() {
   useEffect(() => {
     const run = async () => {
       const supabase = createClient()
-      if (!supabase) {
-        setUsers([])
-        setLoading(false)
-        return
-      }
 
       const { data } = await supabase
         .from('profiles')

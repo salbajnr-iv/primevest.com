@@ -73,12 +73,6 @@ export default function AdminUserDetailPage() {
   async function fetchData(targetUserId: string) {
     setLoading(true)
 
-    if (!supabase) {
-      setUser(null)
-      setKycRequests([])
-      setLoading(false)
-      return
-    }
 
     try {
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', targetUserId).maybeSingle()
@@ -104,11 +98,6 @@ export default function AdminUserDetailPage() {
     setActionLoading(true)
     setActionError(null)
 
-    if (!supabase) {
-      setActionError('Supabase is not configured')
-      setActionLoading(false)
-      return
-    }
 
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -145,11 +134,6 @@ export default function AdminUserDetailPage() {
     setActionLoading(true)
     setActionError(null)
 
-    if (!supabase) {
-      setActionError('Supabase is not configured')
-      setActionLoading(false)
-      return
-    }
 
     try {
       const { data: { session } } = await supabase.auth.getSession()
