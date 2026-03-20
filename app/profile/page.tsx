@@ -27,7 +27,6 @@ export default function ProfilePage() {
   }, [user]);
 
   async function fetchProfile() {
-    if (!supabase) return;
     const { data, error } = await supabase
       .from('profiles')
       .select('full_name, avatar_url, avatar_storage_path')
@@ -66,7 +65,7 @@ export default function ProfilePage() {
   };
 
   async function handleSave() {
-    if (!supabase || !user) return;
+    if (!user) return;
     setSaving(true);
     try {
       const updateData: { full_name: string; avatar_storage_path?: string } = { full_name: profile.full_name };

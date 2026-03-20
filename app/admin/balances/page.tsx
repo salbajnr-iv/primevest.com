@@ -46,12 +46,6 @@ export default function AdminBalancesPage() {
   const fetchBalanceHistory = useCallback(async () => {
     setLoading(true)
 
-    if (!supabase) {
-      setBalanceHistory([])
-      setPagination(prev => ({ ...prev, total: 0 }))
-      setLoading(false)
-      return
-    }
 
     try {
       const tokenRes = await supabase.auth.getSession()

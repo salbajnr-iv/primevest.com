@@ -32,7 +32,7 @@ export default function AdminChatPage({ params }: Props) {
 
   const loadTicket = React.useCallback(async () => {
     const supabase = createClient();
-    if (!supabase || !ticketId) return;
+    if (!ticketId) return;
 
     const { data } = await supabase
       .from('support_tickets')
@@ -48,7 +48,7 @@ export default function AdminChatPage({ params }: Props) {
 
   const loadMessages = React.useCallback(async () => {
     const supabase = createClient();
-    if (!supabase || !ticketId) return;
+    if (!ticketId) return;
 
     const { data } = await supabase
       .from('support_ticket_replies')

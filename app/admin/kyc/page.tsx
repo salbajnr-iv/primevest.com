@@ -45,12 +45,6 @@ export default function AdminKycPage() {
   const fetchRequests = useCallback(async () => {
     setLoading(true)
 
-    if (!supabase) {
-      setRequests([])
-      setPagination(prev => ({ ...prev, total: 0 }))
-      setLoading(false)
-      return
-    }
 
     try {
       const res = await fetch(`/api/admin/kyc/requests?page=${pagination.page}&limit=${pagination.limit}&status=${statusFilter}${search ? `&search=${search}` : ''}`)

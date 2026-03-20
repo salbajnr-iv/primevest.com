@@ -194,7 +194,6 @@ export default function NotificationsPage() {
     if (!userId) return;
 
     const supabase = createClient();
-    if (!supabase) return;
 
     const { data, error } = await supabase
       .from("notifications")
@@ -225,10 +224,6 @@ export default function NotificationsPage() {
 
     const load = async () => {
       const supabase = createClient();
-      if (!supabase) {
-        setNotificationsList(notifications);
-        return;
-      }
 
       const { data, error } = await supabase
         .from("notifications")
@@ -275,7 +270,6 @@ export default function NotificationsPage() {
     if (!authUser) return;
 
     const supabase = createClient();
-    if (!supabase) return;
 
     const { error } = await supabase
       .from("notifications")
@@ -303,7 +297,6 @@ export default function NotificationsPage() {
     if (!authUser) return;
 
     const supabase = createClient();
-    if (!supabase) return;
 
     const { error } = await supabase
       .from("notifications")

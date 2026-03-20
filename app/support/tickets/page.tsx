@@ -117,10 +117,6 @@ export default function SupportTicketsPage() {
   React.useEffect(() => {
     const initializeAuth = async () => {
       const supabase = createClient();
-      if (!supabase) {
-        setAuthToken("");
-        return;
-      }
 
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUserId(user?.id || '');
