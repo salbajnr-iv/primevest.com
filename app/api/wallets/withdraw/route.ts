@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 
 type Currency = "EUR" | "BTC" | "ETH" | "USDT";
 
@@ -29,19 +29,27 @@ function hasValidPrecision(value: number, currency: Currency) {
   return Number(value.toFixed(precision)) === value;
 }
 
+async function getAuthenticatedClient() {
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return {
+      error: NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      ),
+    };
+  }
+
+  return { supabase, user };
+}
+
 export async function POST(req: Request) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !anonKey) {
-      return NextResponse.json({ error: "Withdrawals are unavailable right now." }, { status: 503 });
-    }
-
-    const token = (req.headers.get("authorization") || "").replace("Bearer ", "");
-    if (!token) {
-      return NextResponse.json({ error: "Missing authorization token" }, { status: 401 });
-    }
-
     const body = await req.json();
     const currency = String(body.currency || "") as Currency;
     const destination = String(body.destination || "").trim();
@@ -49,59 +57,85 @@ export async function POST(req: Request) {
     const fee = Number(body.fee);
 
     if (!Object.keys(networkFee).includes(currency)) {
-      return NextResponse.json({ error: "Unsupported currency" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Unsupported currency" },
+        { status: 400 },
+      );
     }
 
     if (!Number.isFinite(amount) || amount <= 0) {
-      return NextResponse.json({ error: "Amount must be greater than zero" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Amount must be greater than zero" },
+        { status: 400 },
+      );
     }
 
     if (!hasValidPrecision(amount, currency)) {
-      return NextResponse.json({ error: `Amount exceeds ${amountPrecision[currency]} decimal places` }, { status: 400 });
+      return NextResponse.json(
+        { error: `Amount exceeds ${amountPrecision[currency]} decimal places` },
+        { status: 400 },
+      );
     }
 
     const expectedFee = networkFee[currency];
     if (!Number.isFinite(fee) || Math.abs(fee - expectedFee) > 1e-9) {
-      return NextResponse.json({ error: "Invalid fee for selected currency" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid fee for selected currency" },
+        { status: 400 },
+      );
     }
 
     if (!destinationValidators[currency].test(destination)) {
-      return NextResponse.json({ error: "Invalid destination format" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid destination format" },
+        { status: 400 },
+      );
     }
 
-    const supabase = createClient(supabaseUrl, anonKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    });
-    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
-
-    if (userErr || !userData?.user) {
-      return NextResponse.json({ error: "Invalid auth token" }, { status: 401 });
+    const authResult = await getAuthenticatedClient();
+    if ("error" in authResult) {
+      return authResult.error;
     }
 
+    const { supabase } = authResult;
     const payout = Number((amount - fee).toFixed(amountPrecision[currency]));
     if (payout <= 0) {
-      return NextResponse.json({ error: "Amount must be greater than fee" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Amount must be greater than fee" },
+        { status: 400 },
+      );
     }
 
-    const { data: rpcData, error: rpcErr } = await supabase.rpc("request_withdrawal_review", {
-      p_currency: currency,
-      p_destination: destination,
-      p_amount: amount,
-      p_fee: fee,
-    });
+    const { data: rpcData, error: rpcErr } = await supabase.rpc(
+      "request_withdrawal_review",
+      {
+        p_currency: currency,
+        p_destination: destination,
+        p_amount: amount,
+        p_fee: fee,
+      },
+    );
 
     if (rpcErr) {
-      return NextResponse.json({ error: "Failed to create withdrawal request", details: rpcErr.message }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: "Failed to create withdrawal request",
+          details: rpcErr.message,
+        },
+        { status: 500 },
+      );
     }
 
     const result = Array.isArray(rpcData) ? rpcData[0] : rpcData;
     if (!result?.success) {
       const status = result?.code === "INSUFFICIENT_FUNDS" ? 400 : 422;
-      return NextResponse.json({ error: result?.message || "Failed to create withdrawal request", code: result?.code }, { status });
+      return NextResponse.json(
+        {
+          error: result?.message || "Failed to create withdrawal request",
+          code: result?.code,
+        },
+        { status },
+      );
     }
 
     return NextResponse.json({
@@ -120,56 +154,55 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    return NextResponse.json({ error: "Unexpected error", details: String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: "Unexpected error", details: String(error) },
+      { status: 500 },
+    );
   }
 }
 
 export async function GET(req: Request) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !anonKey) {
-    return NextResponse.json({ error: "Withdrawals are unavailable right now." }, { status: 503 });
-  }
-
   try {
-    const token = (req.headers.get("authorization") || "").replace("Bearer ", "");
-    if (!token) {
-      return NextResponse.json({ error: "Missing authorization token" }, { status: 401 });
-    }
-
     const reference = new URL(req.url).searchParams.get("reference") || "";
     const txId = reference.replace("WDR-", "").trim();
     if (!/^[0-9a-fA-F-]{36}$/.test(txId)) {
-      return NextResponse.json({ error: "Invalid withdrawal reference" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid withdrawal reference" },
+        { status: 400 },
+      );
     }
 
-    const supabase = createClient(supabaseUrl, anonKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    });
-    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
-
-    if (userErr || !userData?.user) {
-      return NextResponse.json({ error: "Invalid auth token" }, { status: 401 });
+    const authResult = await getAuthenticatedClient();
+    if ("error" in authResult) {
+      return authResult.error;
     }
 
+    const { supabase, user } = authResult;
     const { data: tx, error } = await supabase
       .from("transactions")
       .select("id,status,created_at")
       .eq("id", txId)
-      .eq("user_id", userData.user.id)
+      .eq("user_id", user.id)
       .eq("type", "withdrawal")
       .maybeSingle();
 
     if (error || !tx) {
-      return NextResponse.json({ error: "Withdrawal request not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Withdrawal request not found" },
+        { status: 404 },
+      );
     }
 
-    return NextResponse.json({ ok: true, reference: `WDR-${tx.id}`, status: tx.status, createdAt: tx.created_at });
+    return NextResponse.json({
+      ok: true,
+      reference: `WDR-${tx.id}`,
+      status: tx.status,
+      createdAt: tx.created_at,
+    });
   } catch (error) {
-    return NextResponse.json({ error: "Unexpected error", details: String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: "Unexpected error", details: String(error) },
+      { status: 500 },
+    );
   }
 }

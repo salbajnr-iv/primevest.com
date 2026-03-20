@@ -1,4 +1,31 @@
 import { NextResponse } from "next/server";
+
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+
+type KycDocumentPayload = {
+  doc_type?: string;
+  storage_path: string;
+  file_name?: string;
+  mime_type?: string | null;
+  size?: number | null;
+  meta?: Record<string, unknown>;
+};
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { documents = [], metadata = {} } = body || {};
+
+    const sessionClient = await createServerClient();
+    const {
+      data: { user },
+      error: userErr,
+    } = await sessionClient.auth.getUser();
+
+    if (userErr || !user) {
+      return NextResponse.json(
+        { error: "Authentication required" },
 import { createClient } from "@supabase/supabase-js";
 
 const SUPPORTED_DOC_TYPES = new Set(["id_card", "proof_of_address", "selfie"]);
