@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { verifyAdminBearerToken } from '@/lib/admin/server'
+
+import {
+  AdminRouteError,
+  getAdminClient,
+  handleAdminRouteError,
+  requestIpFromHeaders,
+  requireAdminRequest,
+} from '@/lib/admin/api'
 
 export async function POST(req: Request) {
   try {
@@ -11,53 +17,40 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing userId or isActive' }, { status: 400 })
     }
 
-    const authHeader = req.headers.get('authorization') || ''
-    const token = authHeader.replace('Bearer ', '')
-    const verification = await verifyAdminBearerToken(token)
-    
-    if (verification.error) {
-      return NextResponse.json({ error: verification.error }, { status: verification.status || 401 })
+    const auth = await requireAdminRequest(req)
+    if (auth.response) {
+      return auth.response
     }
 
-    const adminId = verification.adminId!
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getAdminClient()
+    const { data, error } = await supabase.rpc('set_user_active_status', {
+      p_user_id: userId,
+      p_is_active: isActive,
+      p_admin_id: auth.adminId,
+      p_ip_address: requestIpFromHeaders(req),
+      p_context: {
+        source: 'admin_api',
+      },
+    })
 
-    // 1. Fetch current profile for audit
-    const { data: currentProfile, error: fetchErr } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
+    if (error) {
+      if (error.message.toLowerCase().includes('not found')) {
+        throw new AdminRouteError('Profile not found', 404, error.message)
+      }
 
-    if (fetchErr || !currentProfile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      throw new AdminRouteError('Failed to update user status', 500, error.message)
     }
 
-    // 2. Update profile
-    const { error: updateErr } = await supabase
-      .from('profiles')
-      .update({ is_active: isActive })
-      .eq('id', userId)
+    const result = Array.isArray(data) ? data[0] : data
 
-    if (updateErr) throw updateErr
-
-    // 3. Log admin action
-    await supabase.from('admin_actions').insert([{
-      admin_id: adminId,
-      action_type: 'user_status_toggle',
-      target_user_id: userId,
-      old_value: { is_active: currentProfile.is_active },
-      new_value: { is_active: isActive },
-      ip_address: req.headers.get('x-forwarded-for') || null,
-      created_at: new Date().toISOString()
-    }])
-
-    return NextResponse.json({ ok: true, success: true })
+    return NextResponse.json({
+      ok: true,
+      success: true,
+      userId: result?.user_id ?? userId,
+      isActive: result?.is_active ?? isActive,
+      previousIsActive: result?.previous_is_active ?? null,
+    })
   } catch (err) {
-    console.error('User status toggle error:', err)
-    return NextResponse.json({ error: 'Internal server error', details: String(err) }, { status: 500 })
+    return handleAdminRouteError(err, 'Failed to update user status')
   }
 }
