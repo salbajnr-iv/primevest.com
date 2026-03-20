@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { verifyAdminBearerToken } from '@/lib/admin/server'
+
+import { AdminRouteError, getAdminClient, handleAdminRouteError, requireAdminRequest } from '@/lib/admin/api'
 
 export async function GET(req: Request) {
   try {
@@ -9,22 +9,12 @@ export async function GET(req: Request) {
     const limit = parseInt(url.searchParams.get('limit') || '50')
     const type = url.searchParams.get('type') || 'all'
 
-    const authHeader = req.headers.get('authorization') || ''
-    const token = authHeader.replace('Bearer ', '')
-    if (!token) {
-      return NextResponse.json({ error: 'Missing authorization token' }, { status: 401 })
+    const auth = await requireAdminRequest(req)
+    if (auth.response) {
+      return auth.response
     }
 
-    const verification = await verifyAdminBearerToken(token)
-    if (verification.error) {
-      return NextResponse.json({ error: verification.error }, { status: verification.status || 401 })
-    }
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-
+    const supabase = getAdminClient()
     const from = (page - 1) * limit
     const to = from + limit - 1
 
@@ -45,12 +35,11 @@ export async function GET(req: Request) {
     const { data, error, count } = await query
 
     if (error) {
-      console.error('Audit fetch error:', error)
-      return NextResponse.json({ error: 'Could not fetch audit logs' }, { status: 500 })
+      throw new AdminRouteError('Could not fetch audit logs', 500, error.message)
     }
 
     return NextResponse.json({ ok: true, actions: data, total: count })
   } catch (err) {
-    return NextResponse.json({ error: 'Unexpected error', details: String(err) }, { status: 500 })
+    return handleAdminRouteError(err, 'Could not fetch audit logs')
   }
 }

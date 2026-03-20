@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { verifyAdminBearerToken } from '@/lib/admin/server'
+
+import { AdminRouteError, getAdminClient, handleAdminRouteError, requireAdminRequest } from '@/lib/admin/api'
 
 export async function GET(req: Request) {
   try {
@@ -9,19 +9,12 @@ export async function GET(req: Request) {
     const limit = parseInt(url.searchParams.get('limit') || '20')
     const action = url.searchParams.get('action') || 'all'
 
-    const authHeader = req.headers.get('authorization') || ''
-    const token = authHeader.replace('Bearer ', '')
-    const verification = await verifyAdminBearerToken(token)
-    
-    if (verification.error) {
-      return NextResponse.json({ error: verification.error }, { status: verification.status || 401 })
+    const auth = await requireAdminRequest(req)
+    if (auth.response) {
+      return auth.response
     }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-
+    const supabase = getAdminClient()
     const from = (page - 1) * limit
     const to = from + limit - 1
 
@@ -41,12 +34,11 @@ export async function GET(req: Request) {
     const { data, error, count } = await query
 
     if (error) {
-      console.error('Balance history fetch error:', error)
-      return NextResponse.json({ error: 'Failed to fetch balance history' }, { status: 500 })
+      throw new AdminRouteError('Failed to fetch balance history', 500, error.message)
     }
 
     return NextResponse.json({ ok: true, history: data, total: count })
   } catch (err) {
-    return NextResponse.json({ error: 'Internal server error', details: String(err) }, { status: 500 })
+    return handleAdminRouteError(err, 'Failed to fetch balance history')
   }
 }
