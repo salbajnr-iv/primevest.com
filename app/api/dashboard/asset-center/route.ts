@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { tradingPlatforms } from "@/lib/config/trading-platforms";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 
 interface DbOrder {
   side: string | null;
@@ -15,34 +15,30 @@ type AssetCenterErrorCode =
   | "ASSET_CENTER_DEPENDENCY_UNAVAILABLE"
   | "ASSET_CENTER_LOAD_FAILED";
 
-const errorResponse = (status: number, code: AssetCenterErrorCode, message: string, details?: string) =>
-  NextResponse.json({ ok: false, code, message, details }, { status });
+const errorResponse = (
+  status: number,
+  code: AssetCenterErrorCode,
+  message: string,
+  details?: string,
+) => NextResponse.json({ ok: false, code, message, details }, { status });
 
-export async function GET(req: Request) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceRole) {
-    return errorResponse(
-      503,
-      "ASSET_CENTER_CONFIG_UNAVAILABLE",
-      "Asset Center is temporarily unavailable because required backend configuration is missing. Please contact support.",
-    );
-  }
-
+export async function GET() {
   try {
-    const token = (req.headers.get("authorization") || "").replace("Bearer ", "");
-    if (!token) {
-      return errorResponse(401, "ASSET_CENTER_AUTH_REQUIRED", "Please sign in again to view your asset center accounts.");
+    const supabase = await createServerClient();
+    const {
+      data: { user },
+      error: userErr,
+    } = await supabase.auth.getUser();
+
+    if (userErr || !user) {
+      return errorResponse(
+        401,
+        "ASSET_CENTER_AUTH_REQUIRED",
+        "Please sign in again to view your asset center accounts.",
+      );
     }
 
-    const supabase = createClient(supabaseUrl, serviceRole);
-
-    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
-    if (userErr || !userData?.user) {
-      return errorResponse(401, "ASSET_CENTER_AUTH_INVALID", "Your session has expired. Please sign in again to continue.");
-    }
-
-    const userId = userData.user.id;
+    const userId = user.id;
 
     const { data: profile, error: profileErr } = await supabase
       .from("profiles")
@@ -103,8 +99,16 @@ export async function GET(req: Request) {
       },
     ];
 
-    return NextResponse.json({ ok: true, data: { accounts, platforms: tradingPlatforms } });
+    return NextResponse.json({
+      ok: true,
+      data: { accounts, platforms: tradingPlatforms },
+    });
   } catch (error) {
-    return errorResponse(500, "ASSET_CENTER_LOAD_FAILED", "Unable to load asset center data right now. Please try again.", String(error));
+    return errorResponse(
+      500,
+      "ASSET_CENTER_LOAD_FAILED",
+      "Unable to load asset center data right now. Please try again.",
+      String(error),
+    );
   }
 }
