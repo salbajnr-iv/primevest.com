@@ -162,31 +162,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     const normalizedEmail = email.trim().toLowerCase()
+    const result = await signInWithBackend(normalizedEmail, password)
 
     if (result.error || !result.session || !result.user) {
-      return { error: result.error, data: undefined }
+      return { error: result.error ?? toAuthError('Authentication failed.', 401), data: undefined }
     }
 
-      if (result.error || !result.data?.session || !result.data?.user) {
-        return { error: result.error ?? toAuthError('Authentication failed.', 401), data: undefined }
-      }
+    await applySessionState(result.session, result.user)
 
-    if (result.error) {
-      return { error: result.error, data: undefined }
+    return {
+      error: null,
+      data: {
+        session: result.session,
+        user: result.user,
+      },
     }
   }
 
   const signUp = async (email: string, password: string, metadata?: UserMetadata) => {
     const normalizedEmail = email.trim().toLowerCase()
-    const result = await frontendAuthService.signUp({ email: normalizedEmail, password, metadata })
+    const result = await signUpWithBackend(normalizedEmail, password, metadata)
 
-    if (result.error) {
-      return { error: result.error, data: undefined }
+    if (result.error || !result.session || !result.user) {
+      return { error: result.error ?? toAuthError('Registration failed.', 400), data: undefined }
     }
 
-    if (result.data.session && result.data.user) {
-      await applySessionState(result.data.session, result.data.user)
-    }
+    await applySessionState(result.session, result.user)
 
     return {
       error: null,
@@ -213,7 +214,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      const backendResult = await frontendAuthService.signOut()
+      const backendResult = await signOutWithBackend()
       if (backendResult.error) {
         console.error('Sign out error:', backendResult.error)
       }

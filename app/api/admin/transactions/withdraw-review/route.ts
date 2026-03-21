@@ -1,16 +1,11 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import "server-only";
 
+import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyAdminBearerToken } from "@/lib/admin/server";
 
 export async function POST(req: Request) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !anonKey) {
-      return NextResponse.json({ error: "Admin tools are unavailable right now." }, { status: 503 });
-    }
-
     const token = (req.headers.get("authorization") || "").replace("Bearer ", "");
     if (!token) {
       return NextResponse.json({ error: "Missing authorization token" }, { status: 401 });
@@ -35,35 +30,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: verification.error }, { status: verification.status || 401 });
     }
 
-    const supabase = createClient(supabaseUrl, anonKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    });
+    const supabase = createAdminClient();
 
     const { data: rpcData, error: rpcErr } = await supabase.rpc("review_withdrawal_request", {
       p_transaction_id: transactionId,
       p_decision: decision,
       p_reason: reason,
       p_admin_action_idempotency_key: idempotencyKey,
-    });
+    } as never);
 
     if (rpcErr) {
       return NextResponse.json({ error: "Failed to review withdrawal", details: rpcErr.message }, { status: 500 });
     }
 
     const result = Array.isArray(rpcData) ? rpcData[0] : rpcData;
-    if (!result?.success) {
-      const status = result?.code === "FORBIDDEN" ? 403 : result?.code === "NOT_FOUND" ? 404 : 422;
-      return NextResponse.json({ error: result?.message || "Unable to review withdrawal", code: result?.code }, { status });
+    const typedResult = result as unknown as { success?: boolean; message?: string; code?: string; transaction_id?: string; status?: string } | null;
+    
+    if (!typedResult?.success) {
+      const status = typedResult?.code === "FORBIDDEN" ? 403 : typedResult?.code === "NOT_FOUND" ? 404 : 422;
+      return NextResponse.json({ error: typedResult?.message || "Unable to review withdrawal", code: typedResult?.code }, { status });
     }
 
     return NextResponse.json({
       ok: true,
-      transactionId: result.transaction_id,
-      status: result.status,
+      transactionId: typedResult.transaction_id,
+      status: typedResult.status,
       decision,
     });
   } catch (error) {

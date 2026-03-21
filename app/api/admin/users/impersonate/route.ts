@@ -57,26 +57,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    await supabase.from("admin_actions").insert([
-      {
-        admin_id: adminId,
-        action_type: "user_impersonation",
-        target_user_id: user_id,
-        target_table: "profiles",
-        new_value: JSON.stringify({
-          impersonated_user: targetUser.email,
-          timestamp: new Date().toISOString(),
-        }),
-      },
-    ]);
+    const userProfile = targetUser as any;
+
+    await supabase.from("admin_actions").insert([{
+      admin_id: adminId,
+      action_type: "user_impersonation",
+      target_user_id: user_id,
+      target_table: "profiles",
+      new_value: JSON.stringify({
+        impersonated_user: userProfile.email,
+        timestamp: new Date().toISOString(),
+      }),
+    }] as any);
 
     return NextResponse.json({
       ok: true,
-      message: `Impersonation session initiated for ${targetUser.email}`,
+      message: `Impersonation session initiated for ${userProfile.email}`,
       user: {
-        id: targetUser.id,
-        email: targetUser.email,
-        full_name: targetUser.full_name,
+        id: userProfile.id,
+        email: userProfile.email,
+        full_name: userProfile.full_name,
       },
     });
   } catch (err) {

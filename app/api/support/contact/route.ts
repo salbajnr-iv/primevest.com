@@ -90,7 +90,7 @@ export async function POST(request: Request) {
         subject: validation.values.subject ?? null,
         message: validation.values.message,
         status: "open",
-      })
+      } as any)
       .select("id, reference_id")
       .single();
 
@@ -105,11 +105,13 @@ export async function POST(request: Request) {
       );
     }
 
+    const ticketData = data as any;
+
     return NextResponse.json(
       {
         ok: true,
-        ticketId: data.id,
-        referenceId: data.reference_id,
+        ticketId: ticketData.id,
+        referenceId: ticketData.reference_id,
       },
       { status: 201 },
     );

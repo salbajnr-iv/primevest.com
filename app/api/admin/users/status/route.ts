@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       p_context: {
         source: 'admin_api',
       },
-    })
+    } as any)
 
     if (error) {
       if (error.message.toLowerCase().includes('not found')) {
@@ -46,9 +46,9 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       success: true,
-      userId: result?.user_id ?? userId,
-      isActive: result?.is_active ?? isActive,
-      previousIsActive: result?.previous_is_active ?? null,
+      userId: (result as any)?.user_id ?? userId,
+      isActive: (result as any)?.is_active ?? isActive,
+      previousIsActive: (result as any)?.previous_is_active ?? null,
     })
   } catch (err) {
     return handleAdminRouteError(err, 'Failed to update user status')

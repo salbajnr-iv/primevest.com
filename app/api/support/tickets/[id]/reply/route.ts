@@ -5,6 +5,7 @@ import {
 } from "@/lib/support/tickets";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient as createServerClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/types/supabase";
 
 export async function POST(
   request: Request,
@@ -25,11 +26,16 @@ export async function POST(
 
   const supabase = createAdminClient();
   const { id } = await params;
+  const ticketId = Number(id);
+
+  if (!Number.isInteger(ticketId) || ticketId <= 0) {
+    return NextResponse.json({ error: "Invalid ticket id." }, { status: 400 });
+  }
 
   const { data: ticket, error: ticketErr } = await supabase
     .from("support_tickets")
     .select("id, user_id, status")
-    .eq("id", id)
+    .eq("id", ticketId)
     .eq("user_id", user.id)
     .single();
 
@@ -67,13 +73,13 @@ export async function POST(
   if (message) {
     const { error: replyError } = await supabase
       .from("support_ticket_replies")
-      .insert({
-        ticket_id: id,
+.insert({
+        ticket_id: ticketId,
         user_id: user.id,
         message,
         is_staff: false,
         created_at: now,
-      });
+      } as Database['public']['Tables']['support_ticket_replies']['Insert']);
 
     if (replyError) {
       return NextResponse.json(
@@ -92,10 +98,12 @@ export async function POST(
       ...(nextStatus === "closed" ? { closed_at: now } : {}),
     };
 
+    const updatePayload: Database["public"]["Tables"]["support_tickets"]["Update"] =
+      { status: nextStatus, ...statusTimestamps };
     const { error: updateError } = await supabase
       .from("support_tickets")
-      .update({ status: nextStatus, ...statusTimestamps })
-      .eq("id", id)
+      .update(updatePayload)
+      .eq("id", ticketId)
       .eq("user_id", user.id);
 
     if (updateError) {
@@ -107,8 +115,10 @@ export async function POST(
   } else {
     await supabase
       .from("support_tickets")
-      .update({ updated_at: now })
-      .eq("id", id)
+      .update({
+        updated_at: now,
+      } satisfies Database["public"]["Tables"]["support_tickets"]["Update"])
+      .eq("id", ticketId)
       .eq("user_id", user.id);
   }
 
@@ -117,13 +127,13 @@ export async function POST(
     .select(
       "id, reference_id, category, subject, message, status, created_at, updated_at, open_at, pending_at, resolved_at, closed_at",
     )
-    .eq("id", id)
+    .eq("id", ticketId)
     .single();
 
   const { data: replies } = await supabase
     .from("support_ticket_replies")
     .select("id, ticket_id, user_id, message, is_staff, created_at")
-    .eq("ticket_id", id)
+    .eq("ticket_id", ticketId)
     .order("created_at", { ascending: true });
 
   return NextResponse.json({

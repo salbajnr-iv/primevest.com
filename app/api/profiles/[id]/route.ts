@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
 import { createClient as createServerClient } from '@/lib/supabase/server'
@@ -10,9 +10,10 @@ const ProfileUpdateSchema = z.object({
   country: z.string().optional()
 })
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
-    const userId = params.id
+    const userId = id
     if (!userId) return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
 
     const supabase = await createServerClient()
@@ -47,9 +48,10 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
-    const userId = params.id
+    const userId = id
     if (!userId) return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
 
     const supabase = await createServerClient()

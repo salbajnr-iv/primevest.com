@@ -1,32 +1,8 @@
 import { NextResponse } from "next/server";
+import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient as createServerClient } from "@/lib/supabase/server";
-
-type KycDocumentPayload = {
-  doc_type?: string;
-  storage_path: string;
-  file_name?: string;
-  mime_type?: string | null;
-  size?: number | null;
-  meta?: Record<string, unknown>;
-};
-
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { documents = [], metadata = {} } = body || {};
-
-    const sessionClient = await createServerClient();
-    const {
-      data: { user },
-      error: userErr,
-    } = await sessionClient.auth.getUser();
-
-    if (userErr || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-import { createClient } from "@supabase/supabase-js";
 
 const SUPPORTED_DOC_TYPES = new Set(["id_card", "proof_of_address", "selfie"]);
 const SUPPORTED_MIME_TYPES = new Set([
@@ -230,51 +206,34 @@ const validateDocuments = (
 
 export async function POST(req: Request) {
   try {
-    const authHeader = req.headers.get("authorization") || "";
-    const token = authHeader.replace("Bearer ", "").trim();
-    if (!token) {
-      return NextResponse.json(
-        { error: "Missing authorization token" },
-        { status: 401 },
-      );
-    }
-
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !anonKey || !serviceRoleKey) {
-      return NextResponse.json(
-        { error: "Missing Supabase environment configuration" },
-        { status: 500 },
-      );
-    }
-
-    const serviceSupabase = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-    const { data: userData, error: userErr } =
-      await serviceSupabase.auth.getUser(token);
-    if (userErr || !userData?.user) {
-      return NextResponse.json(
-        { error: "Invalid auth token" },
-        { status: 401 },
-      );
-    }
-
-    const userId = userData.user.id;
     const body = await req.json();
-    const metadata = validateMetadata(body?.metadata);
-    const documents = validateDocuments(body?.documents, userId);
+    const { documents = [], metadata = {} } = body || {};
 
-    const { data: bucket, error: bucketError } = await serviceSupabase
-      .schema("storage")
+    const sessionClient = await createServerClient();
+    const {
+      data: { user },
+      error: userErr,
+    } = await sessionClient.auth.getUser();
+
+    if (userErr || !user) {
+      return NextResponse.json({ error: "Authentication required" });
+    }
+
+    const userId = user.id;
+    const validatedMetadata = validateMetadata(metadata);
+    const validatedDocuments = validateDocuments(documents, userId);
+
+    const adminSupabase = createAdminClient();
+
+    // Verify bucket exists and is private
+    const { data: bucket, error: bucketError } = await adminSupabase
       .from("buckets")
       .select("id, public")
       .eq("id", PRIVATE_KYC_BUCKET)
       .maybeSingle();
 
-    if (bucketError || !bucket || bucket.public) {
+    const bucketData = bucket as unknown as { id: string; public: boolean } | null;
+    if (bucketError || !bucketData || bucketData.public) {
       return NextResponse.json(
         {
           error: `The ${PRIVATE_KYC_BUCKET} bucket must exist and remain private`,
@@ -283,14 +242,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const { data: objects, error: objectsError } = await serviceSupabase
-      .schema("storage")
+    // Verify document objects exist and belong to user
+    const { data: objects, error: objectsError } = await adminSupabase
       .from("objects")
       .select("name, bucket_id, owner_id")
       .eq("bucket_id", PRIVATE_KYC_BUCKET)
       .in(
         "name",
-        documents.map((document) => document.storage_path),
+        validatedDocuments.map((document) => document.storage_path),
       );
 
     if (objectsError) {
@@ -301,7 +260,7 @@ export async function POST(req: Request) {
     }
 
     const verifiedPaths = new Set(
-      (objects ?? [])
+      ((objects ?? []) as unknown as Array<{ bucket_id: string; name: string; owner_id: string }>)
         .filter(
           (object) =>
             object.bucket_id === PRIVATE_KYC_BUCKET &&
@@ -311,7 +270,7 @@ export async function POST(req: Request) {
         .map((object) => object.name),
     );
 
-    const missingPath = documents.find(
+    const missingPath = validatedDocuments.find(
       (document) => !verifiedPaths.has(document.storage_path),
     );
     if (missingPath) {
@@ -323,16 +282,12 @@ export async function POST(req: Request) {
       );
     }
 
-    const userSupabase = createClient(supabaseUrl, anonKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-      global: { headers: { Authorization: `Bearer ${token}` } },
-    });
-
-    const { data: requestData, error: submitError } = await userSupabase.rpc(
+    // Submit KYC request via RPC using session client
+    const { data: requestData, error: submitError } = await sessionClient.rpc(
       "submit_kyc_request",
       {
-        p_metadata: metadata,
-        p_documents: documents,
+        p_metadata: validatedMetadata,
+        p_documents: validatedDocuments,
       },
     );
 

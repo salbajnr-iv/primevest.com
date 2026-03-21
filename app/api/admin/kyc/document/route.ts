@@ -31,17 +31,19 @@ export async function GET(req: Request) {
     const { data: doc, error: docErr } = await supabase
       .from("kyc_documents")
       .select("*")
-      .eq("id", id)
+      .eq("id", Number(id))
       .maybeSingle();
+    
     if (docErr || !doc)
       return NextResponse.json(
         { error: "Document not found" },
         { status: 404 },
       );
 
+    const storagePath = (doc as any).storage_path;
     const { data: urlData, error: urlErr } = await supabase.storage
       .from("kyc-documents")
-      .createSignedUrl(doc.storage_path, 60);
+      .createSignedUrl(storagePath, 60);
 
     if (urlErr || !urlData)
       return NextResponse.json(

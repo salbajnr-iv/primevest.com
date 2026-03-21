@@ -1,8 +1,10 @@
 import "server-only";
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-let adminClient: ReturnType<typeof createClient> | null = null;
+import type { Database } from "@/lib/types/supabase";
+
+let adminClient: SupabaseClient<Database> | null = null;
 
 function getSupabaseAdminConfig() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -15,13 +17,13 @@ function getSupabaseAdminConfig() {
   return { supabaseUrl, serviceRoleKey };
 }
 
-export function createAdminClient() {
+export function createAdminClient(): SupabaseClient<Database> {
   if (adminClient) {
     return adminClient;
   }
 
   const { supabaseUrl, serviceRoleKey } = getSupabaseAdminConfig();
-  adminClient = createClient(supabaseUrl, serviceRoleKey, {
+  adminClient = createClient<Database>(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

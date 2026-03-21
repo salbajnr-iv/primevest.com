@@ -175,21 +175,19 @@ export async function POST(req: Request) {
 
     await createAdminClient()
       .from("admin_actions")
-      .insert([
-        {
-          admin_id: user.id,
-          action_type: "order_created",
-          target_user_id: user.id,
-          target_table: "orders",
-          new_value: JSON.stringify({
-            order_id: result.order_id,
-            side,
-            asset,
-            amount,
-            total,
-          }),
-        },
-      ]);
+      .insert([{
+        admin_id: user.id,
+        action_type: "order_created",
+        target_user_id: user.id,
+        target_table: "orders",
+        new_value: JSON.stringify({
+          order_id: result.order_id,
+          side,
+          asset,
+          amount,
+          total,
+        }),
+      }] as any);
 
     return NextResponse.json({
       ok: true,

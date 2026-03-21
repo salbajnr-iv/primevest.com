@@ -34,7 +34,7 @@ export async function GET(req: Request) {
       const { data, error } = await supabase
         .from('kyc_requests')
         .select('*, kyc_documents(*), profiles:user_id (email, full_name)')
-        .eq('id', id)
+        .eq('id', Number(id))
         .maybeSingle()
       if (error) return NextResponse.json({ error: 'Could not fetch request' }, { status: 500 })
       return NextResponse.json({ ok: true, request: data })

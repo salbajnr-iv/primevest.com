@@ -1,5 +1,7 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getAgeSeconds, getMarketFreshnessState, type MarketFreshnessState } from "@/lib/market/freshness";
+import type { MarketPriceRow } from "@/lib/market/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type MarketProvider = "coingecko";
 
@@ -51,14 +53,8 @@ async function enforceProviderRateLimit() {
   lastProviderRequestAt = Date.now();
 }
 
-function createServiceSupabase(): SupabaseClient | null {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceRole) return null;
-
-  return createClient(supabaseUrl, serviceRole, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+function createServiceSupabase() {
+  return createAdminClient();
 }
 
 async function fetchWithRetry(url: string, init: RequestInit, maxRetries = MAX_RETRIES) {
@@ -128,8 +124,8 @@ export async function fetchAndPersistMarketPrices(provider: MarketProvider = "co
     throw assetError;
   }
 
-  const tracked = (assets ?? [])
-    .map((asset) => ({ id: String(asset.id), symbol: String(asset.symbol).toUpperCase() }))
+  const tracked = ((assets ?? []) as unknown as Array<{ id: string; symbol: string }>)
+    .map((asset: { id: string; symbol: string }) => ({ id: String(asset.id), symbol: String(asset.symbol).toUpperCase() }))
     .filter((asset) => Boolean(COINGECKO_MAP[asset.symbol]));
 
   if (!tracked.length) {
@@ -176,7 +172,14 @@ export async function fetchAndPersistMarketPrices(provider: MarketProvider = "co
         priced_at: pricedAt,
       };
     })
-    .filter(Boolean);
+    .filter(Boolean) as unknown as Array<{
+      asset_id: string;
+      asset: string;
+      last_price: number;
+      source: MarketProvider;
+      status: MarketFreshnessState;
+      priced_at: string;
+    }>;
 
   if (!rows.length) {
     return { ingested: 0, snapshotsRefreshed: 0, source: provider };
@@ -197,7 +200,7 @@ export async function fetchAndPersistMarketPrices(provider: MarketProvider = "co
 
   const { data: refreshCount, error: refreshError } = await supabase.rpc("refresh_asset_snapshots", {
     p_source: provider,
-  });
+  } as never);
 
   if (refreshError) {
     await upsertSourceHealth(supabase, {
@@ -227,9 +230,9 @@ export async function fetchAndPersistMarketPrices(provider: MarketProvider = "co
   };
 }
 
-export async function getLatestPrices(assets?: string[]) {
+export async function getLatestPrices(assets?: string[]): Promise<MarketPriceSnapshot[]> {
   const supabase = createServiceSupabase();
-  if (!supabase) return [] as MarketPriceSnapshot[];
+  if (!supabase) return [];
 
   let query = supabase
     .from("asset_snapshots")
@@ -240,13 +243,15 @@ export async function getLatestPrices(assets?: string[]) {
     query = query.in("asset", assets.map((asset) => asset.toUpperCase()));
   }
 
-  const { data } = await query;
+  const { data, error } = await query;
 
-  return (data ?? []).map((row) => ({
+  if (error || !data) return [];
+
+  return data.map((row: MarketPriceRow) => ({
     asset: String(row.asset).toUpperCase(),
     priceEur: Number(row.price_eur ?? 0),
     source: String(row.source ?? "unknown"),
-    status: (row.source_status ?? "stale") as MarketFreshnessState,
+    status: ((row.source_status ?? "stale") as MarketFreshnessState) || "stale",
     pricedAt: row.priced_at ?? new Date(0).toISOString(),
   }));
 }

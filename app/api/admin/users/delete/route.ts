@@ -57,20 +57,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    await supabase.from("admin_actions").insert([
-      {
-        admin_id: adminId,
-        action_type: "user_deleted",
-        target_user_id: user_id,
-        target_table: "profiles",
-        old_value: JSON.stringify({
-          email: targetUser.email,
-          full_name: targetUser.full_name,
-          is_active: targetUser.is_active,
-        }),
-        new_value: JSON.stringify({ deleted: true }),
-      },
-    ]);
+    const userProfile = targetUser as any;
+
+    await supabase.from("admin_actions").insert([{
+      admin_id: adminId,
+      action_type: "user_deleted",
+      target_user_id: user_id,
+      target_table: "profiles",
+      old_value: JSON.stringify({
+        email: userProfile.email,
+        full_name: userProfile.full_name,
+        is_active: userProfile.is_active,
+      }),
+      new_value: JSON.stringify({ deleted: true }),
+    }] as any);
 
     const { error: deleteAuthErr } =
       await supabase.auth.admin.deleteUser(user_id);
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ok: true,
-      message: `User ${targetUser.email} has been deleted`,
+      message: `User ${userProfile.email} has been deleted`,
     });
   } catch (err) {
     return NextResponse.json(

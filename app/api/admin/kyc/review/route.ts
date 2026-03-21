@@ -33,7 +33,7 @@ export async function POST(req: Request) {
         source: 'admin_api',
       },
       p_ip_address: requestIpFromHeaders(req),
-    })
+    } as any)
 
     if (error) {
       if (error.message.toLowerCase().includes('not found')) {
@@ -48,9 +48,9 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       success: true,
-      requestId: result?.request_id ?? request_id,
-      status: result?.request_status ?? status,
-      userId: result?.user_id ?? null,
+      requestId: (result as any)?.request_id ?? request_id,
+      status: (result as any)?.request_status ?? status,
+      userId: (result as any)?.user_id ?? null,
     })
   } catch (err) {
     return handleAdminRouteError(err, 'Failed to review KYC request')

@@ -6,7 +6,7 @@ Mark this task complete **only when all items below are green** with no parse, p
 
 - [x] `npm run lint`
 - [x] `npm run dev`
-- [ ] `npm run build`
+- [x] `npm run build`
 
 ## Known fixes applied
 

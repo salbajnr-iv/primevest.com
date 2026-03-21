@@ -53,7 +53,7 @@ export async function POST(req: Request) {
         p_amount_eur: safeAmountEur,
         p_liquidity_eur: safeLiquidityEur,
         p_symbol: symbol || null,
-      });
+      } as any);
 
       if (!error) {
         rpcResult = (

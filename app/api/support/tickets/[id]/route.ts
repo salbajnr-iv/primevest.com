@@ -28,7 +28,7 @@ export async function GET(
     .select(
       "id, reference_id, category, subject, message, status, created_at, updated_at, open_at, pending_at, resolved_at, closed_at",
     )
-    .eq("id", id)
+    .eq("id", Number(id))
     .eq("user_id", user.id)
     .single();
 
@@ -39,7 +39,7 @@ export async function GET(
   const { data: replies, error: repliesErr } = await supabase
     .from("support_ticket_replies")
     .select("id, ticket_id, user_id, message, is_staff, created_at")
-    .eq("ticket_id", id)
+    .eq("ticket_id", Number(id))
     .order("created_at", { ascending: true });
 
   if (repliesErr) {
