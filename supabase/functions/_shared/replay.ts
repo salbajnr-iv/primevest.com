@@ -1,6 +1,6 @@
 
 
-import { supabaseAdmin } from "./supabase";
+import { supabaseAdmin } from "./supabase.ts";
 
 type ReplayRow = {
   status: "processing" | "completed" | "failed";

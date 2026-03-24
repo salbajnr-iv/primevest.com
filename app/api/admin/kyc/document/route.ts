@@ -1,4 +1,14 @@
 import { NextResponse } from "next/server";
+import type { KYCDocument } from "@/lib/types/database";
+
+type PartialKYCDocument = {
+  id: number;
+  user_id: string;
+  storage_path: string;
+  type: string;
+  status: string;
+  created_at: string;
+};
 
 import { verifyAdminBearerToken } from "@/lib/admin/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -28,10 +38,11 @@ export async function GET(req: Request) {
 
     const supabase = createAdminClient();
 
-    const { data: doc, error: docErr } = await supabase
+    // Query by ID - Supabase handles type conversion internally
+    const { data: doc, error: docErr }: { data: PartialKYCDocument | null, error: any } = await supabase
       .from("kyc_documents")
       .select("*")
-      .eq("id", Number(id))
+      .eq("id", id as never)
       .maybeSingle();
     
     if (docErr || !doc)
@@ -40,7 +51,7 @@ export async function GET(req: Request) {
         { status: 404 },
       );
 
-    const storagePath = (doc as any).storage_path;
+    const storagePath = doc!.storage_path;
     const { data: urlData, error: urlErr } = await supabase.storage
       .from("kyc-documents")
       .createSignedUrl(storagePath, 60);

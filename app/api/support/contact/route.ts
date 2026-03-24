@@ -105,7 +105,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const ticketData = data as any;
+    const ticketData = data as { id: number; reference_id: string };
 
     return NextResponse.json(
       {

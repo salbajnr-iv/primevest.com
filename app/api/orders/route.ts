@@ -187,7 +187,7 @@ export async function POST(req: Request) {
           amount,
           total,
         }),
-      }] as any);
+      }] as { admin_id: string; action_type: string; target_user_id: string; target_table: string; new_value: string }[]);
 
     return NextResponse.json({
       ok: true,

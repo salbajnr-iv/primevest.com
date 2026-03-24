@@ -10,8 +10,23 @@ export async function POST(request: Request) {
     return authErrorResponse(400, 'Email and password are required.', 'InvalidCredentials')
   }
 
-  const supabase = await createServerClient()
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  let supabase
+  try {
+    supabase = await createServerClient()
+  } catch (configError) {
+    console.error('Supabase config error:', configError)
+    return authErrorResponse(503, 'Supabase service unavailable - check configuration', 'ServiceUnavailable')
+  }
+
+  let authResult
+  try {
+    authResult = await supabase.auth.signInWithPassword({ email, password })
+  } catch (authError) {
+    console.error('Supabase auth error:', authError)
+    return authErrorResponse(503, 'Authentication service error', 'AuthServiceError')
+  }
+
+  const { data, error } = authResult
 
   if (error) {
     return authErrorResponse(error.status ?? 401, error.message, error.name)

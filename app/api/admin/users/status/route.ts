@@ -8,6 +8,20 @@ import {
   requireAdminRequest,
 } from '@/lib/admin/api'
 
+interface SetUserActiveParams {
+  p_user_id: string;
+  p_is_active: boolean;
+  p_admin_id: string;
+  p_ip_address: string;
+  p_context: Record<string, string>;
+}
+
+interface SetUserActiveResult {
+  user_id: string;
+  is_active: boolean;
+  previous_is_active: boolean | null;
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json()
@@ -31,7 +45,7 @@ export async function POST(req: Request) {
       p_context: {
         source: 'admin_api',
       },
-    } as any)
+    } as SetUserActiveParams)
 
     if (error) {
       if (error.message.toLowerCase().includes('not found')) {
@@ -41,14 +55,14 @@ export async function POST(req: Request) {
       throw new AdminRouteError('Failed to update user status', 500, error.message)
     }
 
-    const result = Array.isArray(data) ? data[0] : data
+    const result = Array.isArray(data) ? data[0] : data as SetUserActiveResult
 
     return NextResponse.json({
       ok: true,
       success: true,
-      userId: (result as any)?.user_id ?? userId,
-      isActive: (result as any)?.is_active ?? isActive,
-      previousIsActive: (result as any)?.previous_is_active ?? null,
+      userId: result.user_id ?? userId,
+      isActive: result.is_active ?? isActive,
+      previousIsActive: result.previous_is_active ?? null,
     })
   } catch (err) {
     return handleAdminRouteError(err, 'Failed to update user status')

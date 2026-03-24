@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+                         import { NextResponse } from "next/server";
 import {
   MARKET_IMPACT_THRESHOLDS,
   calculateMarketImpactPercent,
@@ -50,10 +50,9 @@ export async function POST(req: Request) {
     try {
       const supabase = createAdminClient();
       const { data, error } = await supabase.rpc("estimate_buy_market_impact", {
+        p_asset: symbol,
         p_amount_eur: safeAmountEur,
-        p_liquidity_eur: safeLiquidityEur,
-        p_symbol: symbol || null,
-      } as any);
+      } as { p_asset: string; p_amount_eur: number });
 
       if (!error) {
         rpcResult = (

@@ -1,7 +1,16 @@
 import { NextResponse } from "next/server";
+import type { Profile } from "@/lib/types/database";
 
 import { verifyAdminBearerToken } from "@/lib/admin/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+
+interface AdminActionInsert {
+  admin_id: string;
+  action_type: string;
+  target_user_id: string;
+  target_table: string;
+  new_value: string;
+}
 
 export async function POST(req: Request) {
   try {
@@ -57,7 +66,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const userProfile = targetUser as any;
+    const userProfile = targetUser as Partial<Profile>;
 
     await supabase.from("admin_actions").insert([{
       admin_id: adminId,
@@ -68,7 +77,7 @@ export async function POST(req: Request) {
         impersonated_user: userProfile.email,
         timestamp: new Date().toISOString(),
       }),
-    }] as any);
+    }] as AdminActionInsert[]);
 
     return NextResponse.json({
       ok: true,

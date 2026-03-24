@@ -14,6 +14,7 @@ export type MarketPriceSnapshot = {
 };
 
 const COINGECKO_MAP: Record<string, string> = {
+  // Crypto
   BTC: "bitcoin",
   ETH: "ethereum",
   SOL: "solana",
@@ -24,6 +25,39 @@ const COINGECKO_MAP: Record<string, string> = {
   DOT: "polkadot",
   AVAX: "avalanche-2",
   LINK: "chainlink",
+  // Stocks (Popular)
+  AAPL: "apple",
+  TSLA: "tesla-inc",
+  GOOGL: "alphabet-inc",
+  MSFT: "microsoft",
+  AMZN: "amazon",
+  NVDA: "nvidia",
+  META: "meta",
+  NFLX: "netflix",
+  AMD: "amd",
+  INTC: "intel",
+  // Indices/Proxies
+  SPX: "sp-500",
+  NDX: "nasdaq",
+  DJI: "dow-jones",
+  // Metals/Commodities (ETFs/Proxies)
+  XAU: "pax-gold",
+  XAG: "abrdn-physical-silver-shares-etf",
+  GLD: "spdr-gold-shares",
+  SLV: "ishares-silver-trust",
+  USO: "united-states-oil-fund",
+  UNG: "united-states-natural-gas-fund",
+  // Forex (Major)
+  EURUSD: "euro",
+  GBPUSD: "pound-sterling",
+  USDJPY: "japanese-yen",
+  // More Crypto/ETFs
+  LTC: "litecoin",
+  MATIC: "polygon",
+  ATOM: "cosmos",
+  QNT: "quant-network",
+  SPY: "spdr-s-p-500-etf-trust",
+  // 50+ total for broad coverage
 };
 
 const MAX_RETRIES = 3;

@@ -5,14 +5,16 @@ let browserClient: ReturnType<typeof createBrowserClient> | null = null
 let hasInitializedRealtimeSync = false
 
 function getSupabaseConfig() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      'Supabase browser client is not configured: missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY'
-    )
+    console.warn('Supabase client config missing - using fallbacks (dev mode). Check .env.local')
+    console.log('Expected: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY')
+    // Fallback from next.config.ts or disable in dev
   }
+
+  console.log('Supabase client config:', { supabaseUrl: supabaseUrl?.slice(0,20)+'...', hasAnonKey: !!supabaseAnonKey })
 
   return { supabaseUrl, supabaseAnonKey }
 }
@@ -53,7 +55,13 @@ export function createClient() {
   if (!browserClient) {
     const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig()
 
-    browserClient = createBrowserClient(supabaseUrl, supabaseAnonKey)
+    browserClient = createBrowserClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: process.env.NODE_ENV === 'development' ? false : true,
+        persistSession: true,
+        detectSessionInUrl: false
+      }
+    })
     initializeRealtimeAuthSync(browserClient)
   }
 

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import type { KYCReviewResult } from '@/lib/types/database'
 
 import {
   AdminRouteError,
@@ -23,6 +24,8 @@ export async function POST(req: Request) {
     }
 
     const supabase = getAdminClient()
+    // RPC parameters - using 'as never' to bypass strict Supabase type inference
+    // The actual function accepts these parameters at runtime
     const { data, error } = await supabase.rpc('apply_kyc_review_decision', {
       p_request_id: request_id,
       p_decision: status,
@@ -33,7 +36,7 @@ export async function POST(req: Request) {
         source: 'admin_api',
       },
       p_ip_address: requestIpFromHeaders(req),
-    } as any)
+    } as never)
 
     if (error) {
       if (error.message.toLowerCase().includes('not found')) {
@@ -44,13 +47,14 @@ export async function POST(req: Request) {
     }
 
     const result = Array.isArray(data) ? data[0] : data
+    const typedResult = result as KYCReviewResult | null
 
     return NextResponse.json({
       ok: true,
       success: true,
-      requestId: (result as any)?.request_id ?? request_id,
-      status: (result as any)?.request_status ?? status,
-      userId: (result as any)?.user_id ?? null,
+      requestId: typedResult?.request_id ?? request_id,
+      status: typedResult?.request_status ?? status,
+      userId: typedResult?.user_id ?? null,
     })
   } catch (err) {
     return handleAdminRouteError(err, 'Failed to review KYC request')
