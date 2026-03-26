@@ -10,11 +10,11 @@ import { useDashboardSummary } from "@/lib/dashboard/use-dashboard-summary";
 
 type Currency = "EUR" | "BTC" | "ETH" | "USDT";
 
-const placeholderAssetBalances: Record<Currency, number> = {
+const emptyAssetBalances: Record<Currency, number> = {
   EUR: 0,
-  BTC: 0.42,
-  ETH: 3,
-  USDT: 4800,
+  BTC: 0,
+  ETH: 0,
+  USDT: 0,
 };
 
 const networkFee: Record<Currency, number> = {
@@ -49,13 +49,14 @@ export default function WithdrawPage() {
   const [withdrawalStatus, setWithdrawalStatus] = React.useState("pending");
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [walletBalances, setWalletBalances] = React.useState<Record<Currency, number>>(emptyAssetBalances);
 
   const availableBalances = React.useMemo<Record<Currency, number>>(
     () => ({
-      ...placeholderAssetBalances,
+      ...walletBalances,
       EUR: Number(summary.availableBalance ?? 0),
     }),
-    [summary.availableBalance],
+    [summary.availableBalance, walletBalances],
   );
 
   const parsedAmount = amount ? parseFloat(amount) : 0;
@@ -107,6 +108,46 @@ export default function WithdrawPage() {
       setIsProcessing(false);
     }
   };
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const loadWalletBalances = async () => {
+      try {
+        const response = await fetch("/api/wallets", { cache: "no-store" });
+        const payload = (await response.json().catch(() => null)) as
+          | { ok?: boolean; wallets?: Array<{ asset?: string; available_balance?: number | null; balance?: number | null }> }
+          | null;
+
+        if (!response.ok || !payload?.ok || !Array.isArray(payload.wallets) || !isMounted) {
+          return;
+        }
+
+        const nextBalances = payload.wallets.reduce<Record<Currency, number>>(
+          (acc, wallet) => {
+            const asset = String(wallet.asset || "").toUpperCase() as Currency;
+            if (!Object.prototype.hasOwnProperty.call(acc, asset)) {
+              return acc;
+            }
+            const balanceValue = Number(wallet.available_balance ?? wallet.balance ?? 0);
+            acc[asset] = Number.isFinite(balanceValue) ? balanceValue : 0;
+            return acc;
+          },
+          { ...emptyAssetBalances },
+        );
+
+        setWalletBalances(nextBalances);
+      } catch {
+        // Keep fallback balances if wallet fetch fails.
+      }
+    };
+
+    void loadWalletBalances();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   React.useEffect(() => {
     if (step !== "success" || !reference || !session?.access_token) return;
