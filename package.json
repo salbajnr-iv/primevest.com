@@ -12,7 +12,8 @@
     "check:routes": "node scripts/check-app-routes.mjs",
     "check:support-routes": "node scripts/check-support-route-contract.mjs",
     "check:all-routes": "npm run check:dashboard-routes && npm run check:routes",
-    "verify:dashboard-profile-balance": "node scripts/verify-dashboard-profile-balance.mjs"
+    "verify:dashboard-profile-balance": "node scripts/verify-dashboard-profile-balance.mjs",
+    "db:smoke": "tsx scripts/test-pg-pool.ts"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
@@ -33,7 +34,8 @@
     "react-dom": "19.2.3",
     "recharts": "^3.7.0",
     "tailwind-merge": "^3.4.0",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",
@@ -43,6 +45,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "tailwindcss": "^4",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "@types/pg": "^8.15.5",
+    "tsx": "^4.20.6"
   }
 }

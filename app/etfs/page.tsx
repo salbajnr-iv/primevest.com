@@ -5,30 +5,92 @@ import Link from "next/link";
 import Image from "next/image";
 import BottomNav from "@/components/BottomNav";
 
-const etfsData = [
+type EtfItem = {
+  id: string;
+  name: string;
+  symbol: string;
+  price: number;
+  change24h: number;
+  marketCap: number;
+  volume24h: number;
+  iconSrc: string;
+};
+
+const etfsData: EtfItem[] = [
   { id: "btc", name: "Bitcoin ETN", symbol: "BTCE", price: 28.45, change24h: 2.35, marketCap: 1200000000, volume24h: 45000000, iconSrc: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png" },
   { id: "eth", name: "Ethereum ETN", symbol: "ETHE", price: 18.92, change24h: 1.82, marketCap: 850000000, volume24h: 28000000, iconSrc: "https://assets.coingecko.com/coins/images/279/small/ethereum.png" },
-  { id: "sp500", name: "S&P 500 ETF", symbol: "CSPX", price: 45.23, change24h: 0.45, marketCap: 4500000000, volume24h: 12000000, iconSrc: "https://via.placeholder.com/32/1a73e8/ffffff?text=SP" },
-  { id: "msci", name: "MSCI World ETF", symbol: "SWDA", price: 38.50, change24h: 0.28, marketCap: 3200000000, volume24h: 8500000, iconSrc: "https://via.placeholder.com/32/34a853/ffffff?text=MS" },
+  { id: "sp500", name: "S&P 500 ETF", symbol: "SPY", price: 45.23, change24h: 0.45, marketCap: 4500000000, volume24h: 12000000, iconSrc: "https://via.placeholder.com/32/1a73e8/ffffff?text=SP" },
+  { id: "msci", name: "MSCI World ETF", symbol: "SWDA", price: 38.5, change24h: 0.28, marketCap: 3200000000, volume24h: 8500000, iconSrc: "https://via.placeholder.com/32/34a853/ffffff?text=MS" },
   { id: "reit", name: "Global REITs ETF", symbol: "REET", price: 22.15, change24h: -0.52, marketCap: 450000000, volume24h: 3200000, iconSrc: "https://via.placeholder.com/32/fbbc04/000000?text=RE" },
-  { id: "tech", name: "Tech ETF", symbol: "CHN9", price: 32.80, change24h: 1.15, marketCap: 680000000, volume24h: 5600000, iconSrc: "https://via.placeholder.com/32/ea4335/ffffff?text=TX" },
+  { id: "tech", name: "Tech ETF", symbol: "GLD", price: 32.8, change24h: 1.15, marketCap: 680000000, volume24h: 5600000, iconSrc: "https://via.placeholder.com/32/ea4335/ffffff?text=TX" },
 ];
+
+type LatestPricesResponse = {
+  ok?: boolean;
+  prices?: Array<{ asset: string; priceEur: number }>;
+  freshness?: { latestPricedAt?: string };
+};
 
 export default function EtfsPage() {
   const [isClient, setIsClient] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [selectedEtf, setSelectedEtf] = React.useState<typeof etfsData[0] | null>(null);
+  const [selectedEtf, setSelectedEtf] = React.useState<EtfItem | null>(null);
+  const [liveEtfs, setLiveEtfs] = React.useState<EtfItem[]>(etfsData);
+  const [feedUpdatedAt, setFeedUpdatedAt] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
 
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const loadLivePrices = async () => {
+      try {
+        const symbols = etfsData.map((etf) => etf.symbol).join(",");
+        const response = await fetch(`/api/market/latest?assets=${symbols}`, { cache: "no-store" });
+        const payload = (await response.json().catch(() => null)) as LatestPricesResponse | null;
+
+        if (!response.ok || !payload?.ok || !payload.prices || !isMounted) {
+          return;
+        }
+
+        const priceMap = new Map(payload.prices.map((row) => [row.asset.toUpperCase(), Number(row.priceEur)]));
+        const merged = etfsData.map((etf) => {
+          const livePrice = priceMap.get(etf.symbol);
+          if (typeof livePrice !== "number" || !Number.isFinite(livePrice)) return etf;
+
+          const previous = etf.price;
+          const change24h = previous > 0 ? ((livePrice - previous) / previous) * 100 : 0;
+          return {
+            ...etf,
+            price: Number(livePrice.toFixed(2)),
+            change24h: Number(change24h.toFixed(2)),
+          };
+        });
+
+        setLiveEtfs(merged);
+        setFeedUpdatedAt(payload.freshness?.latestPricedAt || null);
+      } catch {
+        // keep fallback data
+      }
+    };
+
+    void loadLivePrices();
+    const interval = window.setInterval(loadLivePrices, 30000);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(interval);
+    };
+  }, []);
+
   const filteredEtfs = React.useMemo(() => {
-    if (!searchQuery) return etfsData;
+    if (!searchQuery) return liveEtfs;
     const query = searchQuery.toLowerCase();
-    return etfsData.filter(e => e.name.toLowerCase().includes(query) || e.symbol.toLowerCase().includes(query));
-  }, [searchQuery]);
+    return liveEtfs.filter((e) => e.name.toLowerCase().includes(query) || e.symbol.toLowerCase().includes(query));
+  }, [searchQuery, liveEtfs]);
 
   if (!isClient) return <div className="dashboard-loading"><div className="loading-spinner"></div></div>;
 
@@ -63,6 +125,11 @@ export default function EtfsPage() {
             </div>
           </div>
           <p className="etf-disclaimer">*CFD service. Your capital is at risk.</p>
+          {feedUpdatedAt && (
+            <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 6 }}>
+              Live feed updated: {new Date(feedUpdatedAt).toLocaleString("en-US")}
+            </p>
+          )}
         </section>
 
         <div className="market-search">
