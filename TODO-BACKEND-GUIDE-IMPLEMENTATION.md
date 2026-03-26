@@ -8,7 +8,7 @@ Status legend: ⏳ Pending | 🔄 In Progress | ✅ Done | ❌ Blocked
 - [ ] Install dependencies: `npm i pg @types/pg zod @supabase/supabase-js@latest`
 - [ ] Set env vars: `SUPABASE_DB_URL`, `SUPABASE_SERVICE_ROLE_KEY` (never client-side)
 - [ ] Verify DB tables exist: profiles, kyc_requests, kyc_documents, wallets, balances, ledger_entries, ledger_idempotency, admin_actions (use Supabase dashboard)
-- [ ] Test DB connection with pg Pool in a script: `scripts/test-pg-pool.ts`
+- [x] Test DB connection with pg Pool in a script: `scripts/test-pg-pool.ts`
 
 ## 2. Ledger & Financial Ops (✅ Done)
 - [x] Create `app/api/ledger/transfer/route.ts` (via RPC 'process_ledger_transfer').
