@@ -5,30 +5,99 @@ import Link from "next/link";
 import Image from "next/image";
 import BottomNav from "@/components/BottomNav";
 
-const stocksData = [
+type StockItem = {
+  id: string;
+  name: string;
+  symbol: string;
+  price: number;
+  change24h: number;
+  marketCap: number;
+  volume24h: number;
+  iconSrc: string;
+};
+
+const stocksData: StockItem[] = [
   { id: "aapl", name: "Apple Inc.", symbol: "AAPL", price: 185.92, change24h: 1.25, marketCap: 2890000000000, volume24h: 52000000, iconSrc: "https://logo.clearbit.com/apple.com" },
   { id: "msft", name: "Microsoft Corporation", symbol: "MSFT", price: 378.91, change24h: 0.87, marketCap: 2810000000000, volume24h: 21000000, iconSrc: "https://logo.clearbit.com/microsoft.com" },
-  { id: "googl", name: "Alphabet Inc.", symbol: "GOOGL", price: 141.80, change24h: -0.45, marketCap: 1780000000000, volume24h: 18000000, iconSrc: "https://logo.clearbit.com/google.com" },
-  { id: "amzn", name: "Amazon.com Inc.", symbol: "AMZN", price: 155.34, change24h: 2.10, marketCap: 1600000000000, volume24h: 35000000, iconSrc: "https://logo.clearbit.com/amazon.com" },
-  { id: "tsla", name: "Tesla Inc.", symbol: "TSLA", price: 248.50, change24h: -1.82, marketCap: 790000000000, volume24h: 95000000, iconSrc: "https://logo.clearbit.com/tesla.com" },
+  { id: "googl", name: "Alphabet Inc.", symbol: "GOOGL", price: 141.8, change24h: -0.45, marketCap: 1780000000000, volume24h: 18000000, iconSrc: "https://logo.clearbit.com/google.com" },
+  { id: "amzn", name: "Amazon.com Inc.", symbol: "AMZN", price: 155.34, change24h: 2.1, marketCap: 1600000000000, volume24h: 35000000, iconSrc: "https://logo.clearbit.com/amazon.com" },
+  { id: "tsla", name: "Tesla Inc.", symbol: "TSLA", price: 248.5, change24h: -1.82, marketCap: 790000000000, volume24h: 95000000, iconSrc: "https://logo.clearbit.com/tesla.com" },
   { id: "nvda", name: "NVIDIA Corporation", symbol: "NVDA", price: 495.22, change24h: 3.45, marketCap: 1220000000000, volume24h: 42000000, iconSrc: "https://logo.clearbit.com/nvidia.com" },
 ];
+
+type LatestPricesResponse = {
+  ok?: boolean;
+  prices?: Array<{ asset: string; priceEur: number; pricedAt: string }>;
+  freshness?: { latestPricedAt?: string; status?: string };
+};
 
 export default function StocksPage() {
   const [isClient, setIsClient] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [selectedStock, setSelectedStock] = React.useState<typeof stocksData[0] | null>(null);
+  const [selectedStock, setSelectedStock] = React.useState<StockItem | null>(null);
+  const [liveStocks, setLiveStocks] = React.useState<StockItem[]>(stocksData);
+  const [feedUpdatedAt, setFeedUpdatedAt] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setIsClient(true);
   }, []);
 
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const loadLivePrices = async () => {
+      try {
+        const symbols = stocksData.map((stock) => stock.symbol).join(",");
+        const response = await fetch(`/api/market/latest?assets=${symbols}`, {
+          cache: "no-store",
+        });
+        const payload = (await response.json().catch(() => null)) as LatestPricesResponse | null;
+
+        if (!response.ok || !payload?.ok || !payload.prices || !isMounted) {
+          return;
+        }
+
+        const priceMap = new Map(
+          payload.prices.map((row) => [row.asset.toUpperCase(), Number(row.priceEur)]),
+        );
+
+        const mergedStocks = stocksData.map((stock) => {
+          const livePrice = priceMap.get(stock.symbol);
+          if (!Number.isFinite(livePrice)) {
+            return stock;
+          }
+
+          const previous = stock.price;
+          const change24h = previous > 0 ? ((livePrice - previous) / previous) * 100 : 0;
+          return {
+            ...stock,
+            price: Number(livePrice.toFixed(2)),
+            change24h: Number(change24h.toFixed(2)),
+          };
+        });
+
+        setLiveStocks(mergedStocks);
+        setFeedUpdatedAt(payload.freshness?.latestPricedAt || null);
+      } catch {
+        // Keep static fallback when live feed is unavailable.
+      }
+    };
+
+    void loadLivePrices();
+    const interval = window.setInterval(loadLivePrices, 30000);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(interval);
+    };
+  }, []);
+
   const filteredStocks = React.useMemo(() => {
-    if (!searchQuery) return stocksData;
+    if (!searchQuery) return liveStocks;
     const query = searchQuery.toLowerCase();
-    return stocksData.filter(s => s.name.toLowerCase().includes(query) || s.symbol.toLowerCase().includes(query));
-  }, [searchQuery]);
+    return liveStocks.filter((s) => s.name.toLowerCase().includes(query) || s.symbol.toLowerCase().includes(query));
+  }, [searchQuery, liveStocks]);
 
   if (!isClient) return <div className="dashboard-loading"><div className="loading-spinner"></div></div>;
 
@@ -63,6 +132,11 @@ export default function StocksPage() {
             </div>
           </div>
           <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 12 }}>*CFD service. Your capital is at risk.</p>
+          {feedUpdatedAt && (
+            <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 6 }}>
+              Live feed updated: {new Date(feedUpdatedAt).toLocaleString("en-US")}
+            </p>
+          )}
         </section>
 
         <div className="market-search">
