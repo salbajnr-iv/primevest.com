@@ -20,6 +20,24 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Database smoke test (pg Pool)
+
+Use this to validate backend Postgres connectivity via `pg.Pool`.
+
+1. Set the DB URL in your shell:
+
+```bash
+export SUPABASE_DB_URL='postgres://USER:PASSWORD@HOST:5432/postgres?sslmode=require'
+```
+
+2. Run the smoke test:
+
+```bash
+npm run db:smoke
+```
+
+Expected result: one success line (`✅ DB smoke test passed ...`). The script exits non-zero on missing env or connection/query failure.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
