@@ -193,3 +193,372 @@
   - [x] CTA actions mapped to shared `Button` variants.
   - [ ] Visual acceptance confirmed with authenticated before/after screenshots.
   - [ ] Responsive acceptance confirmed (mobile/tablet/desktop capture).
+
+---
+
+## Milestone Decomposition by Feature (Execution-Ready)
+
+Legend:
+- **[CP]** = critical path task (blocks milestone completion)
+- **[||]** = parallelizable task (can run in parallel with other non-blocking tasks)
+- **Est.** = rough estimate in **engineering days**
+
+### Feature 1: Complete admin production rollout (P0)
+
+#### 1) Foundation (schema/config/scaffolding)
+1. **[CP]** Finalize production migration execution order + operator checklist.  
+   - Owner: Backend + DB Operator  
+   - Est.: 0.5d  
+   - Depends on: none
+2. **[CP]** Confirm env var contract (`SUPABASE_SERVICE_ROLE_KEY` server-only) and secrets inventory.  
+   - Owner: DevOps  
+   - Est.: 0.5d  
+   - Depends on: task 1
+3. **[||]** Prepare admin access runbook evidence template (SQL output + screenshots).  
+   - Owner: Release Manager  
+   - Est.: 0.5d  
+   - Depends on: none
+
+#### 2) Core functionality (minimum usable slice)
+1. **[CP]** Execute pending 202610* migrations in production in sequence.  
+   - Owner: DB Operator  
+   - Est.: 1d  
+   - Depends on: Foundation 1-2
+2. **[CP]** Promote at least one production admin via `public.set_admin_role(...)`.  
+   - Owner: DB Operator + Security  
+   - Est.: 0.25d  
+   - Depends on: Core task 1
+3. **[CP]** Validate `/admin` and `/admin/support*` route gating end-to-end in production.  
+   - Owner: Backend + QA  
+   - Est.: 0.5d  
+   - Depends on: Core task 2
+
+#### 3) Enhancements (quality and UX polish)
+1. **[||]** Add admin audit log entries for privileged actions.  
+   - Owner: Backend  
+   - Est.: 1d  
+   - Depends on: Core task 1
+2. **[||]** Add admin health dashboard card (auth errors, role mismatch count).  
+   - Owner: Frontend + Backend  
+   - Est.: 1d  
+   - Depends on: Core task 3
+
+#### 4) Release hardening (monitoring/docs/rollback)
+1. **[CP]** Add alerts for admin auth failures and policy violations.  
+   - Owner: DevOps  
+   - Est.: 0.5d  
+   - Depends on: Core task 3
+2. **[CP]** Publish final admin rollout sign-off doc with evidence links.  
+   - Owner: Release Manager  
+   - Est.: 0.5d  
+   - Depends on: all prior milestones
+3. **[CP]** Define rollback path (role demotion + middleware bypass guard toggle).  
+   - Owner: Backend + DevOps  
+   - Est.: 0.5d  
+   - Depends on: Foundation 1
+
+### Feature 2: Swap execution safeguards/details (P0)
+
+#### 1) Foundation
+1. **[CP]** Define quote payload contract (`rate`, `min_received`, `expires_at`, `slippage_bps`).  
+   - Owner: Backend  
+   - Est.: 0.5d  
+   - Depends on: none
+2. **[CP]** Add UI state scaffolding for quote freshness + validation errors.  
+   - Owner: Frontend  
+   - Est.: 0.5d  
+   - Depends on: task 1
+
+#### 2) Core functionality
+1. **[CP]** Render quote rate and estimated receive prior to confirmation.  
+   - Owner: Frontend  
+   - Est.: 1d  
+   - Depends on: Foundation 1-2
+2. **[CP]** Implement slippage tolerance input with bounds validation.  
+   - Owner: Frontend  
+   - Est.: 0.75d  
+   - Depends on: Foundation 2
+3. **[CP]** Enforce submit-time stale quote/min-receive block in API + UI.  
+   - Owner: Backend + Frontend  
+   - Est.: 1d  
+   - Depends on: Core tasks 1-2
+
+#### 3) Enhancements
+1. **[||]** Add preconfigured slippage presets + advanced toggle.  
+   - Owner: Frontend  
+   - Est.: 0.5d  
+   - Depends on: Core task 2
+2. **[||]** Add explanatory tooltips for rate impact and min receive.  
+   - Owner: Product + Frontend  
+   - Est.: 0.5d  
+   - Depends on: Core task 1
+
+#### 4) Release hardening
+1. **[CP]** Add metric + alert for stale-quote rejection rate spikes.  
+   - Owner: Backend + DevOps  
+   - Est.: 0.5d  
+   - Depends on: Core task 3
+2. **[CP]** Document fallback behavior when quote provider is unavailable.  
+   - Owner: Backend + Support  
+   - Est.: 0.5d  
+   - Depends on: Core task 3
+3. **[CP]** Ship rollback toggle to disable strict min-receive enforcement if needed.  
+   - Owner: Backend  
+   - Est.: 0.5d  
+   - Depends on: Core task 3
+
+### Feature 3: Profile save fix rollout and verification (P0)
+
+#### 1) Foundation
+1. **[CP]** Verify migration presence in all target environments.  
+   - Owner: Backend + DB Operator  
+   - Est.: 0.5d  
+   - Depends on: none
+2. **[||]** Prepare regression SQL + UI test scripts in CI docs.  
+   - Owner: QA  
+   - Est.: 0.5d  
+   - Depends on: none
+
+#### 2) Core functionality
+1. **[CP]** Execute `profile_upsert_rls_regression.sql` in each environment.  
+   - Owner: QA + DB Operator  
+   - Est.: 0.5d  
+   - Depends on: Foundation 1
+2. **[CP]** Validate authenticated create/update/reload profile flow in app.  
+   - Owner: QA  
+   - Est.: 0.5d  
+   - Depends on: Core task 1
+
+#### 3) Enhancements
+1. **[||]** Add profile save telemetry (`success`, `failure`, `latency`).  
+   - Owner: Frontend + Backend  
+   - Est.: 0.75d  
+   - Depends on: Core task 2
+2. **[||]** Improve user-facing error copy for recoverable save failures.  
+   - Owner: Frontend + Product  
+   - Est.: 0.5d  
+   - Depends on: Core task 2
+
+#### 4) Release hardening
+1. **[CP]** Capture evidence bundle (SQL output + video/screenshot of save flow).  
+   - Owner: QA  
+   - Est.: 0.5d  
+   - Depends on: Core task 2
+2. **[CP]** Add rollback SQL note to restore prior policy if regression appears.  
+   - Owner: Backend + DB Operator  
+   - Est.: 0.5d  
+   - Depends on: Foundation 1
+
+### Feature 4: Holdings filtering + sorting (P1)
+
+#### 1) Foundation
+1. **[CP]** Confirm sortable fields and filter semantics (symbol/name/allocation/value/PnL).  
+   - Owner: Product + Frontend  
+   - Est.: 0.5d  
+   - Depends on: none
+2. **[CP]** Introduce table state model (query params + default sort).  
+   - Owner: Frontend  
+   - Est.: 0.5d  
+   - Depends on: task 1
+
+#### 2) Core functionality
+1. **[CP]** Implement symbol/name filter control with reset.  
+   - Owner: Frontend  
+   - Est.: 0.75d  
+   - Depends on: Foundation 2
+2. **[CP]** Implement sorting for allocation/value/PnL.  
+   - Owner: Frontend  
+   - Est.: 0.75d  
+   - Depends on: Foundation 2
+3. **[CP]** Display active filter/sort chips and clear-all action.  
+   - Owner: Frontend  
+   - Est.: 0.5d  
+   - Depends on: Core tasks 1-2
+
+#### 3) Enhancements
+1. **[||]** Persist filter/sort state in URL for deep-linking.  
+   - Owner: Frontend  
+   - Est.: 0.5d  
+   - Depends on: Core task 3
+2. **[||]** Add client-side empty-state guidance for narrow filters.  
+   - Owner: Frontend + UX Writer  
+   - Est.: 0.25d  
+   - Depends on: Core task 1
+
+#### 4) Release hardening
+1. **[CP]** Add regression tests for sort stability and filter reset behavior.  
+   - Owner: QA + Frontend  
+   - Est.: 0.5d  
+   - Depends on: Core task 3
+2. **[CP]** Add analytics event for filter/sort usage adoption.  
+   - Owner: Frontend + Data  
+   - Est.: 0.25d  
+   - Depends on: Core task 3
+
+### Feature 5: Buy flow market impact visibility (P1)
+
+#### 1) Foundation
+1. **[CP]** Define market impact formula and threshold tiers.  
+   - Owner: Backend + Product  
+   - Est.: 0.5d  
+   - Depends on: none
+2. **[CP]** Extend API contract for `market_impact_pct`.  
+   - Owner: Backend  
+   - Est.: 0.5d  
+   - Depends on: task 1
+
+#### 2) Core functionality
+1. **[CP]** Render impact estimate in input step and review step.  
+   - Owner: Frontend  
+   - Est.: 0.75d  
+   - Depends on: Foundation 2
+2. **[CP]** Show warning style when impact exceeds threshold.  
+   - Owner: Frontend  
+   - Est.: 0.5d  
+   - Depends on: Core task 1
+
+#### 3) Enhancements
+1. **[||]** Add contextual explanation link (“Why is impact high?”).  
+   - Owner: Product + Frontend  
+   - Est.: 0.25d  
+   - Depends on: Core task 2
+2. **[||]** Add optional “adjust amount” helper suggestions.  
+   - Owner: Frontend  
+   - Est.: 0.5d  
+   - Depends on: Core task 2
+
+#### 4) Release hardening
+1. **[CP]** Monitor high-impact trade abandonment and alert on anomalies.  
+   - Owner: Data + DevOps  
+   - Est.: 0.5d  
+   - Depends on: Core task 2
+2. **[CP]** Document rollback to hide impact UI if upstream estimate degrades.  
+   - Owner: Frontend + Backend  
+   - Est.: 0.25d  
+   - Depends on: Foundation 2
+
+### Feature 6: Unify responsive breakpoint contract in CSS + JS (P1)
+
+#### 1) Foundation
+1. **[CP]** Define canonical breakpoint tokens (`--bp-sm` ...).  
+   - Owner: Frontend Platform  
+   - Est.: 0.5d  
+   - Depends on: none
+2. **[CP]** Create shared breakpoint util consumed by CSS and JS hooks.  
+   - Owner: Frontend Platform  
+   - Est.: 0.75d  
+   - Depends on: task 1
+
+#### 2) Core functionality
+1. **[CP]** Migrate dashboard shell + sidebar + bottom-nav to canonical breakpoints.  
+   - Owner: Frontend  
+   - Est.: 1d  
+   - Depends on: Foundation 2
+2. **[CP]** Ensure `data-breakpoint` mapping aligns with token thresholds.  
+   - Owner: Frontend  
+   - Est.: 0.5d  
+   - Depends on: Core task 1
+
+#### 3) Enhancements
+1. **[||]** Add visual regression snapshots across target viewport set.  
+   - Owner: QA + Frontend  
+   - Est.: 0.75d  
+   - Depends on: Core task 2
+2. **[||]** Add developer docs for adding/modifying breakpoints safely.  
+   - Owner: Frontend Platform  
+   - Est.: 0.25d  
+   - Depends on: Foundation 1
+
+#### 4) Release hardening
+1. **[CP]** Add CI check to detect drift between CSS tokens and JS constants.  
+   - Owner: Frontend Platform  
+   - Est.: 0.5d  
+   - Depends on: Foundation 2
+2. **[CP]** Publish rollback guide for reverting to previous breakpoint map.  
+   - Owner: Frontend Platform  
+   - Est.: 0.25d  
+   - Depends on: Core task 2
+
+### Feature 7: Responsive verification pass (P2)
+
+#### 1) Foundation
+1. **[CP]** Freeze viewport matrix and route checklist.  
+   - Owner: QA Lead  
+   - Est.: 0.25d  
+   - Depends on: none
+2. **[||]** Prepare capture template for before/after evidence links.  
+   - Owner: QA  
+   - Est.: 0.25d  
+   - Depends on: none
+
+#### 2) Core functionality
+1. **[CP]** Execute verification sweep (mobile/tablet/desktop) on high-traffic routes.  
+   - Owner: QA  
+   - Est.: 1d  
+   - Depends on: Foundation 1
+2. **[CP]** File defects with owner and severity, then triage.  
+   - Owner: QA + Engineering Manager  
+   - Est.: 0.5d  
+   - Depends on: Core task 1
+
+#### 3) Enhancements
+1. **[||]** Resolve top visual regressions discovered during sweep.  
+   - Owner: Frontend  
+   - Est.: 1-2d  
+   - Depends on: Core task 2
+2. **[||]** Improve transition smoothness where jank is detected.  
+   - Owner: Frontend  
+   - Est.: 0.5d  
+   - Depends on: Core task 1
+
+#### 4) Release hardening
+1. **[CP]** Archive final evidence pack and unresolved issue register.  
+   - Owner: QA  
+   - Est.: 0.5d  
+   - Depends on: all prior milestones
+2. **[CP]** Define rollback acceptance threshold (when to defer a route fix).  
+   - Owner: Release Manager  
+   - Est.: 0.25d  
+   - Depends on: Core task 2
+
+### Feature 9: Final product polish checks (P2)
+
+#### 1) Foundation
+1. **[CP]** Define polish checklist (navigation, latency, bundle hotspots, image optimization).  
+   - Owner: Frontend + QA  
+   - Est.: 0.5d  
+   - Depends on: none
+2. **[||]** Prepare baseline metrics capture (LCP/INP/TTFB for key flows).  
+   - Owner: Frontend + DevOps  
+   - Est.: 0.5d  
+   - Depends on: none
+
+#### 2) Core functionality
+1. **[CP]** Run end-to-end navigation validation on dashboard + trading paths.  
+   - Owner: QA  
+   - Est.: 0.75d  
+   - Depends on: Foundation 1
+2. **[CP]** Execute performance profiling pass and produce hotspot report.  
+   - Owner: Frontend  
+   - Est.: 0.75d  
+   - Depends on: Foundation 2
+
+#### 3) Enhancements
+1. **[||]** Apply high-impact optimizations (lazy load, image sizing, memoization).  
+   - Owner: Frontend  
+   - Est.: 1d  
+   - Depends on: Core task 2
+2. **[||]** Harmonize minor navigation and interaction microcopy inconsistencies.  
+   - Owner: Product + Frontend  
+   - Est.: 0.5d  
+   - Depends on: Core task 1
+
+#### 4) Release hardening
+1. **[CP]** Re-run performance and navigation checks to confirm no regressions.  
+   - Owner: QA + Frontend  
+   - Est.: 0.5d  
+   - Depends on: Enhancements 1
+2. **[CP]** Publish release-readiness summary with explicit rollback triggers.  
+   - Owner: Release Manager  
+   - Est.: 0.5d  
+   - Depends on: all prior milestones
