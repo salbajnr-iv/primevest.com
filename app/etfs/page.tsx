@@ -59,7 +59,7 @@ export default function EtfsPage() {
         const priceMap = new Map(payload.prices.map((row) => [row.asset.toUpperCase(), Number(row.priceEur)]));
         const merged = etfsData.map((etf) => {
           const livePrice = priceMap.get(etf.symbol);
-          if (!Number.isFinite(livePrice)) return etf;
+          if (typeof livePrice !== "number" || !Number.isFinite(livePrice)) return etf;
 
           const previous = etf.price;
           const change24h = previous > 0 ? ((livePrice - previous) / previous) * 100 : 0;

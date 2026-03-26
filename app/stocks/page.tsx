@@ -64,7 +64,7 @@ export default function StocksPage() {
 
         const mergedStocks = stocksData.map((stock) => {
           const livePrice = priceMap.get(stock.symbol);
-          if (!Number.isFinite(livePrice)) {
+          if (typeof livePrice !== "number" || !Number.isFinite(livePrice)) {
             return stock;
           }
 

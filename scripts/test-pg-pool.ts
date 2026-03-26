@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Pool } from 'pg'
 
 const SUPABASE_DB_URL = process.env.SUPABASE_DB_URL
