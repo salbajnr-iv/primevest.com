@@ -207,7 +207,7 @@ export async function fetchAndPersistMarketPrices(provider: MarketProvider = "co
         priced_at: pricedAt,
       };
     })
-    .filter((row): row is TablesInsert<"market_prices"> => row !== null);
+    .filter((row): row is NonNullable<typeof row> => row !== null) as TablesInsert<"market_prices">[];
 
   if (!rows.length) {
     return { ingested: 0, snapshotsRefreshed: 0, source: provider };

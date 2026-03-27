@@ -147,6 +147,10 @@ function TradePageContent() {
   );
 
   React.useEffect(() => {
+    if (!activePair) {
+      return;
+    }
+
     let isCancelled = false;
     const pair = `${activePair.base}/EUR`;
 
@@ -211,7 +215,7 @@ function TradePageContent() {
     return () => {
       isCancelled = true;
     };
-  }, [activePair.base]);
+  }, [activePair]);
 
   React.useEffect(() => {
     if (!activePair?.pair) {
@@ -311,6 +315,8 @@ function TradePageContent() {
     return <div className="error-message">No active trading pair selected.</div>;
   }
 
+  const currentPrice = Number(activePair.price ?? 0);
+
   const validation = validateOrder();
   const fee = formData.total ? calculateFee(parseFloat(formData.total)) : null;
 
@@ -321,7 +327,7 @@ function TradePageContent() {
     try {
       const result = await submitOrder();
       if (result.success) {
-        setOrderSuccess(`Order placed successfully!\n${formData.side.toUpperCase()} ${formData.amount} ${activePair.base} @ €${formData.price || currentPrice}`);
+        setOrderSuccess(`Order placed successfully!\n${formData.side.toUpperCase()} ${formData.amount} ${activePair.base} @ €${formData.price || activePair?.price || 0}`);
       } else {
         setOrderError(result.errors?.join(", ") || "Failed to place order");
       }
