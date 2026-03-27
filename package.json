@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ext .ts,.tsx,.js,.mjs && npm run check:support-routes",
+    "lint": "eslint . --ext .ts,.tsx,.js,.mjs && npm run check:support-routes && npm run check:wallet-balance-apis",
     "check:dashboard-routes": "node scripts/check-dashboard-routes.mjs",
     "check:breakpoints": "node scripts/check-breakpoints.mjs",
     "check:routes": "node scripts/check-app-routes.mjs",
@@ -14,7 +14,8 @@
     "check:all-routes": "npm run check:dashboard-routes && npm run check:routes",
     "verify:dashboard-profile-balance": "node scripts/verify-dashboard-profile-balance.mjs",
     "db:smoke": "tsx scripts/test-pg-pool.ts",
-    "check:supabase-types": "node scripts/check-supabase-types-up-to-date.mjs"
+    "check:supabase-types": "node scripts/check-supabase-types-up-to-date.mjs",
+    "check:wallet-balance-apis": "node scripts/check-wallet-balance-apis.mjs"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
