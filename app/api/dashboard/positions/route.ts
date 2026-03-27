@@ -72,17 +72,18 @@ export async function GET(request: Request) {
       const profit = (currentPrice - openPrice) * volume;
       const profitPercent = ((currentPrice - openPrice) / openPrice) * 100;
 
-      return {
-        id: order.id,
-        symbol: order.symbol ?? 'N/A',
-        name: order.symbol ?? 'Unknown',
-        type: (order.order_type as 'buy' | 'sell') || 'buy',
-        volume: volume,
-        openPrice: openPrice,
-        currentPrice: currentPrice,
-        profit: profit,
-        profitPercent: profitPercent,
-      };
+        return {
+          id: order.id,
+          symbol: order.symbol ?? 'N/A',
+          name: order.symbol ?? 'Unknown',
+          type: (order.order_type as 'buy' | 'sell') || 'buy',
+          volume: volume,
+          openPrice: openPrice,
+          currentPrice: currentPrice,
+          profit: profit,
+          profitPercent: profitPercent,
+          accountType: 'tradew' as const, // Demo - fetch real account type from orders table in production
+        };
     });
 
     return NextResponse.json({ ok: true, data: positions } as PositionResponse);

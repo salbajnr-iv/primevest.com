@@ -12,6 +12,7 @@ export type Position = {
   currentPrice: number;
   profit: number;
   profitPercent: number;
+  accountType: 'tradew' | 'mt4' | 'mt5';
 };
 
 export function usePositions(userId?: string) {

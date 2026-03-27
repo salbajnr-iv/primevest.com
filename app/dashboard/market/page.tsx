@@ -4,7 +4,7 @@
 import React from "react";
 import MarketOverview from "@/components/MarketOverview";
 import MarketTable from "@/components/MarketTable";
-import { useMarketData } from "@/hooks/use-market-data";
+import { useMarketData } from "@/docs/hooks/use-market-data";
 import { LineChart, Zap, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/lib/routes";

@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
-import { usePriceSimulation, MarketData, formatPrice, formatCompact, getCoinColor } from "@/hooks/usePriceSimulation";
+import { usePriceSimulation, MarketData, formatPrice, formatCompact, getCoinColor } from "@/docs/hooks/usePriceSimulation";
 
 // Enhanced asset data with multiple asset types
 const assetsData: MarketData[] = [

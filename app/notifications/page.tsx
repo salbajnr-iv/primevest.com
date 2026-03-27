@@ -9,7 +9,7 @@ import { IconBadge } from "@/components/ui/IconBadge";
 import { PageSectionHeader } from "@/components/ui/PageSectionHeader";
 import { PageMain, PageShell, StickyPageHeader } from "@/components/ui/page-layout";
 import { useAuth } from "@/contexts/AuthContext";
-import { mapNotificationRow, useNotifications, type AppNotification, type NotificationRow } from "@/hooks/useNotifications";
+import { mapNotificationRow, useNotifications, type AppNotification, type NotificationRow } from "@/docs/hooks/useNotifications";
 import { createClient } from "@/lib/supabase/client";
 
 type Notification = AppNotification;

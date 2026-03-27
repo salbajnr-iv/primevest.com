@@ -1,6 +1,6 @@
 "use client";
 
-import { useMarketData } from "@/hooks/use-market-data";
+import { useMarketData } from "@/docs/hooks/use-market-data";
 import MarketOverview from "@/components/MarketOverview";
 import MarketTable from "@/components/MarketTable";
 import type { MarketStats } from "@/lib/dashboard/market-data";

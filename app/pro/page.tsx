@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
-import { usePriceSimulation, MarketData, formatPrice, getCoinColor } from "@/hooks/usePriceSimulation";
+import { usePriceSimulation, MarketData, formatPrice, getCoinColor } from "@/docs/hooks/usePriceSimulation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, TrendingDown, Star, Zap, Shield, BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";

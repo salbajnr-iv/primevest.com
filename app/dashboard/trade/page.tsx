@@ -11,8 +11,8 @@ import {
   useOrderForm, 
   tradingPairs, 
   OrderSide
-} from "@/hooks/useOrderForm";
-import { usePriceSimulation, formatPrice } from "@/hooks/usePriceSimulation";
+} from "@/docs/hooks/useOrderForm";
+import { usePriceSimulation, formatPrice } from "@/docs/hooks/usePriceSimulation";
 
 // Order book type
 interface OrderBookEntry {
