@@ -21,45 +21,11 @@ interface OrderBookEntry {
   total: number;
 }
 
-// Generate mock order book data with realistic spreads
-function generateOrderBook(currentPrice: number): { bids: OrderBookEntry[]; asks: OrderBookEntry[] } {
-  const bids: OrderBookEntry[] = [];
-  const asks: OrderBookEntry[] = [];
-  const spread = currentPrice * 0.0005;
-  for (let i = 0; i < 10; i++) {
-    const price = currentPrice - (i + 1) * spread;
-    const amount = Math.random() * 8 + 0.5;
-    const total = price * amount;
-    bids.push({ price: Number(price.toFixed(2)), amount: Number(amount.toFixed(4)), total: Number(total.toFixed(2)) });
-  }
-  for (let i = 0; i < 10; i++) {
-    const price = currentPrice + (i + 1) * spread;
-    const amount = Math.random() * 8 + 0.5;
-    const total = price * amount;
-    asks.push({ price: Number(price.toFixed(2)), amount: Number(amount.toFixed(4)), total: Number(total.toFixed(2)) });
-  }
-  return { bids, asks };
-}
-
 interface RecentTrade {
   time: string;
   price: number;
   amount: number;
   side: "buy" | "sell";
-}
-
-function generateRecentTrades(currentPrice: number): RecentTrade[] {
-  const trades: RecentTrade[] = [];
-  const now = new Date();
-  const tradeSizes = [0.1, 0.25, 0.5, 1.0, 2.5, 5.0];
-  for (let i = 0; i < 20; i++) {
-    const time = new Date(now.getTime() - i * 15000);
-    const priceVariation = (Math.random() - 0.5) * currentPrice * 0.001;
-    const price = currentPrice + priceVariation;
-    const size = tradeSizes[Math.floor(Math.random() * tradeSizes.length)];
-    trades.push({ time: time.toLocaleTimeString("de-DE", { hour12: false }), price: Number(price.toFixed(2)), amount: size, side: Math.random() > 0.48 ? "buy" : "sell" });
-  }
-  return trades;
 }
 
 function TradePageContent() {
@@ -76,6 +42,8 @@ function TradePageContent() {
   });
   const [orderBook, setOrderBook] = React.useState<{ bids: OrderBookEntry[]; asks: OrderBookEntry[] }>({ bids: [], asks: [] });
   const [recentTrades, setRecentTrades] = React.useState<RecentTrade[]>([]);
+  const [orderBookUnavailable, setOrderBookUnavailable] = React.useState(false);
+  const [recentTradesUnavailable, setRecentTradesUnavailable] = React.useState(false);
   const [showOrderHistory, setShowOrderHistory] = React.useState(false);
   const [showDepthChart, setShowDepthChart] = React.useState(false);
   const [isSubmittingOrder, setIsSubmittingOrder] = React.useState(false);
@@ -92,9 +60,71 @@ function TradePageContent() {
   const currentPrice = currentPriceData?.price || activePair.price;
 
   React.useEffect(() => {
-    setOrderBook(generateOrderBook(currentPrice));
-    setRecentTrades(generateRecentTrades(currentPrice));
-  }, [activePair, currentPrice]);
+    let isCancelled = false;
+    const pair = `${activePair.base}/EUR`;
+
+    const fetchOrderBook = async () => {
+      try {
+        const response = await fetch(`/api/trade/orderbook?pair=${encodeURIComponent(pair)}`, { cache: "no-store" });
+        const payload = await response.json();
+
+        if (
+          !response.ok ||
+          payload?.ok === false ||
+          !payload ||
+          !Array.isArray(payload.bids) ||
+          !Array.isArray(payload.asks)
+        ) {
+          if (!isCancelled) {
+            setOrderBook({ bids: [], asks: [] });
+            setOrderBookUnavailable(true);
+          }
+          return;
+        }
+
+        if (!isCancelled) {
+          setOrderBook(payload as { bids: OrderBookEntry[]; asks: OrderBookEntry[] });
+          setOrderBookUnavailable(false);
+        }
+      } catch {
+        if (!isCancelled) {
+          setOrderBook({ bids: [], asks: [] });
+          setOrderBookUnavailable(true);
+        }
+      }
+    };
+
+    const fetchRecentTrades = async () => {
+      try {
+        const response = await fetch(`/api/trades/recent?pair=${encodeURIComponent(pair)}`, { cache: "no-store" });
+        const payload = await response.json();
+
+        if (!response.ok || payload?.ok === false || !Array.isArray(payload)) {
+          if (!isCancelled) {
+            setRecentTrades([]);
+            setRecentTradesUnavailable(true);
+          }
+          return;
+        }
+
+        if (!isCancelled) {
+          setRecentTrades(payload as RecentTrade[]);
+          setRecentTradesUnavailable(false);
+        }
+      } catch {
+        if (!isCancelled) {
+          setRecentTrades([]);
+          setRecentTradesUnavailable(true);
+        }
+      }
+    };
+
+    void Promise.all([fetchOrderBook(), fetchRecentTrades()]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [activePair.base]);
 
   React.useEffect(() => {
     setIsClient(true);
@@ -247,33 +277,39 @@ function TradePageContent() {
               {!showOrderHistory && !showDepthChart && (
                 <section className="order-book">
                   <div className="order-book-container">
-                    <div className="order-book-section asks">
-                      <div className="order-book-header"><span>Price (EUR)</span><span>Amount</span><span>Total</span></div>
-                      <div className="order-book-list">
-                        {orderBook.asks.slice().reverse().slice(0, 8).map((ask, index) => (
-                          <div key={`ask-${index}`} className="order-book-row" onClick={() => updateField("price", ask.price.toFixed(activePair.priceDecimals))} style={{ cursor: "pointer" }}>
-                            <span className="row-price negative">{ask.price.toFixed(activePair.priceDecimals)}</span>
-                            <span className="row-amount">{ask.amount.toFixed(activePair.amountDecimals)}</span>
-                            <span className="row-total">{ask.total.toLocaleString("de-DE")}</span>
+                    {orderBookUnavailable ? (
+                      <div className="error-message">Order book data unavailable.</div>
+                    ) : (
+                      <>
+                        <div className="order-book-section asks">
+                          <div className="order-book-header"><span>Price (EUR)</span><span>Amount</span><span>Total</span></div>
+                          <div className="order-book-list">
+                            {orderBook.asks.slice().reverse().slice(0, 8).map((ask, index) => (
+                              <div key={`ask-${index}`} className="order-book-row" onClick={() => updateField("price", ask.price.toFixed(activePair.priceDecimals))} style={{ cursor: "pointer" }}>
+                                <span className="row-price negative">{ask.price.toFixed(activePair.priceDecimals)}</span>
+                                <span className="row-amount">{ask.amount.toFixed(activePair.amountDecimals)}</span>
+                                <span className="row-total">{ask.total.toLocaleString("de-DE")}</span>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="order-book-spread">
-                      <span className="spread-price">€{currentPrice.toFixed(activePair.priceDecimals)}</span>
-                      <span className="spread-label">Current Price</span>
-                    </div>
-                    <div className="order-book-section bids">
-                      <div className="order-book-list">
-                        {orderBook.bids.slice(0, 8).map((bid, index) => (
-                          <div key={`bid-${index}`} className="order-book-row" onClick={() => updateField("price", bid.price.toFixed(activePair.priceDecimals))} style={{ cursor: "pointer" }}>
-                            <span className="row-price positive">{bid.price.toFixed(activePair.priceDecimals)}</span>
-                            <span className="row-amount">{bid.amount.toFixed(activePair.amountDecimals)}</span>
-                            <span className="row-total">{bid.total.toLocaleString("de-DE")}</span>
+                        </div>
+                        <div className="order-book-spread">
+                          <span className="spread-price">€{currentPrice.toFixed(activePair.priceDecimals)}</span>
+                          <span className="spread-label">Current Price</span>
+                        </div>
+                        <div className="order-book-section bids">
+                          <div className="order-book-list">
+                            {orderBook.bids.slice(0, 8).map((bid, index) => (
+                              <div key={`bid-${index}`} className="order-book-row" onClick={() => updateField("price", bid.price.toFixed(activePair.priceDecimals))} style={{ cursor: "pointer" }}>
+                                <span className="row-price positive">{bid.price.toFixed(activePair.priceDecimals)}</span>
+                                <span className="row-amount">{bid.amount.toFixed(activePair.amountDecimals)}</span>
+                                <span className="row-total">{bid.total.toLocaleString("de-DE")}</span>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </section>
               )}
@@ -281,14 +317,20 @@ function TradePageContent() {
               {showOrderHistory && (
                 <section className="recent-trades">
                   <div className="trades-list">
-                    {recentTrades.slice(0, 15).map((trade, index) => (
-                      <div key={index} className="trade-row">
-                        <span className="trade-time">{trade.time}</span>
-                        <span className={`trade-price ${trade.side === "buy" ? "positive" : "negative"}`}>€{trade.price.toFixed(activePair.priceDecimals)}</span>
-                        <span className="trade-amount">{trade.amount.toFixed(activePair.amountDecimals)}</span>
-                        <span className={`trade-side ${trade.side}`}>{trade.side === "buy" ? "B" : "S"}</span>
-                      </div>
-                    ))}
+                    {recentTradesUnavailable ? (
+                      <div className="error-message">Recent trade data unavailable.</div>
+                    ) : recentTrades.length === 0 ? (
+                      <div className="tradewill-total-asset-label">No recent trades available.</div>
+                    ) : (
+                      recentTrades.slice(0, 15).map((trade, index) => (
+                        <div key={index} className="trade-row">
+                          <span className="trade-time">{trade.time}</span>
+                          <span className={`trade-price ${trade.side === "buy" ? "positive" : "negative"}`}>€{trade.price.toFixed(activePair.priceDecimals)}</span>
+                          <span className="trade-amount">{trade.amount.toFixed(activePair.amountDecimals)}</span>
+                          <span className={`trade-side ${trade.side}`}>{trade.side === "buy" ? "B" : "S"}</span>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </section>
               )}
