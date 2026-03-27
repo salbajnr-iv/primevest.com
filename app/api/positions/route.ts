@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient as createServerClient } from "@/lib/supabase/server";
+import type { Tables } from "@/types/supabase";
 
 type PositionsSortKey = "allocation" | "value" | "pnl";
 type SortDirection = "asc" | "desc";
@@ -15,6 +16,11 @@ const SUPPORTED_SORTS = new Set<PositionsSortKey>([
   "pnl",
 ]);
 const SUPPORTED_DIRECTIONS = new Set<SortDirection>(["asc", "desc"]);
+
+
+type PositionRow = Tables<"positions"> & {
+  assets: { symbol: string | null; name: string | null } | Array<{ symbol: string | null; name: string | null }> | null;
+};
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -113,7 +119,7 @@ export async function GET(req: Request) {
       );
     }
 
-    const rows = (data || []).map((row) => {
+    const rows = ((data ?? []) as PositionRow[]).map((row) => {
       const assetInfo = Array.isArray(row.assets) ? row.assets[0] : row.assets;
       const symbol = (assetInfo?.symbol || row.asset || "").toUpperCase();
       return {

@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 
 import { createClient } from '@/lib/supabase/server';
+import type { Tables } from '@/types/supabase';
 import type { RecentTrade } from '@/types/trade';
+
+type TradeRow = Tables<'trades'>;
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -24,7 +27,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Failed to fetch recent trades.' }, { status: 500 });
   }
 
-  const recentTrades: RecentTrade[] = (trades ?? []).map((trade) => ({
+  const recentTrades: RecentTrade[] = ((trades ?? []) as TradeRow[]).map((trade) => ({
     time: new Date(trade.created_at).toLocaleTimeString('de-DE', { hour12: false }),
     price: Number(trade.price),
     amount: Number(trade.amount),

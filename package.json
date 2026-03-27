@@ -13,7 +13,8 @@
     "check:support-routes": "node scripts/check-support-route-contract.mjs",
     "check:all-routes": "npm run check:dashboard-routes && npm run check:routes",
     "verify:dashboard-profile-balance": "node scripts/verify-dashboard-profile-balance.mjs",
-    "db:smoke": "tsx scripts/test-pg-pool.ts"
+    "db:smoke": "tsx scripts/test-pg-pool.ts",
+    "check:supabase-types": "node scripts/check-supabase-types-up-to-date.mjs"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
