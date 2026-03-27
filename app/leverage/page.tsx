@@ -4,15 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import BottomNav from "@/components/BottomNav";
-import { usePriceSimulation, MarketData, formatPrice, getCoinColor } from "@/lib/hooks/usePriceSimulation";
-
-const leverageAssets: MarketData[] = [
-  { id: "btc", name: "Bitcoin", symbol: "BTC", price: 43250.00, change24h: 2.45, marketCap: 842000000000, volume24h: 28400000000, high24h: 43800, low24h: 42100, iconSrc: "/btc-logo.png" },
-  { id: "eth", name: "Ethereum", symbol: "ETH", price: 2280.50, change24h: 1.82, marketCap: 274000000000, volume24h: 12100000000, high24h: 2320, low24h: 2180, iconSrc: "/eth-logo.png" },
-  { id: "sol", name: "Solana", symbol: "SOL", price: 98.75, change24h: 4.21, marketCap: 42100000000, volume24h: 3800000000, high24h: 102, low24h: 92, iconSrc: "/sol-logo.png" },
-  { id: "doge", name: "Dogecoin", symbol: "DOGE", price: 0.082, change24h: 5.67, marketCap: 11800000000, volume24h: 2100000000, high24h: 0.088, low24h: 0.075, iconSrc: "/doge-logo.png" },
-  { id: "xrp", name: "XRP", symbol: "XRP", price: 0.62, change24h: 0.89, marketCap: 33800000000, volume24h: 1200000000, high24h: 0.64, low24h: 0.60, iconSrc: "/xrp-logo.png" },
-];
+import { useLiveMarket, type LiveMarketAsset } from "@/lib/market/use-live-market";
+import { formatPrice, getAssetColor } from "@/lib/market/listings";
 
 const leverageOptions = [
   { leverage: 2, label: "2x" },
@@ -22,10 +15,10 @@ const leverageOptions = [
 ];
 
 export default function LeveragePage() {
-  const { data: marketData } = usePriceSimulation(leverageAssets, 3000);
+  const { assets: liveAssets, loading: marketLoading, error: marketError, hasStaleData, hasUnavailableData, lastSyncedAt } = useLiveMarket();
   const [isClient, setIsClient] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [selectedAsset, setSelectedAsset] = React.useState<MarketData | null>(null);
+  const [selectedAsset, setSelectedAsset] = React.useState<LiveMarketAsset | null>(null);
   const [selectedLeverage, setSelectedLeverage] = React.useState(2);
 
   React.useEffect(() => {
@@ -94,6 +87,14 @@ export default function LeveragePage() {
 
         <section style={{ padding: "0 16px" }}>
           <h3 className="section-title">Available for Leverage Trading</h3>
+          {marketLoading && <div className="input-hint">Loading live market data…</div>}
+          {marketError && <div className="input-hint" style={{ color: "#ff6b6b" }}>Live pricing unavailable: {marketError}</div>}
+          {!marketLoading && !marketError && hasStaleData && <div className="input-hint">Some quotes are stale. Verify before opening a leveraged position.</div>}
+          {!marketLoading && !marketError && hasUnavailableData && <div className="input-hint">Some instruments are temporarily unavailable.</div>}
+          {!marketLoading && !marketError && lastSyncedAt && (
+            <div className="input-hint">Last synced: {new Date(lastSyncedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</div>
+          )}
+
           <div className="leverage-selector" style={{ marginBottom: 16 }}>
             <span style={{ fontSize: 14, color: "var(--muted)", marginRight: 12 }}>Select Leverage:</span>
             {leverageOptions.map((opt) => (
@@ -108,18 +109,19 @@ export default function LeveragePage() {
                   color: selectedLeverage === opt.leverage ? "#0ec02b" : "var(--text)",
                   fontWeight: 600,
                   cursor: "pointer",
-                  marginRight: 8
+                  marginRight: 8,
                 }}
               >
                 {opt.label}
               </button>
             ))}
           </div>
-          {marketData.map((asset) => (
+
+          {liveAssets.filter((asset) => asset.price !== null).map((asset) => (
             <div key={asset.id} className="market-row" onClick={() => setSelectedAsset(asset)}>
               <div className="market-asset">
-                <div className="asset-icon" style={{ background: getCoinColor(asset.symbol) }}>
-                  {asset.iconSrc && <Image src={asset.iconSrc} alt={asset.name} width={20} height={20} style={{ borderRadius: "50%" }} />}
+                <div className="asset-icon" style={{ background: getAssetColor(asset.symbol) }}>
+                  {asset.iconSrc ? <Image src={asset.iconSrc} alt={asset.name} width={20} height={20} style={{ borderRadius: "50%" }} /> : asset.symbol.slice(0, 2)}
                 </div>
                 <div className="asset-info">
                   <span className="asset-name">{asset.name}</span>
@@ -127,10 +129,10 @@ export default function LeveragePage() {
                 </div>
               </div>
               <div className="market-price">
-                <span className="price-value">€{formatPrice(asset.price, asset.symbol)}</span>
+                <span className="price-value">{asset.price ? `€${formatPrice(asset.price, asset.symbol)}` : "Unavailable"}</span>
               </div>
-              <div className={`market-change ${asset.change24h >= 0 ? "positive" : "negative"}`}>
-                {asset.change24h >= 0 ? "+" : ""}{asset.change24h.toFixed(2)}%
+              <div className={`market-change ${(asset.change24h ?? 0) >= 0 ? "positive" : "negative"}`}>
+                {typeof asset.change24h === "number" ? `${asset.change24h >= 0 ? "+" : ""}${asset.change24h.toFixed(2)}%` : "N/A"}
               </div>
             </div>
           ))}
@@ -148,8 +150,8 @@ export default function LeveragePage() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div className="asset-icon" style={{ background: getCoinColor(selectedAsset.symbol), width: 44, height: 44 }}>
-                  {selectedAsset.iconSrc && <Image src={selectedAsset.iconSrc} alt={selectedAsset.name} width={32} height={32} style={{ borderRadius: "50%" }} />}
+                <div className="asset-icon" style={{ background: getAssetColor(selectedAsset.symbol), width: 44, height: 44 }}>
+                  {selectedAsset.iconSrc ? <Image src={selectedAsset.iconSrc} alt={selectedAsset.name} width={32} height={32} style={{ borderRadius: "50%" }} /> : selectedAsset.symbol.slice(0, 2)}
                 </div>
                 <div><h3 style={{ margin: 0 }}>{selectedAsset.name}</h3><span style={{ color: "var(--muted)", fontSize: 13 }}>{selectedAsset.symbol}</span></div>
               </div>
@@ -157,8 +159,10 @@ export default function LeveragePage() {
             </div>
             <div className="modal-body">
               <div style={{ textAlign: "center", marginBottom: 20 }}>
-                <div style={{ fontSize: 32, fontWeight: 800 }}>€{formatPrice(selectedAsset.price, selectedAsset.symbol)}</div>
-                <div className={`market-change ${selectedAsset.change24h >= 0 ? "positive" : "negative"}`} style={{ display: "inline-block", marginTop: 8 }}>{selectedAsset.change24h >= 0 ? "+" : ""}{selectedAsset.change24h.toFixed(2)}% (24h)</div>
+                <div style={{ fontSize: 32, fontWeight: 800 }}>{selectedAsset.price ? `€${formatPrice(selectedAsset.price, selectedAsset.symbol)}` : "Unavailable"}</div>
+                <div className={`market-change ${(selectedAsset.change24h ?? 0) >= 0 ? "positive" : "negative"}`} style={{ display: "inline-block", marginTop: 8 }}>
+                  {typeof selectedAsset.change24h === "number" ? `${selectedAsset.change24h >= 0 ? "+" : ""}${selectedAsset.change24h.toFixed(2)}% (24h)` : "24h change unavailable"}
+                </div>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <strong>Selected Leverage: {selectedLeverage}x</strong>

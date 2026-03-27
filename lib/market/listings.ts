@@ -14,6 +14,12 @@ export type MarketListing = {
   volume24h: number;
   source: string;
   pricedAt: string | null;
+  sourceStatus?: string;
+  freshness?: {
+    ageSeconds: number;
+    status: "fresh" | "delayed" | "stale";
+    isStale: boolean;
+  };
 };
 
 export type MarketListResponse = {

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 
-import { createAdminClient } from "@/lib/supabase/admin";
 import { getAgeSeconds, getMarketFreshnessState } from "@/lib/market/freshness";
 import type { AssetCategory, MarketListing } from "@/lib/market/listings";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const ALLOWED_CATEGORIES = new Set<AssetCategory>([
   "crypto",
@@ -141,30 +141,50 @@ export async function GET(req: Request) {
     }
 
     const snapshotMap = new Map(
-      ((snapshots ?? []) as SnapshotRow[]).map((row) => [String(row.asset ?? "").toUpperCase(), row]),
+      ((snapshots ?? []) as SnapshotRow[]).map((row) => [
+        String(row.asset ?? "").toUpperCase(),
+        {
+          price: toNumber(row.price_eur),
+          source: String(row.source ?? "unavailable"),
+          sourceStatus: row.source_status ?? "stale",
+          pricedAt: row.priced_at,
+        },
+      ]),
     );
 
-    const listings: MarketListing[] = normalizedAssets.map((asset) => {
-      const snapshot = snapshotMap.get(asset.symbol);
-      const baselinePrice = toNumber(asset.baseline_price_eur) || toNumber(snapshot?.price_eur);
-      const livePrice = toNumber(snapshot?.price_eur) || baselinePrice;
+    const listings: MarketListing[] = filteredAssets.map((asset) => {
+      const symbol = String(asset.symbol ?? "").toUpperCase();
+      const snapshot = snapshotMap.get(symbol);
+      const metadata = asset.metadata ?? {};
+      const baselinePrice = toNumber(asset.baseline_price ?? metadata.baselinePrice, snapshot?.price ?? 0);
+      const livePrice = toNumber(snapshot?.price, baselinePrice);
       const change24h = baselinePrice > 0 ? ((livePrice - baselinePrice) / baselinePrice) * 100 : 0;
       const pricedAt = snapshot?.priced_at ?? snapshot?.updated_at ?? null;
+
+      const pricedAt = snapshot?.pricedAt ?? null;
+      const freshnessAgeSeconds = pricedAt ? getAgeSeconds(pricedAt) : Number.MAX_SAFE_INTEGER;
+      const freshnessStatus = getMarketFreshnessState(freshnessAgeSeconds);
 
       return {
         id: asset.id,
         symbol: asset.symbol,
         name: asset.name,
-        category: toCategory(asset),
-        type: toListingType(asset),
+        category: asset.category as AssetCategory,
+        type: asset.type ?? "spot",
         status: asset.status,
-        iconSrc: asset.icon_src ?? "",
+        iconSrc: asset.icon_src ?? metadata.iconSrc ?? "",
         price: Number(livePrice.toFixed(6)),
         change24h: Number(change24h.toFixed(2)),
-        marketCap: toNumber(asset.market_cap),
-        volume24h: toNumber(asset.volume_24h),
-        source: toSource(snapshot),
+        marketCap: toNumber(asset.market_cap ?? metadata.marketCap),
+        volume24h: toNumber(asset.volume_24h ?? metadata.volume24h),
+        source: snapshot?.source ?? "unavailable",
         pricedAt,
+        sourceStatus: snapshot?.sourceStatus ?? "stale",
+        freshness: {
+          ageSeconds: freshnessAgeSeconds,
+          status: freshnessStatus,
+          isStale: freshnessStatus === "stale",
+        },
       };
     });
 

@@ -15,28 +15,48 @@ import {
 import styles from "@/components/ui/transactional-pages.module.css";
 import { calculateMarketImpactPercent, formatImpactPercent } from "@/lib/swap/market-impact";
 import { useDashboardSummary } from "@/lib/dashboard/use-dashboard-summary";
+import { useLiveMarket, type LiveMarketAsset } from "@/lib/market/use-live-market";
 
-interface Asset {
-  symbol: string;
-  name: string;
+interface Asset extends Omit<LiveMarketAsset, "price"> {
   price: number;
   liquidityEur: number;
 }
 
-const assets: Asset[] = [
-  { symbol: "BTC", name: "Bitcoin", price: 45234.5, liquidityEur: 8_500_000 },
-  { symbol: "ETH", name: "Ethereum", price: 2845.3, liquidityEur: 6_100_000 },
-  { symbol: "SOL", name: "Solana", price: 156.92, liquidityEur: 2_250_000 },
-  { symbol: "BNB", name: "Binance Coin", price: 583.4, liquidityEur: 3_450_000 },
-];
+const DEFAULT_LIQUIDITY_EUR: Record<string, number> = {
+  BTC: 8_500_000,
+  ETH: 6_100_000,
+  SOL: 2_250_000,
+  BNB: 3_450_000,
+};
 
 export default function DashboardBuyPage() {
   const router = useRouter();
   const { summary } = useDashboardSummary();
-  const [asset, setAsset] = React.useState<Asset>(assets[0]);
+  const { assets: liveAssets, loading: marketLoading, error: marketError, hasStaleData, hasUnavailableData, lastSyncedAt } = useLiveMarket();
+  const assets = React.useMemo<Asset[]>(
+    () => liveAssets
+      .filter((a) => a.price !== null)
+      .map((a) => ({ ...a, liquidityEur: DEFAULT_LIQUIDITY_EUR[a.symbol] ?? 1_000_000 })),
+    [liveAssets],
+  );
+  const [asset, setAsset] = React.useState<Asset | null>(null);
   const [amountEur, setAmountEur] = React.useState<string>("");
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+
+  React.useEffect(() => {
+    if (!asset && assets.length > 0) {
+      setAsset(assets[0]);
+    }
+  }, [asset, assets]);
+
+  React.useEffect(() => {
+    if (!asset) return;
+    const nextAsset = assets.find((item) => item.symbol === asset.symbol);
+    if (nextAsset) {
+      setAsset(nextAsset);
+    }
+  }, [asset, assets]);
 
   const filteredAssets = assets.filter(
     (a) => a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.symbol.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -45,14 +65,14 @@ export default function DashboardBuyPage() {
   const parsedEur = amountEur ? parseFloat(amountEur) : 0;
   const fee = parsedEur > 0 ? parsedEur * 0.01 : 0;
   const total = parsedEur + fee;
-  const estimatedReceive = parsedEur > 0 ? parsedEur / asset.price : 0;
-  const impactPct = calculateMarketImpactPercent({ amountEur: parsedEur, liquidityEur: asset.liquidityEur });
+  const estimatedReceive = parsedEur > 0 && asset?.price ? parsedEur / asset.price : 0;
+  const impactPct = calculateMarketImpactPercent({ amountEur: parsedEur, liquidityEur: asset?.liquidityEur ?? 1_000_000 });
   const availableCashBalance = Number(summary.availableBalance ?? 0);
   const hasCashBalance = total <= availableCashBalance;
-  const isValid = parsedEur > 0 && hasCashBalance;
+  const isValid = parsedEur > 0 && hasCashBalance && Boolean(asset?.price);
 
   function next() {
-    if (!isValid) return;
+    if (!isValid || !asset) return;
 
     const params = new URLSearchParams({
       asset: asset.name,
@@ -60,7 +80,7 @@ export default function DashboardBuyPage() {
       amount: parsedEur.toFixed(2),
       fee: fee.toFixed(2),
       total: total.toFixed(2),
-      price: asset.price.toFixed(2),
+      price: (asset?.price ?? 0).toFixed(2),
       receive: estimatedReceive.toFixed(8),
       impactPct: impactPct.toFixed(2),
     });
@@ -82,6 +102,16 @@ export default function DashboardBuyPage() {
             description="Build your position with transparent pricing and instant execution estimates."
           />
 
+          {marketLoading && <div className="input-hint">Loading live market data…</div>}
+          {marketError && <div className={`input-hint ${styles.errorText}`}>Live pricing unavailable: {marketError}</div>}
+          {!marketLoading && !marketError && hasStaleData && <div className="input-hint">Some quotes are stale. Verify before submitting.</div>}
+          {!marketLoading && !marketError && hasUnavailableData && <div className="input-hint">Some assets are temporarily unavailable.</div>}
+          {!marketLoading && !marketError && lastSyncedAt && (
+            <div className="input-hint">
+              Last synced: {new Date(lastSyncedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+            </div>
+          )}
+
           <div className="grid gap-4 lg:grid-cols-[1.3fr_0.9fr]">
             <FeatureCard title="Order details" description="Select an asset and set your EUR amount.">
               <div className="space-y-4">
@@ -90,10 +120,10 @@ export default function DashboardBuyPage() {
                   <div className="asset-selector">
                     <div className="asset-selector-input" onClick={() => setShowDropdown(!showDropdown)}>
                       <div className={styles.assetSelectorContent}>
-                        <div className={`asset-option-icon ${getAssetColorClass(asset.symbol)}`}>{asset.symbol}</div>
+                        {asset ? <div className={`asset-option-icon ${getAssetColorClass(asset.symbol)}`}>{asset.symbol}</div> : <div className={`asset-option-icon ${getAssetColorClass("BTC")}`}>--</div>}
                         <div>
-                          <div className="asset-option-name">{asset.name}</div>
-                          <div className="asset-option-symbol">{asset.symbol}</div>
+                          <div className="asset-option-name">{asset?.name ?? "No asset available"}</div>
+                          <div className="asset-option-symbol">{asset?.symbol ?? "--"}</div>
                         </div>
                       </div>
                       <svg className={styles.chevronIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -101,7 +131,7 @@ export default function DashboardBuyPage() {
                       </svg>
                     </div>
 
-                    {showDropdown && (
+                    {showDropdown && assets.length > 0 && (
                       <div className="asset-selector-dropdown">
                         <div className={styles.dropdownSearchWrap}>
                           <input
@@ -161,12 +191,13 @@ export default function DashboardBuyPage() {
 
             <FeatureCard title="Estimated summary" description="Review rate, fees, and final quantity before confirmation.">
               <div className="price-estimate">
-                <SummaryRow label={`Price (${asset.symbol})`} value={`${asset.price.toFixed(2)} €`} />
-                <SummaryRow label="Estimated receive" value={`${estimatedReceive.toFixed(8)} ${asset.symbol}`} />
+                <SummaryRow label={`Price (${asset?.symbol ?? "--"})`} value={asset?.price ? `${asset.price.toFixed(2)} €` : "Unavailable"} />
+                <SummaryRow label="Estimated receive" value={asset ? `${estimatedReceive.toFixed(8)} ${asset.symbol}` : "Unavailable"} />
                 <SummaryRow label="Market impact" value={formatImpactPercent(impactPct)} />
                 <SummaryRow label="Fee (1%)" value={`${fee.toFixed(2)} €`} />
                 <SummaryRow label="Total" value={`${total.toFixed(2)} €`} isTotal />
                 {!hasCashBalance && parsedEur > 0 && <div className={`input-hint ${styles.errorText}`}>Total exceeds your available cash balance.</div>}
+                {!asset?.price && <div className={`input-hint ${styles.errorText}`}>Live price unavailable for the selected asset.</div>}
               </div>
             </FeatureCard>
           </div>
