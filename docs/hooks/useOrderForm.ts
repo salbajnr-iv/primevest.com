@@ -24,92 +24,90 @@ export interface OrderFee {
   totalWithFee: number;
 }
 
-// Trading pair type
-export interface TradingPair {
-  id: string;
-  base: string;  // e.g., "BTC"
-  quote: string; // e.g., "EUR"
-  price: number;
-  change24h: number;
-  volume24h: number;
+export interface TradeInstrument {
+  pair: string;
+  pairId: string;
+  base: string;
+  quote: string;
   minAmount: number;
   maxAmount: number;
   priceDecimals: number;
   amountDecimals: number;
+  price: number;
 }
-
-// Mock trading pairs
-export const tradingPairs: TradingPair[] = [
-  { id: "btc-eur", base: "BTC", quote: "EUR", price: 43250.00, change24h: 2.45, volume24h: 2840000000, minAmount: 0.0001, maxAmount: 100, priceDecimals: 2, amountDecimals: 6 },
-  { id: "eth-eur", base: "ETH", quote: "EUR", price: 2280.50, change24h: 1.82, volume24h: 1210000000, minAmount: 0.001, maxAmount: 1000, priceDecimals: 2, amountDecimals: 5 },
-  { id: "bnb-eur", base: "BNB", quote: "EUR", price: 312.40, change24h: -0.54, volume24h: 145000000, minAmount: 0.01, maxAmount: 10000, priceDecimals: 2, amountDecimals: 3 },
-  { id: "sol-eur", base: "SOL", quote: "EUR", price: 98.75, change24h: 4.21, volume24h: 890000000, minAmount: 0.1, maxAmount: 100000, priceDecimals: 2, amountDecimals: 2 },
-  { id: "xrp-eur", base: "XRP", quote: "EUR", price: 0.62, change24h: 0.89, volume24h: 456000000, minAmount: 1, maxAmount: 10000000, priceDecimals: 4, amountDecimals: 0 },
-  { id: "ada-eur", base: "ADA", quote: "EUR", price: 0.52, change24h: -1.23, volume24h: 234000000, minAmount: 1, maxAmount: 100000000, priceDecimals: 4, amountDecimals: 0 },
-];
 
 // Order fee structure
 const takerFee = 0.0015; // 0.15%
 
-export function useOrderForm(pair: TradingPair, availableBalance: number = 10000, initialSide?: OrderSide) {
+export function useOrderForm(instrument: TradeInstrument, availableBalance: number = 10000, initialSide?: OrderSide) {
   const [formData, setFormData] = React.useState<OrderFormData>({
     side: initialSide || "buy",
     orderType: "limit",
     amount: "",
-    price: pair.price.toFixed(pair.priceDecimals),
+    price: instrument.price.toFixed(instrument.priceDecimals),
     total: "",
   });
   const [orderHistory, setOrderHistory] = React.useState<OrderFormData[]>([]);
   const [lastOrderTime, setLastOrderTime] = React.useState<Date | null>(null);
 
-  // Calculate order total
+  React.useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      amount: "",
+      total: "",
+      price: instrument.price.toFixed(instrument.priceDecimals),
+    }));
+  }, [instrument.pairId, instrument.price, instrument.priceDecimals]);
+
   const calculateTotal = React.useCallback((amount: string, price: string): string => {
     const amountNum = parseFloat(amount);
     const priceNum = parseFloat(price);
-    
-    if (isNaN(amountNum) || isNaN(priceNum) || amountNum <= 0) {
+
+    if (isNaN(amountNum) || isNaN(priceNum) || amountNum <= 0 || priceNum <= 0) {
       return "";
     }
 
-    const total = amountNum * priceNum;
-    return total.toFixed(2);
+    return (amountNum * priceNum).toFixed(2);
   }, []);
 
-  // Update total when amount or price changes
   React.useEffect(() => {
-    if (formData.amount && formData.orderType === "limit") {
-      const total = calculateTotal(formData.amount, formData.price);
-      setFormData(prev => ({ ...prev, total }));
-    } else if (formData.amount && formData.orderType === "market") {
-      const total = calculateTotal(formData.amount, pair.price.toString());
-      setFormData(prev => ({ ...prev, total, price: pair.price.toFixed(pair.priceDecimals) }));
+    if (!formData.amount) {
+      setFormData((prev) => ({ ...prev, total: "" }));
+      return;
     }
-  }, [formData.amount, formData.price, formData.orderType, pair.price, pair.priceDecimals, calculateTotal]);
 
-  // Validate order
+    if (formData.orderType === "limit") {
+      const total = calculateTotal(formData.amount, formData.price);
+      setFormData((prev) => ({ ...prev, total }));
+      return;
+    }
+
+    const total = calculateTotal(formData.amount, instrument.price.toString());
+    setFormData((prev) => ({
+      ...prev,
+      total,
+      price: instrument.price.toFixed(instrument.priceDecimals),
+    }));
+  }, [formData.amount, formData.price, formData.orderType, instrument.price, instrument.priceDecimals, calculateTotal]);
+
   const validateOrder = React.useCallback((): OrderValidation => {
     const errors: string[] = [];
     const amountNum = parseFloat(formData.amount);
     const priceNum = parseFloat(formData.price);
     const totalNum = parseFloat(formData.total);
 
-    // Check amount
     if (!formData.amount || isNaN(amountNum)) {
       errors.push("Amount is required");
-    } else if (amountNum < pair.minAmount) {
-      errors.push(`Minimum amount is ${pair.minAmount} ${pair.base}`);
-    } else if (amountNum > pair.maxAmount) {
-      errors.push(`Maximum amount is ${pair.maxAmount} ${pair.base}`);
+    } else if (amountNum < instrument.minAmount) {
+      errors.push(`Minimum amount is ${instrument.minAmount} ${instrument.base}`);
+    } else if (amountNum > instrument.maxAmount) {
+      errors.push(`Maximum amount is ${instrument.maxAmount} ${instrument.base}`);
     }
 
-    // Check price for limit orders
-    if (formData.orderType === "limit") {
-      if (!formData.price || isNaN(priceNum) || priceNum <= 0) {
-        errors.push("Price is required");
-      }
+    if (formData.orderType === "limit" && (!formData.price || isNaN(priceNum) || priceNum <= 0)) {
+      errors.push("Price is required");
     }
 
-    // Check balance
     if (totalNum > availableBalance) {
       errors.push(`Insufficient balance. Available: €${availableBalance.toFixed(2)}`);
     }
@@ -118,9 +116,8 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
       isValid: errors.length === 0,
       errors,
     };
-  }, [formData, pair, availableBalance]);
+  }, [formData, instrument, availableBalance]);
 
-  // Calculate fees
   const calculateFee = React.useCallback((total: number): OrderFee => {
     const fee = total * takerFee;
     return {
@@ -130,7 +127,6 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
     };
   }, []);
 
-  // Submit order
   const submitOrder = React.useCallback(async () => {
     const validation = validateOrder();
     if (!validation.isValid) {
@@ -138,30 +134,29 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
     }
 
     try {
-      // Get auth token from localStorage
-      const token = localStorage.getItem('supabase.auth.token');
+      const token = localStorage.getItem("supabase.auth.token");
       if (!token) {
-        return { success: false, errors: ['Authentication required'] };
+        return { success: false, errors: ["Authentication required"] };
       }
 
       const authToken = JSON.parse(token).access_token;
 
-      // Prepare order data for API
       const orderData = {
         side: formData.side,
-        asset: pair.base,
+        asset: instrument.base,
+        pair: instrument.pair,
+        pairId: instrument.pairId,
         amount: parseFloat(formData.amount),
         price: formData.orderType === "limit" ? parseFloat(formData.price) : null,
         total: parseFloat(formData.total),
         orderType: formData.orderType,
       };
 
-      // Submit to API
-      const response = await fetch('/api/orders', {
-        method: 'POST',
+      const response = await fetch("/api/orders", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify(orderData),
       });
@@ -169,73 +164,68 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
       const result = await response.json();
 
       if (!response.ok) {
-        return { success: false, errors: [result.error || 'Failed to submit order'] };
+        return { success: false, errors: [result.error || result.message || "Failed to submit order"] };
       }
 
-      // Add to local order history
       const newOrder: OrderFormData = {
         ...formData,
-        amount: parseFloat(formData.amount).toFixed(pair.amountDecimals),
+        amount: parseFloat(formData.amount).toFixed(instrument.amountDecimals),
         total: parseFloat(formData.total).toFixed(2),
       };
 
-      setOrderHistory(prev => [newOrder, ...prev].slice(0, 10)); // Keep last 10 orders
+      setOrderHistory((prev) => [newOrder, ...prev].slice(0, 10));
       setLastOrderTime(new Date());
 
-      // Reset form
       setFormData({
         side: formData.side,
         orderType: formData.orderType,
         amount: "",
-        price: pair.price.toFixed(pair.priceDecimals),
+        price: instrument.price.toFixed(instrument.priceDecimals),
         total: "",
       });
 
-      return { success: true, order: result.order };
+      return { success: true, order: result.order ?? result.data?.order };
     } catch (error) {
-      console.error('Order submission error:', error);
-      return { success: false, errors: ['Network error. Please try again.'] };
+      console.error("Order submission error:", error);
+      return { success: false, errors: ["Network error. Please try again."] };
     }
-  }, [formData, pair, validateOrder]);
+  }, [formData, instrument, validateOrder]);
 
-  // Update form data
   const updateField = React.useCallback((field: keyof OrderFormData, value: string) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const newData = { ...prev, [field]: value };
-      
-      // Recalculate total if amount or price changes
       if (field === "amount" || field === "price") {
-        if (newData.orderType === "limit") {
-          newData.total = calculateTotal(newData.amount, newData.price);
-        } else {
-          newData.total = calculateTotal(newData.amount, pair.price.toString());
-        }
+        newData.total = newData.orderType === "limit"
+          ? calculateTotal(newData.amount, newData.price)
+          : calculateTotal(newData.amount, instrument.price.toString());
       }
-      
       return newData;
     });
-  }, [pair.price, calculateTotal]);
+  }, [instrument.price, calculateTotal]);
 
-  // Set max amount
   const setMaxAmount = React.useCallback(() => {
     if (formData.side === "buy") {
-      // Calculate max amount based on balance
-      const price = formData.orderType === "limit" ? parseFloat(formData.price) : pair.price;
-      const maxAmount = Math.min((availableBalance * 0.99) / price, pair.maxAmount);
-      updateField("amount", maxAmount.toFixed(pair.amountDecimals));
-    } else {
-      // Sell max - would be actual balance
-      updateField("amount", pair.maxAmount.toFixed(pair.amountDecimals));
+      const price = formData.orderType === "limit" ? parseFloat(formData.price) : instrument.price;
+      if (!Number.isFinite(price) || price <= 0) {
+        return;
+      }
+      const maxAmount = Math.min((availableBalance * 0.99) / price, instrument.maxAmount);
+      updateField("amount", maxAmount.toFixed(instrument.amountDecimals));
+      return;
     }
-  }, [formData.side, formData.orderType, formData.price, pair, availableBalance, updateField]);
 
-  // Quick percentage buttons
+    updateField("amount", instrument.maxAmount.toFixed(instrument.amountDecimals));
+  }, [formData.side, formData.orderType, formData.price, instrument, availableBalance, updateField]);
+
   const setPercentage = React.useCallback((percent: number) => {
-    const price = formData.orderType === "limit" ? parseFloat(formData.price) : pair.price;
+    const price = formData.orderType === "limit" ? parseFloat(formData.price) : instrument.price;
+    if (!Number.isFinite(price) || price <= 0) {
+      return;
+    }
     const maxAmount = (availableBalance * percent) / price;
-    const amount = Math.min(maxAmount, pair.maxAmount);
-    updateField("amount", amount.toFixed(pair.amountDecimals));
-  }, [formData.orderType, formData.price, pair, availableBalance, updateField]);
+    const amount = Math.min(maxAmount, instrument.maxAmount);
+    updateField("amount", amount.toFixed(instrument.amountDecimals));
+  }, [formData.orderType, formData.price, instrument, availableBalance, updateField]);
 
   return {
     formData,
@@ -247,12 +237,11 @@ export function useOrderForm(pair: TradingPair, availableBalance: number = 10000
     submitOrder,
     orderHistory,
     lastOrderTime,
-    pair,
+    instrument,
     availableBalance,
   };
 }
 
-// Format currency
 export function formatCurrency(value: number, currency: string = "EUR"): string {
   return new Intl.NumberFormat("de-DE", {
     style: "currency",
@@ -262,8 +251,6 @@ export function formatCurrency(value: number, currency: string = "EUR"): string 
   }).format(value);
 }
 
-// Format number with decimals
 export function formatNumber(value: number, decimals: number): string {
   return value.toFixed(decimals);
 }
-
