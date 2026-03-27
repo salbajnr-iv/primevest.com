@@ -1,23 +1,32 @@
-# Styling Polish TODO
+# Dashboard UX Improvements TODO
+Status: [In Progress] - Plan approved ✅
 
-## Plan Steps (2024)
+## Steps (Complete as done: ✅ / ❌)
 
-1. ✅ Create this TODO.md
-2. ✅ Create globals.css.backup from current globals.css
-3. ✅ Polish app/globals.css: consolidate duplicates, unify vars, enhance accessibility/responsiveness (backup created)
-4. ✅ Read and integrate key styles/ files (dashboard-professional.css, dashboard-enhancements.css, tradewill-dashboard.css reviewed)
-5. Update components/TradeWPositions.tsx: convert custom classes to polished Tailwind
-5. Update components/TradeWPositions.tsx: convert custom classes to polished Tailwind
-6. ✅ Update app/dashboard/positions/page.tsx: replace inline styles with Tailwind/CSS classes
-7. ✅ Enhance components/ui/button.tsx and card.tsx with brand variants (primevest green, enhanced shadows)
-8. ✅ Review layout components (Sidebar, BottomNav, DashboardShell) – consistent Tailwind applied
-9. Test responsiveness, dark mode, accessibility across dashboard pages
-10. Lighthouse audit and final tweaks
-11. Mark complete
-5. Update components/TradeWPositions.tsx: convert custom classes to polished Tailwind
-6. Update app/dashboard/positions/page.tsx: replace inline styles with Tailwind/CSS classes
-7. Enhance components/ui/button.tsx and card.tsx with brand variants
-8. Update DashboardShell.tsx and related layout components for consistency
-9. Test responsiveness, dark mode, accessibility across dashboard pages
-10. Lighthouse audit and final tweaks
-11. Mark complete
+### Phase 1: Core Layout & Personalization (Primary: DashboardClient.tsx)
+1. ✅ Enhance greeting in Analytics Overview section to be personalized + CTAs (Start Trading, Add Watchlist)
+2. ✅ Update empty states with actionable suggestions (e.g., links/buttons)
+3. ✅ Improve Performance Graph: Add placeholder/sample data visualization for 'No activity'
+4. ✅ Add top gainers/losers summary to Market Trends (derive from topPairs)
+
+### Phase 2: Organization & Grouping
+5. ✅ Group Market Trends + News/Insights into 'MarketInsights' accordion/tab component
+6. ✅ Add tabs/accordions to Alerts & Community sections
+
+### Phase 3: Visual Hierarchy & Notifications
+7. ✅ Bold/enlarge key metrics (portfolio value, timestamps, active interval)
+8. ✅ Enhance notifications: Prominent real-time badge + notification center link
+9. ✅ Community poll: Add engaging results visualization (pie chart/mock data) + real-time badge
+
+### Phase 4: Help/Support & Mobile
+10. ❌ Add Help/Support footer section (FAQs, /support, /tutorials)
+11. ❌ Confirm/enhance mobile responsiveness (test + classes)
+
+### Phase 5: Secondary Pages & Finalize
+12. ❌ Apply similar empty state improvements to portfolio/page.tsx
+13. ❌ Update DashboardHeader.tsx for better personalization
+14. ❌ Test end-to-end: dev server, empty states, mobile, live updates
+15. ✅ Complete: attempt_completion
+
+**Next: Implement steps sequentially, updating this file after each phase.**
+
