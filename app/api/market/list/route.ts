@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 
-import { createAdminClient } from "@/lib/supabase/admin";
 import { getAgeSeconds, getMarketFreshnessState } from "@/lib/market/freshness";
 import type { AssetCategory, MarketListing } from "@/lib/market/listings";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const ALLOWED_CATEGORIES = new Set<AssetCategory>([
   "crypto",
@@ -14,12 +14,73 @@ const ALLOWED_CATEGORIES = new Set<AssetCategory>([
   "indices",
 ]);
 
-type AssetMetadata = {
-  iconSrc?: string;
-  marketCap?: number;
-  volume24h?: number;
-  baselinePrice?: number;
+type AssetRow = {
+  id: string;
+  symbol: string;
+  name: string;
+  status: string;
+  category: string | null;
+  type: string | null;
+  icon_src: string | null;
+  market_cap: number | string | null;
+  volume_24h: number | string | null;
+  baseline_price: number | string | null;
+  metadata: {
+    iconSrc?: string;
+    marketCap?: number;
+    volume24h?: number;
+    baselinePrice?: number;
+  } | null;
 };
+
+type SnapshotRow = {
+  asset: string;
+  price_eur: number | string;
+  source: string | null;
+  source_status: string | null;
+  priced_at: string | null;
+};
+
+function toNumber(value: number | string | null | undefined, fallback = 0): number {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : fallback;
+  }
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+  return fallback;
+}
+
+function normalizeCategory(asset: AssetRow): AssetCategory {
+  const direct = (asset.category ?? "").toLowerCase();
+  if (ALLOWED_CATEGORIES.has(direct as AssetCategory)) {
+    return direct as AssetCategory;
+  }
+
+  const type = (asset.type ?? "").toLowerCase();
+  if (type === "stock" || type === "stocks") return "stocks";
+  if (type === "etf" || type === "etfs") return "etfs";
+  if (type === "metal" || type === "metals") return "metals";
+  if (type === "commodity" || type === "commodities") return "commodities";
+  if (type === "fiat" || type === "forex") return "forex";
+  if (type === "index" || type === "indices") return "indices";
+
+  return "crypto";
+}
+
+function emptyPayload(category: AssetCategory | "all") {
+  return {
+    ok: true,
+    category,
+    listings: [],
+    freshness: {
+      latestPricedAt: null,
+      oldestAgeSeconds: Number.MAX_SAFE_INTEGER,
+      status: "stale" as const,
+    },
+  };
+}
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -31,37 +92,34 @@ export async function GET(req: Request) {
   try {
     const supabase = createAdminClient();
 
-  const assetQuery = supabase
+    const { data: assets, error: assetsError } = await supabase
       .from("assets")
-      .select("id, symbol, name, status")
+      .select("id, symbol, name, status, category, type, icon_src, market_cap, volume_24h, baseline_price, metadata")
       .eq("status", "active")
       .order("symbol", { ascending: true });
 
-
-    const { data: assets, error: assetsError } = await assetQuery;
     if (assetsError) {
       return NextResponse.json({ ok: false, error: assetsError.message }, { status: 500 });
     }
 
-    if (category !== "all" && category !== "crypto") {
-      return NextResponse.json({
-        ok: true,
-        category,
-        listings: [],
-        freshness: { latestPricedAt: null, oldestAgeSeconds: Number.MAX_SAFE_INTEGER, status: "stale" },
-      });
-    }
-
     if (!assets?.length) {
-      return NextResponse.json({
-        ok: true,
-        category,
-        listings: [],
-        freshness: { latestPricedAt: null, oldestAgeSeconds: Number.MAX_SAFE_INTEGER, status: "stale" },
-      });
+      return NextResponse.json(emptyPayload(category));
     }
 
-    const symbols = assets.map((row) => row.symbol.toUpperCase());
+    const normalizedAssets = (assets as AssetRow[]).map((asset) => ({
+      ...asset,
+      category: normalizeCategory(asset),
+    }));
+
+    const filteredAssets = category === "all"
+      ? normalizedAssets
+      : normalizedAssets.filter((asset) => asset.category === category);
+
+    if (!filteredAssets.length) {
+      return NextResponse.json(emptyPayload(category));
+    }
+
+    const symbols = filteredAssets.map((row) => String(row.symbol ?? "").toUpperCase());
     const { data: snapshots, error: snapshotError } = await supabase
       .from("asset_snapshots")
       .select("asset, price_eur, source, source_status, priced_at")
@@ -72,38 +130,49 @@ export async function GET(req: Request) {
     }
 
     const snapshotMap = new Map(
-      (snapshots ?? []).map((row) => [
+      ((snapshots ?? []) as SnapshotRow[]).map((row) => [
         String(row.asset ?? "").toUpperCase(),
         {
-          price: Number(row.price_eur ?? 0),
+          price: toNumber(row.price_eur),
           source: String(row.source ?? "unavailable"),
+          sourceStatus: row.source_status ?? "stale",
           pricedAt: row.priced_at,
         },
       ]),
     );
 
-    const listings: MarketListing[] = assets.map((asset) => {
+    const listings: MarketListing[] = filteredAssets.map((asset) => {
       const symbol = String(asset.symbol ?? "").toUpperCase();
       const snapshot = snapshotMap.get(symbol);
-      const metadata: AssetMetadata = {};
-      const baselinePrice = Number(metadata.baselinePrice ?? snapshot?.price ?? 0);
-      const livePrice = Number(snapshot?.price ?? baselinePrice ?? 0);
+      const metadata = asset.metadata ?? {};
+      const baselinePrice = toNumber(asset.baseline_price ?? metadata.baselinePrice, snapshot?.price ?? 0);
+      const livePrice = toNumber(snapshot?.price, baselinePrice);
       const change24h = baselinePrice > 0 ? ((livePrice - baselinePrice) / baselinePrice) * 100 : 0;
+
+      const pricedAt = snapshot?.pricedAt ?? null;
+      const freshnessAgeSeconds = pricedAt ? getAgeSeconds(pricedAt) : Number.MAX_SAFE_INTEGER;
+      const freshnessStatus = getMarketFreshnessState(freshnessAgeSeconds);
 
       return {
         id: asset.id,
         symbol,
         name: asset.name,
-        category: "crypto",
-        type: "spot",
+        category: asset.category as AssetCategory,
+        type: asset.type ?? "spot",
         status: asset.status,
-        iconSrc: metadata.iconSrc ?? "",
+        iconSrc: asset.icon_src ?? metadata.iconSrc ?? "",
         price: Number(livePrice.toFixed(6)),
         change24h: Number(change24h.toFixed(2)),
-        marketCap: Number(metadata.marketCap ?? 0),
-        volume24h: Number(metadata.volume24h ?? 0),
+        marketCap: toNumber(asset.market_cap ?? metadata.marketCap),
+        volume24h: toNumber(asset.volume_24h ?? metadata.volume24h),
         source: snapshot?.source ?? "unavailable",
-        pricedAt: snapshot?.pricedAt ?? null,
+        pricedAt,
+        sourceStatus: snapshot?.sourceStatus ?? "stale",
+        freshness: {
+          ageSeconds: freshnessAgeSeconds,
+          status: freshnessStatus,
+          isStale: freshnessStatus === "stale",
+        },
       };
     });
 
