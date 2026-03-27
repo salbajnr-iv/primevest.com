@@ -27,7 +27,7 @@ interface TransferHistory {
 }
 
 export default function TransferPage() {
-  const { summary } = useDashboardSummary();
+const {  } = useDashboardSummary();
   const [isClient, setIsClient] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [amount, setAmount] = React.useState("");
@@ -45,8 +45,6 @@ export default function TransferPage() {
   const [balances, setBalances] = React.useState<Record<SupportedCurrency, number>>({
     EUR: 0, BTC: 0, ETH: 0, USDT: 0
   });
-  const [historyLoading, setHistoryLoading] = React.useState(true);
-  const [balancesLoading, setBalancesLoading] = React.useState(true);
 
   React.useEffect(() => {
     setIsClient(true);
@@ -54,13 +52,11 @@ export default function TransferPage() {
     // Fetch history and balances
     fetch('/api/wallets/transfers')
       .then(res => res.json())
-      .then(setTransferHistory)
-      .finally(() => setHistoryLoading(false));
+      .then(setTransferHistory);
 
     fetch('/api/wallets/balances')
       .then(res => res.json())
-      .then(setBalances)
-      .finally(() => setBalancesLoading(false));
+      .then(setBalances);
   }, []);
 
   const filteredUsers = apiUsers || [];

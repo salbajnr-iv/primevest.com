@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { AlertCircle, ArrowRight, CalendarRange, MessageCircle, TrendingUp, Users } from "lucide-react";
-import { useWindowSize } from "@/docs/hooks/useWindowSize";
+
 import KpiGauge from "@/components/dashboard/analytics/KpiGauge";
 import MetricsBarChart from "@/components/dashboard/analytics/MetricsBarChart";
 import PerformanceLineChart from "@/components/dashboard/analytics/PerformanceLineChart";
@@ -67,8 +67,8 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
   const [activePerfRange, setActivePerfRange] = React.useState<PerformanceRange>("1M");
   const [liveActivityFeed, setLiveActivityFeed] = React.useState<ActivityFeedItem[]>(initialData.activityFeed);
   const [liveAlerts, setLiveAlerts] = React.useState<AlertNotificationItem[]>(initialData.alerts);
+  const [pollData, setPollData] = React.useState<Record<string, unknown> | null>(null);
   const [freshness, setFreshness] = React.useState<DashboardTimestampMeta>(initialData.freshness);
-  const { width, height } = useWindowSize();
 
   const [kpiState, setKpiState] = React.useState<DashboardWidgetState>("ready");
   const [metricsState, setMetricsState] = React.useState<DashboardWidgetState>("ready");
@@ -236,6 +236,20 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       void supabase.removeChannel(alertsChannel);
     };
   }, []);
+
+  // Realtime poll data
+  React.useEffect(() => {
+    async function loadPoll() {
+      try {
+        const res = await fetch('/api/dashboard/polls');
+        if (res.ok) setPollData(await res.json());
+      } catch (e) {
+        console.log('Poll load failed:', e);
+      }
+    }
+    loadPoll();
+  }, []);
+
 
   React.useEffect(() => {
     if (kpiState === "loading") {

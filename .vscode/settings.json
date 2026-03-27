@@ -22,5 +22,6 @@
                 "qoder-edit-lm-vendor/ultimate"
             ]
         }
-    }
+    },
+    "chatgpt.runCodexInWindowsSubsystemForLinux": true
 }

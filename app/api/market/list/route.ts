@@ -31,7 +31,7 @@ export async function GET(req: Request) {
   try {
     const supabase = createAdminClient();
 
-    let assetQuery = supabase
+  const assetQuery = supabase
       .from("assets")
       .select("id, symbol, name, status")
       .eq("status", "active")

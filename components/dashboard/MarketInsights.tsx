@@ -11,10 +11,8 @@ interface MarketInsightsProps {
   range: DashboardDateRange;
   dashboardData: DashboardData;
   widgetContract: DashboardWidgetContract;
-  freshness: any;
+  freshness: { aggregatesUpdatedAt: string };
   activeDateInterval: { label: string };
-  tableState: any;
-  onRetryTable: () => void;
 }
 
 function formatLastUpdated(isoTimestamp: string): string {
@@ -27,8 +25,6 @@ export function MarketInsights({
   widgetContract, 
   freshness, 
   activeDateInterval, 
-  tableState, 
-  onRetryTable 
 }: MarketInsightsProps) {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -115,4 +111,3 @@ export function MarketInsights({
     </div>
   );
 }
-
