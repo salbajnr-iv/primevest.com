@@ -5,6 +5,7 @@ import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
 import { ArrowLeftRight, Users, Search } from "lucide-react";
 import { useDashboardSummary } from "@/lib/dashboard/use-dashboard-summary";
+import { useTransferUsers } from "@/lib/wallets/use-transfer-users";
 
 type SupportedCurrency = "EUR" | "BTC" | "ETH" | "USDT";
 
@@ -38,37 +39,31 @@ export default function TransferPage() {
   const [isTwoFactorEnabled, setIsTwoFactorEnabled] = React.useState(false);
   const [twoFactorCode, setTwoFactorCode] = React.useState("");
 
-  const mockUsers: User[] = [
-    { id: "1", name: "Alice Johnson", email: "alice@example.com", avatar: "AJ" },
-    { id: "2", name: "Bob Smith", email: "bob@example.com", avatar: "BS" },
-    { id: "3", name: "Charlie Brown", email: "charlie@example.com", avatar: "CB" },
-    { id: "4", name: "Diana Prince", email: "diana@example.com", avatar: "DP" },
-  ];
+  const { users: apiUsers, isLoading: usersLoading, error: usersError } = useTransferUsers({ search: searchQuery });
 
-  const transferHistory: TransferHistory[] = [
-    { id: "1", from: "You", to: "Alice Johnson", amount: 100, currency: "EUR", date: "2024-01-15", status: "completed" },
-    { id: "2", from: "Bob Smith", to: "You", amount: 50, currency: "BTC", date: "2024-01-14", status: "completed" },
-    { id: "3", from: "You", to: "Charlie Brown", amount: 200, currency: "EUR", date: "2024-01-13", status: "pending" },
-  ];
-
-  const availableBalances: Record<SupportedCurrency, number> = React.useMemo(
-    () => ({
-      EUR: Number(summary.availableBalance ?? 0),
-      BTC: 0.42,
-      ETH: 3.0,
-      USDT: 4800.0,
-    }),
-    [summary.availableBalance],
-  );
+  const [transferHistory, setTransferHistory] = React.useState<TransferHistory[]>([]);
+  const [balances, setBalances] = React.useState<Record<SupportedCurrency, number>>({
+    EUR: 0, BTC: 0, ETH: 0, USDT: 0
+  });
+  const [historyLoading, setHistoryLoading] = React.useState(true);
+  const [balancesLoading, setBalancesLoading] = React.useState(true);
 
   React.useEffect(() => {
     setIsClient(true);
+    
+    // Fetch history and balances
+    fetch('/api/wallets/transfers')
+      .then(res => res.json())
+      .then(setTransferHistory)
+      .finally(() => setHistoryLoading(false));
+
+    fetch('/api/ballets/balances')
+      .then(res => res.json())
+      .then(setBalances)
+      .finally(() => setBalancesLoading(false));
   }, []);
 
-  const filteredUsers = mockUsers.filter(user => 
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = apiUsers || [];
 
   const handleTransfer = () => {
     if (!selectedUser && !recipient) {
@@ -79,7 +74,7 @@ export default function TransferPage() {
       alert("Please enter a valid amount");
       return;
     }
-    const availableBalance = availableBalances[selectedCurrency] ?? 0;
+    const availableBalance = balances[selectedCurrency] ?? 0;
     if (parseFloat(amount) > availableBalance) {
       alert(selectedCurrency === "EUR" ? "Insufficient cash balance" : "Insufficient asset balance");
       return;
@@ -145,9 +140,11 @@ export default function TransferPage() {
               </div>
             </div>
 
-            {searchQuery && (
+            {searchQuery.length > 2 && (
               <div className="user-suggestions">
-                {filteredUsers.map((user) => (
+                {usersLoading && <div>Loading users...</div>}
+                {usersError && <div>Error loading users</div>}
+                {filteredUsers.length > 0 && filteredUsers.map((user: User) => (
                   <button
                     key={user.id}
                     className="user-suggestion"
@@ -197,10 +194,10 @@ export default function TransferPage() {
                 onChange={(e) => setSelectedCurrency(e.target.value as SupportedCurrency)}
                 className="form-input"
               >
-                <option value="EUR">EUR ({(availableBalances.EUR ?? 0).toLocaleString("de-DE", { style: "currency", currency: "EUR" })})</option>
-                <option value="BTC">BTC ({availableBalances.BTC.toFixed(8)})</option>
-                <option value="ETH">ETH ({availableBalances.ETH.toFixed(4)})</option>
-                <option value="USDT">USDT (${availableBalances.USDT.toLocaleString("de-DE", { minimumFractionDigits: 2 })})</option>
+                <option value="EUR">EUR ({balances.EUR.toLocaleString("de-DE", { style: "currency", currency: "EUR" })})</option>
+                <option value="BTC">BTC ({balances.BTC.toFixed(8)})</option>
+                <option value="ETH">ETH ({balances.ETH.toFixed(4)})</option>
+                <option value="USDT">USDT (${balances.USDT.toLocaleString("de-DE", { minimumFractionDigits: 2 })})</option>
               </select>
             </div>
 
@@ -211,7 +208,7 @@ export default function TransferPage() {
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                max={availableBalances[selectedCurrency] ?? 0}
+                max={balances[selectedCurrency] ?? 0}
                 step={selectedCurrency === "BTC" ? "0.00000001" : selectedCurrency === "ETH" ? "0.0001" : "0.01"}
                 className="form-input"
               />
@@ -219,7 +216,7 @@ export default function TransferPage() {
                 {selectedCurrency === "EUR" ? "Available cash balance" : "Available asset balance"}: {
                   selectedCurrency === "EUR" || selectedCurrency === "USDT" ? "€" : ""
                 }{
-                  (availableBalances[selectedCurrency] ?? 0).toLocaleString("de-DE", { 
+                  (balances[selectedCurrency] ?? 0).toLocaleString("de-DE", { 
                     minimumFractionDigits: selectedCurrency === "EUR" || selectedCurrency === "USDT" ? 2 : selectedCurrency === "BTC" ? 8 : 4,
                     maximumFractionDigits: selectedCurrency === "EUR" || selectedCurrency === "USDT" ? 2 : selectedCurrency === "BTC" ? 8 : 4
                   })

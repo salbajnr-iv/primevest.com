@@ -1,59 +1,56 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { getBearerToken, isSupportTicketState, SUPPORT_TICKET_STATES } from "@/lib/support/tickets";
+import {
+  isSupportTicketState,
+  SUPPORT_TICKET_STATES,
+} from "@/lib/support/tickets";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 
 const DEFAULT_PAGE_SIZE = 10;
 const MAX_PAGE_SIZE = 50;
 
-function getSupabaseAdminClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+async function getCurrentUser() {
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  if (!supabaseUrl || !serviceRoleKey) {
-    return null;
+  if (error || !user) {
+    return {
+      error: NextResponse.json(
+        { error: "Authentication required." },
+        { status: 401 },
+      ),
+    };
   }
 
-  return createClient(supabaseUrl, serviceRoleKey);
-}
-
-async function getCurrentUser(request: Request) {
-  const token = getBearerToken(request);
-  if (!token) {
-    return { error: NextResponse.json({ error: "Missing auth token." }, { status: 401 }) };
-  }
-
-  const supabase = getSupabaseAdminClient();
-  if (!supabase) {
-    return { error: NextResponse.json({ error: "Support service unavailable." }, { status: 503 }) };
-  }
-
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data?.user) {
-    return { error: NextResponse.json({ error: "Invalid auth token." }, { status: 401 }) };
-  }
-
-  return { supabase, user: data.user };
+  return { user };
 }
 
 export async function GET(request: Request) {
   try {
-    const authResult = await getCurrentUser(request);
+    const authResult = await getCurrentUser();
     if ("error" in authResult) {
       return authResult.error;
     }
 
-    const { supabase, user } = authResult;
+    const { user } = authResult;
+    const supabase = createAdminClient();
     const { searchParams } = new URL(request.url);
     const statusFilter = searchParams.get("status")?.toLowerCase() || "all";
     const search = searchParams.get("search")?.trim() || "";
     const page = Math.max(1, Number(searchParams.get("page") || "1"));
-    const pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, Number(searchParams.get("pageSize") || DEFAULT_PAGE_SIZE)));
+    const pageSize = Math.min(
+      MAX_PAGE_SIZE,
+      Math.max(1, Number(searchParams.get("pageSize") || DEFAULT_PAGE_SIZE)),
+    );
 
     let query = supabase
       .from("support_tickets")
       .select(
         "id, reference_id, category, subject, message, status, created_at, updated_at, open_at, pending_at, resolved_at, closed_at",
-        { count: "exact" }
+        { count: "exact" },
       )
       .eq("user_id", user.id)
       .order("updated_at", { ascending: false })
@@ -64,13 +61,18 @@ export async function GET(request: Request) {
     }
 
     if (search) {
-      query = query.or(`reference_id.ilike.%${search}%,subject.ilike.%${search}%,message.ilike.%${search}%,category.ilike.%${search}%`);
+      query = query.or(
+        `reference_id.ilike.%${search}%,subject.ilike.%${search}%,message.ilike.%${search}%,category.ilike.%${search}%`,
+      );
     }
 
     const { data, error, count } = await query;
 
     if (error) {
-      return NextResponse.json({ error: "Unable to load support tickets." }, { status: 500 });
+      return NextResponse.json(
+        { error: "Unable to load support tickets." },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({
@@ -82,18 +84,22 @@ export async function GET(request: Request) {
       tickets: data ?? [],
     });
   } catch {
-    return NextResponse.json({ error: "Unexpected support ticket error." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Unexpected support ticket error." },
+      { status: 500 },
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const authResult = await getCurrentUser(request);
+    const authResult = await getCurrentUser();
     if ("error" in authResult) {
       return authResult.error;
     }
 
-    const { supabase, user } = authResult;
+    const { user } = authResult;
+    const supabase = createAdminClient();
 
     let payload: unknown;
     try {
@@ -113,7 +119,10 @@ export async function POST(request: Request) {
     const message = body.message?.trim();
 
     if (!message) {
-      return NextResponse.json({ error: "Message is required." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Message is required." },
+        { status: 400 },
+      );
     }
 
     const referenceId = `TKT-${Date.now().toString().slice(-8)}${Math.floor(Math.random() * 10)}`;
@@ -133,15 +142,23 @@ export async function POST(request: Request) {
         open_at: now,
         updated_at: now,
       })
-      .select("id, reference_id, category, subject, message, status, created_at, updated_at, open_at, pending_at, resolved_at, closed_at")
+      .select(
+        "id, reference_id, category, subject, message, status, created_at, updated_at, open_at, pending_at, resolved_at, closed_at",
+      )
       .single();
 
     if (error || !data) {
-      return NextResponse.json({ error: "Unable to create support ticket." }, { status: 500 });
+      return NextResponse.json(
+        { error: "Unable to create support ticket." },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({ ok: true, ticket: data }, { status: 201 });
   } catch {
-    return NextResponse.json({ error: "Unexpected support ticket error." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Unexpected support ticket error." },
+      { status: 500 },
+    );
   }
 }

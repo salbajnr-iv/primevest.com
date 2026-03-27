@@ -1,0 +1,57 @@
+
+/* Market-specific animations and styles */
+
+@keyframes priceTickUp {
+  0% { background-color: rgba(16, 185, 129, 0.2); transform: scale(1.02); }
+  100% { background-color: transparent; transform: scale(1); }
+}
+
+@keyframes priceTickDown {
+  0% { background-color: rgba(239, 68, 68, 0.2); transform: scale(1.02); }
+  100% { background-color: transparent; transform: scale(1); }
+}
+
+.price-tick-up {
+  animation: priceTickUp 0.8s ease-out forwards;
+}
+
+.price-tick-down {
+  animation: priceTickDown 0.8s ease-out forwards;
+}
+
+/* Pulsing dot for live status */
+.live-pulse {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  background-color: #10b981;
+  border-radius: 50%;
+}
+
+.live-pulse::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  background-color: #10b981;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: pulseOuter 2s infinite ease-out;
+}
+
+@keyframes pulseOuter {
+  0% { width: 100%; height: 100%; opacity: 0.6; }
+  100% { width: 400%; height: 400%; opacity: 0; }
+}
+
+/* Custom Scrollbar for the horizontal tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

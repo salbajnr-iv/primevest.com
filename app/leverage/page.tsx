@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import BottomNav from "@/components/BottomNav";
-import { usePriceSimulation, MarketData, formatPrice, getCoinColor } from "@/hooks/usePriceSimulation";
+import { usePriceSimulation, MarketData, formatPrice, getCoinColor } from "@/docs/hooks/usePriceSimulation";
 
 const leverageAssets: MarketData[] = [
   { id: "btc", name: "Bitcoin", symbol: "BTC", price: 43250.00, change24h: 2.45, marketCap: 842000000000, volume24h: 28400000000, high24h: 43800, low24h: 42100, iconSrc: "/btc-logo.png" },

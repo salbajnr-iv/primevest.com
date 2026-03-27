@@ -1,6 +1,8 @@
-import { createClient } from "@supabase/supabase-js";
+import "server-only";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getAgeSeconds, getMarketFreshnessState, type MarketFreshnessState } from "@/lib/market/freshness";
 import { getLatestPrices } from "@/lib/market/service";
+import type { AssetSnapshotRow } from "@/lib/market/types";
 
 export type AssetSnapshot = {
   asset: string;
@@ -12,15 +14,8 @@ export type AssetSnapshot = {
 };
 
 function createServiceSupabase() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceRole) {
-    return null;
-  }
-
-  return createClient(supabaseUrl, serviceRole, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  const adminClient = createAdminClient();
+  return adminClient;
 }
 
 export async function getAssetSnapshots(assets: string[]): Promise<AssetSnapshot[]> {
@@ -51,7 +46,7 @@ export async function getAssetSnapshots(assets: string[]): Promise<AssetSnapshot
 
   if (error || !data) return [];
 
-  return data.map((row) => {
+  return data.map((row: AssetSnapshotRow) => {
     const pricedAt = row.priced_at ?? row.updated_at ?? new Date(0).toISOString();
     const freshnessAgeSeconds = getAgeSeconds(pricedAt);
     return {
@@ -83,11 +78,12 @@ export async function getLatestMarketFreshness() {
     .limit(1)
     .maybeSingle();
 
-  const updatedAt = data?.priced_at ?? data?.updated_at ?? new Date(0).toISOString();
+  const snapshotData = data as unknown as AssetSnapshotRow | null;
+  const updatedAt = snapshotData?.priced_at ?? snapshotData?.updated_at ?? new Date(0).toISOString();
   const ageSeconds = getAgeSeconds(updatedAt);
 
   return {
-    source: String(data?.source ?? "unavailable"),
+    source: String(snapshotData?.source ?? "unavailable"),
     updatedAt,
     ageSeconds,
     status: getMarketFreshnessState(ageSeconds),

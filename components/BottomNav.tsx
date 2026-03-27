@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Wallet, ArrowLeftRight, Settings } from "lucide-react";
-import { useWindowSize } from "@/hooks/useWindowSize";
+import { useWindowSize } from "@/docs/hooks/useWindowSize";
 import { ROUTES } from "@/lib/routes";
 
 const items = [

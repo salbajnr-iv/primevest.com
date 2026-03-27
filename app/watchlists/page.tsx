@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
-import { usePriceSimulation, MarketData, formatPrice, formatCompact, getCoinColor } from "@/hooks/usePriceSimulation";
+import { usePriceSimulation, MarketData, formatPrice, formatCompact, getCoinColor } from "@/docs/hooks/usePriceSimulation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/lib/i18n/translations";
             

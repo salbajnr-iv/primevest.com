@@ -7,6 +7,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import KycReviewModal from '@/app/admin/components/KycReviewModal'
 import DeleteUserConfirmModal from '@/app/admin/components/DeleteUserConfirmModal'
 import ImpersonateConfirmModal from '@/app/admin/components/ImpersonateConfirmModal'
+import BalanceAdjustmentModal from '@/app/admin/components/BalanceAdjustmentModal'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,6 +52,7 @@ export default function AdminUserDetailPage() {
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showImpersonateModal, setShowImpersonateModal] = useState(false)
+  const [showBalanceModal, setShowBalanceModal] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
 
@@ -71,12 +73,6 @@ export default function AdminUserDetailPage() {
   async function fetchData(targetUserId: string) {
     setLoading(true)
 
-    if (!supabase) {
-      setUser(null)
-      setKycRequests([])
-      setLoading(false)
-      return
-    }
 
     try {
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', targetUserId).maybeSingle()
@@ -102,11 +98,6 @@ export default function AdminUserDetailPage() {
     setActionLoading(true)
     setActionError(null)
 
-    if (!supabase) {
-      setActionError('Supabase is not configured')
-      setActionLoading(false)
-      return
-    }
 
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -143,11 +134,6 @@ export default function AdminUserDetailPage() {
     setActionLoading(true)
     setActionError(null)
 
-    if (!supabase) {
-      setActionError('Supabase is not configured')
-      setActionLoading(false)
-      return
-    }
 
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -246,18 +232,33 @@ export default function AdminUserDetailPage() {
               </div>
 
               <div className="mt-4 flex gap-3">
-                <button onClick={() => router.push('/admin/balances')} className="px-3 py-2 bg-green-700 text-white rounded">Adjust Balance</button>
+                <button onClick={() => setShowBalanceModal(true)} className="px-3 py-2 bg-green-700 text-white rounded">Adjust Balance</button>
                 <button
                   onClick={async () => {
                     try {
-                      if (!supabase) return
-                      const { error } = await supabase.from('profiles').update({ is_active: !user.is_active }).eq('id', user.id)
-                      if (error) throw error
+                      const tokenRes = await supabase.auth.getSession()
+                      const token = tokenRes.data?.session?.access_token
+                      if (!token) throw new Error('Not authenticated')
+
+                      const res = await fetch('/api/admin/users/status', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ userId: user.id, isActive: !user.is_active })
+                      })
+
+                      if (!res.ok) {
+                        const data = await res.json()
+                        throw new Error(data.error || 'Update failed')
+                      }
+
                       setUser((u) => (u ? { ...u, is_active: !u.is_active } : u))
                       alert('Status updated')
                     } catch (e) {
                       console.error(e)
-                      alert('Failed to update status')
+                      alert(e instanceof Error ? e.message : 'Failed to update status')
                     }
                   }}
                   className="px-3 py-2 bg-blue-800 text-white rounded"
@@ -346,6 +347,15 @@ export default function AdminUserDetailPage() {
           onConfirm={handleImpersonate}
           onCancel={() => setShowImpersonateModal(false)}
           loading={actionLoading}
+        />
+      )}
+
+      {showBalanceModal && user && (
+        <BalanceAdjustmentModal
+          userId={user.id}
+          userName={user.full_name || user.email}
+          onClose={() => setShowBalanceModal(false)}
+          onSuccess={() => fetchData(userId)}
         />
       )}
     </div>

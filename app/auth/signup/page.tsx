@@ -12,6 +12,10 @@ export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [country, setCountry] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -36,6 +40,22 @@ export default function SignUpPage() {
     setError('')
     setMessage('')
 
+    if (!firstName.trim()) {
+      setError('First name is required')
+      return
+    }
+    if (!lastName.trim()) {
+      setError('Last name is required')
+      return
+    }
+    if (!phoneNumber.trim()) {
+      setError('Phone number is required')
+      return
+    }
+    if (!country) {
+      setError('Country is required')
+      return
+    }
     if (!acceptedTerms) {
       setError('You must accept the terms and conditions')
       return
@@ -56,6 +76,14 @@ export default function SignUpPage() {
     try {
       const { error, data } = await signUp(email, password, {
         email,
+        options: {
+          data: {
+            firstName,
+            lastName,
+            phoneNumber,
+            country
+          }
+        }
       })
 
       if (error) {
@@ -113,6 +141,84 @@ export default function SignUpPage() {
                   placeholder="name@example.com"
                   required
                 />
+              </div>
+
+              <div className="text-sm font-medium text-gray-700 mb-2 pt-1">Personal Information</div>
+
+              <div className="space-y-2">
+                <label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                  First Name
+                </label>
+                <input
+                  id="firstName"
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full p-3 border border-gray-300 bg-white text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  placeholder="John"
+                  required
+                  minLength={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                  Last Name
+                </label>
+                <input
+                  id="lastName"
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full p-3 border border-gray-300 bg-white text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  placeholder="Doe"
+                  required
+                  minLength={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">
+                  Phone Number
+                </label>
+                <input
+                  id="phoneNumber"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="w-full p-3 border border-gray-300 bg-white text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  placeholder="+1 (555) 123-4567"
+                  required
+                  pattern="[+]?[0-9]{10,15}"
+                />
+                <p className="text-xs text-gray-400">Include country code, e.g. +1 for US</p>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="country" className="text-sm font-medium text-gray-700">
+                  Country
+                </label>
+                <select
+                  id="country"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className="w-full p-3 border border-gray-300 bg-white text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  required
+                >
+                  <option value="">Select Country</option>
+                  <option value="US">United States</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="CA">Canada</option>
+                  <option value="AU">Australia</option>
+                  <option value="DE">Germany</option>
+                  <option value="FR">France</option>
+                  <option value="NG">Nigeria</option>
+                  <option value="ZA">South Africa</option>
+                  <option value="KE">Kenya</option>
+                  <option value="GH">Ghana</option>
+                  <option value="AE">United Arab Emirates</option>
+                  <option value="SG">Singapore</option>
+                </select>
               </div>
 
               <div className="space-y-2">

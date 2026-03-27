@@ -25,10 +25,6 @@ export default function AdminSupportPage() {
   React.useEffect(() => {
     const loadTickets = async () => {
       const supabase = createClient();
-      if (!supabase) {
-        setLoading(false);
-        return;
-      }
 
       const activeStatuses = ['open', 'pending'];
       const { data } = await supabase
