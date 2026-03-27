@@ -36,16 +36,6 @@ export async function GET(request: Request) {
     return apiRouteError(503, code, 'Recent trade data is temporarily unavailable.');
   }
 
-  const recentTrades: RecentTrade[] = trades?.map((t) => ({
-    time: new Date(t.created_at).toLocaleTimeString(),
-    price: Number(t.price),
-    amount: Number(t.amount),
-    side: t.side as 'buy' | 'sell',
-  })) || [];
-    console.error('Recent trades error:', error);
-    return NextResponse.json({ error: 'Failed to fetch recent trades.' }, { status: 500 });
-  }
-
   const recentTrades: RecentTrade[] = ((trades ?? []) as TradeRow[]).map((trade) => ({
     time: new Date(trade.created_at).toLocaleTimeString('de-DE', { hour12: false }),
     price: Number(trade.price),

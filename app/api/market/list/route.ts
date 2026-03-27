@@ -33,17 +33,23 @@ export async function GET(req: Request) {
 
     let assetQuery = supabase
       .from("assets")
-      .select("id, symbol, name, status, category, type, metadata")
+      .select("id, symbol, name, status")
       .eq("status", "active")
       .order("symbol", { ascending: true });
 
-    if (category !== "all") {
-      assetQuery = assetQuery.eq("category", category);
-    }
 
     const { data: assets, error: assetsError } = await assetQuery;
     if (assetsError) {
       return NextResponse.json({ ok: false, error: assetsError.message }, { status: 500 });
+    }
+
+    if (category !== "all" && category !== "crypto") {
+      return NextResponse.json({
+        ok: true,
+        category,
+        listings: [],
+        freshness: { latestPricedAt: null, oldestAgeSeconds: Number.MAX_SAFE_INTEGER, status: "stale" },
+      });
     }
 
     if (!assets?.length) {
@@ -79,7 +85,7 @@ export async function GET(req: Request) {
     const listings: MarketListing[] = assets.map((asset) => {
       const symbol = String(asset.symbol ?? "").toUpperCase();
       const snapshot = snapshotMap.get(symbol);
-      const metadata = (asset.metadata as AssetMetadata | null) ?? {};
+      const metadata: AssetMetadata = {};
       const baselinePrice = Number(metadata.baselinePrice ?? snapshot?.price ?? 0);
       const livePrice = Number(snapshot?.price ?? baselinePrice ?? 0);
       const change24h = baselinePrice > 0 ? ((livePrice - baselinePrice) / baselinePrice) * 100 : 0;
@@ -88,8 +94,8 @@ export async function GET(req: Request) {
         id: asset.id,
         symbol,
         name: asset.name,
-        category: (asset.category as AssetCategory) ?? "crypto",
-        type: asset.type ?? "spot",
+        category: "crypto",
+        type: "spot",
         status: asset.status,
         iconSrc: metadata.iconSrc ?? "",
         price: Number(livePrice.toFixed(6)),
