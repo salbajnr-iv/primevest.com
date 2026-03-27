@@ -27,6 +27,11 @@ function formatLastUpdated(isoTimestamp: string): string {
   return `Last updated ${new Date(isoTimestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 }
 
+function parsePercentLabel(value: string): number {
+  const normalized = value.replace("%", "").replace(",", "").trim();
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
 type LiveInsertPayload = {
   new: {
@@ -285,7 +290,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       subtitle="Unified KPI, live market pulse, and portfolio intelligence"
       summary={dashboardData.portfolioSummary}
     >
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5">
+      <section className="dashboard-panel p-4 md:p-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
 <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Analytics Overview</h2>
@@ -334,7 +339,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       </section>
 
       <section className="grid gap-3 lg:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="dashboard-panel p-4">
           <div className="mb-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2"><TrendingUp size={16} className="text-emerald-600" /> Market Trends ({range})</h3>
@@ -343,15 +348,15 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
             {dashboardData.topPairs.length > 0 ? (
               <div className="grid grid-cols-2 gap-3 mb-4">
             {[...dashboardData.topPairs]
-              .sort((a, b) => Number(b.pnl ?? 0) - Number(a.pnl ?? 0))
+              .sort((a, b) => parsePercentLabel(b.pnl) - parsePercentLabel(a.pnl))
               .slice(0, 4)
               .map((pair, i) => (
                 <div key={pair.pair || i} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border">
                   <span className="text-sm font-medium text-slate-900 truncate">{pair.pair}</span>
                   <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
-                    Number(pair.pnl ?? 0) >= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                    parsePercentLabel(pair.pnl) >= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
                   }`}>
-                    {Number(pair.pnl ?? 0).toFixed(1)}%
+                    {pair.pnl}
                   </span>
                 </div>
               ))}
@@ -366,7 +371,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="dashboard-panel p-4">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="font-semibold text-slate-900">Custom Performance Graph ({range})</h3>
             <div className="flex gap-2">
@@ -413,11 +418,11 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       />
 
       <section className="grid gap-3 xl:grid-cols-3">
-        <article className="rounded-2xl border border-slate-200 bg-white p-4 xl:col-span-2">
+        <article className="dashboard-panel p-4 xl:col-span-2">
           {/* News and Insights moved to MarketInsights */}
         </article>
 
-        <article className="rounded-2xl border border-slate-200 bg-white p-4">
+        <article className="dashboard-panel p-4">
           <h3 className="font-semibold text-slate-900 mb-3">User Activity Feed</h3>
 {liveActivityFeed.length === 0 ? (
             <>
@@ -448,7 +453,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
 
       <section className="grid gap-3 md:grid-cols-2">
         {/* Alerts & Notifications */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="dashboard-panel p-4">
           <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-200">
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -507,7 +512,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
         </div>
 
         {/* Community Engagement */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="dashboard-panel p-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
               <Users size={18} className="text-blue-600" /> Community

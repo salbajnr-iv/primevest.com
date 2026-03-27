@@ -33,6 +33,21 @@ type OrderRowDto = {
 
 const currencyFormatter = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 2 });
 const compactFormatter = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
+const percentFormatter = new Intl.NumberFormat("en", { signDisplay: "always", maximumFractionDigits: 2 });
+const COINGECKO_URL = "https://api.coingecko.com/api/v3";
+
+type CoinGeckoMarket = {
+  id: string;
+  symbol: string;
+  name: string;
+  current_price: number;
+  price_change_percentage_24h: number | null;
+  total_volume: number;
+};
+
+type CoinGeckoMarketChart = {
+  prices?: [number, number][];
+};
 
 function getRangeStartIso(range: DashboardDateRange, now = new Date()): string {
   const start = new Date(now);
@@ -97,6 +112,31 @@ function mapProfileToSummary(profile: ProfileRowDto | null, notificationCount: n
   };
 }
 
+function mapMarketToSummary(
+  profile: ProfileRowDto | null,
+  notificationCount: number,
+  markets: CoinGeckoMarket[],
+): PortfolioSummary {
+  const summary = mapProfileToSummary(profile, notificationCount);
+  if (!markets.length) {
+    return summary;
+  }
+
+  const changes = markets
+    .map((market) => Number(market.price_change_percentage_24h ?? 0))
+    .filter((value) => Number.isFinite(value));
+  if (!changes.length) {
+    return summary;
+  }
+
+  const avgChange = changes.reduce((sum, value) => sum + value, 0) / changes.length;
+  return {
+    ...summary,
+    portfolioChangePct: avgChange,
+    availableBalanceChangePct: avgChange,
+  };
+}
+
 function mapOrdersToKpis(rows: OrderRowDto[]): KpiMetric[] {
   if (!rows.length) return [];
 
@@ -125,7 +165,7 @@ function mapOrdersToVolumeData(rows: OrderRowDto[]): VolumeDataPoint[] {
   return Array.from(grouped.entries()).map(([label, value]) => ({ label, value }));
 }
 
-function mapOrdersToTopPairs(rows: OrderRowDto[]): TopPairMetric[] {
+function mapOrdersToTopPairs(rows: OrderRowDto[], marketBySymbol: Map<string, CoinGeckoMarket>): TopPairMetric[] {
   if (!rows.length) return [];
 
   const aggregated = new Map<string, { volume: number; pnl: number }>();
@@ -140,12 +180,17 @@ function mapOrdersToTopPairs(rows: OrderRowDto[]): TopPairMetric[] {
   return Array.from(aggregated.entries())
     .sort(([, left], [, right]) => right.volume - left.volume)
     .slice(0, 3)
-    .map(([pair, metric], index) => ({
+    .map(([pair, metric], index) => {
+      const market = marketBySymbol.get(pair.toLowerCase());
+      const change24h = Number(market?.price_change_percentage_24h ?? 0);
+
+      return {
       pair,
       volume: `€${compactFormatter.format(metric.volume)}`,
       spread: `${(0.08 + index * 0.03).toFixed(2)}%`,
-      pnl: `+${currencyFormatter.format(metric.pnl)}`,
-    }));
+      pnl: `${percentFormatter.format(change24h)}%`,
+    };
+    });
 }
 
 function mapOrdersToActivityFeed(rows: OrderRowDto[]): DashboardData["activityFeed"] {
@@ -182,6 +227,111 @@ function mapOrdersToPerformance(rows: OrderRowDto[]): DashboardData["performance
   };
 }
 
+function mapCoinGeckoToKpis(markets: CoinGeckoMarket[]): KpiMetric[] {
+  if (!markets.length) return [];
+
+  const winners = markets.filter((market) => Number(market.price_change_percentage_24h ?? 0) >= 0).length;
+  const losers = Math.max(0, markets.length - winners);
+  const avgMove =
+    markets.reduce((sum, market) => sum + Number(market.price_change_percentage_24h ?? 0), 0) / markets.length;
+
+  return [
+    {
+      label: "24h Winners",
+      value: Math.round((winners / markets.length) * 100),
+      valueLabel: `${winners}/${markets.length}`,
+      deltaLabel: "Assets trading green",
+    },
+    {
+      label: "24h Losers",
+      value: Math.round((losers / markets.length) * 100),
+      valueLabel: `${losers}/${markets.length}`,
+      deltaLabel: "Assets trading red",
+    },
+    {
+      label: "Avg 24h Move",
+      value: Math.min(100, Math.round(Math.abs(avgMove) * 5)),
+      valueLabel: `${percentFormatter.format(avgMove)}%`,
+      deltaLabel: "CoinGecko market breadth",
+    },
+  ];
+}
+
+function mapCoinGeckoToTopPairs(markets: CoinGeckoMarket[]): TopPairMetric[] {
+  if (!markets.length) return [];
+
+  return [...markets]
+    .sort((a, b) => Number(b.total_volume ?? 0) - Number(a.total_volume ?? 0))
+    .slice(0, 6)
+    .map((market) => ({
+      pair: `${market.symbol.toUpperCase()}/EUR`,
+      volume: `€${compactFormatter.format(Number(market.total_volume ?? 0))}`,
+      spread: "Live",
+      pnl: `${percentFormatter.format(Number(market.price_change_percentage_24h ?? 0))}%`,
+    }));
+}
+
+function mapCoinGeckoToVolumeData(markets: CoinGeckoMarket[]): VolumeDataPoint[] {
+  if (!markets.length) return [];
+
+  return [...markets]
+    .sort((a, b) => Number(b.total_volume ?? 0) - Number(a.total_volume ?? 0))
+    .slice(0, 7)
+    .map((market) => ({
+      label: market.symbol.toUpperCase(),
+      value: Math.round(Number(market.total_volume ?? 0) / 1_000_000),
+    }));
+}
+
+function normalizeSeries(prices: [number, number][], points: number): { label: string; value: number }[] {
+  if (!prices.length) return [];
+
+  const sliceSize = Math.min(points, prices.length);
+  const sampled = prices.slice(-sliceSize);
+  const first = sampled[0]?.[1] ?? 1;
+
+  return sampled.map(([, price], index) => ({
+    label: `P${index + 1}`,
+    value: Math.max(0, Math.round((price / first) * 100)),
+  }));
+}
+
+function mapCoinGeckoToPerformance(chart: CoinGeckoMarketChart | null): DashboardData["performanceSeries"] {
+  const prices = chart?.prices ?? [];
+  if (!prices.length) return { "7D": [], "1M": [], "3M": [] };
+
+  return {
+    "7D": normalizeSeries(prices, 7),
+    "1M": normalizeSeries(prices, 30),
+    "3M": normalizeSeries(prices, 90),
+  };
+}
+
+async function fetchCoinGeckoDashboardFeed(): Promise<{
+  markets: CoinGeckoMarket[];
+  chart: CoinGeckoMarketChart | null;
+}> {
+  try {
+    const [marketsResponse, chartResponse] = await Promise.all([
+      fetch(
+        `${COINGECKO_URL}/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=12&page=1&sparkline=false&price_change_percentage=24h`,
+        { cache: "no-store", headers: { accept: "application/json" } },
+      ),
+      fetch(`${COINGECKO_URL}/coins/bitcoin/market_chart?vs_currency=eur&days=90&interval=daily`, {
+        cache: "no-store",
+        headers: { accept: "application/json" },
+      }),
+    ]);
+
+    const markets = marketsResponse.ok ? ((await marketsResponse.json()) as CoinGeckoMarket[]) : [];
+    const chart = chartResponse.ok ? ((await chartResponse.json()) as CoinGeckoMarketChart) : null;
+
+    return { markets, chart };
+  } catch {
+    return { markets: [], chart: null };
+  }
+}
+
 export async function getDashboardData(
   supabase: SupabaseClient,
   userId: string,
@@ -189,7 +339,7 @@ export async function getDashboardData(
 ): Promise<DashboardData> {
   const rangeStartIso = getRangeStartIso(range);
 
-  const [{ data: profileData }, { count: notificationCount }, { data: notificationsData }, { data: ordersData }] = await Promise.all([
+  const [{ data: profileData }, { count: notificationCount }, { data: notificationsData }, { data: ordersData }, coinGeckoData] = await Promise.all([
     supabase.from("profiles").select("id, full_name, account_balance").eq("id", userId).maybeSingle(),
     supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", userId),
     supabase
@@ -206,6 +356,7 @@ export async function getDashboardData(
       .gte("created_at", rangeStartIso)
       .order("created_at", { ascending: false })
       .limit(120),
+    fetchCoinGeckoDashboardFeed(),
   ]);
 
   const profile = (profileData ?? null) as ProfileRowDto | null;
@@ -215,16 +366,23 @@ export async function getDashboardData(
 
   const orders = (ordersData ?? []) as OrderRowDto[];
   const notifications = (notificationsData ?? []) as NotificationRowDto[];
+  const markets = coinGeckoData.markets;
+  const marketBySymbol = new Map(markets.map((market) => [market.symbol.toLowerCase(), market]));
   const nowIso = new Date().toISOString();
 
+  const kpis = orders.length ? mapOrdersToKpis(orders) : mapCoinGeckoToKpis(markets);
+  const volumeData = orders.length ? mapOrdersToVolumeData(orders) : mapCoinGeckoToVolumeData(markets);
+  const topPairs = orders.length ? mapOrdersToTopPairs(orders, marketBySymbol) : mapCoinGeckoToTopPairs(markets);
+  const performanceSeries = orders.length ? mapOrdersToPerformance(orders) : mapCoinGeckoToPerformance(coinGeckoData.chart);
+
   return {
-    portfolioSummary: mapProfileToSummary(profile, notificationCount ?? 0),
-    kpis: mapOrdersToKpis(orders),
-    volumeData: mapOrdersToVolumeData(orders),
-    topPairs: mapOrdersToTopPairs(orders),
+    portfolioSummary: mapMarketToSummary(profile, notificationCount ?? 0, markets),
+    kpis,
+    volumeData,
+    topPairs,
     activityFeed: mapOrdersToActivityFeed(orders),
     marketNews: [],
-    performanceSeries: mapOrdersToPerformance(orders),
+    performanceSeries,
     alerts: mapNotificationsToAlerts(notifications),
     freshness: {
       activityUpdatedAt: orders[0]?.created_at ?? nowIso,
