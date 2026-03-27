@@ -28,3 +28,6 @@ jobs:
 
       - name: Check app routes
         run: npm run check:routes
+
+      - name: Check Supabase types freshness
+        run: npm run check:supabase-types

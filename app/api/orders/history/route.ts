@@ -1,19 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient as createServerClient } from "@/lib/supabase/server";
+import type { Tables } from "@/types/supabase";
 
 type RouteErrorCode = "UNAUTHENTICATED" | "FORBIDDEN" | "QUERY_FAILED";
 
-interface DbOrder {
-  id: string | number;
-  side: string | null;
-  order_type: string | null;
-  asset: string | null;
-  symbol: string | null;
-  amount: number | null;
-  total: number | null;
-  total_amount: number | null;
-  status: string | null;
-}
+type DbOrder = Tables<"orders">
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 2 }).format(value);
