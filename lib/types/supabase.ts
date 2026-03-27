@@ -51,6 +51,9 @@ export interface Database {
           symbol: string
           name: string
           status: string
+          category: string
+          type: string
+          metadata: Json | null
           created_at: string
         }
         Insert: {
@@ -58,6 +61,9 @@ export interface Database {
           symbol: string
           name: string
           status?: string
+          category?: string
+          type?: string
+          metadata?: Json | null
           created_at?: string
         }
         Update: {
@@ -65,6 +71,9 @@ export interface Database {
           symbol?: string
           name?: string
           status?: string
+          category?: string
+          type?: string
+          metadata?: Json | null
           created_at?: string
         }
         Relationships: []

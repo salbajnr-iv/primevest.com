@@ -2,7 +2,7 @@ import "server-only";
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import type { Database } from "@/lib/types/supabase";
+import type { Database } from "@/types/supabase";
 
 let adminClient: SupabaseClient<Database> | null = null;
 

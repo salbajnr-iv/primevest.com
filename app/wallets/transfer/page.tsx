@@ -57,7 +57,7 @@ export default function TransferPage() {
       .then(setTransferHistory)
       .finally(() => setHistoryLoading(false));
 
-    fetch('/api/ballets/balances')
+    fetch('/api/wallets/balances')
       .then(res => res.json())
       .then(setBalances)
       .finally(() => setBalancesLoading(false));

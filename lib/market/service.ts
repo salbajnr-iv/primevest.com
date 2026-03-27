@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getAgeSeconds, getMarketFreshnessState, type MarketFreshnessState } from "@/lib/market/freshness";
 import type { MarketPriceRow } from "@/lib/market/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Tables, TablesInsert } from "@/types/supabase";
 
 export type MarketProvider = "coingecko";
 
@@ -158,8 +159,8 @@ export async function fetchAndPersistMarketPrices(provider: MarketProvider = "co
     throw assetError;
   }
 
-  const tracked = ((assets ?? []) as unknown as Array<{ id: string; symbol: string }>)
-    .map((asset: { id: string; symbol: string }) => ({ id: String(asset.id), symbol: String(asset.symbol).toUpperCase() }))
+  const tracked = ((assets ?? []) as Tables<"assets">[])
+    .map((asset) => ({ id: String(asset.id), symbol: String(asset.symbol).toUpperCase() }))
     .filter((asset) => Boolean(COINGECKO_MAP[asset.symbol]));
 
   if (!tracked.length) {
@@ -206,14 +207,7 @@ export async function fetchAndPersistMarketPrices(provider: MarketProvider = "co
         priced_at: pricedAt,
       };
     })
-    .filter(Boolean) as unknown as Array<{
-      asset_id: string;
-      asset: string;
-      last_price: number;
-      source: MarketProvider;
-      status: MarketFreshnessState;
-      priced_at: string;
-    }>;
+    .filter((row): row is TablesInsert<"market_prices"> => row !== null);
 
   if (!rows.length) {
     return { ingested: 0, snapshotsRefreshed: 0, source: provider };
