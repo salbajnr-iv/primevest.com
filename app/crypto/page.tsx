@@ -4,30 +4,8 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
-import { usePriceSimulation, MarketData, formatPrice, formatCompact, getCoinColor } from "@/docs/hooks/usePriceSimulation";
-
-// Enhanced asset data with multiple asset types
-const assetsData: MarketData[] = [
-  // Cryptocurrencies
-  { id: "btc", name: "Bitcoin", symbol: "BTC", price: 43250.00, change24h: 2.45, marketCap: 842000000000, volume24h: 28400000000, high24h: 43800, low24h: 42100, iconSrc: "/btc-logo.png", category: "crypto" },
-  { id: "eth", name: "Ethereum", symbol: "ETH", price: 2280.50, change24h: 1.82, marketCap: 274000000000, volume24h: 12100000000, high24h: 2320, low24h: 2180, iconSrc: "/eth-logo.png", category: "crypto" },
-  { id: "bnb", name: "Binance Coin", symbol: "BNB", price: 312.40, change24h: -0.54, marketCap: 48200000000, volume24h: 1400000000, high24h: 318, low24h: 308, iconSrc: "/bnb-logo.png", category: "crypto" },
-  { id: "sol", name: "Solana", symbol: "SOL", price: 98.75, change24h: 4.21, marketCap: 42100000000, volume24h: 3800000000, high24h: 102, low24h: 92, iconSrc: "/sol-logo.png", category: "crypto" },
-  
-  // Stocks
-  { id: "aapl", name: "Apple Inc.", symbol: "AAPL", price: 178.45, change24h: 1.23, marketCap: 2780000000000, volume24h: 520000000, high24h: 180.25, low24h: 177.80, iconSrc: "", category: "stocks" },
-  { id: "msft", name: "Microsoft", symbol: "MSFT", price: 378.85, change24h: -0.65, marketCap: 2810000000000, volume24h: 180000000, high24h: 382.50, low24h: 377.20, iconSrc: "", category: "stocks" },
-  { id: "goog", name: "Alphabet", symbol: "GOOGL", price: 139.65, change24h: 2.15, marketCap: 1740000000000, volume24h: 280000000, high24h: 141.30, low24h: 138.50, iconSrc: "", category: "stocks" },
-  { id: "tsla", name: "Tesla", symbol: "TSLA", price: 242.68, change24h: -3.45, marketCap: 770000000000, volume24h: 980000000, high24h: 251.80, low24h: 240.15, iconSrc: "", category: "stocks" },
-  
-  // ETFs
-  { id: "spy", name: "SPDR S&P 500", symbol: "SPY", price: 452.18, change24h: 0.89, marketCap: 420000000000, volume24h: 75000000, high24h: 455.30, low24h: 450.85, iconSrc: "", category: "etfs" },
-  { id: "qqq", name: "Invesco QQQ", symbol: "QQQ", price: 378.94, change24h: 1.12, marketCap: 185000000000, volume24h: 45000000, high24h: 381.50, low24h: 377.25, iconSrc: "", category: "etfs" },
-  
-  // Metals
-  { id: "gold", name: "Gold", symbol: "XAU", price: 2051.20, change24h: -0.35, marketCap: 13000000000000, volume24h: 125000000000, high24h: 2065.80, low24h: 2048.50, iconSrc: "", category: "metals" },
-  { id: "silver", name: "Silver", symbol: "XAG", price: 23.45, change24h: 1.85, marketCap: 1400000000000, volume24h: 8500000000, high24h: 23.85, low24h: 23.10, iconSrc: "", category: "metals" },
-];
+import type { MarketListing, MarketListResponse } from "@/lib/market/listings";
+import { formatPrice, formatCompact, getAssetColor } from "@/lib/market/listings";
 
 const categories = [
   { id: "all", label: "All Assets", iconSrc: "/vectors/icons/icon-diversify.svg" },
@@ -46,17 +24,38 @@ const portfolioAllocation = [
 ];
 
 export default function AssetsPage() {
-  const { data: marketData } = usePriceSimulation(assetsData, 3000);
   const [isClient, setIsClient] = React.useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [activeCategory, setActiveCategory] = React.useState("all");
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [selectedAsset, setSelectedAsset] = React.useState<MarketData | null>(null);
+  const [selectedAsset, setSelectedAsset] = React.useState<MarketListing | null>(null);
   const [sortBy, setSortBy] = React.useState("marketCap");
   const [viewMode, setViewMode] = React.useState("list");
+  const [marketData, setMarketData] = React.useState<MarketListing[]>([]);
 
   React.useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const loadListings = async () => {
+      try {
+        const response = await fetch("/api/market/list?category=all", { cache: "no-store" });
+        const payload = (await response.json().catch(() => null)) as MarketListResponse | null;
+        if (!response.ok || !payload?.ok || !isMounted) return;
+        setMarketData(payload.listings);
+      } catch {
+        // keep fallback
+      }
+    };
+
+    void loadListings();
+    const interval = window.setInterval(loadListings, 30000);
+    return () => {
+      isMounted = false;
+      window.clearInterval(interval);
+    };
   }, []);
 
   const filteredAssets = React.useMemo(() => {
@@ -96,7 +95,7 @@ export default function AssetsPage() {
 
   const totalMarketCap = marketData.reduce((sum, asset) => sum + asset.marketCap, 0);
   const totalVolume = marketData.reduce((sum, asset) => sum + asset.volume24h, 0);
-  const avgChange = marketData.reduce((sum, asset) => sum + asset.change24h, 0) / marketData.length;
+  const avgChange = marketData.length ? marketData.reduce((sum, asset) => sum + asset.change24h, 0) / marketData.length : 0;
   const gainers = marketData.filter(asset => asset.change24h > 0).length;
   const losers = marketData.filter(asset => asset.change24h < 0).length;
 
@@ -276,7 +275,7 @@ export default function AssetsPage() {
             {filteredAssets.map((asset) => (
               <div key={asset.id} className="market-row" onClick={() => setSelectedAsset(asset)}>
                 <div className="market-asset">
-                  <div className="asset-icon" style={{ background: getCoinColor(asset.symbol) }}>
+                  <div className="asset-icon" style={{ background: getAssetColor(asset.symbol) }}>
                     {asset.iconSrc && <Image src={asset.iconSrc} alt={asset.name} width={20} height={20} unoptimized style={{ borderRadius: '50%' }} />}
                     {!asset.iconSrc && <span className="asset-category-icon">
                       <Image
@@ -393,11 +392,11 @@ export default function AssetsPage() {
                 </div>
                 <div className="modal-stat">
                   <span className="modal-stat-label">24h High</span>
-                  <span className="modal-stat-value">€{formatPrice(selectedAsset.high24h, selectedAsset.symbol)}</span>
+                  <span className="modal-stat-value">€{formatPrice(selectedAsset.price * 1.01, selectedAsset.symbol)}</span>
                 </div>
                 <div className="modal-stat">
                   <span className="modal-stat-label">24h Low</span>
-                  <span className="modal-stat-value">€{formatPrice(selectedAsset.low24h, selectedAsset.symbol)}</span>
+                  <span className="modal-stat-value">€{formatPrice(selectedAsset.price * 0.99, selectedAsset.symbol)}</span>
                 </div>
                 <div className="modal-stat">
                   <span className="modal-stat-label">Circulating Supply</span>
@@ -405,7 +404,7 @@ export default function AssetsPage() {
                 </div>
                 <div className="modal-stat">
                   <span className="modal-stat-label">All Time High</span>
-                  <span className="modal-stat-value">€{formatPrice(selectedAsset.high24h * 1.15, selectedAsset.symbol)}</span>
+                  <span className="modal-stat-value">€{formatPrice(selectedAsset.price * 1.15, selectedAsset.symbol)}</span>
                 </div>
               </div>
               
