@@ -46,6 +46,8 @@ function TradePageContent() {
   const [orderBookError, setOrderBookError] = React.useState<string | null>(null);
 
   const [recentTrades, setRecentTrades] = React.useState<RecentTrade[]>([]);
+  const [orderBookUnavailable, setOrderBookUnavailable] = React.useState(false);
+  const [recentTradesUnavailable, setRecentTradesUnavailable] = React.useState(false);
   const [recentTradesLoading, setRecentTradesLoading] = React.useState(false);
   const [recentTradesError, setRecentTradesError] = React.useState<string | null>(null);
 
@@ -144,7 +146,72 @@ function TradePageContent() {
     sideParam as OrderSide,
   );
 
-  const currentPrice = activePair?.price ?? 0;
+  React.useEffect(() => {
+    let isCancelled = false;
+    const pair = `${activePair.base}/EUR`;
+
+    const fetchOrderBook = async () => {
+      try {
+        const response = await fetch(`/api/trade/orderbook?pair=${encodeURIComponent(pair)}`, { cache: "no-store" });
+        const payload = await response.json();
+
+        if (
+          !response.ok ||
+          payload?.ok === false ||
+          !payload ||
+          !Array.isArray(payload.bids) ||
+          !Array.isArray(payload.asks)
+        ) {
+          if (!isCancelled) {
+            setOrderBook({ bids: [], asks: [] });
+            setOrderBookUnavailable(true);
+          }
+          return;
+        }
+
+        if (!isCancelled) {
+          setOrderBook(payload as { bids: OrderBookEntry[]; asks: OrderBookEntry[] });
+          setOrderBookUnavailable(false);
+        }
+      } catch {
+        if (!isCancelled) {
+          setOrderBook({ bids: [], asks: [] });
+          setOrderBookUnavailable(true);
+        }
+      }
+    };
+
+    const fetchRecentTrades = async () => {
+      try {
+        const response = await fetch(`/api/trades/recent?pair=${encodeURIComponent(pair)}`, { cache: "no-store" });
+        const payload = await response.json();
+
+        if (!response.ok || payload?.ok === false || !Array.isArray(payload)) {
+          if (!isCancelled) {
+            setRecentTrades([]);
+            setRecentTradesUnavailable(true);
+          }
+          return;
+        }
+
+        if (!isCancelled) {
+          setRecentTrades(payload as RecentTrade[]);
+          setRecentTradesUnavailable(false);
+        }
+      } catch {
+        if (!isCancelled) {
+          setRecentTrades([]);
+          setRecentTradesUnavailable(true);
+        }
+      }
+    };
+
+    void Promise.all([fetchOrderBook(), fetchRecentTrades()]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [activePair.base]);
 
   React.useEffect(() => {
     if (!activePair?.pair) {

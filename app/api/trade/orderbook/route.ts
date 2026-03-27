@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { createClient } from '@/lib/supabase/server';
+import { apiRouteError, logRouteError } from '@/lib/api/route-errors';
 import type { Tables } from '@/types/supabase';
 
 type OrderRow = Tables<'orders'>;

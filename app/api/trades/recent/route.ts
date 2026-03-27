@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import type { Tables } from '@/types/supabase';
 import type { RecentTrade } from '@/types/trade';
+import { apiRouteError, logRouteError } from '@/lib/api/route-errors';
 
 type TradeRow = Tables<'trades'>;
 
@@ -23,6 +24,24 @@ export async function GET(request: Request) {
     .limit(20);
 
   if (error) {
+    const code = 'RECENT_TRADES_UNAVAILABLE';
+    logRouteError({
+      route: 'trades/recent',
+      pair,
+      timestamp: new Date().toISOString(),
+      code,
+      error,
+    });
+
+    return apiRouteError(503, code, 'Recent trade data is temporarily unavailable.');
+  }
+
+  const recentTrades: RecentTrade[] = trades?.map((t) => ({
+    time: new Date(t.created_at).toLocaleTimeString(),
+    price: Number(t.price),
+    amount: Number(t.amount),
+    side: t.side as 'buy' | 'sell',
+  })) || [];
     console.error('Recent trades error:', error);
     return NextResponse.json({ error: 'Failed to fetch recent trades.' }, { status: 500 });
   }
