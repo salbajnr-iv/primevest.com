@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server'
+import type { KYCReviewResult } from '@/lib/types/database'
 
-import { verifyAdminBearerToken } from '@/lib/admin/server'
-import { invokeEdgeFunction } from '@/lib/server/edge-functions'
+import {
+  AdminRouteError,
+  getAdminClient,
+  handleAdminRouteError,
+  requestIpFromHeaders,
+  requireAdminRequest,
+} from '@/lib/admin/api'
 
 export async function POST(req: Request) {
   try {
@@ -12,23 +18,45 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
     }
 
-    const token = (req.headers.get('authorization') || '').replace('Bearer ', '')
-    const verification = await verifyAdminBearerToken(token)
-    if (verification.error) {
-      return NextResponse.json({ error: verification.error }, { status: verification.status || 401 })
+    const auth = await requireAdminRequest(req)
+    if (auth.response) {
+      return auth.response
     }
 
-    const idempotencyKey = req.headers.get('x-idempotency-key') ?? crypto.randomUUID()
+    const supabase = getAdminClient()
+    // RPC parameters - using 'as never' to bypass strict Supabase type inference
+    // The actual function accepts these parameters at runtime
+    const { data, error } = await supabase.rpc('apply_kyc_review_decision', {
+      p_request_id: request_id,
+      p_decision: status,
+      p_admin_id: auth.adminId,
+      p_reason: reason || null,
+      p_action_type: 'kyc_review',
+      p_context: {
+        source: 'admin_api',
+      },
+      p_ip_address: requestIpFromHeaders(req),
+    } as never)
 
-    return await invokeEdgeFunction('admin-kyc-decision', req, {
-      requestId: request_id,
-      decision: status,
-      reason,
-      idempotencyKey,
-    }, {
-      'x-idempotency-key': idempotencyKey,
+    if (error) {
+      if (error.message.toLowerCase().includes('not found')) {
+        throw new AdminRouteError('KYC request not found', 404, error.message)
+      }
+
+      throw new AdminRouteError('Failed to review KYC request', 500, error.message)
+    }
+
+    const result = Array.isArray(data) ? data[0] : data
+    const typedResult = result as KYCReviewResult | null
+
+    return NextResponse.json({
+      ok: true,
+      success: true,
+      requestId: typedResult?.request_id ?? request_id,
+      status: typedResult?.request_status ?? status,
+      userId: typedResult?.user_id ?? null,
     })
   } catch (err) {
-    return NextResponse.json({ error: 'Unexpected error', details: String(err) }, { status: 500 })
+    return handleAdminRouteError(err, 'Failed to review KYC request')
   }
 }

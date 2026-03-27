@@ -46,12 +46,124 @@ interface SupportTicketRealtimeRow {
   [key: string]: unknown;
 }
 
-export type { RealtimeReply, MarketPriceRealtimeRow, OrderStatusRealtimeRow, SupportTicketRealtimeRow };
+interface BalanceRealtimeRow {
+  wallet_id: string;
+  user_id: string;
+  asset: string;
+  balance: number;
+  updated_at: string;
+  [key: string]: unknown;
+}
+
+interface LedgerRealtimeRow {
+  id: string;
+  wallet_id: string;
+  amount: number;
+  type: string;
+  created_at: string;
+  [key: string]: unknown;
+}
+
+interface BalanceHistoryRealtimeRow {
+  id: string;
+  user_id: string;
+  action_type: string;
+  amount: number;
+  created_at: string;
+  [key: string]: unknown;
+}
+
+export type { RealtimeReply, MarketPriceRealtimeRow, OrderStatusRealtimeRow, SupportTicketRealtimeRow, BalanceRealtimeRow, LedgerRealtimeRow, BalanceHistoryRealtimeRow };
+
+export function useBalanceHistoryRealtime(onEntryInsert: (row: BalanceHistoryRealtimeRow) => void) {
+  useEffect(() => {
+    const supabase = createClient();
+
+    const channel = supabase
+      .channel('realtime:balance-history')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'balance_history',
+        },
+        (payload: RealtimePayload<BalanceHistoryRealtimeRow>) => {
+          const row = payload.new;
+          if (isValidRow<BalanceHistoryRealtimeRow>(row)) {
+            onEntryInsert(row);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [onEntryInsert]);
+}
+
+export function useBalanceRealtime(onBalanceUpdate: (row: BalanceRealtimeRow) => void, userId?: string) {
+  useEffect(() => {
+    const supabase = createClient();
+
+    const channel = supabase
+      .channel(`realtime:balances${userId ? `-${userId}` : ''}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'balances',
+          ...(userId ? { filter: `user_id=eq.${userId}` } : {}),
+        },
+        (payload: RealtimePayload<BalanceRealtimeRow>) => {
+          const row = payload.new;
+          if (isValidRow<BalanceRealtimeRow>(row)) {
+            onBalanceUpdate(row);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [onBalanceUpdate, userId]);
+}
+
+export function useLedgerRealtime(onEntryInsert: (row: LedgerRealtimeRow) => void, walletId?: string) {
+  useEffect(() => {
+    const supabase = createClient();
+
+    const channel = supabase
+      .channel(`realtime:ledger${walletId ? `-${walletId}` : ''}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'ledger_entries',
+          ...(walletId ? { filter: `wallet_id=eq.${walletId}` } : {}),
+        },
+        (payload: RealtimePayload<LedgerRealtimeRow>) => {
+          const row = payload.new;
+          if (isValidRow<LedgerRealtimeRow>(row)) {
+            onEntryInsert(row);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [onEntryInsert, walletId]);
+}
 
 export function useSupportTicketRepliesRealtime(onReplyInsert: (row: RealtimeReply) => void, ticketId?: number) {
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel(`realtime:support-ticket-replies${ticketId ? `-${ticketId}` : ''}`)
@@ -81,7 +193,6 @@ export function useSupportTicketRepliesRealtime(onReplyInsert: (row: RealtimeRep
 export function useMarketPriceRealtime(onPriceUpdate: (row: MarketPriceRealtimeRow) => void, assets?: string[]) {
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel('realtime:market-prices')
@@ -117,7 +228,6 @@ export function useMarketPriceRealtime(onPriceUpdate: (row: MarketPriceRealtimeR
 export function useOrderStatusRealtime(onOrderUpdate: (row: OrderStatusRealtimeRow) => void) {
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel('realtime:orders-status')
@@ -146,7 +256,6 @@ export function useOrderStatusRealtime(onOrderUpdate: (row: OrderStatusRealtimeR
 export function useSupportTicketStatusRealtime(onTicketUpdate: (row: SupportTicketRealtimeRow) => void) {
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel('realtime:support-tickets')
@@ -180,7 +289,6 @@ export function useTicketRealtime(ticketId: number | null, initialMessages: Real
     if (!ticketId) return;
 
     const supabase = createClient();
-    if (!supabase) return;
 
     const channel = supabase
       .channel(`realtime:ticket-${ticketId}`)
@@ -213,8 +321,7 @@ export function useTicketRealtime(ticketId: number | null, initialMessages: Real
       if (!ticketId) return;
 
       const supabase = createClient();
-      if (!supabase) return;
-
+  
       const {
         data: { user },
       } = await supabase.auth.getUser();

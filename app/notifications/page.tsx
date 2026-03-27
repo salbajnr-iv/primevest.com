@@ -9,7 +9,7 @@ import { IconBadge } from "@/components/ui/IconBadge";
 import { PageSectionHeader } from "@/components/ui/PageSectionHeader";
 import { PageMain, PageShell, StickyPageHeader } from "@/components/ui/page-layout";
 import { useAuth } from "@/contexts/AuthContext";
-import { mapNotificationRow, useNotifications, type AppNotification, type NotificationRow } from "@/hooks/useNotifications";
+import { mapNotificationRow, useNotifications, type AppNotification, type NotificationRow } from "@/docs/hooks/useNotifications";
 import { createClient } from "@/lib/supabase/client";
 
 type Notification = AppNotification;
@@ -194,7 +194,6 @@ export default function NotificationsPage() {
     if (!userId) return;
 
     const supabase = createClient();
-    if (!supabase) return;
 
     const { data, error } = await supabase
       .from("notifications")
@@ -225,10 +224,6 @@ export default function NotificationsPage() {
 
     const load = async () => {
       const supabase = createClient();
-      if (!supabase) {
-        setNotificationsList(notifications);
-        return;
-      }
 
       const { data, error } = await supabase
         .from("notifications")
@@ -275,7 +270,6 @@ export default function NotificationsPage() {
     if (!authUser) return;
 
     const supabase = createClient();
-    if (!supabase) return;
 
     const { error } = await supabase
       .from("notifications")
@@ -303,7 +297,6 @@ export default function NotificationsPage() {
     if (!authUser) return;
 
     const supabase = createClient();
-    if (!supabase) return;
 
     const { error } = await supabase
       .from("notifications")

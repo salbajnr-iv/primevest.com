@@ -180,6 +180,74 @@
           ]
         }
       }
+    },
+    {
+      "name": "Ledger Transfer POST (Admin)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{auth_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"from_wallet_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"to_wallet_id\": \"target-wallet-uuid\",\n  \"asset\": \"EUR\",\n  \"network\": \"mainnet\",\n  \"amount\": \"100.00\",\n  \"idempotency_key\": \"unique-key-123\",\n  \"metadata\": { \"reason\": \"Manual Credit\" }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/ledger/transfer",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "ledger",
+            "transfer"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin Audit Logs GET",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{auth_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/admin/actions?page=1&limit=50",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "admin",
+            "actions"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "50"
+            }
+          ]
+        }
+      }
     }
   ],
   "variable": [

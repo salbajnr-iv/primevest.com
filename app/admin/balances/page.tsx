@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
+import BalanceAdjustmentModal from '@/app/admin/components/BalanceAdjustmentModal'
 
 export const dynamic = 'force-dynamic'
 interface BalanceHistoryEntry {
@@ -38,55 +39,39 @@ export default function AdminBalancesPage() {
   })
   const [loading, setLoading] = useState(true)
   const [actionFilter, setActionFilter] = useState<string>('all')
+  const [showAdjustmentModal, setShowAdjustmentModal] = useState(false)
 
   const supabase = createClient()
 
-  useEffect(() => {
-    fetchBalanceHistory()
-  }, [pagination.page, actionFilter])
-
-  const fetchBalanceHistory = async () => {
+  const fetchBalanceHistory = useCallback(async () => {
     setLoading(true)
 
-    if (!supabase) {
-      setBalanceHistory([])
-      setPagination(prev => ({ ...prev, total: 0 }))
-      setLoading(false)
-      return
-    }
 
     try {
-      const from = (pagination.page - 1) * pagination.limit
-      const to = from + pagination.limit - 1
-
-      let query = supabase
-        .from('balance_history')
-        .select(`
-          *,
-          profiles:user_id (email, full_name)
-        `, { count: 'exact' })
-        .range(from, to)
-        .order('created_at', { ascending: false })
-
-      if (actionFilter !== 'all') {
-        query = query.eq('action_type', actionFilter)
-      }
-
-      const { data, error, count } = await query
-
-      if (error) {
-        console.error('Error fetching balance history:', error)
+      const tokenRes = await supabase.auth.getSession()
+      const token = tokenRes.data?.session?.access_token || ''
+      const res = await fetch(`/api/admin/balances?page=${pagination.page}&limit=${pagination.limit}&action=${actionFilter}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const data = await res.json()
+      
+      if (!res.ok) {
+        console.error('Error fetching balance history:', data.error)
         return
       }
 
-      setBalanceHistory(data as unknown as BalanceHistoryEntry[])
-      setPagination(prev => ({ ...prev, total: count || 0 }))
+      setBalanceHistory(data.history as BalanceHistoryEntry[])
+      setPagination(prev => ({ ...prev, total: data.total || 0 }))
     } catch (error) {
       console.error('Error fetching balance history:', error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase, pagination.page, pagination.limit, actionFilter])
+
+  useEffect(() => {
+    fetchBalanceHistory()
+  }, [fetchBalanceHistory])
 
   const totalPages = Math.ceil(pagination.total / pagination.limit)
 
@@ -121,8 +106,17 @@ export default function AdminBalancesPage() {
           <h1 className="text-2xl font-bold text-white">Balance History</h1>
           <p className="text-gray-400 mt-1">Track all balance adjustments</p>
         </div>
-        <div className="text-sm text-gray-400">
-          Total Records: <span className="text-white font-medium">{pagination.total}</span>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setShowAdjustmentModal(true)}
+            className="px-4 py-2 bg-green-700 hover:bg-green-600 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+            New Adjustment
+          </button>
+          <div className="text-sm text-gray-400">
+            Total Records: <span className="text-white font-medium">{pagination.total}</span>
+          </div>
         </div>
       </div>
 
@@ -243,6 +237,13 @@ export default function AdminBalancesPage() {
           </div>
         )}
       </div>
+
+      {showAdjustmentModal && (
+        <BalanceAdjustmentModal
+          onClose={() => setShowAdjustmentModal(false)}
+          onSuccess={() => fetchBalanceHistory()}
+        />
+      )}
     </div>
   )
 }

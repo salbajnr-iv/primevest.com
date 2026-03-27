@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "./supabase";
+import { supabaseAdmin } from "./supabase.ts";
 
 export type AdminContext = {
   adminId: string;

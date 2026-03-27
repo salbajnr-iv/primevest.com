@@ -1,11 +1,19 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import KycReviewModal from '@/app/admin/components/KycReviewModal'
 
 export const dynamic = 'force-dynamic'
+
+interface KycDocument {
+  id: string
+  file_name: string
+  doc_type: string
+  mime_type: string
+}
+
 interface KycRequestEntry {
   id: string
   user_id: string
@@ -14,7 +22,7 @@ interface KycRequestEntry {
   reviewed_at?: string
   review_reason?: string
   profiles?: { email?: string; full_name?: string | null }
-  kyc_documents?: any[]
+  kyc_documents?: KycDocument[]
 }
 
 interface PaginationState {
@@ -34,54 +42,39 @@ export default function AdminKycPage() {
 
   const supabase = createClient()
 
-  useEffect(() => {
-    fetchRequests()
-  }, [pagination.page, statusFilter])
-
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     setLoading(true)
 
-    if (!supabase) {
-      setRequests([])
-      setPagination(prev => ({ ...prev, total: 0 }))
-      setLoading(false)
-      return
-    }
 
     try {
-      const from = (pagination.page - 1) * pagination.limit
-      const to = from + pagination.limit - 1
-
-      let query = supabase
-        .from('kyc_requests')
-        .select('*, kyc_documents(*), profiles:user_id (email, full_name)', { count: 'exact' })
-        .range(from, to)
-        .order('submitted_at', { ascending: false })
-
-      if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter)
-      }
-
-      const { data, error, count } = await query
-      if (error) {
-        console.error('Error fetching KYC requests:', error)
+      const res = await fetch(`/api/admin/kyc/requests?page=${pagination.page}&limit=${pagination.limit}&status=${statusFilter}${search ? `&search=${search}` : ''}`)
+      const data = await res.json()
+      
+      if (!res.ok) {
+        console.error('Error fetching KYC requests:', data.error)
         return
       }
 
-      let list = (data as KycRequestEntry[]) || []
+      let list = (data.requests as KycRequestEntry[]) || []
+      // The API already handles status filtering, but search is handled client-side in original code
+      // I'll keep the client-side filtering if the API doesn't support it yet
       if (search) {
         const s = search.toLowerCase()
         list = list.filter(r => (r.profiles?.email || '').toLowerCase().includes(s) || (r.profiles?.full_name || '').toLowerCase().includes(s))
       }
 
       setRequests(list)
-      setPagination(prev => ({ ...prev, total: count || 0 }))
+      setPagination(prev => ({ ...prev, total: data.total || 0 }))
     } catch (err) {
       console.error('Error fetching KYC requests:', err)
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase, pagination.page, pagination.limit, statusFilter, search])
+
+  useEffect(() => {
+    fetchRequests()
+  }, [fetchRequests])
 
   const totalPages = Math.ceil(pagination.total / pagination.limit)
 

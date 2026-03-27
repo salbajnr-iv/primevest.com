@@ -1,34 +1,77 @@
+
+"use client";
+
+import React from "react";
+import MarketOverview from "@/components/MarketOverview";
+import MarketTable from "@/components/MarketTable";
+import { useMarketData } from "@/docs/hooks/use-market-data";
+import { LineChart, Zap, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/lib/routes";
 
 export default function DashboardMarketPage() {
+  const { assets, stats, lastTickSymbol, tickDirection } = useMarketData();
+
   return (
-    <main className="mx-auto w-full max-w-5xl p-6 space-y-6">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-semibold">Market Overview</h1>
-        <p className="text-sm text-slate-600">Track broad market sentiment and jump into deeper market movers data.</p>
+    <main className="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8 space-y-8 animate-fadeIn">
+      {/* Header Section */}
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-100">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full w-fit">
+            <Zap size={12} className="animate-pulse" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">Real-time Markets Live</span>
+          </div>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 font-primevest-compressed">Market Insights</h1>
+          <p className="text-base text-slate-500 max-w-2xl font-medium">
+            Track global market sentiment, real-time asset fluctuations, and deep liquidity movers in one unified view.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Link 
+            href={ROUTES.markets.news}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 hover:border-emerald-500 transition-all shadow-sm"
+          >
+            <LineChart size={16} />
+            Market News
+          </Link>
+          <button className="p-2.5 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-colors">
+            <AlertCircle size={20} />
+          </button>
+        </div>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2">
-        <article className="rounded-xl border border-slate-200 p-4">
-          <h2 className="text-base font-medium">Market News</h2>
-          <p className="mt-2 text-sm text-slate-600">Read the latest curated headlines affecting crypto and macro conditions.</p>
-          <Link href={ROUTES.markets.news} className="mt-4 inline-flex text-sm font-medium text-emerald-700 hover:text-emerald-800">
-            Open market news →
-          </Link>
-        </article>
+      {/* Bento Overview */}
+      <MarketOverview stats={stats} />
 
-        <article className="rounded-xl border border-slate-200 p-4">
-          <h2 className="text-base font-medium">Top Gainers and Losers</h2>
-          <p className="mt-2 text-sm text-slate-600">Review daily leaders and laggards from the in-app markets feed.</p>
-          <Link
+      {/* Market Table Section */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            Trending Assets
+            <span className="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full animate-pulse">LIVE</span>
+          </h2>
+          <Link 
             href={ROUTES.dashboard.gainersLosers}
-            className="mt-4 inline-flex text-sm font-medium text-emerald-700 hover:text-emerald-800"
+            className="text-sm font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition-all"
           >
-            View movers →
+            View all movers →
           </Link>
-        </article>
+        </div>
+        
+        <MarketTable 
+          assets={assets} 
+          lastTickSymbol={lastTickSymbol}
+          tickDirection={tickDirection}
+        />
       </section>
+
+      {/* Disclaimer */}
+      <footer className="pt-8 border-t border-slate-100">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-[11px] text-slate-400 leading-relaxed italic text-center">
+          Market data provided is for informational purposes only and may be subject to delays or inaccuracies. Trading digital assets involves significant risk. PrimeVest does not provide investment advice. Check local regulations before trading.
+        </div>
+      </footer>
     </main>
   );
 }

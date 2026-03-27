@@ -1,43 +1,52 @@
-# Implementation Plan - Portfolio Features & KYC Enhancement
+# Implementation Plan
 
 ## Overview
-This plan tracks improvements for portfolio UX, trading flows, and a professional multi-step KYC experience.
 
-## Current State
+Fix the Next.js Turbopack build failure caused by invalid import placement in app router API route handlers and address other potential build blockers. The primary error occurs in `./app/api/kyc/submit/route.ts` where an `import { createClient } from "@supabase/supabase-js";` statement appears mid-function after a `return` statement at line 29, causing a parsing error. Similar direct `@supabase/supabase-js` imports exist in other API routes and lib files, which should be refactored to use the project's established server-side Supabase wrappers (`lib/supabase/admin.ts`, `lib/supabase/server.ts`) for consistency and "server-only" compliance. Secondary issues include a deprecated "middleware" warning (handled by keeping existing `middleware.ts` and monitoring Next.js updates) and potential TS errors noted in TODO-FIX-BUILD.md.
 
-### Portfolio and Trading
-- ✅ Core dashboard routes exist for portfolio, buy/sell/swap, and deposit flows.
-- ⚠️ UI consistency and data-rich feedback (fees, slippage, breakdowns) still need work.
+## Types
 
-### KYC
-- ✅ Basic KYC flow and admin review exist.
-- ⚠️ End-user flow is still too linear and lacks stronger status/progress UX.
+No new types required. Reuse existing Supabase client return types from `@supabase/supabase-js` via wrapper functions.
 
-## Key Workstreams
+## Files
 
-### 1) Dashboard and Portfolio UX
-- Add stronger summary cards and clearer account context.
-- Improve holdings readability and action discoverability.
-- Standardize spacing, states, and interactions across sections.
+Update 4 existing API route files to remove invalid/mid-file imports and use Supabase wrappers. No new files; no deletions.
 
-### 2) Buy / Sell / Swap / Deposit Enhancements
-- Add quick amount controls and richer fee/impact breakdowns.
-- Improve validation messaging and edge-state handling.
-- Make review/success pages consistent and informative.
+- `app/api/kyc/submit/route.ts`: Move rogue import to top, replace duplicate client creation with `createAdminClient()`.
+- `app/api/admin/transactions/withdraw-review/route.ts`: Remove top-level `createClient` import, use `createAdminClient()`.
+- `lib/supabase/admin.ts`: Minor - ensure singleton pattern is build-safe (already appears correct).
+- `lib/supabase/server.ts`: Already uses `@supabase/ssr` correctly; no changes but verify in context.
+- Optional: Update `lib/market/snapshots.ts` if it uses direct import in server context.
 
-### 3) KYC Multi-step Experience
-- Step 1: Personal details.
-- Step 2: Document type selection.
-- Step 3: Upload with preview and quality checks.
-- Step 4: Final confirmation and submission.
-- Add dedicated status page with progress and feedback.
+## Functions
 
-### 4) QA and Hardening
-- Responsive checks on small/medium/large breakpoints.
-- Navigation integrity and deep-link validation.
-- Performance and accessibility pass on key user journeys.
+Update client creation calls in API handlers to use wrappers.
 
-## Success Criteria
-- Portfolio and trading pages feel cohesive and production-ready.
-- KYC has clear stages, progress communication, and actionable feedback.
-- Primary workflows are reliable across devices.
+- Modified: `POST` handler in `app/api/kyc/submit/route.ts` - replace raw `createClient(supabaseUrl, serviceRoleKey, ...)` calls with `createAdminClient()`.
+- Modified: Client creation in `app/api/admin/transactions/withdraw-review/route.ts` - replace direct import/creation with `createAdminClient()`.
+- No new/removed functions.
+
+## Classes
+
+No class modifications required.
+
+## Dependencies
+
+No changes. Uses existing `@supabase/supabase-js@^2.45.0` and `@supabase/ssr@^0.8.0`.
+
+## Testing
+
+Run `npm run lint` (should pass), `npm run build` (primary validation - expect success), `npm run dev` (smoke test startup). Test affected endpoints manually via Postman collection or browser:
+
+- POST `/api/kyc/submit` with auth token and mock documents.
+- Admin endpoints if accessible.
+- Verify no runtime errors in dev mode for KYC submission flow.
+
+## Implementation Order
+
+1. Fix primary error file: edit `app/api/kyc/submit/route.ts` to move import to top and refactor client creation.
+2. Run `npm run build` to confirm primary fix resolves parsing error.
+3. Fix similar pattern in `app/api/admin/transactions/withdraw-review/route.ts`.
+4. Check `lib/market/snapshots.ts` and fix if server-context direct import.
+5. Run full `npm run lint && npm run build` to validate all changes.
+6. Update TODO-FIX-BUILD.md with verification log.

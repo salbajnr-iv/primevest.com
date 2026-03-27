@@ -11,5 +11,16 @@
             "name": "postgres.xhyivvvbrcmbjvzmvlod",
             "group": "postgres"
         }
-    ]
+    ],
+    "chat.mcp.serverSampling": {
+        "primevest.com/.vscode/mcp.json: supabase": {
+            "allowedModels": [
+                "qoder-edit-lm-vendor/auto",
+                "qoder-edit-lm-vendor/efficient",
+                "qoder-edit-lm-vendor/lite",
+                "qoder-edit-lm-vendor/performance",
+                "qoder-edit-lm-vendor/ultimate"
+            ]
+        }
+    }
 }

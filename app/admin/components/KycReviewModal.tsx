@@ -3,8 +3,26 @@
 import React from 'react'
 import { createClient } from '@/lib/supabase/client'
 
+interface KycDocument {
+  id: string
+  file_name: string
+  doc_type: string
+  mime_type: string
+}
+
+interface KycRequest {
+  id: string
+  status: string
+  submitted_at: string
+  user_id: string
+  profiles?: {
+    email: string
+  }
+  kyc_documents?: KycDocument[]
+}
+
 export default function KycReviewModal({ requestId, onClose, onUpdated }: { requestId: string, onClose: () => void, onUpdated?: () => void }) {
-  const [request, setRequest] = React.useState<any | null>(null)
+  const [request, setRequest] = React.useState<KycRequest | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [actionLoading, setActionLoading] = React.useState(false)
   const [reason, setReason] = React.useState('')
@@ -51,7 +69,7 @@ export default function KycReviewModal({ requestId, onClose, onUpdated }: { requ
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed')
       alert('Review saved')
-      onUpdated && onUpdated()
+      onUpdated?.()
       onClose()
     } catch (e) {
       console.error(e)
@@ -83,11 +101,11 @@ export default function KycReviewModal({ requestId, onClose, onUpdated }: { requ
             <div>
               <div className="mb-4">
                 <div className="text-gray-300">Status: <strong className="text-white">{request?.status}</strong></div>
-                <div className="text-gray-400 text-sm">Submitted: {new Date(request?.submitted_at).toLocaleString()}</div>
+                <div className="text-gray-400 text-sm">Submitted: {request?.submitted_at ? new Date(request.submitted_at).toLocaleString() : '—'}</div>
               </div>
 
               <div className="space-y-2">
-                {request?.kyc_documents?.map((d: any) => (
+                {request?.kyc_documents?.map((d) => (
                   <div key={d.id} className="p-3 bg-gray-700 rounded-lg flex items-center justify-between">
                     <div>
                       <div className="text-white font-medium">{d.file_name}</div>

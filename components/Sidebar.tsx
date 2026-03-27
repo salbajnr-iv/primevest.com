@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useWindowSize } from "@/hooks/useWindowSize";
-import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { useWindowSize } from "@/docs/hooks/useWindowSize";
+import { useFocusTrap } from "@/docs/hooks/useFocusTrap";
 import { SidebarContent } from "./SidebarContent";
 import { SidebarErrorBoundary, SidebarLoading } from "./SidebarErrorBoundary";
 
