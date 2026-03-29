@@ -19,7 +19,7 @@ type AssetRow = {
   symbol: string;
   name: string;
   status: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 };
 
 
@@ -77,17 +77,6 @@ function toNumber(value: number | string | null | undefined): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function toSource(snapshot?: SnapshotRow): string {
-  const source = String(snapshot?.source ?? "unavailable").trim() || "unavailable";
-  const sourceStatus = String(snapshot?.source_status ?? "").trim().toLowerCase();
-
-  if (!sourceStatus || sourceStatus === "live") {
-    return source;
-  }
-
-  return `${source}:${sourceStatus}`;
-}
-
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const rawCategory = (searchParams.get("category") ?? "all").toLowerCase();
@@ -110,16 +99,7 @@ export async function GET(req: Request) {
     }
 
     // Filter out Supabase error objects and invalid rows
-    const validAssets = (assets ?? [])
-      .filter((row): row is AssetRow => {
-        return row && 
-               typeof row === 'object' && 
-               'id' in row && 
-               typeof row.id === 'string' &&
-               'symbol' in row &&
-               typeof row.symbol === 'string' &&
-               row.status === 'active';
-      });
+    const validAssets = (assets as unknown as AssetRow[] | null) ?? [];
 
     const normalizedAssets = validAssets
       .map((row) => ({
@@ -166,8 +146,8 @@ export async function GET(req: Request) {
     const listings: MarketListing[] = normalizedAssets.map((asset) => {
       const symbol = asset.symbol;
       const snapshot = snapshotMap.get(symbol);
-      const metadata = (asset.metadata ?? {}) as Record<string, any>;
-      const baselinePrice = toNumber(metadata.baseline_price_eur ?? metadata.baselinePrice ?? 0);
+      const metadata = (asset.metadata ?? {}) as Record<string, unknown>;
+      const baselinePrice = toNumber((metadata.baseline_price_eur ?? metadata.baselinePrice) as number | string | null | undefined);
       const livePrice = toNumber(snapshot?.price ?? 0);
       const change24h = baselinePrice > 0 ? ((livePrice - baselinePrice) / baselinePrice) * 100 : 0;
 
@@ -184,17 +164,17 @@ export async function GET(req: Request) {
         category: toCategory(asset),
         type: toListingType(asset),
         status: asset.status,
-        iconSrc: metadata.icon_src ?? metadata.iconSrc ?? "",
+        iconSrc: String(metadata.icon_src ?? metadata.iconSrc ?? ""),
         price: Number(livePrice.toFixed(6)),
         change24h: Number(change24h.toFixed(2)),
-        marketCap: toNumber(metadata.market_cap ?? metadata.marketCap ?? 0),
-        volume24h: toNumber(metadata.volume_24h ?? metadata.volume24h ?? 0),
+        marketCap: toNumber((metadata.market_cap ?? metadata.marketCap) as number | string | null | undefined),
+        volume24h: toNumber((metadata.volume_24h ?? metadata.volume24h) as number | string | null | undefined),
         source: snapshot?.source ?? "unavailable",
         pricedAt,
         sourceStatus: snapshot?.sourceStatus ?? "stale",
         freshness: {
           ageSeconds: freshnessAgeSeconds,
-          status: freshnessStatus,
+          status: freshnessStatus === 'live' ? 'fresh' : freshnessStatus,
           isStale: freshnessStatus === "stale",
         },
       };

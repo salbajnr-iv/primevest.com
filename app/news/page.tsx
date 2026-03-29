@@ -1,4 +1,4 @@
-cimport { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
 interface NewsItem {

@@ -10,7 +10,7 @@ export interface QuoteResult {
 }
 
 export const getQuote = cache(async (symbol: string): Promise<QuoteResult | null> => {
-  const response = await fetch(`\$/api/market/quote/\${symbol}?symbol=\${symbol}`, {
+  const response = await fetch(`/api/market/quote/${symbol}?symbol=${symbol}`, {
     cache: 'no-store',
   });
   if (!response.ok) return null;
