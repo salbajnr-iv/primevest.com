@@ -8,4 +8,7 @@
 - [x] 5. Verify: Run eslint and tsc.
 - [x] 6. Complete.
 
-Current progress: Starting step 1.
+## Additional fixes
+- [x] 7. Remove legacy misspelled wallet balances API route (`app/api/ballets/balances/route.ts`) to satisfy regression checks.
+
+Current progress: Completed all listed steps, including wallet balance API cleanup.
