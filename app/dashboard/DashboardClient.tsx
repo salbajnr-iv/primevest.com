@@ -72,7 +72,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
   const [activePerfRange, setActivePerfRange] = React.useState<PerformanceRange>("1M");
   const [liveActivityFeed, setLiveActivityFeed] = React.useState<ActivityFeedItem[]>(initialData.activityFeed);
   const [liveAlerts, setLiveAlerts] = React.useState<AlertNotificationItem[]>(initialData.alerts);
-  const [pollData, setPollData] = React.useState<Record<string, unknown> | null>(null);
+
   const [freshness, setFreshness] = React.useState<DashboardTimestampMeta>(initialData.freshness);
 
   const [kpiState, setKpiState] = React.useState<DashboardWidgetState>("ready");
@@ -242,18 +242,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
     };
   }, []);
 
-  // Realtime poll data
-  React.useEffect(() => {
-    async function loadPoll() {
-      try {
-        const res = await fetch('/api/dashboard/polls');
-        if (res.ok) setPollData(await res.json());
-      } catch (e) {
-        console.log('Poll load failed:', e);
-      }
-    }
-    loadPoll();
-  }, []);
+
 
 
   React.useEffect(() => {
@@ -413,8 +402,6 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
         widgetContract={widgetContract}
         freshness={freshness}
         activeDateInterval={activeDateInterval}
-        tableState={tableState}
-        onRetryTable={() => setTableState("loading")}
       />
 
       <section className="grid gap-3 xl:grid-cols-3">

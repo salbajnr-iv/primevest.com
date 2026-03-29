@@ -19,15 +19,9 @@ type AssetRow = {
   symbol: string;
   name: string;
   status: string;
-  category: string | null;
-  listing_type: string | null;
-  asset_type: string | null;
-  class_type: string | null;
-  icon_src: string | null;
-  market_cap: number | string | null;
-  volume_24h: number | string | null;
-  baseline_price_eur: number | string | null;
+  metadata?: Record<string, any>;
 };
+
 
 type SnapshotRow = {
   asset: string | null;
@@ -39,17 +33,17 @@ type SnapshotRow = {
 };
 
 function toCategory(asset: AssetRow): AssetCategory {
-  const rawCategory = String(asset.category ?? "").toLowerCase();
+  const rawCategory = String(asset.metadata?.category ?? "").toLowerCase();
   if (ALLOWED_CATEGORIES.has(rawCategory as AssetCategory)) {
     return rawCategory as AssetCategory;
   }
 
-  const rawClassType = String(asset.class_type ?? "").toLowerCase();
+  const rawClassType = String(asset.metadata?.class_type ?? "").toLowerCase();
   if (ALLOWED_CATEGORIES.has(rawClassType as AssetCategory)) {
     return rawClassType as AssetCategory;
   }
 
-  const rawAssetType = String(asset.asset_type ?? "").toLowerCase();
+  const rawAssetType = String(asset.metadata?.asset_type ?? "").toLowerCase();
   if (rawAssetType === "stock") return "stocks";
   if (rawAssetType === "etf") return "etfs";
   if (rawAssetType === "index") return "indices";
@@ -61,19 +55,22 @@ function toCategory(asset: AssetRow): AssetCategory {
   return "crypto";
 }
 
+
 function toListingType(asset: AssetRow): string {
-  const directType = String(asset.listing_type ?? "").trim().toLowerCase();
+  const directType = String(asset.metadata?.listing_type ?? "").trim().toLowerCase();
   if (directType) return directType;
 
-  const classType = String(asset.class_type ?? "").trim().toLowerCase();
+  const classType = String(asset.metadata?.class_type ?? "").trim().toLowerCase();
   if (classType) return classType;
 
-  const assetType = String(asset.asset_type ?? "").trim().toLowerCase();
+  const assetType = String(asset.metadata?.asset_type ?? "").trim().toLowerCase();
   if (assetType === "fiat") return "pair";
   if (assetType === "stock" || assetType === "etf" || assetType === "index") return "cfd";
 
   return "spot";
 }
+
+
 
 function toNumber(value: number | string | null | undefined): number {
   const parsed = Number(value ?? 0);
@@ -103,23 +100,37 @@ export async function GET(req: Request) {
 
     const { data: assets, error: assetsError } = await supabase
       .from("assets")
-      .select("id, symbol, name, status, category, listing_type, asset_type, class_type, icon_src, market_cap, volume_24h, baseline_price_eur")
+      .select("id, symbol, name, status, metadata")
       .eq("status", "active")
       .order("symbol", { ascending: true });
+
 
     if (assetsError) {
       return NextResponse.json({ ok: false, error: assetsError.message }, { status: 500 });
     }
 
-    const normalizedAssets = (assets ?? [])
+    // Filter out Supabase error objects and invalid rows
+    const validAssets = (assets ?? [])
+      .filter((row): row is AssetRow => {
+        return row && 
+               typeof row === 'object' && 
+               'id' in row && 
+               typeof row.id === 'string' &&
+               'symbol' in row &&
+               typeof row.symbol === 'string' &&
+               row.status === 'active';
+      });
+
+    const normalizedAssets = validAssets
       .map((row) => ({
-        ...(row as AssetRow),
-        symbol: String(row.symbol ?? "").toUpperCase(),
+        ...row,
+        symbol: row.symbol.toUpperCase(),
       }))
       .filter((row) => {
         if (category === "all") return true;
         return toCategory(row) === category;
       });
+
 
     if (!normalizedAssets.length) {
       return NextResponse.json({
@@ -152,14 +163,15 @@ export async function GET(req: Request) {
       ]),
     );
 
-    const listings: MarketListing[] = filteredAssets.map((asset) => {
-      const symbol = String(asset.symbol ?? "").toUpperCase();
+    const listings: MarketListing[] = normalizedAssets.map((asset) => {
+      const symbol = asset.symbol;
       const snapshot = snapshotMap.get(symbol);
-      const metadata = asset.metadata ?? {};
-      const baselinePrice = toNumber(asset.baseline_price ?? metadata.baselinePrice, snapshot?.price ?? 0);
-      const livePrice = toNumber(snapshot?.price, baselinePrice);
+      const metadata = (asset.metadata ?? {}) as Record<string, any>;
+      const baselinePrice = toNumber(metadata.baseline_price_eur ?? metadata.baselinePrice ?? 0);
+      const livePrice = toNumber(snapshot?.price ?? 0);
       const change24h = baselinePrice > 0 ? ((livePrice - baselinePrice) / baselinePrice) * 100 : 0;
-      const pricedAt = snapshot?.priced_at ?? snapshot?.updated_at ?? null;
+
+
 
       const pricedAt = snapshot?.pricedAt ?? null;
       const freshnessAgeSeconds = pricedAt ? getAgeSeconds(pricedAt) : Number.MAX_SAFE_INTEGER;
@@ -169,14 +181,14 @@ export async function GET(req: Request) {
         id: asset.id,
         symbol: asset.symbol,
         name: asset.name,
-        category: asset.category as AssetCategory,
-        type: asset.type ?? "spot",
+        category: toCategory(asset),
+        type: toListingType(asset),
         status: asset.status,
-        iconSrc: asset.icon_src ?? metadata.iconSrc ?? "",
+        iconSrc: metadata.icon_src ?? metadata.iconSrc ?? "",
         price: Number(livePrice.toFixed(6)),
         change24h: Number(change24h.toFixed(2)),
-        marketCap: toNumber(asset.market_cap ?? metadata.marketCap),
-        volume24h: toNumber(asset.volume_24h ?? metadata.volume24h),
+        marketCap: toNumber(metadata.market_cap ?? metadata.marketCap ?? 0),
+        volume24h: toNumber(metadata.volume_24h ?? metadata.volume24h ?? 0),
         source: snapshot?.source ?? "unavailable",
         pricedAt,
         sourceStatus: snapshot?.sourceStatus ?? "stale",
@@ -187,6 +199,7 @@ export async function GET(req: Request) {
         },
       };
     });
+
 
     const timestamps = listings
       .map((row) => row.pricedAt)

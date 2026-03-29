@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "./ThemeToggle";
 import { ROUTES } from "@/lib/routes";
+import { BarChart3, DollarSign } from "lucide-react";
 import {
   AlertCircle,
   ArrowLeftRight,
@@ -50,14 +51,15 @@ const menuSections: MenuSection[] = [
       { icon: ArrowLeftRight, label: "Withdraw Funds", href: ROUTES.wallets.withdraw },
     ],
   },
-  {
-    title: "Market Insights",
-    items: [
-      { icon: TrendingUp, label: "Market Overview", href: ROUTES.dashboard.market },
-      { icon: LineChart, label: "Top Gainers and Losers", href: ROUTES.dashboard.gainersLosers },
-      { icon: Newspaper, label: "Market News", href: ROUTES.markets.news },
-    ],
-  },
+    {
+      title: "Market Insights",
+      items: [
+        { icon: TrendingUp, label: "Market Overview", href: ROUTES.dashboard.market },
+        { icon: BarChart3, label: "Asset Prices", href: "/prices" },
+        { icon: LineChart, label: "Top Gainers and Losers", href: ROUTES.dashboard.gainersLosers },
+        { icon: Newspaper, label: "Market News", href: ROUTES.markets.news },
+      ],
+    },
   {
     title: "Trading Tools",
     items: [

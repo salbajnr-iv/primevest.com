@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server';
-
-import { createClient } from '@/lib/supabase/server';\nimport type { Tables } from '@/types/supabase';
-
-type OrderRow = Tables<'orders'>;
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -29,7 +26,7 @@ export async function GET(request: Request) {
   const bidLevels = new Map<number, number>();
   const askLevels = new Map<number, number>();
 
-  for (const order of (orders ?? []) as OrderRow[]) {
+  for (const order of (orders ?? [])) {
     const price = Number(order.price ?? 0);
     const amount = Number(order.amount ?? 0);
 
@@ -72,3 +69,4 @@ export async function GET(request: Request) {
 
   return NextResponse.json({ bids, asks });
 }
+

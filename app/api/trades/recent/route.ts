@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import type { RecentTrade } from '@/types/trade';
+import type { Database } from '@/types/supabase';
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -9,7 +10,7 @@ export async function GET(request: Request) {
 
   const { data: trades, error } = await supabase
     .from('trades')
-    .select('id, price, amount, side, created_at')
+    .select('id, pair, price, amount, side, created_at')
     .eq('pair', pair)
     .order('created_at', { ascending: false })
     .limit(20);
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
     ]);
   }
 
-  const recentTrades: RecentTrade[] = trades?.map((t: any) => ({
+  const recentTrades: RecentTrade[] = trades?.map((t: Database['public']['Tables']['trades']['Row']) => ({
     time: new Date(t.created_at).toLocaleTimeString(),
     price: Number(t.price),
     amount: Number(t.amount),
@@ -32,3 +33,4 @@ export async function GET(request: Request) {
 
   return NextResponse.json(recentTrades);
 }
+

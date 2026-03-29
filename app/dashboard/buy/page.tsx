@@ -12,10 +12,13 @@ import {
   SummaryRow,
   TransactionActionFooter,
 } from "@/components/ui/transactional-page";
+import { FreshnessBadge } from "@/components/ui/FreshnessBadge";
 import styles from "@/components/ui/transactional-pages.module.css";
 import { calculateMarketImpactPercent, formatImpactPercent } from "@/lib/swap/market-impact";
 import { useDashboardSummary } from "@/lib/dashboard/use-dashboard-summary";
 import { useLiveMarket, type LiveMarketAsset } from "@/lib/market/use-live-market";
+import { useQuote } from "@/lib/market/use-quote";
+import type { MarketFreshnessState } from "@/lib/market/freshness";
 
 interface Asset extends Omit<LiveMarketAsset, "price"> {
   price: number;
@@ -35,7 +38,7 @@ export default function DashboardBuyPage() {
   const { assets: liveAssets, loading: marketLoading, error: marketError, hasStaleData, hasUnavailableData, lastSyncedAt } = useLiveMarket();
   const assets = React.useMemo<Asset[]>(
     () => liveAssets
-      .filter((a) => a.price !== null)
+      .filter((a): a is LiveMarketAsset & { price: number } => typeof a.price === 'number' && a.price > 0)
       .map((a) => ({ ...a, liquidityEur: DEFAULT_LIQUIDITY_EUR[a.symbol] ?? 1_000_000 })),
     [liveAssets],
   );
@@ -69,7 +72,9 @@ export default function DashboardBuyPage() {
   const impactPct = calculateMarketImpactPercent({ amountEur: parsedEur, liquidityEur: asset?.liquidityEur ?? 1_000_000 });
   const availableCashBalance = Number(summary.availableBalance ?? 0);
   const hasCashBalance = total <= availableCashBalance;
-  const isValid = parsedEur > 0 && hasCashBalance && Boolean(asset?.price);
+  const { quote: selectedQuote } = useQuote(asset?.symbol ?? '');
+  const quoteStale = selectedQuote?.freshness === 'stale';
+  const isValid = parsedEur > 0 && hasCashBalance && Boolean(asset?.price) && !quoteStale;
 
   function next() {
     if (!isValid || !asset) return;
@@ -123,7 +128,10 @@ export default function DashboardBuyPage() {
                         {asset ? <div className={`asset-option-icon ${getAssetColorClass(asset.symbol)}`}>{asset.symbol}</div> : <div className={`asset-option-icon ${getAssetColorClass("BTC")}`}>--</div>}
                         <div>
                           <div className="asset-option-name">{asset?.name ?? "No asset available"}</div>
-                          <div className="asset-option-symbol">{asset?.symbol ?? "--"}</div>
+                          <div className="flex items-center gap-1">
+                            <span>{asset?.symbol ?? "--"}</span>
+                            {asset?.freshnessStatus !== 'unavailable' && typeof asset?.freshnessStatus === 'string' && <FreshnessBadge freshness={asset.freshnessStatus as MarketFreshnessState} size="sm" />}
+                          </div>
                         </div>
                       </div>
                       <svg className={styles.chevronIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -157,8 +165,9 @@ export default function DashboardBuyPage() {
                             <div className="asset-option-info">
                               <div className="asset-option-name">{a.name}</div>
                               <div className="asset-option-symbol">{a.symbol}</div>
+                              {a.freshnessStatus !== "unavailable" && a.freshnessStatus && <FreshnessBadge freshness={a.freshnessStatus as MarketFreshnessState} size="sm" />}
                             </div>
-                            <div className={styles.assetPrice}>{a.price.toLocaleString("en-US", { style: "currency", currency: "EUR" })}</div>
+                <div className={styles.assetPrice}>{a.price?.toLocaleString("en-US", { style: "currency", currency: "EUR" })}</div>
                           </div>
                         ))}
                       </div>

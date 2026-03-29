@@ -34,3 +34,12 @@ export type AssetSnapshot = {
   freshnessStatus: MarketFreshnessState;
   freshnessAgeSeconds: number;
 };
+
+export interface QuoteResult {
+  priceEur: number;
+  timestamp: string;
+  freshness: MarketFreshnessState;
+  ageSeconds: number;
+  source: string;
+}
+
