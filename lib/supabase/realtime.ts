@@ -193,6 +193,7 @@ export function useSupportTicketRepliesRealtime(onReplyInsert: (row: RealtimeRep
 export function useMarketPriceRealtime(onPriceUpdate: (row: MarketPriceRealtimeRow) => void, assets?: string[]) {
   useEffect(() => {
     const supabase = createClient();
+    const normalizedAssets = assets?.map((asset) => asset.toUpperCase());
 
     const channel = supabase
       .channel('realtime:market-prices')
@@ -205,11 +206,12 @@ export function useMarketPriceRealtime(onPriceUpdate: (row: MarketPriceRealtimeR
         },
         (payload: RealtimePayload<MarketPriceRealtimeRow>) => {
           const row = payload.new;
-          if (!isValidRow<MarketPriceRealtimeRow>(row) || (assets?.length && !assets.includes(row.asset.toUpperCase()))) {
+          const asset = row.asset.toUpperCase();
+          if (!isValidRow<MarketPriceRealtimeRow>(row) || (normalizedAssets?.length && !normalizedAssets.includes(asset))) {
             return;
           }
           onPriceUpdate({ 
-            asset: row.asset.toUpperCase(), 
+            asset, 
             last_price: row.last_price, 
             source: row.source, 
             status: row.status, 
@@ -355,4 +357,3 @@ export function useTicketRealtime(ticketId: number | null, initialMessages: Real
 
   return { messages, sendMessage, loading };
 }
-
