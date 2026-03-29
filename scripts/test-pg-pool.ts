@@ -1,4 +1,3 @@
-// @ts-expect-error Suppress ban-ts-comment linting
 import { Pool } from 'pg'
 
 const SUPABASE_DB_URL = process.env.SUPABASE_DB_URL
