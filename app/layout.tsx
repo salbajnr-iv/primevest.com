@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import AuthProvider from "@/components/AuthProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { LiveChatWidget } from "@/components/LiveChatWidget";
 import { BRAND, BRAND_COPY } from "@/lib/brand";
 
 
@@ -74,6 +75,7 @@ export default function RootLayout({
             {children}
             </ThemeProvider>
             <Analytics />
+            <LiveChatWidget />
           </LanguageProvider>
         </AuthProvider>
 
