@@ -1,110 +1,50 @@
-# Task 
-There is a second AI agent handling the Supabase backend (tables, realtime, auth).
+# Cleanup TODO - Codebase Cleanup Plan Execution
 
-You must not design or modify the Supabase schema; only use what that agent provides.
+Current Working Directory: c:/Users/DELL 7480/SALBA-JNR/htdocs/primevest.com
 
-You will build a live‑chat widget that sends messages to that backend and listens for new ones in real time.
-Requirements:
+Track progress by marking [x] as steps complete. BLACKBOXAI will update this file iteratively.
 
-Create a Next.js component called LiveChatWidget (or similar) with:
-A floating “Live Chat” button (e.g., fixed bottom‑right).
+## Phase 1: Root Junk Deletion (Immediate, Safe) [ALL ✅]
 
-A chat modal that opens when clicked, showing:
-A message list (from the Supabase backend).
+- [x] Delete: globals.css.backup
+- [x] Delete: \_middleware-deprecated.ts
+- [x] Delete: postgres.xhyivvvbrcmbjvzmvlod.session.sql
+- [x] Delete: server.log
+- [x] Delete: price.json
+- [x] Delete: LIVE_CHAT_WIDGET_COMPLETE.md (feature delivered)
+- [x] Delete: test-api-auth-fixed.ps1, test-api-auth.ps1, test-api.ps1
+- [x] Delete: test-primevest-api.sh, test-profile-fix.js
+- [x] Delete: .hintrc
+- [x] Delete entire: hint-report/ (obsolete HTML report)
+- [x] Delete: print-env.js
 
-A text input and “Send” button.
+## Phase 2: docs/ Cleanup (Preserve TASK_PLAN.md, active items)
 
+### Delete Legacy/Completed MDs (50+ confirmed obsolete/archived):
 
+- [ ] All TODO-FIX-_.md (e.g., TODO-FIX-TS-ERRORS.md - completed), TYPESCRIPT*FIX*_.md
+- [ ] Legacy TODOs: TODO_DASHBOARD.md, TODO_LANGUAGE.md, TODO_MENU_PAGES.md, RESPONSIVENESS_TODO.md, RENAME_TODO.md
+- [ ] Admin/CRON/Deploy: ADMIN*\*.md, CRON*_.md, DEPLOY\__.md, MIGRATION_DEPLOYMENT_PLAN.md (non-canonical)
+- [ ] Implementation/Fix: IMPLEMENTATION*\*.md, FIX_PROFILE*\*.md, implementation_plan.md
+- [ ] Audits/Summaries: api-route-audit.md, backend-\*.md, compact-ui-spec.md
+- [ ] Other completed: CLI-API-TESTING.md, POSTMAN-TESTING.md, etc. (full list from search)
 
-The chat must:
-Load initial messages from Supabase.
+### Delete Subdirs:
 
-Subscribe to new messages in real time using Supabase Realtime.
+- [ ] docs/hooks/ (drafts: use-market-data.ts etc.)
+- [ ] docs/ui-audit/ (QA notes, incomplete READMEs)
 
-Send new messages to the Supabase backend (role: "user").
+### Consolidate:
 
+- [ ] Create docs/COMPLETED_TASKS_ARCHIVE.md → Summarize deleted TODOs + link to TASK_PLAN.md
+- [x] Keep: TASK_PLAN.md (canonical active plan), README.md (if any)
 
-The design should be clean, minimal, and mobile‑friendly (no heavy UI library assumptions).
-Assumptions from backend (you can rely on this structure):
+## Phase 3: Validation & Final
 
-Supabase has a messages table with:
-id, user_id, user_role ("user" / "admin"), content, created_at.
+- [ ] Run: npm run lint && npm run build (confirm no breakage)
+- [ ] Update root TODO.md (remove references to deleted)
+- [ ] git add . && git commit -m "Cleanup: remove obsolete temp/legacy files, consolidate docs"
+- [ ] Run git clean -fd (dry-run) to check leftovers
 
-The frontend can insert new messages and read existing ones.
-
-
-Supabase Realtime is enabled on the messages table.
-Your responsibilities:
-
-Write a Next.js component (e.g., app/components/LiveChatWidget.tsx) using "use client".
-
-Show how to:
-Initialize the Supabase client (you can assume it’s available at @/lib/supabase/client).
-
-Fetch messages on mount.
-
-Subscribe to new messages via supabase.channel().
-
-Insert a new message when the user sends.
-
-
-Keep the component self‑contained and easy to drop into any layout without breaking existing code.
-Output format:
-
-Full component code in a tsx block.
-
-Short comments only where necessary.
-Now, implement the Next.js frontend live‑chat widget assuming the Supabase backend is already set up as described.
-
-Realtime workflow (what frontend should do)
-Join the conversation channel (listen in real time)
-Use a private Realtime channel with topic:
-chat:<conversation_id>
-Frontend listens for:
-event: 'INSERT' (trigger emits INSERT via realtime.broadcast_changes)
-Channel + event mapping
-
-Channel topic: chat:<conversation_id>
-Broadcast event name to handle: INSERT
-Payload: will include your inserted chat_messages row (payload.new-style structure depending on client library)
-Create a conversation (first widget open)
-Frontend inserts into public.chat_conversations with:
-visitor_user_id = auth.uid() (works for both normal + anon-auth users)
-page_url, referrer_url (optional)
-Get the inserted id = conversation_id.
-Send a message (visitor or admin reply)
-Frontend inserts into public.chat_messages with:
-conversation_id
-content
-message_type = 'text'
-user_id = auth.uid()
-user_role = 'user' for visitor / user_role = 'admin' for support
-page_url (optional)
-client_message_id (optional, to dedupe retries)
-How the frontend authenticates / passes identity
-If using Supabase Auth (recommended):
-The frontend calls supabase.auth.getSession() / uses the existing auth state.
-It sets up the Realtime channel with the user’s session token automatically via the client.
-Ensure your JWT has an admin claim (so admin RLS policies work):
-set user_role claim to 'admin' (common approaches: custom JWT claims via your auth flow, or use a DB function/table lookup—then modify the RLS predicates).
-Postgres changes vs Broadcast
-This design uses Broadcast with database triggers (recommended for chat).
-Do not rely on postgres_changes for new apps if you can avoid it; use the Broadcast trigger approach.
-Security notes (what to tighten in your project)
-RLS is mandatory: the DDL enables RLS and only grants select, insert to authenticated.
-Visitor access is tied to chat_conversations.visitor_user_id.
-Admin access is controlled by JWT claim auth.jwt()->>'user_role' = 'admin'.
-If you prefer, replace that with a lookup (e.g., public.user_admins table).
-For anti-abuse:
-Add rate limits per conversation (can be done with an RLS-enforced check function).
-Add message length limits (already <= 10000) and optionally a stricter cap.
-Environment variables (frontend needs)
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY
-(Everything else—user identity + JWT—is handled by Supabase Auth session in the frontend.)
-## Implemented:
-- [x] Step 1: Cleared .next cache using Remove-Item (PowerShell)
-- [x] Step 2: Cache removal confirmed successful
-- [x] Step 3: TS error fixed (stale validator.ts regenerated on next build/dev)
-
-**Result:** Run `npm run dev` or `npm run build` to verify clean compilation. No code changes needed - legacy route reference was cached artifact.
+**Status:** Phase 1 complete. Next: Phase 2 docs cleanup.
+**Next Step:** List & delete obsolete docs/ files.

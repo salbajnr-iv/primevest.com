@@ -10,6 +10,48 @@ import { MessageBubble } from '@/components/ui/chat/MessageBubble'
 
 import { ChatMessage, RealtimeBroadcastPayload } from './types'
 
+const floatingStyle = `
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-40px); }
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-35px) scale(1.05); }
+  }
+  @keyframes pulse-ring {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+    50% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+  }
+  @keyframes slideIn {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100px); opacity: 0; }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .animate-float {
+    animation: bounce 2.5s ease-in-out infinite;
+  }
+  .animate-pulse-ring {
+    animation: pulse-ring 2s infinite;
+  }
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-out;
+  }
+  .animate-slide-out {
+    animation: slideOut 0.5s ease-in;
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+  }
+`
+
 export function LiveChatWidget() {
   const supabaseRef = useRef(createClient())
   const channelRef = useRef<ReturnType<typeof supabaseRef.current.channel> | null>(null)
@@ -21,10 +63,68 @@ export function LiveChatWidget() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSending, setIsSending] = useState(false)
+  const [showPopup, setShowPopup] = useState(false)
+  const [hidePopup, setHidePopup] = useState(false)
+  const [supportQuestions, setSupportQuestions] = useState<{ id: string; question: string; visible: boolean }[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const sentMessageIdsRef = useRef<Set<string>>(new Set())
 
   const supabase = supabaseRef.current
+
+  // Support questions to display
+  const supportQuestionsData = [
+    { id: '1', question: '🤔 Do you have questions about our services?' },
+    { id: '2', question: '💰 Interested in learning about investment options?' },
+    { id: '3', question: '📱 Need help with your account or platform?' },
+  ]
+
+  // Show popup messages on mount with staggered timing
+  useEffect(() => {
+    const timers: NodeJS.Timeout[] = []
+
+    // Show welcome popup after 2 seconds
+    timers.push(
+      setTimeout(() => {
+        setShowPopup(true)
+      }, 2000)
+    )
+
+    // Hide welcome popup after 8 seconds
+    timers.push(
+      setTimeout(() => {
+        setHidePopup(true)
+      }, 8000)
+    )
+
+    // Show support questions with staggered timing
+    supportQuestionsData.forEach((q, index) => {
+      timers.push(
+        setTimeout(() => {
+          setSupportQuestions((prev) => [
+            ...prev,
+            { ...q, visible: true },
+          ])
+        }, 9500 + index * 3000) // Start after welcome popup, then 3s apart
+      )
+    })
+
+    // Hide each support question after 4 seconds
+    supportQuestionsData.forEach((q, index) => {
+      timers.push(
+        setTimeout(() => {
+          setSupportQuestions((prev) =>
+            prev.map((qq) =>
+              qq.id === q.id ? { ...qq, visible: false } : qq
+            )
+          )
+        }, 13000 + index * 3000)
+      )
+    })
+
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer))
+    }
+  }, [])
 
   // Get or create visitor ID from localStorage
   const getVisitorId = useCallback((): string => {
@@ -303,10 +403,41 @@ export function LiveChatWidget() {
 
   return (
     <>
+      <style>{floatingStyle}</style>
+
+      {/* Welcome Popup Message */}
+      {showPopup && !hidePopup && (
+        <div className={`fixed bottom-24 right-4 sm:bottom-32 sm:right-6 z-40 ${hidePopup ? 'animate-slide-out' : 'animate-slide-in'}`}>
+          <div className='bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow-2xl p-4 max-w-xs'>
+            <p className='text-sm font-semibold mb-1'>👋 Welcome to PrimeVest!</p>
+            <p className='text-xs opacity-90'>Need help? Click the chat icon below to talk with our support team</p>
+          </div>
+        </div>
+      )}
+
+      {/* Support Questions Stack */}
+      <div className='fixed bottom-24 right-4 sm:bottom-32 sm:right-6 z-30 space-y-3 max-w-xs'>
+        {supportQuestions.map((item) => (
+          <div
+            key={item.id}
+            className={`transform transition-all duration-500 ${
+              item.visible ? 'animate-fade-in opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
+            }`}
+          >
+            <button
+              onClick={handleOpen}
+              className='w-full text-left bg-gradient-to-r from-amber-50 to-orange-50 text-gray-800 rounded-lg shadow-lg p-3 hover:shadow-xl hover:from-amber-100 hover:to-orange-100 transition-all text-sm font-medium border border-amber-200 hover:border-amber-300'
+            >
+              {item.question}
+            </button>
+          </div>
+        ))}
+      </div>
+
       {/* Floating Button */}
       <Button
         onClick={handleOpen}
-        className='fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow'
+        className='fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow animate-float animate-pulse-ring'
         size='icon'
         aria-label='Open live chat'
       >
