@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import type { AuthChangeEvent, AuthError, Session, User } from '@supabase/supabase-js'
 import { createClient, setRealtimeAuth } from '@/lib/supabase/client'
 import { getAuthSession, signInWithBackend, signOutWithBackend } from '@/lib/auth/service'
+import { SessionManager, preventSessionCaching } from '@/lib/auth/session-manager'
 
 interface AdminAuthContextType {
   user: User | null
@@ -22,6 +23,7 @@ interface AdminAuthContextType {
 const SESSION_FLAG_KEY = 'primevest:admin-had-session'
 const SESSION_MESSAGE_KEY = 'primevest:admin-auth-message'
 const SESSION_EXPIRED_MESSAGE = 'Session expired. Please sign in again.'
+const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000 // 30 minutes - matches backend JWT expiration
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined)
 
@@ -40,6 +42,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const supabase = useMemo(() => createClient(), [])
   const redirectingRef = useRef(false)
+  const sessionManagerRef = useRef<SessionManager | null>(null)
 
   const checkAdminStatus = useCallback(async (userId: string): Promise<boolean> => {
     const { data, error } = await supabase
@@ -65,36 +68,75 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
 
     if (typeof window !== 'undefined') {
       window.sessionStorage.removeItem(SESSION_FLAG_KEY)
+      // Clear all auth-related session storage to prevent caching
+      const keys = Array.from({ length: window.sessionStorage.length }, (_, i) =>
+        window.sessionStorage.key(i)
+      ).filter((key): key is string => key !== null && (key.includes('auth') || key.includes('session')))
+      keys.forEach((key) => window.sessionStorage.removeItem(key))
+    }
+
+    // Stop session monitoring when session is cleared
+    if (sessionManagerRef.current) {
+      sessionManagerRef.current.stopMonitoring()
     }
 
     await setRealtimeAuth(undefined, supabase)
   }, [supabase])
 
-  const applySessionState = useCallback(async (nextSession: Session | null, nextUser: User | null) => {
-    setSession(nextSession)
-    setUser(nextUser)
-    setAuthMessage(null)
-    setSessionError(null)
-
-    if (typeof window !== 'undefined') {
-      if (nextSession?.access_token) {
-        window.sessionStorage.setItem(SESSION_FLAG_KEY, '1')
-      } else {
-        window.sessionStorage.removeItem(SESSION_FLAG_KEY)
-      }
-    }
-
-    await setRealtimeAuth(nextSession?.access_token, supabase)
-
-    if (nextUser?.id) {
-      setIsAdmin(await checkAdminStatus(nextUser.id))
+  const redirectToAdminSignIn = useCallback((message = SESSION_EXPIRED_MESSAGE) => {
+    if (typeof window === 'undefined' || redirectingRef.current) {
       return
     }
 
-    setIsAdmin(false)
-  }, [checkAdminStatus, supabase])
+    redirectingRef.current = true
+    window.sessionStorage.setItem(SESSION_MESSAGE_KEY, message)
+    const redirect = window.location.pathname.startsWith('/admin/') ? window.location.pathname : '/admin/dashboard'
+    window.location.assign(`/admin/auth/signin?redirect=${encodeURIComponent(redirect)}`)
+  }, [])
 
-  const redirectToAdminSignIn = useCallback((message = SESSION_EXPIRED_MESSAGE) => {
+  const applySessionState = useCallback(
+    async (nextSession: Session | null, nextUser: User | null) => {
+      setSession(nextSession)
+      setUser(nextUser)
+      setAuthMessage(null)
+      setSessionError(null)
+
+      if (typeof window !== 'undefined') {
+        if (nextSession?.access_token) {
+          window.sessionStorage.setItem(SESSION_FLAG_KEY, '1')
+          // Prevent sensitive data from being cached inappropriately
+          preventSessionCaching()
+        } else {
+          window.sessionStorage.removeItem(SESSION_FLAG_KEY)
+        }
+      }
+
+      await setRealtimeAuth(nextSession?.access_token, supabase)
+
+      if (nextUser?.id) {
+        setIsAdmin(await checkAdminStatus(nextUser.id))
+      } else {
+        setIsAdmin(false)
+      }
+
+      // Start/restart session monitoring when session is active
+      if (nextSession?.access_token) {
+        if (sessionManagerRef.current) {
+          sessionManagerRef.current.destroy()
+        }
+        sessionManagerRef.current = new SessionManager({
+          inactivityTimeoutMs: INACTIVITY_TIMEOUT_MS,
+          onSessionExpire: async () => {
+            console.warn('Admin session expired due to inactivity')
+            await clearSessionState()
+            redirectToAdminSignIn('Your session expired due to inactivity. Please sign in again.')
+          },
+        })
+        sessionManagerRef.current.startMonitoring()
+      }
+    },
+    [checkAdminStatus, supabase, clearSessionState, redirectToAdminSignIn]
+  )
     if (typeof window === 'undefined' || redirectingRef.current) {
       return
     }
@@ -166,6 +208,11 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       active = false
       subscription.unsubscribe()
+      // Clean up session manager on component unmount
+      if (sessionManagerRef.current) {
+        sessionManagerRef.current.destroy()
+        sessionManagerRef.current = null
+      }
     }
   }, [applySessionState, clearSessionState, refreshSession, supabase])
 
@@ -195,6 +242,11 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Unexpected admin sign out error:', error)
     } finally {
+      // Stop monitoring before clearing state
+      if (sessionManagerRef.current) {
+        sessionManagerRef.current.destroy()
+        sessionManagerRef.current = null
+      }
       await clearSessionState()
       setSessionError(null)
     }

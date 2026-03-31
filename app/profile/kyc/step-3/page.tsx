@@ -55,19 +55,20 @@ export default function KycStep3Page() {
   const supabase = createClient();
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user?.id) {
+    const getAuthUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user?.id) {
+        console.error('Auth validation failed:', error);
         router.push('/auth/signin');
         return;
       }
-      setUserId(session.user.id);
+      setUserId(user.id);
 
       // Load document selection from step 2
       const { data: profile } = await supabase
         .from('profiles')
         .select('kyc_documents_selected, kyc_uploaded_files')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .single();
 
       if (profile?.kyc_documents_selected) {
@@ -86,7 +87,7 @@ export default function KycStep3Page() {
       }
     };
 
-    getUser();
+    getAuthUser();
   }, [supabase, router]);
 
   const handleFileUploaded = (docType: string, files: UploadedFile[]) => {

@@ -36,7 +36,7 @@ export function MarketInsights({
 
   return (
     <div className="xl:col-span-3">
-      <div className={`dashboard-panel p-6 transition-all duration-200 overflow-hidden ${isOpen ? 'max-h-none' : 'max-h-0'} `}>
+      <div className="dashboard-panel p-6 transition-all duration-200 overflow-hidden max-h-none">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
@@ -55,7 +55,8 @@ export function MarketInsights({
           </Button>
         </div>
 
-        <div className={`space-y-6 ${isOpen ? '' : 'hidden'}`}>
+        {isOpen && (
+        <div className="space-y-6">
           {/* Top Movers */}
           <div>
             <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
@@ -107,12 +108,13 @@ export function MarketInsights({
           </div>
 
           <div className="pt-4 border-t border-slate-200">
-            <p className="text-sm font-bold text-slate-900 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-lg inline-flex items-center gap-2">
+            <div className="text-sm font-bold text-slate-900 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-lg inline-flex items-center gap-2">
               <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
               {formatLastUpdated(freshness.aggregatesUpdatedAt)}
-            </p>
+            </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

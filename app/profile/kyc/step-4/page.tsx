@@ -46,20 +46,22 @@ export default function KycStep4Page() {
   useEffect(() => {
     const loadData = async () => {
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session?.user?.id) {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (error || !user?.id) {
+        console.error('Auth validation failed:', error);
         router.push("/auth/signin");
         return;
       }
-      setUserId(session.user.id);
+      setUserId(user.id);
 
       setLoading(true);
       try {
         const { data: profile } = await supabase
           .from("profiles")
           .select("kyc_personal_info, kyc_uploaded_files")
-          .eq("id", session.user.id)
+          .eq("id", user.id)
           .single();
 
         if (profile) {
@@ -86,8 +88,13 @@ export default function KycStep4Page() {
         throw new Error("User ID not found");
       }
 
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+      if (authError || !authUser) {
+        throw new Error("Session expired. Please sign in again.");
+      }
+
       const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData.session?.access_token;
+      const token = sessionData?.session?.access_token;
       if (!token) {
         throw new Error("Session expired. Please sign in again.");
       }

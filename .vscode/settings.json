@@ -1,5 +1,8 @@
 {
     "codium.codeCompletion.enable": false,
+    "files.associations": {
+        "supabase/migrations/*.sql": "postgres"
+    },
     "sqltools.connections": [
         {
             "ssh": "Disabled",

@@ -48,19 +48,20 @@ export default function KycStep2Page() {
   const supabase = createClient();
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user?.id) {
+    const getAuthUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user?.id) {
+        console.error('Auth validation failed:', error);
         router.push('/auth/signin');
         return;
       }
-      setUserId(session.user.id);
+      setUserId(user.id);
 
       // Try to load existing selection
       const { data: profile } = await supabase
         .from('profiles')
         .select('kyc_documents_selected')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .single();
 
       if (profile?.kyc_documents_selected) {
@@ -71,7 +72,7 @@ export default function KycStep2Page() {
       }
     };
 
-    getUser();
+    getAuthUser();
   }, [supabase, router]);
 
   const toggleDocument = (docId: string) => {

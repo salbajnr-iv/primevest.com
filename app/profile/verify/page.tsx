@@ -19,9 +19,12 @@ export default function VerifyKycPage() {
     async function load() {
       setLoading(true)
       try {
-        const { data: sessionData } = await supabase.auth.getSession()
-        const userId = sessionData?.session?.user?.id
-        if (!userId) return
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error || !user?.id) {
+          console.error('Auth error:', error)
+          return
+        }
+        const userId = user.id
 
         const { data: profile } = await supabase.from('profiles').select('kyc_status').eq('id', userId).maybeSingle()
         if (mounted && profile) setStatus(profile.kyc_status || 'none')
@@ -47,8 +50,11 @@ export default function VerifyKycPage() {
     if (!docsToSubmit.length) return alert('Please upload documents first')
     setSubmitting(true)
     try {
-      const tokenRes = await supabase.auth.getSession()
-      const token = tokenRes.data?.session?.access_token || ''
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      if (userError || !user?.id) throw new Error('Session expired')
+      
+      const { data: sessionData } = await supabase.auth.getSession()
+      const token = sessionData?.session?.access_token || ''
       const res = await fetch('/api/kyc/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },

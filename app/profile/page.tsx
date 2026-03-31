@@ -39,8 +39,14 @@ export default function ProfilePage() {
       setProfile(nextProfile);
 
       if (nextProfile.avatar_storage_path) {
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) {
+          console.error('Auth validation failed:', authError);
+          return;
+        }
+        
         const { data: sessionData } = await supabase.auth.getSession();
-        const token = sessionData.session?.access_token;
+        const token = sessionData?.session?.access_token;
         if (token) {
           const resp = await fetch('/api/profile/avatar-url', {
             headers: { Authorization: `Bearer ${token}` },

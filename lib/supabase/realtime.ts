@@ -95,7 +95,9 @@ export function useBalanceHistoryRealtime(onEntryInsert: (row: BalanceHistoryRea
           }
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        console.log('Realtime [balance-history] status:', status, 'err:', err);
+      });
 
     return () => {
       void supabase.removeChannel(channel);
@@ -124,7 +126,9 @@ export function useBalanceRealtime(onBalanceUpdate: (row: BalanceRealtimeRow) =>
           }
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        console.log(`Realtime [balances${userId ? `-${userId}` : ''}] status:`, status, 'err:', err);
+      });
 
     return () => {
       void supabase.removeChannel(channel);
@@ -153,7 +157,9 @@ export function useLedgerRealtime(onEntryInsert: (row: LedgerRealtimeRow) => voi
           }
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        console.log(`Realtime [ledger${walletId ? `-${walletId}` : ''}] status:`, status, 'err:', err);
+      });
 
     return () => {
       void supabase.removeChannel(channel);
@@ -182,7 +188,9 @@ export function useSupportTicketRepliesRealtime(onReplyInsert: (row: RealtimeRep
           }
         }
       )
-      .subscribe();
+      .subscribe((status: string, err?: any) => {
+        console.log(`Realtime [ledger] status:`, status, 'err:', err);
+      });
 
     return () => {
       void supabase.removeChannel(channel);
@@ -219,7 +227,9 @@ export function useMarketPriceRealtime(onPriceUpdate: (row: MarketPriceRealtimeR
           });
         }
       )
-      .subscribe();
+      .subscribe((status: string, err?: any) => {
+        console.log(`Realtime [support-ticket-replies] status:`, status, 'err:', err);
+      });
 
     return () => {
       void supabase.removeChannel(channel);
@@ -247,7 +257,9 @@ export function useOrderStatusRealtime(onOrderUpdate: (row: OrderStatusRealtimeR
           }
         }
       )
-      .subscribe();
+      .subscribe((status: string, err?: any) => {
+        console.log('Realtime [market-prices] status:', status, 'err:', err);
+      });
 
     return () => {
       void supabase.removeChannel(channel);
@@ -275,7 +287,9 @@ export function useSupportTicketStatusRealtime(onTicketUpdate: (row: SupportTick
           }
         }
       )
-      .subscribe();
+      .subscribe((status: string, err?: any) => {
+        console.log('Realtime [orders-status] status:', status, 'err:', err);
+      });
 
     return () => {
       void supabase.removeChannel(channel);

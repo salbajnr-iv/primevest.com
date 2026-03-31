@@ -55,11 +55,16 @@ export function createClient() {
   if (!browserClient) {
     const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig()
 
-    browserClient = createBrowserClient(supabaseUrl, supabaseAnonKey, {
+browserClient = createBrowserClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: process.env.NODE_ENV === 'development' ? false : true,
         persistSession: true,
         detectSessionInUrl: false
+      },
+      realtime: {
+        params: {
+          log_level: 'info'
+        }
       }
     })
     initializeRealtimeAuthSync(browserClient)

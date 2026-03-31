@@ -118,10 +118,16 @@ export default function SupportTicketsPage() {
     const initializeAuth = async () => {
       const supabase = createClient();
 
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) {
+        console.error('Auth validation failed:', authError);
+        return;
+      }
+      
       setCurrentUserId(user?.id || '');
+      
       const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData.session?.access_token ?? "";
+      const token = sessionData?.session?.access_token ?? "";
       setAuthToken(token);
     };
 

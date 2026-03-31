@@ -5,7 +5,7 @@
 */
 
 import type { Metadata } from 'next'
-import { AuthProvider } from '@/components/AuthProvider'
+import Providers from '@/components/AuthProvider'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { LanguageProvider } from '@/contexts/LanguageContext'
 import { LiveChatWidget } from '@/components/LiveChatWidget'
@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <AuthProvider>
+        <Providers>
           <ThemeProvider>
             <LanguageProvider>
               {children}
@@ -32,7 +32,7 @@ export default function RootLayout({
               <LiveChatWidget />
             </LanguageProvider>
           </ThemeProvider>
-        </AuthProvider>
+        </Providers>
       </body>
     </html>
   )

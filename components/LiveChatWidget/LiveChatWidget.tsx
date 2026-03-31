@@ -78,6 +78,29 @@ export function LiveChatWidget() {
     { id: '3', question: '📱 Need help with your account or platform?' },
   ]
 
+  // Test Supabase connection on component mount
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        console.log('[LiveChat] Testing Supabase connection...')
+        const { data, error } = await supabase
+          .from('chat_conversations')
+          .select('id')
+          .limit(1)
+        
+        if (error) {
+          console.error('[LiveChat] Connection test failed:', error)
+          return
+        }
+        console.log('[LiveChat] Connection test passed. Data:', data)
+      } catch (err) {
+        console.error('[LiveChat] Connection test error:', err)
+      }
+    }
+
+    testConnection()
+  }, [supabase])
+
   // Show popup messages on mount with staggered timing
   useEffect(() => {
     const timers: NodeJS.Timeout[] = []
@@ -165,11 +188,16 @@ export function LiveChatWidget() {
   // Get or create conversation
   const ensureConversationExists = useCallback(
     async (userId: string) => {
-      if (conversationId) return conversationId
+      if (conversationId) {
+        console.log('[LiveChat] Using existing conversation ID:', conversationId)
+        return conversationId
+      }
 
       try {
         const pageUrl = typeof window !== 'undefined' ? window.location.href : ''
         const referrerUrl = typeof document !== 'undefined' ? document.referrer : ''
+
+        console.log('[LiveChat] Checking for existing conversation for user:', userId)
 
         // Check if conversation already exists for this user
         const { data: existingConv, error: fetchError } = await supabase
@@ -178,15 +206,20 @@ export function LiveChatWidget() {
           .eq('visitor_user_id', userId)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single()
 
-        if (existingConv && !fetchError) {
-          setConversationId(existingConv.id)
-          return existingConv.id
+        console.log('[LiveChat] Fetch result:', { existingConv, fetchError })
+
+        // .single() error is expected if no row exists, so we handle it gracefully
+        if (existingConv && existingConv.length > 0) {
+          console.log('[LiveChat] Found existing conversation:', existingConv[0].id)
+          setConversationId(existingConv[0].id)
+          return existingConv[0].id
         }
 
+        console.log('[LiveChat] No existing conversation found, creating new one')
+
         // Create new conversation
-        const { data: newConv, error: createError } = await supabase
+        const { data: newConv, error: createError, status, statusText } = await supabase
           .from('chat_conversations')
           .insert({
             visitor_user_id: userId,
@@ -194,18 +227,48 @@ export function LiveChatWidget() {
             referrer_url: referrerUrl,
           })
           .select('id')
-          .single()
+
+        console.log('[LiveChat] Insert result:', { newConv, createError, status, statusText })
 
         if (createError) {
-          setError('Failed to create chat session')
+          console.error('[LiveChat] Supabase insert error details:', {
+            message: createError.message || 'Unknown error',
+            details: createError.details || 'No details provided',
+            hint: createError.hint || 'No hint',
+            code: createError.code || 'No code',
+            status: status || 'No status',
+            statusText: statusText || 'No status text',
+            errorObject: JSON.stringify(createError),
+          })
+          setError('Failed to create chat session. Check browser console for details.')
           throw createError
         }
 
-        setConversationId(newConv.id)
-        return newConv.id
-      } catch (err) {
-        console.error('Failed to ensure conversation:', err)
-        setError('Unable to connect to chat service')
+        if (!newConv || newConv.length === 0) {
+          console.error('[LiveChat] Insert succeeded but no data returned', {
+            newConv,
+            dataLength: newConv?.length,
+          })
+          throw new Error('No conversation data returned from insert')
+        }
+
+        console.log('[LiveChat] Created new conversation:', newConv[0].id)
+        setConversationId(newConv[0].id)
+        return newConv[0].id
+      } catch (err: any) {
+        console.error('[LiveChat] Failed to ensure conversation - Full error details:', {
+          message: err?.message || 'No message',
+          details: err?.details || 'No details',
+          hint: err?.hint || 'No hint',
+          code: err?.code || 'No code',
+          status: err?.status || 'No status',
+          statusText: err?.statusText || 'No status text',
+          stack: err?.stack || 'No stack trace',
+          toString: err?.toString?.() || 'No toString',
+          keys: Object.keys(err || {}),
+          fullError: JSON.stringify(err),
+        })
+        setError('Unable to connect to chat service. Check browser console and check RLS policies on chat_conversations table.')
         return null
       }
     },
@@ -246,20 +309,62 @@ export function LiveChatWidget() {
 
   // Handle realtime message broadcast
   const handleRealtimeMessage = useCallback(
-    (payload: RealtimeBroadcastPayload) => {
-      const newMessage = payload.new
+    (event: string, payload: any) => {
+      console.log(`[LiveChat] Realtime ${event} event received`, payload)
 
-      // Skip if this is our own message (already added optimistically)
-      if (newMessage.client_message_id && sentMessageIdsRef.current.has(newMessage.client_message_id)) {
-        return
+      switch (event) {
+        case 'INSERT': {
+          const newMessage = payload.new
+          if (!newMessage) {
+            console.warn('[LiveChat] INSERT event missing new data', payload)
+            return
+          }
+
+          // Skip if this is our own message (already added optimistically)
+          if (newMessage.client_message_id && sentMessageIdsRef.current.has(newMessage.client_message_id)) {
+            console.log('[LiveChat] Skipping duplicate message:', newMessage.client_message_id)
+            return
+          }
+
+          console.log('[LiveChat] Adding new message:', newMessage.id)
+          // Add message from broadcast (admin or other user)
+          setMessages((prev) => {
+            const exists = prev.some((m) => m.id === newMessage.id)
+            if (exists) return prev
+            return [...prev, newMessage]
+          })
+          break
+        }
+
+        case 'UPDATE': {
+          const updatedMessage = payload.new
+          if (!updatedMessage) {
+            console.warn('[LiveChat] UPDATE event missing new data', payload)
+            return
+          }
+
+          console.log('[LiveChat] Updating message:', updatedMessage.id)
+          setMessages((prev) =>
+            prev.map((m) => (m.id === updatedMessage.id ? updatedMessage : m))
+          )
+          break
+        }
+
+        case 'DELETE': {
+          const deletedMessage = payload.old
+          if (!deletedMessage) {
+            console.warn('[LiveChat] DELETE event missing old data', payload)
+            return
+          }
+
+          console.log('[LiveChat] Deleting message:', deletedMessage.id)
+          setMessages((prev) => prev.filter((m) => m.id !== deletedMessage.id))
+          break
+        }
+
+        default:
+          console.warn('[LiveChat] Unknown event type:', event)
       }
-
-      // Add message from broadcast (admin or other user)
-      setMessages((prev) => {
-        const exists = prev.some((m) => m.id === newMessage.id)
-        if (exists) return prev
-        return [...prev, newMessage]
-      })
     },
     []
   )
@@ -269,8 +374,11 @@ export function LiveChatWidget() {
     (convId: string) => {
       // Unsubscribe from previous channel if exists
       if (channelRef.current) {
+        console.log('[LiveChat] Unsubscribing from previous channel')
         channelRef.current.unsubscribe()
       }
+
+      console.log('[LiveChat] Subscribing to realtime channel:', `chat:${convId}`)
 
       // Note: The Supabase SSR client automatically handles Realtime auth using the session token.
       // No manual setAuth() call needed—the session is automatically synced to Realtime.
@@ -279,16 +387,37 @@ export function LiveChatWidget() {
         .on(
           'broadcast',
           { event: 'INSERT' },
-          (payload: { payload: RealtimeBroadcastPayload }) => {
-            handleRealtimeMessage(payload.payload)
+          (payload: any) => {
+            console.log('[LiveChat] INSERT broadcast received', payload)
+            handleRealtimeMessage('INSERT', payload)
+          }
+        )
+        .on(
+          'broadcast',
+          { event: 'UPDATE' },
+          (payload: any) => {
+            console.log('[LiveChat] UPDATE broadcast received', payload)
+            handleRealtimeMessage('UPDATE', payload)
+          }
+        )
+        .on(
+          'broadcast',
+          { event: 'DELETE' },
+          (payload: any) => {
+            console.log('[LiveChat] DELETE broadcast received', payload)
+            handleRealtimeMessage('DELETE', payload)
           }
         )
         .subscribe((status: string) => {
+          console.log('[LiveChat] Subscription status:', status)
           if (status === 'SUBSCRIBED') {
-            console.log('Subscribed to chat channel:', convId)
+            console.log('[LiveChat] ✓ Successfully subscribed to chat channel:', convId)
           } else if (status === 'CHANNEL_ERROR') {
-            console.error('Channel subscription error')
-            setError('Real-time connection failed')
+            console.error('[LiveChat] ✗ Channel subscription error')
+            setError('Real-time connection failed - check browser console')
+          } else if (status === 'TIMED_OUT') {
+            console.error('[LiveChat] ✗ Channel subscription timed out')
+            setError('Real-time connection timed out')
           }
         })
 
@@ -302,27 +431,37 @@ export function LiveChatWidget() {
     if (isOpen) return
 
     try {
+      console.log('[LiveChat] Opening chat widget...')
       setError(null)
       setLoading(true)
+      setIsOpen(true) // Open UI immediately so user sees something
 
       const userId = getVisitorId()
+      console.log('[LiveChat] Visitor ID:', userId)
+
       const convId = await ensureConversationExists(userId)
+      console.log('[LiveChat] Conversation ID:', convId)
 
       if (!convId) {
-        setLoading(false)
+        console.warn('[LiveChat] Failed to get conversation ID')
+        setError('Unable to start conversation. Please try refreshing.')
         return
       }
+
+      setConversationId(convId)
+      console.log('[LiveChat] Fetching messages...')
 
       // Fetch initial messages
       await fetchMessages(convId)
 
       // Subscribe to realtime
+      console.log('[LiveChat] Subscribing to realtime...')
       subscribeToRealtime(convId)
 
-      setIsOpen(true)
+      console.log('[LiveChat] Chat widget open and ready')
     } catch (err) {
-      console.error('Failed to open chat:', err)
-      setError('Failed to open chat')
+      console.error('[LiveChat] Error in handleOpen:', err)
+      setError(`Error: ${err instanceof Error ? err.message : 'Failed to open chat'}`)
     } finally {
       setLoading(false)
     }
@@ -373,8 +512,13 @@ export function LiveChatWidget() {
           // Remove optimistic message on error
           setMessages((prev) => prev.filter((m) => m.client_message_id !== clientMessageId))
           sentMessageIdsRef.current.delete(clientMessageId)
-          setError('Failed to send message. Please try again.')
-          console.error('Insert error:', insertError)
+          console.error('Message insert error:', {
+            message: insertError.message,
+            details: insertError.details,
+            hint: insertError.hint,
+            code: insertError.code,
+          })
+          setError('Failed to send message. Check permissions.')
         }
       } catch (err) {
         console.error('Failed to send message:', err)
@@ -434,24 +578,26 @@ export function LiveChatWidget() {
         ))}
       </div>
 
-      {/* Floating Button */}
-      <Button
-        onClick={handleOpen}
-        className='fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow animate-float animate-pulse-ring'
-        size='icon'
-        aria-label='Open live chat'
-      >
-        <img
-          src='/vectors/icons/livechat.png'
-          alt='Live chat'
-          className='h-6 w-6'
-        />
-      </Button>
+      {/* Floating Button - Only show when chat is closed */}
+      {!isOpen && (
+        <Button
+          onClick={handleOpen}
+          className='fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow animate-float animate-pulse-ring z-40 pointer-events-auto'
+          size='icon'
+          aria-label='Open live chat'
+        >
+          <img
+            src='/vectors/icons/livechat.png'
+            alt='Live chat'
+            className='h-6 w-6'
+          />
+        </Button>
+      )}
 
       {/* Chat Modal */}
       {isOpen && (
-        <div className='fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 max-w-sm w-[calc(100vw-1rem)] sm:w-96'>
-          <Card className='flex flex-col h-[500px] sm:h-[600px] rounded-lg border shadow-2xl'>
+        <div className='fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 max-w-sm w-[calc(100vw-1rem)] sm:w-96 animate-slide-in'>
+          <Card className='flex flex-col h-[500px] sm:h-[600px] rounded-lg border shadow-2xl bg-white'>
             {/* Header */}
             <div className='flex items-center justify-between p-4 border-b bg-background'>
               <h2 className='text-lg font-semibold'>Live Chat Support</h2>
@@ -466,9 +612,35 @@ export function LiveChatWidget() {
               </button>
             </div>
 
+            {/* Error Message - Prominent Display */}
+            {error && (
+              <div className='px-4 py-3 bg-red-50 border-b border-red-200'>
+                <p className='text-sm font-medium text-red-800 mb-2'>{error}</p>
+                <button
+                  onClick={handleOpen}
+                  className='text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors'
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
             {/* Messages Container */}
-            <div className='flex-1 overflow-y-auto p-4 space-y-3 bg-muted/30'>
-              {loading ? (
+            <div className='flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50'>
+              {error && !conversationId ? (
+                <div className='flex items-center justify-center h-full text-center'>
+                  <div>
+                    <p className='text-muted-foreground mb-2'>Unable to connect to chat service</p>
+                    <p className='text-xs text-muted-foreground mb-4'>Check your internet connection and try again</p>
+                    <button
+                      onClick={handleOpen}
+                      className='text-sm bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700'
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                </div>
+              ) : loading ? (
                 <div className='flex items-center justify-center h-full text-muted-foreground'>
                   <p>Loading messages...</p>
                 </div>
@@ -493,18 +665,11 @@ export function LiveChatWidget() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Error Message */}
-            {error && (
-              <div className='px-4 py-2 bg-destructive/10 text-destructive text-xs rounded-sm'>
-                {error}
-              </div>
-            )}
-
             {/* Input */}
             <ChatInput
               onSend={handleSendMessage}
               disabled={isSending || !conversationId || !!error}
-              placeholder='Type your message...'
+              placeholder={error ? 'Fix the error above to chat' : 'Type your message...'}
             />
           </Card>
         </div>
