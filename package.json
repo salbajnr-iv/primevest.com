@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
-    "dev:turbo": "next dev",
+    "dev": "next dev --webpack -p 5000 -H 0.0.0.0",
+    "dev:turbo": "next dev -p 5000 -H 0.0.0.0",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 5000 -H 0.0.0.0",
     "lint": "eslint . --ext .ts,.tsx,.js,.mjs && npm run check:support-routes && npm run check:wallet-balance-apis",
     "check:dashboard-routes": "node scripts/check-dashboard-routes.mjs",
     "check:breakpoints": "node scripts/check-breakpoints.mjs",
