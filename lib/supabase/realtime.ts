@@ -95,7 +95,7 @@ export function useBalanceHistoryRealtime(onEntryInsert: (row: BalanceHistoryRea
           }
         }
       )
-      .subscribe((status, err) => {
+      .subscribe((status: string, err?: Error | null) => {
         console.log('Realtime [balance-history] status:', status, 'err:', err);
       });
 
@@ -126,7 +126,7 @@ export function useBalanceRealtime(onBalanceUpdate: (row: BalanceRealtimeRow) =>
           }
         }
       )
-      .subscribe((status, err) => {
+      .subscribe((status: string, err?: Error | null) => {
         console.log(`Realtime [balances${userId ? `-${userId}` : ''}] status:`, status, 'err:', err);
       });
 
@@ -157,7 +157,7 @@ export function useLedgerRealtime(onEntryInsert: (row: LedgerRealtimeRow) => voi
           }
         }
       )
-      .subscribe((status, err) => {
+      .subscribe((status: string, err?: Error | null) => {
         console.log(`Realtime [ledger${walletId ? `-${walletId}` : ''}] status:`, status, 'err:', err);
       });
 
@@ -188,7 +188,8 @@ export function useSupportTicketRepliesRealtime(onReplyInsert: (row: RealtimeRep
           }
         }
       )
-      .subscribe((status: string, err?: Error | null) => {\n        console.log(`Realtime [support-ticket-replies${ticketId ? `-${ticketId}` : ''}] status:`, status, 'err:', err);
+      .subscribe((status: string, err?: Error | null) => {
+        console.log(`Realtime [support-ticket-replies${ticketId ? `-${ticketId}` : ''}] status:`, status, 'err:', err);
       });
 
     return () => {
@@ -213,8 +214,11 @@ export function useMarketPriceRealtime(onPriceUpdate: (row: MarketPriceRealtimeR
         },
         (payload: RealtimePayload<MarketPriceRealtimeRow>) => {
           const row = payload.new;
+          if (!isValidRow<MarketPriceRealtimeRow>(row)) {
+            return;
+          }
           const asset = row.asset.toUpperCase();
-          if (!isValidRow<MarketPriceRealtimeRow>(row) || (normalizedAssets?.length && !normalizedAssets.includes(asset))) {
+          if (normalizedAssets?.length && !normalizedAssets.includes(asset)) {
             return;
           }
           onPriceUpdate({ 

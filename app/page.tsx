@@ -166,15 +166,7 @@ export default function Home() {
   useEffect(() => {
     const updateSlidesPerView = () => {
       const nextSlidesPerView = window.innerWidth >= 1280 ? 4 : window.innerWidth >= 768 ? 2 : 1;
-
-      setSlidesPerView((prevSlidesPerView) => {
-        if (prevSlidesPerView === nextSlidesPerView) {
-          return prevSlidesPerView;
-        }
-
-        setCurrentFeatureIndex((prevIndex) => Math.min(prevIndex, Math.max(featureCarouselCards.length - nextSlidesPerView, 0)));
-        return nextSlidesPerView;
-      });
+      setSlidesPerView(nextSlidesPerView);
     };
 
     updateSlidesPerView();
@@ -182,6 +174,10 @@ export default function Home() {
 
     return () => window.removeEventListener("resize", updateSlidesPerView);
   }, []);
+
+  useEffect(() => {
+    setCurrentFeatureIndex((prev) => Math.min(prev, Math.max(featureCarouselCards.length - slidesPerView, 0)));
+  }, [slidesPerView]);
 
   const maxFeatureIndex = Math.max(featureCarouselCards.length - slidesPerView, 0);
 

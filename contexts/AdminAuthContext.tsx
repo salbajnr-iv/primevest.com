@@ -137,15 +137,6 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     },
     [checkAdminStatus, supabase, clearSessionState, redirectToAdminSignIn]
   )
-    if (typeof window === 'undefined' || redirectingRef.current) {
-      return
-    }
-
-    redirectingRef.current = true
-    window.sessionStorage.setItem(SESSION_MESSAGE_KEY, message)
-    const redirect = window.location.pathname.startsWith('/admin/') ? window.location.pathname : '/admin/dashboard'
-    window.location.assign(`/admin/auth/signin?redirect=${encodeURIComponent(redirect)}`)
-  }, [])
 
   const refreshSession = useCallback(async () => {
     const result = await getAuthSession()

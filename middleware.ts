@@ -73,7 +73,10 @@ export async function updateSession(request: NextRequest) {
   try {
     const { data } = await supabase.auth.getUser()
     user = data.user
-  } catch {
+  } catch (err) {
+    // JSON parse errors happen when auth cookies are malformed/truncated.
+    // Treat as unauthenticated rather than crashing the page.
+    console.warn('[middleware] Failed to get user (possibly malformed cookie):', err instanceof Error ? err.message : err)
     if (isAdminRoute) return redirectToAdminSignIn()
     if (isProtectedRoute) return redirectToUserSignIn()
     return response

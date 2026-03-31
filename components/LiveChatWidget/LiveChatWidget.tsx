@@ -149,32 +149,23 @@ export function LiveChatWidget() {
     }
   }, [])
 
-  // Get or create visitor ID from localStorage
-  const getVisitorId = useCallback((): string => {
+  // Get the authenticated user's ID from Supabase — required for RLS on chat tables
+  const getVisitorId = useCallback(async (): Promise<string | null> => {
     if (visitorIdRef.current) return visitorIdRef.current
 
     try {
-      const stored = typeof window !== 'undefined' ? localStorage.getItem('chat_visitor_id') : null
-      if (stored) {
-        visitorIdRef.current = stored
-        return stored
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.id) {
+        visitorIdRef.current = user.id
+        return user.id
       }
+      console.warn('[LiveChat] User not authenticated — chat requires sign-in')
+      return null
     } catch (e) {
-      console.warn('localStorage not available:', e)
+      console.error('[LiveChat] Failed to get authenticated user:', e)
+      return null
     }
-
-    const newId = crypto.randomUUID()
-    try {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('chat_visitor_id', newId)
-      }
-    } catch (e) {
-      console.warn('Failed to save visitor ID:', e)
-    }
-
-    visitorIdRef.current = newId
-    return newId
-  }, [])
+  }, [supabase])
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -307,27 +298,31 @@ export function LiveChatWidget() {
     [supabase]
   )
 
-  // Handle realtime message broadcast
+  // Handle realtime postgres_changes events
   const handleRealtimeMessage = useCallback(
     (event: string, payload: any) => {
       console.log(`[LiveChat] Realtime ${event} event received`, payload)
 
       switch (event) {
         case 'INSERT': {
-          const newMessage = payload.new
-          if (!newMessage) {
+          const newMessage = payload.new as ChatMessage
+          if (!newMessage?.id) {
             console.warn('[LiveChat] INSERT event missing new data', payload)
             return
           }
 
           // Skip if this is our own message (already added optimistically)
           if (newMessage.client_message_id && sentMessageIdsRef.current.has(newMessage.client_message_id)) {
-            console.log('[LiveChat] Skipping duplicate message:', newMessage.client_message_id)
+            // Replace optimistic message with the real DB record (gets a real UUID id)
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.client_message_id === newMessage.client_message_id ? newMessage : m
+              )
+            )
             return
           }
 
-          console.log('[LiveChat] Adding new message:', newMessage.id)
-          // Add message from broadcast (admin or other user)
+          console.log('[LiveChat] Adding new message from DB:', newMessage.id)
           setMessages((prev) => {
             const exists = prev.some((m) => m.id === newMessage.id)
             if (exists) return prev
@@ -337,8 +332,8 @@ export function LiveChatWidget() {
         }
 
         case 'UPDATE': {
-          const updatedMessage = payload.new
-          if (!updatedMessage) {
+          const updatedMessage = payload.new as ChatMessage
+          if (!updatedMessage?.id) {
             console.warn('[LiveChat] UPDATE event missing new data', payload)
             return
           }
@@ -351,8 +346,8 @@ export function LiveChatWidget() {
         }
 
         case 'DELETE': {
-          const deletedMessage = payload.old
-          if (!deletedMessage) {
+          const deletedMessage = payload.old as Partial<ChatMessage>
+          if (!deletedMessage?.id) {
             console.warn('[LiveChat] DELETE event missing old data', payload)
             return
           }
@@ -369,7 +364,7 @@ export function LiveChatWidget() {
     []
   )
 
-  // Subscribe to realtime messages
+  // Subscribe to realtime messages using postgres_changes on chat_messages table
   const subscribeToRealtime = useCallback(
     (convId: string) => {
       // Unsubscribe from previous channel if exists
@@ -378,46 +373,33 @@ export function LiveChatWidget() {
         channelRef.current.unsubscribe()
       }
 
-      console.log('[LiveChat] Subscribing to realtime channel:', `chat:${convId}`)
+      console.log('[LiveChat] Subscribing to postgres_changes for conversation:', convId)
 
-      // Note: The Supabase SSR client automatically handles Realtime auth using the session token.
-      // No manual setAuth() call needed—the session is automatically synced to Realtime.
       const channel = supabase
-        .channel(`chat:${convId}`)
+        .channel(`chat-messages:${convId}`)
         .on(
-          'broadcast',
-          { event: 'INSERT' },
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'chat_messages',
+            filter: `conversation_id=eq.${convId}`,
+          },
           (payload: any) => {
-            console.log('[LiveChat] INSERT broadcast received', payload)
-            handleRealtimeMessage('INSERT', payload)
-          }
-        )
-        .on(
-          'broadcast',
-          { event: 'UPDATE' },
-          (payload: any) => {
-            console.log('[LiveChat] UPDATE broadcast received', payload)
-            handleRealtimeMessage('UPDATE', payload)
-          }
-        )
-        .on(
-          'broadcast',
-          { event: 'DELETE' },
-          (payload: any) => {
-            console.log('[LiveChat] DELETE broadcast received', payload)
-            handleRealtimeMessage('DELETE', payload)
+            console.log('[LiveChat] postgres_changes event:', payload.eventType, payload)
+            handleRealtimeMessage(payload.eventType, payload)
           }
         )
         .subscribe((status: string) => {
           console.log('[LiveChat] Subscription status:', status)
           if (status === 'SUBSCRIBED') {
-            console.log('[LiveChat] ✓ Successfully subscribed to chat channel:', convId)
+            console.log('[LiveChat] ✓ Subscribed to chat_messages postgres_changes for:', convId)
           } else if (status === 'CHANNEL_ERROR') {
             console.error('[LiveChat] ✗ Channel subscription error')
-            setError('Real-time connection failed - check browser console')
+            setError('Real-time connection failed. Please refresh and try again.')
           } else if (status === 'TIMED_OUT') {
             console.error('[LiveChat] ✗ Channel subscription timed out')
-            setError('Real-time connection timed out')
+            setError('Real-time connection timed out. Please refresh.')
           }
         })
 
@@ -436,8 +418,14 @@ export function LiveChatWidget() {
       setLoading(true)
       setIsOpen(true) // Open UI immediately so user sees something
 
-      const userId = getVisitorId()
+      const userId = await getVisitorId()
       console.log('[LiveChat] Visitor ID:', userId)
+
+      if (!userId) {
+        setError('Please sign in to use the chat.')
+        setLoading(false)
+        return
+      }
 
       const convId = await ensureConversationExists(userId)
       console.log('[LiveChat] Conversation ID:', convId)
@@ -476,7 +464,12 @@ export function LiveChatWidget() {
         setIsSending(true)
         setError(null)
 
-        const userId = getVisitorId()
+        const userId = await getVisitorId()
+        if (!userId) {
+          setError('Please sign in to send messages.')
+          return
+        }
+
         const clientMessageId = crypto.randomUUID()
         const pageUrl = typeof window !== 'undefined' ? window.location.href : ''
 
