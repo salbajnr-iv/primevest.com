@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Wallet, ArrowLeftRight, Settings } from "lucide-react";
+import { Icon } from "./Icon";
+import type { IconAction } from "@/lib/ui/icon-config";
 import { useWindowSize } from "@/docs/hooks/useWindowSize";
 import { ROUTES } from "@/lib/routes";
 
 const items = [
-  { href: ROUTES.dashboard.home, label: "Dashboard", Icon: LayoutDashboard },
-  { href: ROUTES.wallets.home, label: "Wallets", Icon: Wallet },
-  { href: ROUTES.wallets.transfer, label: "Transfer", Icon: ArrowLeftRight },
-  { href: ROUTES.settings.home, label: "Settings", Icon: Settings },
+  { href: ROUTES.dashboard.home, label: "Dashboard", iconAction: "dashboard" as IconAction },
+  { href: ROUTES.wallets.home, label: "Wallets", iconAction: "wallet" as IconAction },
+  { href: ROUTES.wallets.transfer, label: "Transfer", iconAction: "transfer" as IconAction },
+  { href: ROUTES.settings.home, label: "Settings", iconAction: "settings" as IconAction },
 ];
 
 interface BottomNavProps {
@@ -44,7 +45,7 @@ export default function BottomNav({ onMenuClick, isMenuActive = false }: BottomN
       ) : null}
 
       <ul className="grid grid-cols-4">
-        {items.map(({ href, label, Icon }) => {
+        {items.map(({ href, label, iconAction }) => {
           const active = pathname?.startsWith(href);
           return (
             <li key={href}>
@@ -54,7 +55,7 @@ export default function BottomNav({ onMenuClick, isMenuActive = false }: BottomN
                   active ? "text-green-700" : "text-gray-500"
                 }`}
               >
-                <Icon size={18} />
+                <Icon action={iconAction} size="sm" color={active ? 'primary' : 'secondary'} />
                 <span>{label}</span>
               </Link>
             </li>
@@ -64,3 +65,4 @@ export default function BottomNav({ onMenuClick, isMenuActive = false }: BottomN
     </nav>
   );
 }
+

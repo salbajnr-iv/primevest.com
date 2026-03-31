@@ -26,5 +26,6 @@
             ]
         }
     },
-    "chatgpt.runCodexInWindowsSubsystemForLinux": true
+    "chatgpt.runCodexInWindowsSubsystemForLinux": true,
+    "sixth.telegram.enabled": true
 }

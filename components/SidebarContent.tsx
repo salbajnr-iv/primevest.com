@@ -4,29 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { Icon } from "./Icon";
+import type { IconAction } from "@/lib/ui/icon-config";
 import ThemeToggle from "./ThemeToggle";
 import { ROUTES } from "@/lib/routes";
-import { BarChart3, DollarSign } from "lucide-react";
-import {
-  AlertCircle,
-  ArrowLeftRight,
-  Headphones,
-  ChevronDown,
-  Compass,
-  Home,
-  LayoutDashboard,
-  LineChart,
-  ListOrdered,
-  MessageCircle,
-  Newspaper,
-  PlusCircle,
-  Search,
-  Settings,
-  ShieldCheck,
-  TrendingUp,
-  Users,
-  Wallet,
-} from "lucide-react";
 
 interface SidebarContentProps {
   onClose: () => void;
@@ -35,53 +16,53 @@ interface SidebarContentProps {
 
 type MenuSection = {
   title: string;
-  items: { icon: React.ComponentType<{ size?: number; className?: string }>; label: string; href: string }[];
+  items: { iconAction: IconAction; label: string; href: string }[];
 };
 
 const menuSections: MenuSection[] = [
   {
     title: "Dashboard Overview",
-    items: [{ icon: Home, label: "Dashboard Home", href: ROUTES.dashboard.home }],
+    items: [{ iconAction: "dashboard-home", label: "Dashboard Home", href: ROUTES.dashboard.home }],
   },
   {
     title: "Portfolio Management",
     items: [
-      { icon: Wallet, label: "My Portfolio", href: ROUTES.dashboard.portfolio },
-      { icon: PlusCircle, label: "Add Funds", href: ROUTES.dashboard.deposit },
-      { icon: ArrowLeftRight, label: "Withdraw Funds", href: ROUTES.wallets.withdraw },
+      { iconAction: "wallet", label: "My Portfolio", href: ROUTES.dashboard.portfolio },
+      { iconAction: "add-funds", label: "Add Funds", href: ROUTES.dashboard.deposit },
+      { iconAction: "withdraw", label: "Withdraw Funds", href: ROUTES.wallets.withdraw },
     ],
   },
     {
       title: "Market Insights",
       items: [
-        { icon: TrendingUp, label: "Market Overview", href: ROUTES.dashboard.market },
-        { icon: BarChart3, label: "Asset Prices", href: "/prices" },
-        { icon: LineChart, label: "Top Gainers and Losers", href: ROUTES.dashboard.gainersLosers },
-        { icon: Newspaper, label: "Market News", href: ROUTES.markets.news },
+        { iconAction: "trending-up", label: "Market Overview", href: ROUTES.dashboard.market },
+        { iconAction: "chart-bar", label: "Asset Prices", href: "/prices" },
+        { iconAction: "chart", label: "Top Gainers and Losers", href: ROUTES.dashboard.gainersLosers },
+        { iconAction: "news", label: "Market News", href: ROUTES.markets.news },
       ],
     },
   {
     title: "Trading Tools",
     items: [
-      { icon: LayoutDashboard, label: "Trade Now", href: ROUTES.dashboard.trade },
-      { icon: ListOrdered, label: "Order History", href: ROUTES.dashboard.orders },
-      { icon: Compass, label: "Trading Strategies", href: ROUTES.dashboard.strategies },
+      { iconAction: "dashboard", label: "Trade Now", href: ROUTES.dashboard.trade },
+      { iconAction: "orders", label: "Order History", href: ROUTES.dashboard.orders },
+      { iconAction: "strategies", label: "Trading Strategies", href: ROUTES.dashboard.strategies },
     ],
   },
   {
     title: "Account Settings",
     items: [
-      { icon: Settings, label: "Profile Settings", href: ROUTES.settings.home },
-      { icon: AlertCircle, label: "Notifications", href: ROUTES.settings.notifications },
-      { icon: ShieldCheck, label: "Security Settings", href: ROUTES.settings.securityKyc },
+      { iconAction: "settings", label: "Profile Settings", href: ROUTES.settings.home },
+      { iconAction: "notification", label: "Notifications", href: ROUTES.settings.notifications },
+      { iconAction: "shield", label: "Security Settings", href: ROUTES.settings.securityKyc },
     ],
   },
   {
     title: "Help and Support",
     items: [
-      { icon: MessageCircle, label: "FAQ", href: ROUTES.support.faqs },
-      { icon: Headphones, label: "Contact Support", href: ROUTES.support.home },
-      { icon: Users, label: "Community Forum", href: ROUTES.support.community },
+      { iconAction: "message", label: "FAQ", href: ROUTES.support.faqs },
+      { iconAction: "support", label: "Contact Support", href: ROUTES.support.home },
+      { iconAction: "community", label: "Community Forum", href: ROUTES.support.community },
     ],
   },
 ];
@@ -144,7 +125,7 @@ export const SidebarContent = React.memo(function SidebarContent({ onClose, isMo
         </div>
 
         <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Icon action="search" size="xs" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -164,7 +145,7 @@ export const SidebarContent = React.memo(function SidebarContent({ onClose, isMo
                 className="w-full px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center justify-between"
               >
                 {section.title}
-                <ChevronDown size={14} className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                <Icon action="expand" size="xs" className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
               </button>
               {isOpen ? (
                 <div>
@@ -177,7 +158,7 @@ export const SidebarContent = React.memo(function SidebarContent({ onClose, isMo
                         onClick={isMobile ? onClose : undefined}
                         className={`mx-2 my-1 flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition-colors ${isActive ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
                       >
-                        <item.icon size={16} />
+                        <Icon action={item.iconAction} size="sm" />
                         {item.label}
                       </Link>
                     );
@@ -195,7 +176,7 @@ export const SidebarContent = React.memo(function SidebarContent({ onClose, isMo
           onClick={handleLogout}
           aria-label="Log out"
         >
-          <ShieldCheck size={15} />
+          <Icon action="shield" size="xs" />
           Log Out
         </button>
       </div>

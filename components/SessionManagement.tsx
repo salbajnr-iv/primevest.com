@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useSessionManager, formatTimeRemaining } from '@/hooks/useSessionManager'
 import { useAuth } from '@/contexts/AuthContext'
-
+import {}
 /**
  * Session Timeout Warning Component
  * 
