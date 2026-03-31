@@ -188,8 +188,7 @@ export function useSupportTicketRepliesRealtime(onReplyInsert: (row: RealtimeRep
           }
         }
       )
-      .subscribe((status: string, err?: any) => {
-        console.log(`Realtime [ledger] status:`, status, 'err:', err);
+      .subscribe((status: string, err?: Error | null) => {\n        console.log(`Realtime [support-ticket-replies${ticketId ? `-${ticketId}` : ''}] status:`, status, 'err:', err);
       });
 
     return () => {
