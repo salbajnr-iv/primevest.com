@@ -293,7 +293,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
               <span className="text-slate-500 text-base font-normal ml-2">today</span>
             </p>
             <div className="flex flex-wrap gap-2 mt-4">
-              <Link href="/trade" className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700">
+              <Link href="/dashboard/trade" className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700">
                 <TrendingUp size={16} />
                 Start Trading
               </Link>
@@ -385,7 +385,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
                 <div className="flex-1 h-3/5 bg-gradient-to-t from-blue-400 to-blue-500 rounded" /> {/* Benchmark */}
               </div>
               <p className="text-xs mt-2 text-slate-500">Sample: +12% vs +8% benchmark (7D)</p>
-              <Link href="/trade" className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-medium text-white hover:bg-emerald-700">
+              <Link href="/dashboard/trade" className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-medium text-white hover:bg-emerald-700">
                 Start Trading Now
               </Link>
             </div>
@@ -415,7 +415,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
             <>
               <EmptyState title="No activity yet" message="Place your first order to unlock your activity feed and exclusive features like advanced analytics." />
               <div className="mt-4 flex flex-col sm:flex-row gap-2">
-                <Link href="/trade" className="flex-1 rounded-xl bg-emerald-600 px-6 py-3 text-center text-sm font-medium text-white shadow-sm hover:bg-emerald-700">
+                <Link href="/dashboard/trade" className="flex-1 rounded-xl bg-emerald-600 px-6 py-3 text-center text-sm font-medium text-white shadow-sm hover:bg-emerald-700">
                   Place First Order
                 </Link>
                 <Link href="/tutorials" className="flex-1 rounded-xl border border-slate-200 px-6 py-3 text-center text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50">
@@ -474,7 +474,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
               <div className="text-center py-8 text-sm text-slate-500">
                 No alerts yet
                 <div className="mt-3">
-                  <Link href="/settings/notifications" className="text-emerald-600 hover:text-emerald-700 font-medium text-xs">Manage preferences →</Link>
+                  <Link href="/notifications" className="text-emerald-600 hover:text-emerald-700 font-medium text-xs">Manage preferences →</Link>
                 </div>
               </div>
             )}
@@ -487,10 +487,10 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
                 <p className="text-emerald-100 text-xs mt-1 opacity-90">Manage all alerts & preferences</p>
               </Link>
               <div className="grid grid-cols-2 gap-2 pt-2">
-                <Link href="/settings/alerts" className="p-3 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 hover:shadow-md transition-all text-xs text-center font-medium text-amber-800">
+                <Link href="/notifications" className="p-3 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 hover:shadow-md transition-all text-xs text-center font-medium text-amber-800">
                   Price Alerts
                 </Link>
-                <Link href="/settings/notifications" className="p-3 rounded-lg bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 hover:shadow-md transition-all text-xs text-center font-medium text-slate-700">
+                <Link href="/settings" className="p-3 rounded-lg bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 hover:shadow-md transition-all text-xs text-center font-medium text-slate-700">
                   Preferences
                 </Link>
               </div>
@@ -561,10 +561,10 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
               </div>
               
               <div className="flex gap-2 pt-2">
-                <Link href="/community/polls" className="flex-1 text-xs bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-xl text-center font-bold text-white shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-700 transition-all">
+                <Link href="/support/community" className="flex-1 text-xs bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-xl text-center font-bold text-white shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-700 transition-all">
                   Vote Now
                 </Link>
-                <Link href="/community" className="flex-1 text-xs border border-slate-200 px-4 py-2 rounded-xl text-center font-medium text-slate-700 hover:bg-slate-50 transition-all">
+                <Link href="/support/community" className="flex-1 text-xs border border-slate-200 px-4 py-2 rounded-xl text-center font-medium text-slate-700 hover:bg-slate-50 transition-all">
                   View Results →
                 </Link>
               </div>
@@ -573,11 +573,11 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
             {/* Quick Actions */}
             <div className="pt-4 border-t border-slate-200">
               <div className="grid grid-cols-2 gap-2">
-                <Link href="/community/forum" className="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border hover:shadow-sm transition-all text-center text-xs">
+                <Link href="/support/community" className="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border hover:shadow-sm transition-all text-center text-xs">
                   <Users size={14} className="mx-auto mb-1 text-blue-600" />
                   Forum
                 </Link>
-                <Link href="/discord" className="p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 border hover:shadow-sm transition-all text-center text-xs">
+                <Link href="https://discord.com" className="p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 border hover:shadow-sm transition-all text-center text-xs">
                   <MessageCircle size={14} className="mx-auto mb-1 text-purple-600" />
                   Discord
                 </Link>
@@ -606,7 +606,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
             
             {/* Quick Links */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              <Link href="/docs/getting-started" className="group p-4 rounded-2xl bg-white border border-slate-200 hover:shadow-xl hover:border-slate-300 transition-all duration-300 hover:-translate-y-1">
+              <Link href="/tutorials" className="group p-4 rounded-2xl bg-white border border-slate-200 hover:shadow-xl hover:border-slate-300 transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
                     <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
