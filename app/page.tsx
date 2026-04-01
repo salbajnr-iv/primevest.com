@@ -175,11 +175,8 @@ export default function Home() {
     return () => window.removeEventListener("resize", updateSlidesPerView);
   }, []);
 
-  useEffect(() => {
-    setCurrentFeatureIndex((prev) => Math.min(prev, Math.max(featureCarouselCards.length - slidesPerView, 0)));
-  }, [slidesPerView]);
-
   const maxFeatureIndex = Math.max(featureCarouselCards.length - slidesPerView, 0);
+  const clampedFeatureIndex = Math.min(currentFeatureIndex, maxFeatureIndex);
 
   const handleTryDemo = () => {
     router.push("/demo");
@@ -546,8 +543,8 @@ style={{ backgroundImage: "url(/herosection.jpg)", backgroundSize: "cover", back
                   type="button"
                   className="nav-btn prev flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label="Previous slide"
-                  disabled={currentFeatureIndex === 0}
-                  onClick={() => setCurrentFeatureIndex((prev) => Math.max(prev - 1, 0))}
+                  disabled={clampedFeatureIndex === 0}
+                  onClick={() => setCurrentFeatureIndex((prev) => Math.max(Math.min(prev, maxFeatureIndex) - 1, 0))}
                 >
                   <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
                 </button>
@@ -555,8 +552,8 @@ style={{ backgroundImage: "url(/herosection.jpg)", backgroundSize: "cover", back
                   type="button"
                   className="nav-btn next flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label="Next slide"
-                  disabled={currentFeatureIndex >= maxFeatureIndex}
-                  onClick={() => setCurrentFeatureIndex((prev) => Math.min(prev + 1, maxFeatureIndex))}
+                  disabled={clampedFeatureIndex >= maxFeatureIndex}
+                  onClick={() => setCurrentFeatureIndex((prev) => Math.min(Math.min(prev, maxFeatureIndex) + 1, maxFeatureIndex))}
                 >
                   <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
                 </button>
@@ -567,7 +564,7 @@ style={{ backgroundImage: "url(/herosection.jpg)", backgroundSize: "cover", back
               <div
                 className="swiper-track flex gap-6 transition-transform duration-500 ease-out"
                 style={{
-                  transform: `translateX(calc(-${currentFeatureIndex} * ((100% - ${(slidesPerView - 1) * 1.5}rem) / ${slidesPerView} + 1.5rem)))`
+                  transform: `translateX(calc(-${clampedFeatureIndex} * ((100% - ${(slidesPerView - 1) * 1.5}rem) / ${slidesPerView} + 1.5rem)))`
                 }}
               >
                 {featureCarouselCards.map((feature) => (
