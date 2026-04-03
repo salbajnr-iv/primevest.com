@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { getUserDisplayName } from "@/lib/utils";
 import ThemeToggle from "./ThemeToggle";
 import { Icon } from "./Icon";
 import { PortfolioSummary } from "@/lib/dashboard/types";
@@ -9,15 +11,15 @@ import { ROUTES } from "@/lib/routes";
 
 interface DashboardHeaderProps {
   summary?: Partial<PortfolioSummary>;
-  userName?: string;
 }
 
 export default function DashboardHeader({ 
   summary,
-  userName: legacyUserName,
 }: DashboardHeaderProps) {
+  const { user } = useAuth();
+
   const resolvedSummary: PortfolioSummary = {
-    userName: summary?.userName ?? legacyUserName ?? "User",
+    userName: summary?.userName ?? getUserDisplayName(user),
     portfolioValue: summary?.portfolioValue ?? 0,
     portfolioChangePct: summary?.portfolioChangePct ?? 0,
     availableBalance: summary?.availableBalance ?? 0,
