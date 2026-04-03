@@ -117,6 +117,10 @@ export const Newspaper = createIcon("Newspaper", [
 ]);
 
 // Security Icons
+export const Shield = createIcon("Shield", [
+  "M12 3l8 4v5c0 5-3.5 9.74-8 11-4.5-1.26-8-6-8-11V7l8-4z"
+]);
+
 export const ShieldCheck = createIcon("ShieldCheck", [
   "M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
 ]);
@@ -311,5 +315,4 @@ export const Grid3x3 = createIcon("Grid3x3", [
   "M2 18h8v-4H2v4Z",
   "M10 18h8v-4h-8v4Z"
 ]);
-
 
