@@ -53,10 +53,12 @@ export async function GET() {
     return NextResponse.json({ ok: true, summary: EMPTY_SUMMARY, marketFreshness });
   }
 
-  // Use full name if available, fallback to email prefix, then fallback to "User"
-  const userName = profile.full_name?.trim() 
+  // Use full name if available, fallback to authenticated user's email prefix, then fallback to "User"
+  const userName = profile.full_name?.trim()
     ? profile.full_name.trim()
-    : profile?.email ? profile.email.split("@")[0] : "User";
+    : user.email
+      ? user.email.split("@")[0]
+      : "User";
   const balance = Number(profile.account_balance ?? 0);
 
   return NextResponse.json({

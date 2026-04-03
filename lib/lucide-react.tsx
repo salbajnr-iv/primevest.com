@@ -57,6 +57,8 @@ export const ArrowLeftRight = createIcon("ArrowLeftRight", [
 ]);
 
 export const ArrowRight = createIcon("ArrowRight", ["M13 7l5 5-5 5"]);
+export const ArrowDown = createIcon("ArrowDown", ["M12 5v14", "m19 12-7 7-7-7"]);
+export const ArrowUp = createIcon("ArrowUp", ["M12 19V5", "m5 12 7-7 7 7"]);
 
 export const TrendingUp = createIcon("TrendingUp", [
   "m15 15-4-4-4 4",
@@ -117,11 +119,19 @@ export const Newspaper = createIcon("Newspaper", [
 ]);
 
 // Security Icons
+export const Shield = createIcon("Shield", [
+  "M12 3l8 4v5c0 5-3.5 9.74-8 11-4.5-1.26-8-6-8-11V7l8-4z"
+]);
+
 export const ShieldCheck = createIcon("ShieldCheck", [
   "M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
 ]);
 
 export const Check = createIcon("Check", ["M20 6L9 17l-5-5"]);
+export const CheckCircle = createIcon("CheckCircle", [
+  "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z",
+  "m9 12 2 2 4-4"
+]);
 
 export const Lock = createIcon("Lock", [
   "M18 8h-1V6a2 2 0 0 0-4 0v2h-1a4 4 0 0 0-4 4v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V12a4 4 0 0 0-4-4z",
@@ -220,11 +230,15 @@ export const Moon = createIcon("Moon", [
   "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
 ]);
 
+export const SunIcon = Sun;
+export const MoonIcon = Moon;
+
 // Additional exported icons from original
 export const ListOrdered = createIcon("ListOrdered", [
   "M11 4H4a1 1 0 0 1 0-2h7a1 1 0 0 1 0 2zm0 4H4a1 1 0 0 1 0-2h7a1 1 0 0 1 0 2zm0 4H4a1 1 0 0 1 0-2h7a1 1 0 0 1 0 2z",
   "M21 6h-2.761a4 4 0 0 0-3.847 3.065L15.761 10H11a1 1 0 0 1 0-2h4.761a2 2 0 0 1 1.923 1.538L19.077 12H21a1 1 0 0 1 0 2h-.077l-.415.828A2 2 0 0 1 18.761 16H14a1 1 0 0 1 0-2h4.761a4 4 0 0 0 3.847-3.065L21.077 14H21a1 1 0 0 1 0-2z"
 ]);
+export const List = ListOrdered;
 
 export const LogOut = createIcon("LogOut", [
   "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4",
@@ -238,12 +252,14 @@ export const Loader2 = createIcon("Loader2", [
   "M15.71 8.71a8 8 0 1 1-11.31 11.31 8 8 0 1 1 11.31-11.31z",
   "M15.71 8.71a8 8 0 1 1-11.31 11.31 8 8 0 1 1 11.31-11.31z"
 ]);
+export const Loader = Loader2;
 
 // Fallback/Additional
 export const CircleHelp = createIcon("CircleHelp", [
   "M12 2a10 10 0 1 0 10 10A10 10 0 0 1 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z",
   "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
 ]);
+export const HelpCircle = CircleHelp;
 
 export const BookOpen = createIcon("BookOpen", [
   "M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z",
@@ -311,5 +327,4 @@ export const Grid3x3 = createIcon("Grid3x3", [
   "M2 18h8v-4H2v4Z",
   "M10 18h8v-4h-8v4Z"
 ]);
-
-
+export const AlignJustify = Grid3x3;
