@@ -100,10 +100,8 @@ function buildEmptyDashboard(userName = "User"): DashboardData {
 }
 
 function mapProfileToSummary(profile: ProfileRowDto | null, notificationCount: number): PortfolioSummary {
-  // Use full name if available, fallback to email prefix, then fallback to "User"
-  const userName = profile?.full_name?.trim() 
-    ? profile.full_name.trim()
-    : profile?.email ? profile.email.split("@")[0] : "User";
+  // Use full name if available, fallback to "User"
+  const userName = profile?.full_name?.trim() ? profile.full_name.trim() : "User";
   const balance = Number(profile?.account_balance ?? 0);
   return {
     userName,

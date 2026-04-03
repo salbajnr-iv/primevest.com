@@ -10,16 +10,18 @@ import { PortfolioSummary } from "@/lib/dashboard/types";
 import { ROUTES } from "@/lib/routes";
 
 interface DashboardHeaderProps {
+  userName?: string;
   summary?: Partial<PortfolioSummary>;
 }
 
 export default function DashboardHeader({ 
+  userName,
   summary,
 }: DashboardHeaderProps) {
   const { user } = useAuth();
 
   const resolvedSummary: PortfolioSummary = {
-    userName: summary?.userName ?? getUserDisplayName(user),
+    userName: summary?.userName ?? userName ?? getUserDisplayName(user),
     portfolioValue: summary?.portfolioValue ?? 0,
     portfolioChangePct: summary?.portfolioChangePct ?? 0,
     availableBalance: summary?.availableBalance ?? 0,
@@ -27,7 +29,7 @@ export default function DashboardHeader({
     notificationCount: summary?.notificationCount ?? 0,
   };
 
-  const userName = resolvedSummary.userName;
+  const displayName = resolvedSummary.userName;
   const portfolioValue = new Intl.NumberFormat('de-DE', { 
     style: 'currency', 
     currency: 'EUR' 
@@ -41,7 +43,7 @@ export default function DashboardHeader({
       <div className="header-left">
         <span className="header-eyebrow">PORTFOLIO</span>
         <div className="header-title">
-          {userName} · Wert
+          {displayName} · Wert
           <span className="status-dot"></span>
         </div>
         <div className="header-summary">
