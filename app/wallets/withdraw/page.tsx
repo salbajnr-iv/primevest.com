@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
-import { ArrowUpRight, Check, Wallet } from "lucide-react";
+import { ArrowRight, Check, Wallet } from "lucide-react";
 import { ErrorState, LoadingButton, LoadingSpinner } from "@/components/ui/LoadingStates";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDashboardSummary } from "@/lib/dashboard/use-dashboard-summary";
@@ -239,7 +239,7 @@ export default function WithdrawPage() {
                 </div>
 
                 <button className="order-button sell" disabled={!canContinue} onClick={() => setStep("review")}>
-                  <ArrowUpRight size={16} style={{ marginRight: 8 }} /> Continue to Review
+<ArrowRight size={16} className="rotate-45" style={{ marginRight: 8 }} /> Continue to Review
                 </button>
               </>
             )}

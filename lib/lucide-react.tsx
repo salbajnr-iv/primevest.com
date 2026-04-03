@@ -297,3 +297,19 @@ export const UserCog = createIcon("UserCog", [
   "M20.71 14.29a3 3 0 0 1 0 4.24 3 3 0 0 1-4.24 0 3 3 0 0 1 0-4.24 3 3 0 0 1 4.24 0z"
 ]);
 
+// Missing icons for error fixes
+export const CalendarRange = createIcon("CalendarRange", [
+  "M8 2.75a.75.75 0 0 1 1.5 0V4h6V2.75a.75.75 0 0 1 1.5 0V4h.5a1 1 0 0 1 1 1v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a1 1 0 0 1 1-1h.5V2.75a.75.75 0 0 1 1.5 0V4h6V2.75Z",
+  "M5 11a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1Z",
+  "M5 15a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-1Z"
+]);
+
+export const Grid3x3 = createIcon("Grid3x3", [
+  "M2 4v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2Z",
+  "M2 10h8V6H2v4Z",
+  "M10 10h8V6h-8v4Z",
+  "M2 18h8v-4H2v4Z",
+  "M10 18h8v-4h-8v4Z"
+]);
+
+

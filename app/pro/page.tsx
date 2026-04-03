@@ -6,7 +6,11 @@ import BottomNav from "@/components/BottomNav";
 import { usePriceSimulation, MarketData, formatPrice, getCoinColor } from "@/lib/hooks/usePriceSimulation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, TrendingDown, Star, Zap, Shield, BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import {
+  Star,
+  Zap,
+  ArrowRight
+} from "@/lib/lucide-react";
 
 const tradingPairs: MarketData[] = [
   { id: "btc-eur", name: "Bitcoin", symbol: "BTC/EUR", price: 43250.00, change24h: 2.45, marketCap: 0, volume24h: 28400000000, high24h: 43800, low24h: 42100, iconSrc: "/btc-logo.png" },
@@ -293,10 +297,10 @@ export default function ProTradingPage() {
                     <div className={`flex items-center gap-1 text-sm font-medium ${
                       pair.change24h >= 0 ? 'text-emerald-600' : 'text-red-600'
                     }`}>
-                      {pair.change24h >= 0 ? (
-                        <ArrowUpRight className="w-4 h-4" />
+{pair.change24h >= 0 ? (
+                        <ArrowRight className="w-4 h-4 rotate-45" />
                       ) : (
-                        <ArrowDownRight className="w-4 h-4" />
+                        <ArrowRight className="w-4 h-4 rotate-[-135deg]" />
                       )}
                       {pair.change24h >= 0 ? '+' : ''}{pair.change24h.toFixed(2)}%
                     </div>
@@ -453,10 +457,10 @@ export default function ProTradingPage() {
                 <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
                   selectedPair.change24h >= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
                 }`}>
-                  {selectedPair.change24h >= 0 ? (
-                    <ArrowUpRight className="w-4 h-4" />
+{selectedPair.change24h >= 0 ? (
+                    <ArrowRight className="w-4 h-4 rotate-45" />
                   ) : (
-                    <ArrowDownRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 rotate-[-135deg]" />
                   )}
                   {selectedPair.change24h >= 0 ? '+' : ''}{selectedPair.change24h.toFixed(2)}% (24h)
                 </div>

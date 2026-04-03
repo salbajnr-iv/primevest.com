@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
-import { ArrowDownRight, Check, Wallet, DollarSign } from "lucide-react";
+import { ArrowRight, Check, Wallet, DollarSign } from "lucide-react";
 
 type DepositMethod = "SEPA" | "CARD";
 
@@ -90,7 +90,7 @@ export default function DepositPage() {
                 </div>
 
                 <button className="order-button buy" disabled={!canContinue} onClick={() => setStep("review")}>
-                  <ArrowDownRight size={16} style={{ marginRight: 8 }} /> Continue to Review
+<ArrowRight size={16} className="rotate-[-135deg]" style={{ marginRight: 8 }} /> Continue to Review
                 </button>
               </>
             )}

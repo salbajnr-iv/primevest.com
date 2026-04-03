@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Button } from "../button";
 import { Input } from "../input";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
@@ -37,7 +37,7 @@ export function ChatInput({ onSend, disabled, placeholder = "Type a message...",
         className="flex-1 min-h-[44px] flex items-center"
       />
       <Button type="submit" size="icon" variant="outline" disabled={!input.trim() || disabled}>
-<ArrowUpRight className="h-4 w-4" />
+<ArrowRight className="h-4 w-4 rotate-45" />
       </Button>
     </form>
   );

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { AlertCircle, ArrowRight, CalendarRange, MessageCircle, TrendingUp, Users } from "lucide-react";
+import { AlertCircle, ArrowRight, CalendarRange, MessageCircle, TrendingUp, Users } from "@/lib/lucide-react";
 
 import KpiGauge from "@/components/dashboard/analytics/KpiGauge";
 import MetricsBarChart from "@/components/dashboard/analytics/MetricsBarChart";

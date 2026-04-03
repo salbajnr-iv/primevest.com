@@ -15,7 +15,7 @@ import {
   LayoutDashboard,
   Wallet,
   Settings,
-  Grid3x3,
+  BarChart3,
   
   // Financial Actions
   ArrowLeftRight,
@@ -27,7 +27,6 @@ import {
   
   // Market & Analytics
   LineChart,
-  BarChart3,
   
   // Notifications & Communication
   AlertCircle,
@@ -43,7 +42,7 @@ import {
   // Support & Help  
   Headphones,
   Users,
-  HelpCircle as HelpCircleIcon,
+  CircleHelp as HelpCircleIcon,
   ListOrdered,
   
   // User & Account
@@ -65,8 +64,10 @@ import {
   RotateCw,
   Sun,
   Moon,
-  type LucideIcon,
-} from 'lucide-react';
+  Grid3x3,
+} from '@/lib/lucide-react';
+
+type LucideIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 
 /**
  * Action types for icon mapping
