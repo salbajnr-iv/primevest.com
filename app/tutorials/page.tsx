@@ -52,6 +52,24 @@ export default function TutorialsPage() {
           <p className="hero-subtitle">Learn how to use PrimeVest with step-by-step video guides</p>
         </section>
 
+        <section className="grid gap-3 px-4 md:grid-cols-3">
+          <div className="dashboard-panel p-4">
+            <p className="text-xs uppercase tracking-wide text-slate-500">Courses</p>
+            <p className="mt-2 text-2xl font-bold text-slate-900">{tutorials.length}</p>
+            <p className="text-xs text-slate-500">Across beginner to advanced levels.</p>
+          </div>
+          <div className="dashboard-panel p-4">
+            <p className="text-xs uppercase tracking-wide text-slate-500">Average lesson</p>
+            <p className="mt-2 text-2xl font-bold text-slate-900">5 min</p>
+            <p className="text-xs text-slate-500">Designed for quick learning sessions.</p>
+          </div>
+          <div className="dashboard-panel p-4">
+            <p className="text-xs uppercase tracking-wide text-slate-500">Learning tracks</p>
+            <p className="mt-2 text-2xl font-bold text-slate-900">{categories.length - 1}</p>
+            <p className="text-xs text-slate-500">Trading, payments, security, and basics.</p>
+          </div>
+        </section>
+
         <div className="market-categories">
           {categories.map((cat) => (
             <button key={cat} className={`category-chip ${activeCategory === cat ? "active" : ""}`} onClick={() => setActiveCategory(cat)}>{cat}</button>
@@ -81,7 +99,7 @@ export default function TutorialsPage() {
 
         <section className="info-section">
           <h3 className="section-title">Need More Help?</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
             <Link href="/support" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: 16, background: "var(--surface-hover)", borderRadius: 12, textDecoration: "none", color: "var(--text)" }}>
               <span style={{ fontWeight: 500 }}>FAQs</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 20, height: 20 }}><polyline points="9 18 15 12 9 6" /></svg>

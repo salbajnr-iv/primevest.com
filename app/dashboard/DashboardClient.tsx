@@ -406,11 +406,36 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
 
       <section className="grid gap-3 xl:grid-cols-3">
         <article className="dashboard-panel p-4 xl:col-span-2">
-          {/* News and Insights moved to MarketInsights */}
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-slate-900">Daily Command Center</h3>
+              <p className="text-xs text-slate-500">The most important actions and account signals, in one place.</p>
+            </div>
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">Updated live</span>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <h4 className="text-sm font-semibold text-slate-900">Your next best move</h4>
+              <p className="mt-1 text-xs text-slate-600">Based on this period, markets with the strongest momentum are highlighted in your trend cards.</p>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <Link href="/dashboard/trade" className="rounded-xl bg-emerald-600 px-3 py-2 text-center text-xs font-semibold text-white hover:bg-emerald-700">Place trade</Link>
+                <Link href="/watchlists" className="rounded-xl border border-slate-200 px-3 py-2 text-center text-xs font-semibold text-slate-700 hover:bg-slate-50">Manage watchlist</Link>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4">
+              <h4 className="text-sm font-semibold text-slate-900">Session overview</h4>
+              <ul className="mt-3 space-y-2 text-xs text-slate-600">
+                <li className="flex items-center justify-between rounded-lg bg-white px-3 py-2"><span>Tracked pairs</span><strong>{dashboardData.topPairs.length}</strong></li>
+                <li className="flex items-center justify-between rounded-lg bg-white px-3 py-2"><span>Active alerts</span><strong>{liveAlerts.length}</strong></li>
+                <li className="flex items-center justify-between rounded-lg bg-white px-3 py-2"><span>Live feed events</span><strong>{liveActivityFeed.length}</strong></li>
+              </ul>
+              <p className="mt-3 text-[11px] font-medium text-slate-500">{formatLastUpdated(freshness.activityUpdatedAt)}</p>
+            </div>
+          </div>
         </article>
 
         <article className="dashboard-panel p-4">
-          <h3 className="font-semibold text-slate-900 mb-3">User Activity Feed</h3>
+          <h3 className="mb-3 font-semibold text-slate-900">User Activity Feed</h3>
 {liveActivityFeed.length === 0 ? (
             <>
               <EmptyState title="No activity yet" message="Place your first order to unlock your activity feed and exclusive features like advanced analytics." />
