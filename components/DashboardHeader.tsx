@@ -12,6 +12,7 @@ import { usePortfolioSummary } from "@/lib/dashboard/hooks";
 
 interface DashboardHeaderProps {
   userName?: string;
+  summary?: PortfolioSummary;
 }
 
 export default function DashboardHeader({ 
