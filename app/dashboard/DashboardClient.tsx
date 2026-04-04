@@ -2,12 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
+/* eslint-disable @next/next/no-img-element */
 import { AlertCircle, ArrowRight, CalendarRange, MessageCircle, TrendingUp, Users } from "@/lib/lucide-react";
 
 import KpiGauge from "@/components/dashboard/analytics/KpiGauge";
 import MetricsBarChart from "@/components/dashboard/analytics/MetricsBarChart";
 import PerformanceLineChart from "@/components/dashboard/analytics/PerformanceLineChart";
 import { MarketInsights } from "@/components/dashboard/MarketInsights";
+import { formatCompact } from "@/lib/utils";
 import DashboardShell from "@/components/dashboard/analytics/DashboardShell";
 import { EmptyState } from "@/components/ui/LoadingStates";
 import type {
@@ -27,11 +29,8 @@ function formatLastUpdated(isoTimestamp: string): string {
   return `Last updated ${new Date(isoTimestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 }
 
-function parsePercentLabel(value: string): number {
-  const normalized = value.replace("%", "").replace(",", "").trim();
-  const parsed = Number.parseFloat(normalized);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
+// function parsePercentLabel(value: string): number {
+
 
 type LiveInsertPayload = {
   new: {
@@ -65,6 +64,16 @@ function getDateRangeInterval(range: DashboardDateRange, now = new Date()): Date
   return { from, to, label: `${from.toLocaleDateString()} - ${to.toLocaleDateString()}` };
 }
 
+type TopCrypto = {
+  id: string;
+  symbol: string;
+  name: string;
+  price: number;
+  change24h: number;
+  marketCap: number;
+  image: string;
+};
+
 export default function DashboardClient({ initialData }: { initialData: DashboardData }) {
   const [range, setRange] = React.useState<DashboardDateRange>("Last 30 days");
   const [dashboardData, setDashboardData] = React.useState(initialData);
@@ -79,6 +88,9 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
   const [metricsState, setMetricsState] = React.useState<DashboardWidgetState>("ready");
   const [performanceState, setPerformanceState] = React.useState<DashboardWidgetState>("ready");
   const [tableState, setTableState] = React.useState<DashboardWidgetState>("ready");
+  const [topCryptos, setTopCryptos] = React.useState<TopCrypto[]>([]);
+  const [topCryptoLoading, setTopCryptoLoading] = React.useState(false);
+
   const activeDateInterval = React.useMemo(() => getDateRangeInterval(range), [range]);
 
   React.useEffect(() => {
@@ -144,7 +156,6 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       lastUpdatedAt: freshness.aggregatesUpdatedAt,
     },
   }), [dashboardData, freshness.aggregatesUpdatedAt, isRangeLoading, kpiState, metricsState, performanceState, range, tableState]);
-
 
   React.useEffect(() => {
     let isCancelled = false;
@@ -242,8 +253,36 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
     };
   }, []);
 
+  // Live top cryptos from CoinGecko
+  React.useEffect(() => {
+    let isCancelled = false;
 
+    async function fetchTopCryptos() {
+      setTopCryptoLoading(true);
+      try {
+        const response = await fetch('/api/crypto/top', { 
+          cache: 'no-store'
+        });
+        const result = await response.json();
+        if (!isCancelled && result.ok) {
+          setTopCryptos(result.data.slice(0, 6));
+        }
+      } catch {
+        // Fallback silent
+      } finally {
+        setTopCryptoLoading(false);
+      }
+    }
 
+    fetchTopCryptos();
+
+    const interval = setInterval(fetchTopCryptos, 60000); // Refresh every 60s
+
+    return () => {
+      isCancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   React.useEffect(() => {
     if (kpiState === "loading") {
@@ -282,8 +321,8 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       <section className="dashboard-panel p-4 md:p-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-<h2 className="text-2xl md:text-3xl font-bold text-slate-900">Analytics Overview</h2>
-        <p className="text-xl font-bold text-slate-900 mt-2 leading-tight">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Analytics Overview</h2>
+            <p className="text-xl font-bold text-slate-900 mt-2 leading-tight">
               Welcome back, <span className="text-emerald-600 block">{dashboardData.portfolioSummary.userName}</span>
             </p>
             <p className="text-2xl font-black text-slate-900 mt-1 mb-4">
@@ -328,31 +367,44 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
       </section>
 
       <section className="grid gap-3 lg:grid-cols-2">
-        <div className="dashboard-panel p-4">
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2"><TrendingUp size={16} className="text-emerald-600" /> Market Trends ({range})</h3>
-              <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700">Live Insights</span>
-            </div>
-            {dashboardData.topPairs.length > 0 ? (
-              <div className="grid grid-cols-2 gap-3 mb-4">
-            {[...dashboardData.topPairs]
-              .sort((a, b) => parsePercentLabel(b.pnl) - parsePercentLabel(a.pnl))
-              .slice(0, 4)
-              .map((pair, i) => (
-                <div key={pair.pair || i} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border">
-                  <span className="text-sm font-medium text-slate-900 truncate">{pair.pair}</span>
-                  <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
-                    parsePercentLabel(pair.pnl) >= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                  }`}>
-                    {pair.pnl}
-                  </span>
-                </div>
-              ))}
+          <div className="dashboard-panel p-6 md:p-8">
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3"><TrendingUp size={20} className="text-emerald-600 dark:text-emerald-400" /> Market Trends (Last 30 days)</h3>
+                <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/50 px-4 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300">Live Insights</span>
+              </div>
+            {topCryptoLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-80 md:h-96 bg-gradient-to-br from-slate-50/80 to-white/80 dark:from-slate-900/50 dark:to-slate-800/50 rounded-2xl p-8 animate-pulse">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="h-20 md:h-24 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+                ))}
+              </div>
+            ) : topCryptos.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-80 md:h-96 overflow-hidden">
+                {topCryptos.map((crypto) => (
+                  <Link key={crypto.id} href={`/trade/${crypto.id}`} className="group p-3 rounded-xl bg-gradient-to-r from-slate-50 to-white border border-slate-200 hover:shadow-md hover:bg-white transition-all hover:-translate-y-0.5">
+                    <div className="flex items-center gap-3">
+                      <img src={crypto.image} alt={crypto.name} className="w-10 h-10 rounded-lg shadow-sm group-hover:scale-105 transition-transform" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline gap-1">
+                          <span className="font-bold text-slate-900 text-sm group-hover:text-emerald-700">{crypto.symbol}</span>
+                          <span className="text-xs text-slate-500">{crypto.name}</span>
+                        </div>
+                        <div className="text-2xl font-black text-slate-900">${crypto.price.toLocaleString()}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-slate-900">${formatCompact(crypto.marketCap)}</div>
+                        <span className={`text-sm font-semibold px-2 py-1 rounded-full ${crypto.change24h >= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                          {crypto.change24h >= 0 ? '+' : ''}{crypto.change24h.toFixed(2)}%
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
               </div>
             ) : (
-              <div className="h-20 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl flex items-center justify-center text-sm text-slate-500">
-                No market data yet. Add watchlist assets to see top movers.
+              <div className="h-48 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl flex items-center justify-center text-sm text-slate-500">
+                Loading market trends...
               </div>
             )}
             <MetricsBarChart {...widgetContract.metricsBarChart} />
@@ -436,7 +488,7 @@ export default function DashboardClient({ initialData }: { initialData: Dashboar
 
         <article className="dashboard-panel p-4">
           <h3 className="mb-3 font-semibold text-slate-900">User Activity Feed</h3>
-{liveActivityFeed.length === 0 ? (
+          {liveActivityFeed.length === 0 ? (
             <>
               <EmptyState title="No activity yet" message="Place your first order to unlock your activity feed and exclusive features like advanced analytics." />
               <div className="mt-4 flex flex-col sm:flex-row gap-2">

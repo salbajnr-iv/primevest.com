@@ -26,17 +26,28 @@ html {
 .dark {
   --dashboard-surface: #0f172a;
   --dashboard-surface-muted: #111827;
-  --dashboard-border: #1f2937;
-  --dashboard-title: #e2e8f0;
+  --dashboard-border: #374151;
+  --dashboard-title: #f8fafc;
   --dashboard-body: #94a3b8;
-  --dashboard-accent: #14b8a6;
+  --dashboard-accent: #10b981;
+  --dashboard-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+:root {
+  --dashboard-shadow: 0 10px 25px -20px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-panel {
   border-radius: 1rem;
   border: 1px solid var(--dashboard-border);
   background: var(--dashboard-surface);
-  box-shadow: 0 10px 25px -20px rgba(15, 23, 42, 0.45);
+  box-shadow: var(--dashboard-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dashboard-panel:hover {
+  box-shadow: var(--dashboard-shadow);
+  transform: translateY(-2px);
 }
 
 .dashboard-panel-muted {

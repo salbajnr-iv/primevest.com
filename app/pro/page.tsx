@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   Star,
-  Zap,
+  /* Zap, */
   ArrowRight
 } from "@/lib/lucide-react";
 
