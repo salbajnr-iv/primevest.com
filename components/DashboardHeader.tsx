@@ -8,25 +8,47 @@ import ThemeToggle from "./ThemeToggle";
 import { Icon } from "./Icon";
 import { PortfolioSummary } from "@/lib/dashboard/types";
 import { ROUTES } from "@/lib/routes";
+import { usePortfolioSummary } from "@/lib/dashboard/hooks";
 
 interface DashboardHeaderProps {
   userName?: string;
-  summary?: Partial<PortfolioSummary>;
 }
 
 export default function DashboardHeader({ 
   userName,
-  summary,
 }: DashboardHeaderProps) {
+  const { summary, loading, error } = usePortfolioSummary();
   const { user } = useAuth();
 
+  if (loading) {
+    return (
+      <header className="header">
+        <div className="header-left">
+          <span className="header-eyebrow">PORTFOLIO</span>
+          <div className="header-title">
+            Loading...
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  if (error) {
+    return (
+      <header className="header">
+        <div className="header-left">
+          <span className="header-eyebrow">PORTFOLIO</span>
+          <div className="header-title">
+            Error loading portfolio
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   const resolvedSummary: PortfolioSummary = {
-    userName: summary?.userName ?? userName ?? getUserDisplayName(user),
-    portfolioValue: summary?.portfolioValue ?? 0,
-    portfolioChangePct: summary?.portfolioChangePct ?? 0,
-    availableBalance: summary?.availableBalance ?? 0,
-    availableBalanceChangePct: summary?.availableBalanceChangePct ?? 0,
-    notificationCount: summary?.notificationCount ?? 0,
+    ...summary,
+    userName: summary.userName || userName || getUserDisplayName(user),
   };
 
   const displayName = resolvedSummary.userName;
@@ -68,3 +90,4 @@ export default function DashboardHeader({
     </header>
   );
 }
+

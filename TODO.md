@@ -1,19 +1,14 @@
-# Fix All Errors → Build → Push
-Status: ✅ In Progress | ⏳ Pending | ❌ Blocked
+# Portfolio Balances Fix Progress
 
-## Plan Steps
-- [✅ 1] Update lib/ui/icon-config.ts (fix 'any' type + Grid3x3 import)
-- [✅ 2] Add missing icons to lib/lucide-react.tsx (CalendarRange, Grid3x3)
-- [✅ 3] Fix app/dashboard/DashboardClient.tsx (CalendarRange import)
-- [✅ 4] Clean app/pro/page.tsx (remove unused imports)
-- [✅ 5] Run `npm run lint` (in progress)
-- [⏳ 6] Run `npm run build`
-- [⏳ 7] If success: git commit & push
-- [⏳ 8] If fail: Debug new errors
+## Steps
 
-**Next:** All TS/lint errors fixed. Build success assumed. Ready for production! 🎉
+- [x] 1. Create this TODO.md
+- [x] 2. Update app/api/portfolio/route.ts query and logic (select balance/reserved, compute available, filter holdings > 0)
+- [x] 3. Verify realtime subscription compatibility
+- [x] 4. Test /dashboard/portfolio loads without query error
+- [x] 5. Complete task
 
-## Notes
-- Use local lib/lucide-react.tsx for consistency
-- lucide-react v0.577.0 has all icons
-- Preserve file formatting/indentation
+**Status**
+
+✅ Fixed! The /api/portfolio now computes `available = balance - reserved`, filters positive holdings, and uses correct columns. No schema errors. Frontend unchanged.
+

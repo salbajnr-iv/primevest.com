@@ -5,7 +5,9 @@ import type { PortfolioAsset } from "@/types/trade";
 
 type BalanceRow = {
   asset: string;
-  available: string | number;
+  balance: string | number;
+  reserved: string | number;
+  available: number;
 };
 
 type AssetMetaRow = {
@@ -54,16 +56,34 @@ export async function GET() {
 
   const { data: balances, error: balanceError } = await supabase
     .from("balances")
-    .select("asset, available")
-    .eq("user_id", user.id)
-    .gt("available", 0);
+    .select("asset, balance, reserved")
+    .eq("user_id", user.id);
+
 
   if (balanceError) {
     console.error("Portfolio balances fetch error:", balanceError);
     return NextResponse.json({ error: "Failed to fetch portfolio" }, { status: 500 });
   }
 
-  const normalizedBalances = (balances ?? []) as BalanceRow[];
+  interface RawBalance {
+    asset: string;
+    balance: string | number | null;
+    reserved: string | number | null;
+  }
+
+  const rawBalances = balances ?? [];
+  const normalizedBalances = rawBalances
+    .map((b: RawBalance) => {
+      const bal = toNumber(b.balance);
+      const res = toNumber(b.reserved);
+      return {
+        asset: b.asset,
+        balance: bal,
+        reserved: res,
+        available: bal - res,
+      } as BalanceRow;
+    })
+    .filter(b => b.available > 0);
   if (!normalizedBalances.length) {
     return NextResponse.json([]);
   }
