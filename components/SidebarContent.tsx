@@ -32,15 +32,15 @@ const menuSections: MenuSection[] = [
       { iconAction: "withdraw", label: "Withdraw Funds", href: ROUTES.wallets.withdraw },
     ],
   },
-    {
-      title: "Market Insights",
-      items: [
-        { iconAction: "trending-up", label: "Market Overview", href: ROUTES.dashboard.market },
-        { iconAction: "chart-bar", label: "Asset Prices", href: "/prices" },
-        { iconAction: "chart", label: "Top Gainers and Losers", href: ROUTES.dashboard.gainersLosers },
-        { iconAction: "news", label: "Market News", href: ROUTES.markets.news },
-      ],
-    },
+  {
+    title: "Market Insights",
+    items: [
+      { iconAction: "trending-up", label: "Market Overview", href: ROUTES.dashboard.market },
+      { iconAction: "chart-bar", label: "Asset Prices", href: "/prices" },
+      { iconAction: "chart", label: "Top Gainers and Losers", href: ROUTES.dashboard.gainersLosers },
+      { iconAction: "news", label: "Market News", href: ROUTES.markets.news },
+    ],
+  },
   {
     title: "Trading Tools",
     items: [
@@ -108,29 +108,29 @@ export const SidebarContent = React.memo(function SidebarContent({ onClose, isMo
 
   return (
     <aside
-      className={`bg-white border-r border-slate-200 overflow-y-auto ${isMobile ? "fixed left-0 top-0 z-50 h-screen w-80 max-w-[88vw] shadow-2xl" : "relative h-[calc(100vh-64px)] w-80 hidden md:block"}`}
+      className={`overflow-y-auto border-r border-[var(--border)] bg-[var(--card)] text-[var(--text)] ${isMobile ? "fixed left-0 top-0 z-50 h-screen w-80 max-w-[88vw] shadow-2xl" : "relative hidden h-[calc(100vh-64px)] w-80 md:block"}`}
       role="navigation"
       aria-label="Main navigation"
     >
-      <div className="p-5 border-b border-slate-200">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-            <span className="text-emerald-700 font-semibold text-lg">{userName.charAt(0).toUpperCase()}</span>
+      <div className="border-b border-[var(--border)] p-5">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--green-soft)]">
+            <span className="text-lg font-semibold text-[var(--green)]">{userName.charAt(0).toUpperCase()}</span>
           </div>
-          <div className="flex-1 min-w-0">
-            <span className="block text-sm font-semibold text-slate-900 truncate">{userName}</span>
-            <span className="block text-xs text-slate-500 truncate">{user?.email || "user@example.com"}</span>
+          <div className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold text-[var(--text)]">{userName}</span>
+            <span className="block truncate text-xs text-[var(--muted)]">{user?.email || "user@example.com"}</span>
           </div>
           <ThemeToggle />
         </div>
 
         <div className="relative">
-          <Icon action="search" size="xs" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Icon action="search" size="xs" className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search features..."
-            className="w-full rounded-xl border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-emerald-500"
+            className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] py-2 pl-9 pr-3 text-sm text-[var(--text)] outline-none transition-colors focus:border-[var(--green)]"
           />
         </div>
       </div>
@@ -142,7 +142,7 @@ export const SidebarContent = React.memo(function SidebarContent({ onClose, isMo
             <div key={section.title} className="mb-2">
               <button
                 onClick={() => toggleSection(section.title)}
-                className="w-full px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center justify-between"
+                className="flex w-full items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]"
               >
                 {section.title}
                 <Icon action="expand" size="xs" className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -156,7 +156,11 @@ export const SidebarContent = React.memo(function SidebarContent({ onClose, isMo
                         key={item.label}
                         href={item.href}
                         onClick={isMobile ? onClose : undefined}
-                        className={`mx-2 my-1 flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition-colors ${isActive ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+                        className={`mx-2 my-1 flex items-center gap-3 rounded-xl border px-3 py-2 text-sm transition-colors ${
+                          isActive
+                            ? "border-[var(--green)] bg-[var(--green-soft)] text-[var(--green)]"
+                            : "border-transparent text-[var(--muted)] hover:border-[var(--border)] hover:bg-[var(--bg-soft)] hover:text-[var(--text)]"
+                        }`}
                       >
                         <Icon action={item.iconAction} size="sm" />
                         {item.label}
@@ -170,9 +174,9 @@ export const SidebarContent = React.memo(function SidebarContent({ onClose, isMo
         })}
       </div>
 
-      <div className="sticky bottom-0 left-0 right-0 p-4 border-t border-slate-200 bg-white space-y-2">
+      <div className="sticky bottom-0 left-0 right-0 space-y-2 border-t border-[var(--border)] bg-[var(--card)] p-4">
         <button
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text)] transition-colors hover:bg-[var(--bg-soft)]"
           onClick={handleLogout}
           aria-label="Log out"
         >
