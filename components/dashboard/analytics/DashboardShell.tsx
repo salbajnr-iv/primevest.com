@@ -38,10 +38,10 @@ export default function DashboardShell({
   return (
     <div className="dashboard-container">
       <div className="dashboard-app">
-        <div className="flex items-start gap-4 lg:gap-6">
+        <div className="dashboard-layout-shell flex items-start gap-4 lg:gap-6">
           <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-2 md:p-3">
             <DashboardHeader summary={summary} />
             <main className={mainClassName ?? "space-y-4 pb-20"}>
               {pageHeader ?? (title ? (
