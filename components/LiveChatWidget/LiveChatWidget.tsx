@@ -8,20 +8,22 @@ import { Card } from '@/components/ui/card'
 import { ChatInput } from '@/components/ui/chat/ChatInput'
 import { MessageBubble } from '@/components/ui/chat/MessageBubble'
 
-import { ChatMessage, RealtimeBroadcastPayload } from './types'
+import { ChatMessage } from './types'
+
+const SUPPORT_QUESTIONS_DATA = [
+  { id: '1', question: 'Need help choosing the right product for your goals?' },
+  { id: '2', question: 'Have questions about deposits, withdrawals, or fees?' },
+  { id: '3', question: 'Need guidance with your PrimeVest account setup?' },
+]
 
 const floatingStyle = `
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-40px); }
-  }
   @keyframes bounce {
     0%, 100% { transform: translateY(0px) scale(1); }
-    50% { transform: translateY(-35px) scale(1.05); }
+    50% { transform: translateY(-10px) scale(1.03); }
   }
   @keyframes pulse-ring {
     0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-    50% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+    50% { box-shadow: 0 0 0 16px rgba(59, 130, 246, 0); }
   }
   @keyframes slideIn {
     from { transform: translateX(100px); opacity: 0; }
@@ -36,7 +38,7 @@ const floatingStyle = `
     to { opacity: 1; transform: scale(1); }
   }
   .animate-float {
-    animation: bounce 2.5s ease-in-out infinite;
+    animation: bounce 3s ease-in-out infinite;
   }
   .animate-pulse-ring {
     animation: pulse-ring 2s infinite;
@@ -70,13 +72,6 @@ export function LiveChatWidget() {
   const sentMessageIdsRef = useRef<Set<string>>(new Set())
 
   const supabase = supabaseRef.current
-
-  // Support questions to display
-  const supportQuestionsData = [
-    { id: '1', question: '🤔 Do you have questions about our services?' },
-    { id: '2', question: '💰 Interested in learning about investment options?' },
-    { id: '3', question: '📱 Need help with your account or platform?' },
-  ]
 
   // Test Supabase connection on component mount
   useEffect(() => {
@@ -120,7 +115,7 @@ export function LiveChatWidget() {
     )
 
     // Show support questions with staggered timing
-    supportQuestionsData.forEach((q, index) => {
+    SUPPORT_QUESTIONS_DATA.forEach((q, index) => {
       timers.push(
         setTimeout(() => {
           setSupportQuestions((prev) => [
@@ -132,7 +127,7 @@ export function LiveChatWidget() {
     })
 
     // Hide each support question after 4 seconds
-    supportQuestionsData.forEach((q, index) => {
+    SUPPORT_QUESTIONS_DATA.forEach((q, index) => {
       timers.push(
         setTimeout(() => {
           setSupportQuestions((prev) =>
@@ -545,9 +540,12 @@ export function LiveChatWidget() {
       {/* Welcome Popup Message */}
       {showPopup && !hidePopup && (
         <div className={`fixed bottom-24 right-4 sm:bottom-32 sm:right-6 z-40 ${hidePopup ? 'animate-slide-out' : 'animate-slide-in'}`}>
-          <div className='bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow-2xl p-4 max-w-xs'>
-            <p className='text-sm font-semibold mb-1'>👋 Welcome to PrimeVest!</p>
-            <p className='text-xs opacity-90'>Need help? Click the chat icon below to talk with our support team</p>
+          <div className='bg-white text-slate-900 rounded-2xl shadow-2xl p-4 max-w-xs border border-slate-200'>
+            <div className='flex items-center gap-2 mb-1'>
+              <span className='inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500' />
+              <p className='text-sm font-semibold'>PrimeVest Support is online</p>
+            </div>
+            <p className='text-xs text-slate-600'>Need help? Click chat to get quick support from our team.</p>
           </div>
         </div>
       )}
@@ -563,7 +561,7 @@ export function LiveChatWidget() {
           >
             <button
               onClick={handleOpen}
-              className='w-full text-left bg-gradient-to-r from-amber-50 to-orange-50 text-gray-800 rounded-lg shadow-lg p-3 hover:shadow-xl hover:from-amber-100 hover:to-orange-100 transition-all text-sm font-medium border border-amber-200 hover:border-amber-300'
+              className='w-full text-left bg-white text-slate-700 rounded-xl shadow-md p-3 hover:shadow-lg hover:bg-slate-50 transition-all text-sm font-medium border border-slate-200'
             >
               {item.question}
             </button>
@@ -575,7 +573,7 @@ export function LiveChatWidget() {
       {!isOpen && (
         <Button
           onClick={handleOpen}
-          className='fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow animate-float animate-pulse-ring z-40 pointer-events-auto'
+          className='fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 animate-float animate-pulse-ring z-40 pointer-events-auto bg-gradient-to-br from-blue-600 to-indigo-600 border border-blue-400/60'
           size='icon'
           aria-label='Open live chat'
         >
@@ -589,14 +587,17 @@ export function LiveChatWidget() {
 
       {/* Chat Modal */}
       {isOpen && (
-        <div className='fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 max-w-sm w-[calc(100vw-1rem)] sm:w-96 animate-slide-in'>
-          <Card className='flex flex-col h-[500px] sm:h-[600px] rounded-lg border shadow-2xl bg-white'>
+        <div className='fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 max-w-sm w-[calc(100vw-1rem)] sm:w-[25rem] animate-slide-in'>
+          <Card className='flex flex-col h-[560px] sm:h-[640px] rounded-2xl border border-slate-200 shadow-2xl bg-white overflow-hidden'>
             {/* Header */}
-            <div className='flex items-center justify-between p-4 border-b bg-background'>
-              <h2 className='text-lg font-semibold'>Live Chat Support</h2>
+            <div className='flex items-center justify-between p-4 border-b border-slate-200 bg-gradient-to-r from-slate-900 to-slate-800 text-white'>
+              <div>
+                <h2 className='text-base font-semibold'>Live Chat Support</h2>
+                <p className='text-xs text-slate-200'>Average response time: under 2 minutes</p>
+              </div>
               <button
                 onClick={handleClose}
-                className='text-gray-400 hover:text-white transition-colors p-1'
+                className='text-slate-300 hover:text-white transition-colors p-1 rounded-md hover:bg-white/10'
                 aria-label='Close chat'
               >
                 <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -619,7 +620,7 @@ export function LiveChatWidget() {
             )}
 
             {/* Messages Container */}
-            <div className='flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50'>
+            <div className='flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-slate-50 to-white'>
               {error && !conversationId ? (
                 <div className='flex items-center justify-center h-full text-center'>
                   <div>
@@ -638,8 +639,14 @@ export function LiveChatWidget() {
                   <p>Loading messages...</p>
                 </div>
               ) : messages.length === 0 ? (
-                <div className='flex items-center justify-center h-full text-muted-foreground text-sm'>
-                  <p>No messages yet. Start the conversation!</p>
+                <div className='flex items-center justify-center h-full text-center'>
+                  <div className='max-w-[18rem]'>
+                    <div className='mx-auto mb-3 h-10 w-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold'>
+                      PV
+                    </div>
+                    <p className='text-slate-900 text-sm font-semibold mb-1'>Welcome to PrimeVest support</p>
+                    <p className='text-slate-500 text-xs'>Tell us what you need and we&apos;ll connect you with the right specialist.</p>
+                  </div>
                 </div>
               ) : (
                 messages.map((msg: ChatMessage) => (
